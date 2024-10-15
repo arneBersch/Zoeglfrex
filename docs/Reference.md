@@ -234,9 +234,9 @@ When no parameter is given, it will delete the selected Cues.
 If a Row is given, it will clear the Intensity and Color of the Row in the selected Cues.
 > [!TIP]
 > You can also delete only the Intensity or Color of a Row: 
-```
-Cue 1 Delete Row 1 Intensity
-```
+> ```
+> Cue 1 Delete Row 1 Intensity
+> ```
 
 ## sACN Output:
 Zöglfrex sends sACN...
