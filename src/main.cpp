@@ -6,7 +6,7 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "mainwindow.h"
+#include "mainwindow/mainwindow.h"
 
 #include <QtWidgets>
 

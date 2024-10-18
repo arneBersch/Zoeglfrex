@@ -11,7 +11,7 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    aboutwindow.cpp \
+    aboutwindow/aboutwindow.cpp \
     cuelistview/cuelistview.cpp \
     cuelistview/cuemodel.cpp \
     cuelistview/dmxengine.cpp \
@@ -27,11 +27,11 @@ SOURCES += \
     kernel/lists/rowlist.cpp \
     kernel/lists/transitionlist.cpp \
     main.cpp \
-    mainwindow.cpp \
+    mainwindow/mainwindow.cpp \
     terminal/terminal.cpp
 
 HEADERS += \
-    aboutwindow.h \
+    aboutwindow/aboutwindow.h \
     cuelistview/cuelistview.h \
     cuelistview/cuemodel.h \
     cuelistview/dmxengine.h \
@@ -46,7 +46,7 @@ HEADERS += \
     kernel/lists/modellist.h \
     kernel/lists/rowlist.h \
     kernel/lists/transitionlist.h \
-    mainwindow.h \
+    mainwindow/mainwindow.h \
     terminal/terminal.h
 
 # Default rules for deployment.
@@ -56,7 +56,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     resources/style.qss \
-    LICENSE
+    resources/licenses.txt
 
 RESOURCES += \
     zoeglfrex.qrc

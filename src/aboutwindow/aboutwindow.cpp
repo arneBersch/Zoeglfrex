@@ -23,7 +23,7 @@ AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : 
 
     QTextEdit *license = new QTextEdit();
     license->setReadOnly(true);
-    QFile licenseFile(":/COPYING");
+    QFile licenseFile(":/resources/license.txt");
     licenseFile.open(QFile::ReadOnly);
     license->setText(licenseFile.readAll());
     layout->addWidget(license);
