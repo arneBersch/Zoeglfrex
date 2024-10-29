@@ -58,14 +58,10 @@ void Terminal::execute(bool clear)
         return;
     }
     int selectionType = command[0];
-    QString response = kernel->execute(command);
+    bool response = kernel->execute(command);
     info(">>> " + promptText(command));
-    if (!response.isEmpty()) {
-        error(response);
-    } else {
-        if (clear) {
-            this->clear();
-        }
+    if (response && clear) {
+        this->clear();
     }
     QMutexLocker locker(kernel->mutex);
     updateInspector(selectionType);
@@ -138,13 +134,9 @@ bool Terminal::execute(QString command) {
             break;
         }
     }
-    QString response = kernel->execute(commandKeys, text);
+    bool response = kernel->execute(commandKeys, text);
     info("file> " + promptText(commandKeys));
-    if (!response.isEmpty()) {
-        error(response);
-        return false;
-    }
-    return true;
+    return response;
 }
 
 void Terminal::info(QString message)

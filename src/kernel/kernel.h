@@ -57,7 +57,7 @@ enum {
 class Kernel {
 public:
     Kernel();
-    QString execute(QList<int> command, QString text = QString());
+    bool execute(QList<int> command, QString text = QString());
     ModelList *models;
     FixtureList *fixtures;
     GroupList *groups;
