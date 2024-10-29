@@ -27,7 +27,7 @@ public:
     void loadRows();
 private:
     Kernel *kernel;
-    QTableView *table;
+    QListView *table;
     QLabel *title;
 };
 

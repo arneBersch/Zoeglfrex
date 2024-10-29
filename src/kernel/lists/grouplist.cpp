@@ -57,7 +57,7 @@ QString GroupList::deleteGroup(QList<QString> ids)
             return "Group can't be deleted because it doesn't exist.";
         }
         Group *group = groups[groupRow];
-        kernel->rows->deleteGroup(group);
+        kernel->cues->deleteGroup(group);
         groups.removeAt(groupRow);
         delete group;
     }

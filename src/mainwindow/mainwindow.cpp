@@ -69,34 +69,34 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     mainColumns->setSizes(QList<int>() << 1000 << 500);
     this->setCentralWidget(mainColumns);
 
-    connect(new QShortcut(QKeySequence(Qt::Key_Plus), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::plus); }); // +
-    connect(new QShortcut(QKeySequence(Qt::Key_Minus), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::minus); }); // -
-    connect(new QShortcut(QKeySequence(Qt::Key_Comma), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::comma); }); // ,
-    connect(new QShortcut(QKeySequence(Qt::Key_Period), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::period); }); // .
-    connect(new QShortcut(QKeySequence(Qt::Key_Slash), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::thru); }); // Thru
-    connect(new QShortcut(QKeySequence(Qt::Key_0), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::zero); }); // 0
-    connect(new QShortcut(QKeySequence(Qt::Key_1), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::one); }); // 1
-    connect(new QShortcut(QKeySequence(Qt::Key_2), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::two); }); // 2
-    connect(new QShortcut(QKeySequence(Qt::Key_3), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::three); }); // 3
-    connect(new QShortcut(QKeySequence(Qt::Key_4), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::four); }); // 4
-    connect(new QShortcut(QKeySequence(Qt::Key_5), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::five); }); // 5
-    connect(new QShortcut(QKeySequence(Qt::Key_6), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::six); }); // 6
-    connect(new QShortcut(QKeySequence(Qt::Key_7), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::seven); }); // 7
-    connect(new QShortcut(QKeySequence(Qt::Key_8), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::eight); }); // 8
-    connect(new QShortcut(QKeySequence(Qt::Key_9), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::nine); }); // 9
-    connect(new QShortcut(QKeySequence(Qt::Key_C), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::color); }); // Color
-    connect(new QShortcut(QKeySequence(Qt::Key_F), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::fixture); }); // Fixture
-    connect(new QShortcut(QKeySequence(Qt::Key_G), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::group); }); // Group
-    connect(new QShortcut(QKeySequence(Qt::Key_I), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::intensity); }); // Intensity
-    connect(new QShortcut(QKeySequence(Qt::Key_M), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::model); }); // Model
-    connect(new QShortcut(QKeySequence(Qt::Key_R), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::row); }); // Row
-    connect(new QShortcut(QKeySequence(Qt::Key_T), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::transition); }); // Transition
-    connect(new QShortcut(QKeySequence(Qt::Key_Q), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::cue); }); // Cue
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_C), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::copyItem); }); // Copy
-    connect(new QShortcut(QKeySequence(Qt::SHIFT| Qt::Key_D), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::deleteItem); }); // Delete
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_L), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::labelItem); }); // Label
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_M), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::moveItem); }); // Move
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_R), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(keys::recordItem); }); // Record
+    connect(new QShortcut(QKeySequence(Qt::Key_Plus), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Plus); }); // +
+    connect(new QShortcut(QKeySequence(Qt::Key_Minus), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Minus); }); // -
+    connect(new QShortcut(QKeySequence(Qt::Key_Asterisk), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Asterisk); }); // ,
+    connect(new QShortcut(QKeySequence(Qt::Key_Comma), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Period); }); // ,
+    connect(new QShortcut(QKeySequence(Qt::Key_Period), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Period); }); // .
+    connect(new QShortcut(QKeySequence(Qt::Key_Slash), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Thru); }); // Thru
+    connect(new QShortcut(QKeySequence(Qt::Key_0), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Zero); }); // 0
+    connect(new QShortcut(QKeySequence(Qt::Key_1), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::One); }); // 1
+    connect(new QShortcut(QKeySequence(Qt::Key_2), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Two); }); // 2
+    connect(new QShortcut(QKeySequence(Qt::Key_3), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Three); }); // 3
+    connect(new QShortcut(QKeySequence(Qt::Key_4), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Four); }); // 4
+    connect(new QShortcut(QKeySequence(Qt::Key_5), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Five); }); // 5
+    connect(new QShortcut(QKeySequence(Qt::Key_6), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Six); }); // 6
+    connect(new QShortcut(QKeySequence(Qt::Key_7), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Seven); }); // 7
+    connect(new QShortcut(QKeySequence(Qt::Key_8), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Eight); }); // 8
+    connect(new QShortcut(QKeySequence(Qt::Key_9), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Nine); }); // 9
+    connect(new QShortcut(QKeySequence(Qt::Key_C), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Color); }); // Color
+    connect(new QShortcut(QKeySequence(Qt::Key_F), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Fixture); }); // Fixture
+    connect(new QShortcut(QKeySequence(Qt::Key_G), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Group); }); // Group
+    connect(new QShortcut(QKeySequence(Qt::Key_I), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Intensity); }); // Intensity
+    connect(new QShortcut(QKeySequence(Qt::Key_M), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Model); }); // Model
+    connect(new QShortcut(QKeySequence(Qt::Key_T), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Transition); }); // Transition
+    connect(new QShortcut(QKeySequence(Qt::Key_Q), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Cue); }); // Cue
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_C), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Copy); }); // Copy
+    connect(new QShortcut(QKeySequence(Qt::SHIFT| Qt::Key_D), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Delete); }); // Delete
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_L), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Label); }); // Label
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_M), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Move); }); // Move
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_R), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Record); }); // Record
     connect(new QShortcut(QKeySequence(Qt::Key_Return), this), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Return key)
     connect(new QShortcut(QKeySequence(Qt::Key_Enter), this), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Keypad Enter key)
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Return), this), &QShortcut::activated, this, [this]{ kernel->terminal->execute(false); }); // Enter Command (via Shift + Return key)
@@ -131,8 +131,13 @@ void MainWindow::openFile() {
         return;
     }
     QTextStream textStream(&file);
-    if (textStream.readLine() != "ZOEGLFREX_00.00.00") {
-        kernel->terminal->error("Can't open file.");
+    QString fileVersion = textStream.readLine();
+    if (fileVersion != "ZOEGLFREX_00.01.00") {
+        if (fileVersion.startsWith("ZOEGLFREX_")) {
+            kernel->terminal->error("Can't open file: Zöglfrex file is not compatible with this version.");
+        } else {
+            kernel->terminal->error("Can't open file: No Zöglfrex file.");
+        }
         return;
     }
     clearKernel();
@@ -159,7 +164,6 @@ void MainWindow::clearKernel() {
     kernel->intensities->deleteIntensity(kernel->intensities->getIds());
     kernel->colors->deleteColor(kernel->colors->getIds());
     kernel->transitions->deleteTransition(kernel->transitions->getIds());
-    kernel->rows->deleteRow(kernel->rows->getIds());
     kernel->cues->deleteCue(kernel->cues->getIds());
 }
 
@@ -242,23 +246,17 @@ void MainWindow::saveFile() {
         fileStream << "t" << transition->id << "L\"" << transition->label << "\"\n";
     }
 
-    for (QString rowId : kernel->rows->getIds()) {
-        Row *row = kernel->rows->getRow(rowId);
-        fileStream << "r" << row->id << "Rg" << row->group->id << "\n";
-        fileStream << "r" << row->id << "L\"" << row->label << "\"\n";
-    }
-
     for (QString cueId : kernel->cues->getIds()) {
         Cue *cue = kernel->cues->getCue(cueId);
         fileStream << "q" << cue->id << "Rt" << cue->transition->id << "\n";
         fileStream << "q" << cue->id << "L\"" << cue->label << "\"\n";
-        for (QString rowId : kernel->rows->getIds()) {
-            Row *row = kernel->rows->getRow(rowId);
-            if (cue->intensities.contains(row)) {
-                fileStream << "q" << cue->id << "Rr" << row->id << "i" << cue->intensities.value(row)->id << "\n";
+        for (QString groupId : kernel->groups->getIds()) {
+            Group *group = kernel->groups->getGroup(groupId);
+            if (cue->intensities.contains(group)) {
+                fileStream << "q" << cue->id << "Rg" << group->id << "i" << cue->intensities.value(group)->id << "\n";
             }
-            if (cue->colors.contains(row)) {
-                fileStream << "q" << cue->id << "Rr" << row->id << "c" << cue->colors.value(row)->id << "\n";
+            if (cue->colors.contains(group)) {
+                fileStream << "q" << cue->id << "Rg" << group->id << "c" << cue->colors.value(group)->id << "\n";
             }
         }
     }

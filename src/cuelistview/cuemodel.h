@@ -16,7 +16,7 @@ struct Cue;
 
 namespace CueModelColumns {
 enum {
-    row,
+    group,
     intensity,
     color,
 };
@@ -33,7 +33,7 @@ public:
     QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
 private:
     Kernel *kernel;
-    QList<QString> rows;
+    QList<QString> groups;
     Cue *currentCue;
 };
 

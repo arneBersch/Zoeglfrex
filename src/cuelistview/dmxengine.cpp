@@ -55,19 +55,19 @@ void DmxEngine::generateDmx() {
         remainingFadeFrames = 40 * fade + 0.5;
         lastCue = kernel->cuelistView->currentCue;
     }
-    for (QString rowId : kernel->rows->getIds()) {
-        Row *row = kernel->rows->getRow(rowId);
-        if (kernel->cuelistView->currentCue->intensities.contains(row)) {
-            float dimmer = kernel->cuelistView->currentCue->intensities.value(row)->dimmer;
+    for (QString groupId : kernel->groups->getIds()) {
+        Group *group = kernel->groups->getGroup(groupId);
+        if (kernel->cuelistView->currentCue->intensities.contains(group)) {
+            float dimmer = kernel->cuelistView->currentCue->intensities.value(group)->dimmer;
             float red = 100.0;
             float green = 100.0;
             float blue = 100.0;
-            if (kernel->cuelistView->currentCue->colors.contains(row)) {
-                red = kernel->cuelistView->currentCue->colors.value(row)->red;
-                green = kernel->cuelistView->currentCue->colors.value(row)->green;
-                blue = kernel->cuelistView->currentCue->colors.value(row)->blue;
+            if (kernel->cuelistView->currentCue->colors.contains(group)) {
+                red = kernel->cuelistView->currentCue->colors.value(group)->red;
+                green = kernel->cuelistView->currentCue->colors.value(group)->green;
+                blue = kernel->cuelistView->currentCue->colors.value(group)->blue;
             }
-            for (Fixture *fixture : row->group->fixtures) {
+            for (Fixture *fixture : group->fixtures) {
                 QString channels = fixture->model->channels;
                 for (int channel = fixture->address; channel < (fixture->address + channels.size()); channel++) {
                     uint8_t raw = 0;

@@ -24,7 +24,6 @@ SOURCES += \
     kernel/lists/grouplist.cpp \
     kernel/lists/intensitylist.cpp \
     kernel/lists/modellist.cpp \
-    kernel/lists/rowlist.cpp \
     kernel/lists/transitionlist.cpp \
     main.cpp \
     mainwindow/mainwindow.cpp \
@@ -44,7 +43,6 @@ HEADERS += \
     kernel/lists/grouplist.h \
     kernel/lists/intensitylist.h \
     kernel/lists/modellist.h \
-    kernel/lists/rowlist.h \
     kernel/lists/transitionlist.h \
     mainwindow/mainwindow.h \
     terminal/terminal.h

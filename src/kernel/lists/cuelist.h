@@ -14,15 +14,15 @@
 class Kernel;
 struct Intensity;
 struct Color;
-struct Row;
+struct Group;
 struct Transition;
 
 struct Cue {
     QString id;
     QString label;
     Transition* transition;
-    QMap<Row*, Intensity*> intensities;
-    QMap<Row*, Color*> colors;
+    QMap<Group*, Intensity*> intensities;
+    QMap<Group*, Color*> colors;
 };
 
 namespace CueListColumns {
@@ -41,17 +41,17 @@ public:
     int getCueRow(QString id);
     QString copyCue(QList<QString> ids, QString targetId);
     QString deleteCue(QList<QString> ids);
-    QString deleteCueRowIntensity(QList<QString> ids, QString rowId);
-    QString deleteCueRowColor(QList<QString> ids, QString rowId);
+    QString deleteCueGroupIntensity(QList<QString> ids, QString groupId);
+    QString deleteCueGroupColor(QList<QString> ids, QString groupId);
     void deleteIntensity(Intensity *intensity);
     void deleteColor(Color *color);
     void deleteTransition(Transition *transition);
-    void deleteRow(Row *row);
+    void deleteGroup(Group *group);
     QString labelCue(QList<QString> ids, QString label);
     QString moveCue(QList<QString> ids, QString targetId);
     QString recordCueTransition(QList<QString> ids, QString transitionId);
-    QString recordCueIntensity(QList<QString> ids, QString rowId, QString intensityId);
-    QString recordCueColor(QList<QString> ids, QString rowId, QString colorId);
+    QString recordCueIntensity(QList<QString> ids, QString groupId, QString intensityId);
+    QString recordCueColor(QList<QString> ids, QString groupId, QString colorId);
     QList<QString> getIds();
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;

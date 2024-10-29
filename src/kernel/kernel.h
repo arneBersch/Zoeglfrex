@@ -17,42 +17,40 @@
 #include "kernel/lists/intensitylist.h"
 #include "kernel/lists/colorlist.h"
 #include "kernel/lists/transitionlist.h"
-#include "kernel/lists/rowlist.h"
 #include "kernel/lists/cuelist.h"
 #include "terminal/terminal.h"
 #include "inspector/inspector.h"
 #include "cuelistview/cuelistview.h"
 
-namespace keys {
+namespace Keys {
 enum {
-    zero, // 0
-    one, // 1
-    two, // 2
-    three, // 3
-    four, // 4
-    five, // 5
-    six, // 6
-    seven, // 7
-    eight, // 8
-    nine, // 9
-    plus, // +
-    minus, // -
-    period, // .
-    comma, // ,
-    thru, // /
-    model, // M
-    fixture, // F
-    group, // G
-    intensity, // I
-    color, // C
-    transition, // T
-    cue, // C
-    row, // R
-    copyItem, // SHIFT C
-    deleteItem, // SHIFT D
-    labelItem, // SHIFT L
-    moveItem, // SHIFT M
-    recordItem, // SHIFT R
+    Zero, // 0
+    One, // 1
+    Two, // 2
+    Three, // 3
+    Four, // 4
+    Five, // 5
+    Six, // 6
+    Seven, // 7
+    Eight, // 8
+    Nine, // 9
+    Plus, // +
+    Minus, // -
+    Period, // .
+    Asterisk, // *
+    Thru, // /
+    Model, // M
+    Fixture, // F
+    Group, // G
+    Intensity, // I
+    Color, // C
+    Transition, // T
+    Cue, // Q
+    Copy, // SHIFT C
+    Delete, // SHIFT D
+    Label, // SHIFT L
+    Move, // SHIFT M
+    Record, // SHIFT R
 };
 }
 
@@ -66,7 +64,6 @@ public:
     IntensityList *intensities;
     ColorList *colors;
     TransitionList *transitions;
-    RowList *rows;
     CueList *cues;
     Terminal *terminal;
     Inspector *inspector;

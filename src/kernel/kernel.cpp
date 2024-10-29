@@ -15,7 +15,6 @@ Kernel::Kernel() {
     intensities = new IntensityList(this);
     colors = new ColorList(this);
     transitions = new TransitionList(this);
-    rows = new RowList(this);
     cues = new CueList(this);
     terminal = new Terminal(this);
     inspector = new Inspector(this);
@@ -64,27 +63,25 @@ QString Kernel::execute(QList<int> command, QString text) {
     for (QList<int> operation : operations) {
         int operationType = operation[0];
         operation.removeFirst();
-        if (operationType == keys::copyItem) { // COPY
+        if (operationType == Keys::Copy) { // COPY
             QString targetId = keysToId(operation);
             if (targetId.isEmpty()) {
                 return "Target ID not valid.";
             }
             QString result;
-            if (selectionType == keys::model) { // COPY MODEL
+            if (selectionType == Keys::Model) { // COPY MODEL
                 result = models->copyModel(ids, targetId);
-            } else if (selectionType == keys::fixture) { // COPY FIXTURE
+            } else if (selectionType == Keys::Fixture) { // COPY FIXTURE
                 result = fixtures->copyFixture(ids, targetId);
-            } else if (selectionType == keys::group) { // COPY GROUP
+            } else if (selectionType == Keys::Group) { // COPY GROUP
                 result = groups->copyGroup(ids, targetId);
-            } else if (selectionType == keys::intensity) { // COPY INTENSITY
+            } else if (selectionType == Keys::Intensity) { // COPY INTENSITY
                 result = intensities->copyIntensity(ids, targetId);
-            } else if (selectionType == keys::color) { // COPY COLOR
+            } else if (selectionType == Keys::Color) { // COPY COLOR
                 result = colors->copyColor(ids, targetId);
-            } else if (selectionType == keys::transition) { // COPY TRANSITION
+            } else if (selectionType == Keys::Transition) { // COPY TRANSITION
                 result = transitions->copyTransition(ids, targetId);
-            } else if (selectionType == keys::row) { // COPY ROW
-                result = rows->copyRow(ids, targetId);
-            } else if (selectionType == keys::cue) { // COPY CUE
+            } else if (selectionType == Keys::Cue) { // COPY CUE
                 result = cues->copyCue(ids, targetId);
             } else {
                 return "Unknown item type.";
@@ -92,62 +89,60 @@ QString Kernel::execute(QList<int> command, QString text) {
             if (!result.isEmpty()) { // if the operation failed
                 return result;
             }
-        } else if (operationType == keys::deleteItem) { // DELETE
-            if (!operation.isEmpty() && !(selectionType ==  keys::cue)) {
+        } else if (operationType == Keys::Delete) { // DELETE
+            if (!operation.isEmpty() && !(selectionType ==  Keys::Cue)) {
                 return "Delete doesn't take any parameters.";
             }
             QString result;
-            if (selectionType == keys::model) { // DELETE MODEL
+            if (selectionType == Keys::Model) { // DELETE MODEL
                 result = models->deleteModel(ids);
-            } else if (selectionType == keys::fixture) { // DELETE FIXTURE
+            } else if (selectionType == Keys::Fixture) { // DELETE FIXTURE
                 result = fixtures->deleteFixture(ids);
-            } else if (selectionType == keys::group) { // DELETE GROUP
+            } else if (selectionType == Keys::Group) { // DELETE GROUP
                 result = groups->deleteGroup(ids);
-            } else if (selectionType == keys::intensity) { // DELETE INTENSITY
+            } else if (selectionType == Keys::Intensity) { // DELETE INTENSITY
                 result = intensities->deleteIntensity(ids);
-            } else if (selectionType == keys::color) { // DELETE COLOR
+            } else if (selectionType == Keys::Color) { // DELETE COLOR
                 result = colors->deleteColor(ids);
-            } else if (selectionType == keys::transition) { // DELETE TRANSITION
+            } else if (selectionType == Keys::Transition) { // DELETE TRANSITION
                 result = transitions->deleteTransition(ids);
-            } else if (selectionType == keys::row) { // DELETE ROW
-                result = rows->deleteRow(ids);
-            } else if (selectionType == keys::cue) { // DELETE CUE
+            } else if (selectionType == Keys::Cue) { // DELETE CUE
                 if (operation.isEmpty()) {
                     result = cues->deleteCue(ids);
                 } else {
-                    if (operation[0] != keys::row) {
-                        return "Delete Transition takes either no parameters or a row.";
+                    if (operation[0] != Keys::Group) {
+                        return "Delete Cue takes either no parameters or a Group.";
                     }
                     operation.removeFirst();
                     bool intensityDelete = false;
                     bool colorDelete = false;
-                    QList<int> rowSelection;
+                    QList<int> groupSelection;
                     for (int key : operation) {
-                        if (isNumber(key) || key == keys::period) {
+                        if (isNumber(key) || key == Keys::Period) {
                             if (intensityDelete || colorDelete) {
-                                return "Can't delete Transition Row: No IDs are permitted after Intensity or Color.";
+                                return "Can't delete Cue Group: No IDs are permitted after Intensity or Color.";
                             }
-                            rowSelection.append(key);
-                        } else if (key == keys::intensity) {
+                            groupSelection.append(key);
+                        } else if (key == Keys::Intensity) {
                             intensityDelete = true;
-                        } else if (key == keys::color) {
+                        } else if (key == Keys::Color) {
                             colorDelete = true;
                         } else {
-                            return "Can't delete Transition Row: Unknown key entered.";
+                            return "Can't delete Cue Group: Invalid key entered.";
                         }
                     }
-                    QString rowId = keysToId(rowSelection);
-                    if (rowId.isEmpty()) {
-                        return "Can't delete Transition Row: No valid Row ID given.";
+                    QString groupId = keysToId(groupSelection);
+                    if (groupId.isEmpty()) {
+                        return "Can't delete Cue Group: No valid Group ID given.";
                     }
                     if (intensityDelete || (!(intensityDelete || colorDelete))) {
-                        QString result = cues->deleteCueRowIntensity(ids, rowId);
+                        QString result = cues->deleteCueGroupIntensity(ids, groupId);
                         if (!result.isEmpty()) {
                             return result;
                         }
                     }
                     if (colorDelete || (!(intensityDelete || colorDelete))) {
-                        QString result = cues->deleteCueRowColor(ids, rowId);
+                        QString result = cues->deleteCueGroupColor(ids, groupId);
                         if (!result.isEmpty()) {
                             return result;
                         }
@@ -159,7 +154,7 @@ QString Kernel::execute(QList<int> command, QString text) {
             if (!result.isEmpty()) { // if the operation failed
                 return result;
             }
-        } else if (operationType == keys::labelItem) { // LABEL
+        } else if (operationType == Keys::Label) { // LABEL
             if (!operation.isEmpty()) {
                 return "Label doesn't take any parameters.";
             }
@@ -175,21 +170,19 @@ QString Kernel::execute(QList<int> command, QString text) {
             }
             label.replace("\"", "");
             QString result;
-            if (selectionType == keys::model) { // LABEL MODEL
+            if (selectionType == Keys::Model) { // LABEL MODEL
                 result = models->labelModel(ids, label);
-            } else if (selectionType == keys::fixture) { // LABEL FIXTURE
+            } else if (selectionType == Keys::Fixture) { // LABEL FIXTURE
                 result = fixtures->labelFixture(ids, label);
-            } else if (selectionType == keys::group) { // LABEL GROUP
+            } else if (selectionType == Keys::Group) { // LABEL GROUP
                 result = groups->labelGroup(ids, label);
-            } else if (selectionType == keys::intensity) { // LABEL INTENSITY
+            } else if (selectionType == Keys::Intensity) { // LABEL INTENSITY
                 result = intensities->labelIntensity(ids, label);
-            } else if (selectionType == keys::color) { // LABEL COLOR
+            } else if (selectionType == Keys::Color) { // LABEL COLOR
                 result = colors->labelColor(ids, label);
-            } else if (selectionType == keys::transition) { // LABEL TRANSITION
+            } else if (selectionType == Keys::Transition) { // LABEL TRANSITION
                 result = transitions->labelTransition(ids, label);
-            } else if (selectionType == keys::row) { // LABEL ROW
-                result = rows->labelRow(ids, label);
-            } else if (selectionType == keys::cue) { // LABEL CUE
+            } else if (selectionType == Keys::Cue) { // LABEL CUE
                 result = cues->labelCue(ids, label);
             } else {
                 return "Unknown item type.";
@@ -197,27 +190,25 @@ QString Kernel::execute(QList<int> command, QString text) {
             if (!result.isEmpty()) { // if the operation failed
                 return result;
             }
-        } else if (operationType == keys::moveItem) { // MOVE
+        } else if (operationType == Keys::Move) { // MOVE
             QString targetId = keysToId(operation);
             if (targetId.isEmpty()) {
                 return "Target ID not valid.";
             }
             QString result;
-            if (selectionType == keys::model) { // MOVE MODEL
+            if (selectionType == Keys::Model) { // MOVE MODEL
                 result = models->moveModel(ids, targetId);
-            } else if (selectionType == keys::fixture) { // MOVE FIXTURE
+            } else if (selectionType == Keys::Fixture) { // MOVE FIXTURE
                 result = fixtures->moveFixture(ids, targetId);
-            } else if (selectionType == keys::group) { // MOVE GROUP
+            } else if (selectionType == Keys::Group) { // MOVE GROUP
                 result = groups->moveGroup(ids, targetId);
-            } else if (selectionType == keys::intensity) { // MOVE INTENSITY
+            } else if (selectionType == Keys::Intensity) { // MOVE INTENSITY
                 result = intensities->moveIntensity(ids, targetId);
-            } else if (selectionType == keys::color) { // MOVE COLOR
+            } else if (selectionType == Keys::Color) { // MOVE COLOR
                 result = colors->moveColor(ids, targetId);
-            } else if (selectionType == keys::transition) { // MOVE TRANSITION
+            } else if (selectionType == Keys::Transition) { // MOVE TRANSITION
                 result = transitions->moveTransition(ids, targetId);
-            } else if (selectionType == keys::row) { // MOVE ROW
-                result = rows->moveRow(ids, targetId);
-            } else if (selectionType == keys::cue) { // MOVE CUE
+            } else if (selectionType == Keys::Cue) { // MOVE CUE
                 result = cues->moveCue(ids, targetId);
             } else {
                 return "Unknown item type.";
@@ -225,8 +216,8 @@ QString Kernel::execute(QList<int> command, QString text) {
             if (!result.isEmpty()) { // if the operation failed
                 return result;
             }
-        } else if (operationType == keys::recordItem) { // RECORD
-            if (selectionType == keys::model) { // RECORD MODEL
+        } else if (operationType == Keys::Record) { // RECORD
+            if (selectionType == Keys::Model) { // RECORD MODEL
                 if (!operation.isEmpty()) {
                     return "Record Model doesn't take any parameters.";
                 }
@@ -244,7 +235,7 @@ QString Kernel::execute(QList<int> command, QString text) {
                 if (!result.isEmpty()) {
                     return result;
                 }
-            } else if (selectionType == keys::fixture) { // RECORD FIXTURE
+            } else if (selectionType == Keys::Fixture) { // RECORD FIXTURE
                 if (operation.isEmpty()) {
                     return "Record Fixture requires arguments.";
                 }
@@ -252,7 +243,7 @@ QString Kernel::execute(QList<int> command, QString text) {
                 QList<int> model;
                 bool addressFinished = false;
                 for (int key : operation) {
-                    if (isNumber(key) || key == keys::period) {
+                    if (isNumber(key) || key == Keys::Period) {
                         if (!addressFinished) {
                             if (!isNumber(key)) {
                                 return "DMX Address only allows numbers as input";
@@ -261,7 +252,7 @@ QString Kernel::execute(QList<int> command, QString text) {
                         } else {
                             model.append(key);
                         }
-                    } else if (key == keys::model) {
+                    } else if (key == Keys::Model) {
                         if (addressFinished) {
                             return "Record Fixture only takes one Model";
                         }
@@ -285,12 +276,12 @@ QString Kernel::execute(QList<int> command, QString text) {
                         return result;
                     }
                 }
-            } else if (selectionType == keys::group) { // RECORD GROUP
+            } else if (selectionType == Keys::Group) { // RECORD GROUP
                 QString result;
                 if (operation.isEmpty()) {
                     result = groups->recordGroupFixtures(ids, QList<QString>());
                 } else {
-                    if (operation[0] != keys::fixture) {
+                    if (operation[0] != Keys::Fixture) {
                         return "Can't record Group because no Fixtures were given.";
                     }
                     operation.removeFirst();
@@ -303,7 +294,7 @@ QString Kernel::execute(QList<int> command, QString text) {
                 if (!result.isEmpty()) {
                     return result;
                 }
-            } else if (selectionType == keys::intensity) { // RECORD INTENSITY
+            } else if (selectionType == Keys::Intensity) { // RECORD INTENSITY
                 if (operation.isEmpty()) {
                     return "Record Intensity requires arguments.";
                 }
@@ -319,7 +310,7 @@ QString Kernel::execute(QList<int> command, QString text) {
                         }
                     }
                 }
-            } else if (selectionType == keys::color) { // RECORD COLOR
+            } else if (selectionType == Keys::Color) { // RECORD COLOR
                 if (operation.isEmpty()) {
                     return "Record Color requires arguments.";
                 }
@@ -351,7 +342,7 @@ QString Kernel::execute(QList<int> command, QString text) {
                         }
                     }
                 }
-            } else if (selectionType == keys::transition) { // RECORD TRANSITION
+            } else if (selectionType == Keys::Transition) { // RECORD TRANSITION
                 if (operation.isEmpty()) {
                     return "Record Transition requires arguments.";
                 }
@@ -367,27 +358,11 @@ QString Kernel::execute(QList<int> command, QString text) {
                         }
                     }
                 }
-            } else if (selectionType == keys::row) { // RECORD ROW
-                if (operation.isEmpty()) {
-                    return "Record Row requires an argument.";
-                }
-                if (operation[0] != keys::group) {
-                    return "Record Row requires a group.";
-                }
-                operation.removeFirst();
-                QString groupId = keysToId(operation);
-                if (groupId.isEmpty()) {
-                    return "Group ID not valid.";
-                }
-                QString result = rows->recordRowGroup(ids, groupId);
-                if (!result.isEmpty()) {
-                    return result;
-                }
-            } else if (selectionType == keys::cue) { // RECORD CUE
+            } else if (selectionType == Keys::Cue) { // RECORD CUE
                 if (operation.isEmpty()) {
                     return "Record Cue requires an argument.";
                 }
-                if (operation[0] == keys::transition) {
+                if (operation[0] == Keys::Transition) {
                     operation.removeFirst();
                     QString transitionId = keysToId(operation);
                     if (transitionId.isEmpty()) {
@@ -397,28 +372,28 @@ QString Kernel::execute(QList<int> command, QString text) {
                     if (!result.isEmpty()) {
                         return result;
                     }
-                } else if (operation[0] == keys::row) {
+                } else if (operation[0] == Keys::Group) {
                     operation.removeFirst();
-                    operation.append(keys::intensity);
+                    operation.append(Keys::Intensity);
                     QString intensityId;
                     QString colorId;
-                    QString rowId;
-                    int lastItem = keys::row;
+                    QString groupId;
+                    int lastItem = Keys::Group;
                     QList<int> selection;
                     for (int key : operation) {
-                        if (isNumber(key) || key == keys::period) {
+                        if (isNumber(key) || key == Keys::Period) {
                             selection.append(key);
-                        } else if (key == keys::intensity || key == keys::color) {
+                        } else if (key == Keys::Intensity || key == Keys::Color) {
                             QString selectionId = keysToId(selection);
                             if (selectionId.isEmpty()) {
                                 return "Invalid values given to Record Cue.";
                             }
                             selection.clear();
-                            if (lastItem == keys::row) {
-                                rowId = selectionId;
-                            } else if (lastItem == keys::intensity) {
+                            if (lastItem == Keys::Group) {
+                                groupId = selectionId;
+                            } else if (lastItem == Keys::Intensity) {
                                 intensityId = selectionId;
-                            } else if (lastItem == keys::color) {
+                            } else if (lastItem == Keys::Color) {
                                 colorId = selectionId;
                             } else {
                                 return "Invalid values given to Record Cue.";
@@ -428,23 +403,23 @@ QString Kernel::execute(QList<int> command, QString text) {
                             return "Invalid values given to Record Cue.";
                         }
                     }
-                    if (rowId.isEmpty()) {
-                        return "No row specified.";
+                    if (groupId.isEmpty()) {
+                        return "No Group specified.";
                     }
                     if (!intensityId.isEmpty()) {
-                        QString result = cues->recordCueIntensity(ids, rowId, intensityId);
+                        QString result = cues->recordCueIntensity(ids, groupId, intensityId);
                         if (!result.isEmpty()) {
                             return result;
                         }
                     }
                     if (!colorId.isEmpty()) {
-                        QString result = cues->recordCueColor(ids, rowId, colorId);
+                        QString result = cues->recordCueColor(ids, groupId, colorId);
                         if (!result.isEmpty()) {
                             return result;
                         }
                     }
                 } else {
-                    return "Record Cue needs either a Row or a Transition as first argument.";
+                    return "Record Cue needs either a Group or a Transition as first argument.";
                 }
             } else {
                 return "Unknown item type.";
@@ -463,7 +438,7 @@ QString Kernel::keysToId(QList<int> keys)
     for (const int key : keys) {
         if (isNumber(key)){
             id += QString::number(keyToNumber(key));
-        } else if (key == keys::period) {
+        } else if (key == Keys::Period) {
             id += ".";
         } else {
             return QString();
@@ -480,18 +455,18 @@ QString Kernel::keysToId(QList<int> keys)
 
 QList<float> Kernel::keysToValue(QList<int> keys)
 {
-    keys.append(keys::comma);
+    keys.append(Keys::Plus);
     QList<float> values;
     QString value;
     for (const int key : keys) {
         if (isNumber(key)) {
             value += QString::number(keyToNumber(key));
-        } else if (key == keys::period) {
+        } else if (key == Keys::Period) {
             if (value.contains(".")) {
                 return QList<float>();
             }
             value += ".";
-        } else if (key == keys::comma) {
+        } else if (key == Keys::Plus) {
             if (value.isEmpty()) {
                 values.append(-999);
             } else {
@@ -516,15 +491,15 @@ QList<QString> Kernel::keysToSelection(QList<int> keys)
     if (keys.isEmpty()) {
         return QList<QString>();
     }
-    if (!keys.endsWith(keys::comma)) {
-        keys.append(keys::comma);
+    if (!keys.endsWith(Keys::Plus)) {
+        keys.append(Keys::Plus);
     }
     QList<QString> ids;
     QList<int> idKeys;
     for (int key : keys) {
-        if (isNumber(key) || key == keys::period) {
+        if (isNumber(key) || key == Keys::Period) {
             idKeys += key;
-        } else if (key == keys::comma) {
+        } else if (key == Keys::Plus) {
             QString id = keysToId(idKeys);
             if (id.isEmpty()) {
                 return QList<QString>();
@@ -540,40 +515,65 @@ QList<QString> Kernel::keysToSelection(QList<int> keys)
 
 bool Kernel::isItem(int key)
 {
-    return ((key == keys::model) || (key == keys::fixture) || (key == keys::group) || (key == keys::intensity) || (key == keys::color) || (key == keys::transition) || (key == keys::row) || (key == keys::cue));
+    return (
+        (key == Keys::Model) ||
+        (key == Keys::Fixture) ||
+        (key == Keys::Group) ||
+        (key == Keys::Intensity) ||
+        (key == Keys::Color) ||
+        (key == Keys::Transition) ||
+        (key == Keys::Cue)
+    );
 }
 
 bool Kernel::isOperator(int key)
 {
-    return ((key == keys::copyItem) || (key == keys::deleteItem) || (key == keys::labelItem) || (key == keys::moveItem) || (key == keys::recordItem));
+    return (
+        (key == Keys::Copy) ||
+        (key == Keys::Delete) ||
+        (key == Keys::Label) ||
+        (key == Keys::Move) ||
+        (key == Keys::Record)
+        );
 }
 
 bool Kernel::isNumber(int key)
 {
-    return ((key == keys::zero) || (key == keys::one) || (key == keys::two) || (key == keys::three) || (key == keys::four) || (key == keys::five) || (key == keys::six) || (key == keys::seven) || (key == keys::eight) || (key == keys::nine));
+    return (
+        (key == Keys::Zero) ||
+        (key == Keys::One) ||
+        (key == Keys::Two) ||
+        (key == Keys::Three) ||
+        (key == Keys::Four) ||
+        (key == Keys::Five) ||
+        (key == Keys::Six) ||
+        (key == Keys::Seven) ||
+        (key == Keys::Eight) ||
+        (key == Keys::Nine)
+        );
 }
 
 int Kernel::keyToNumber(int key)
 {
-    if (key == keys::zero) {
+    if (key == Keys::Zero) {
         return 0;
-    } else if (key == keys::one) {
+    } else if (key == Keys::One) {
         return 1;
-    } else if (key == keys::two) {
+    } else if (key == Keys::Two) {
         return 2;
-    } else if (key == keys::three) {
+    } else if (key == Keys::Three) {
         return 3;
-    } else if (key == keys::four) {
+    } else if (key == Keys::Four) {
         return 4;
-    } else if (key == keys::five) {
+    } else if (key == Keys::Five) {
         return 5;
-    } else if (key == keys::six) {
+    } else if (key == Keys::Six) {
         return 6;
-    } else if (key == keys::seven) {
+    } else if (key == Keys::Seven) {
         return 7;
-    } else if (key == keys::eight) {
+    } else if (key == Keys::Eight) {
         return 8;
-    } else if (key == keys::nine) {
+    } else if (key == Keys::Nine) {
         return 9;
     } else {
         return false;
