@@ -153,28 +153,10 @@ QString CueList::moveCue(QList<QString> ids, QString targetId) {
         Cue* cue = cues[cueRow];
         cues.removeAt(cueRow);
         cue->id = targetId;
-        QList<QString> idParts = targetId.split(".");
         int position = 0;
         for (int index=0; index < cues.size(); index++) {
-            QList<QString> indexIdParts = (cues[index]->id).split(".");
-            if (indexIdParts[0].toInt() < idParts[0].toInt()) {
+            if (greaterId(cues[index]->id, targetId)) {
                 position++;
-            } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
-                if (indexIdParts[1].toInt() < idParts[1].toInt()) {
-                    position++;
-                } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
-                    if (indexIdParts[2].toInt() < idParts[2].toInt()) {
-                        position++;
-                    } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
-                        if (indexIdParts[3].toInt() < idParts[3].toInt()) {
-                            position++;
-                        } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
-                            if (indexIdParts[4].toInt() < idParts[4].toInt()) {
-                                position++;
-                            }
-                        }
-                    }
-                }
             }
         }
         cues.insert(position, cue);
@@ -190,25 +172,8 @@ Cue* CueList::recordCue(QString id, Transition *transition) {
     QList<QString> idParts = id.split(".");
     int position = 0;
     for (int index=0; index < cues.size(); index++) {
-        QList<QString> indexIdParts = (cues[index]->id).split(".");
-        if (indexIdParts[0].toInt() < idParts[0].toInt()) {
+        if (greaterId(cues[index]->id, id)) {
             position++;
-        } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
-            if (indexIdParts[1].toInt() < idParts[1].toInt()) {
-                position++;
-            } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
-                if (indexIdParts[2].toInt() < idParts[2].toInt()) {
-                    position++;
-                } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
-                    if (indexIdParts[3].toInt() < idParts[3].toInt()) {
-                        position++;
-                    } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
-                        if (indexIdParts[4].toInt() < idParts[4].toInt()) {
-                            position++;
-                        }
-                    }
-                }
-            }
         }
     }
     cues.insert(position, cue);
@@ -281,48 +246,17 @@ int CueList::rowCount(const QModelIndex &parent) const {
     return cues.size();
 }
 
-int CueList::columnCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
-    return 3;
-}
-
 QVariant CueList::data(const QModelIndex &index, const int role) const {
     const int row = index.row();
     const int column = index.column();
-    if (row >= (this->rowCount()) || row < 0) {
+    if (row >= rowCount() || row < 0) {
         return QVariant();
     }
-    if (column >= (this->columnCount()) || column < 0) {
+    if (column >= columnCount() || column < 0) {
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        if (column == CueListColumns::id) {
-            return cues[row]->id;
-        } else if (column == CueListColumns::label) {
-            return cues[row]->label;
-        } else if (column == CueListColumns::transition) {
-            return (cues[row]->transition)->id;
-        } else {
-            return QVariant();
-        }
-    }
-    return QVariant();
-}
-
-QVariant CueList::headerData(int column, Qt::Orientation orientation, int role) const {
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
-    if (orientation == Qt::Horizontal) {
-        if (column == CueListColumns::id) {
-            return "ID";
-        } else if (column == CueListColumns::label) {
-            return "Label";
-        } else if (column == CueListColumns::transition) {
-            return "Transition";
-        } else {
-            return QVariant();
-        }
+        return cues[row]->id;
     }
     return QVariant();
 }

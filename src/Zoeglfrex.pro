@@ -23,6 +23,7 @@ SOURCES += \
     kernel/lists/fixturelist.cpp \
     kernel/lists/grouplist.cpp \
     kernel/lists/intensitylist.cpp \
+    kernel/lists/itemlist.cpp \
     kernel/lists/modellist.cpp \
     kernel/lists/transitionlist.cpp \
     main.cpp \
@@ -42,6 +43,7 @@ HEADERS += \
     kernel/lists/fixturelist.h \
     kernel/lists/grouplist.h \
     kernel/lists/intensitylist.h \
+    kernel/lists/itemlist.h \
     kernel/lists/modellist.h \
     kernel/lists/transitionlist.h \
     mainwindow/mainwindow.h \

@@ -11,6 +11,8 @@
 
 #include <QtWidgets>
 
+#include "itemlist.h"
+
 class Kernel;
 
 struct Model {
@@ -19,15 +21,7 @@ struct Model {
     QString channels;
 };
 
-namespace ModelListColumns {
-enum {
-    id,
-    label,
-    channels,
-};
-}
-
-class ModelList : public QAbstractTableModel {
+class ModelList : public ItemList {
     Q_OBJECT
 public:
     ModelList(Kernel *core);
@@ -39,9 +33,7 @@ public:
     QString moveModel(QList<QString> ids, QString targetId);
     QString recordModelChannels(QList<QString> ids, QString channels);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
-    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
     QList<QString> getIds();
 private:
     QList<Model*> models;

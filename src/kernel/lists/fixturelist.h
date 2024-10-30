@@ -11,6 +11,8 @@
 
 #include <QtWidgets>
 
+#include "itemlist.h"
+
 class Kernel;
 struct Model;
 
@@ -21,16 +23,7 @@ struct Fixture {
     int address;
 };
 
-namespace FixtureListColumns {
-enum {
-    id,
-    label,
-    model,
-    address,
-};
-}
-
-class FixtureList : public QAbstractTableModel {
+class FixtureList : public ItemList {
     Q_OBJECT
 public:
     FixtureList(Kernel *core);
@@ -44,9 +37,7 @@ public:
     QString recordFixtureAddress(QList<QString> ids, int address);
     QString recordFixtureModel(QList<QString> ids, QString model, int address=0);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
-    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
     QList<QString> getIds();
     QSet<int> usedChannels();
 private:

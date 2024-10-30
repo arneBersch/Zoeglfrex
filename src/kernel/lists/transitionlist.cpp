@@ -88,28 +88,10 @@ QString TransitionList::moveTransition(QList<QString> ids, QString targetId)
         Transition* transition = transitions[transitionRow];
         transitions.removeAt(transitionRow);
         transition->id = targetId;
-        QList<QString> idParts = targetId.split(".");
         int position = 0;
         for (int index=0; index < transitions.size(); index++) {
-            QList<QString> indexIdParts = (transitions[index]->id).split(".");
-            if (indexIdParts[0].toInt() < idParts[0].toInt()) {
+            if (greaterId(transitions[index]->id, targetId)) {
                 position++;
-            } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
-                if (indexIdParts[1].toInt() < idParts[1].toInt()) {
-                    position++;
-                } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
-                    if (indexIdParts[2].toInt() < idParts[2].toInt()) {
-                        position++;
-                    } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
-                        if (indexIdParts[3].toInt() < idParts[3].toInt()) {
-                            position++;
-                        } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
-                            if (indexIdParts[4].toInt() < idParts[4].toInt()) {
-                                position++;
-                            }
-                        }
-                    }
-                }
             }
         }
         transitions.insert(position, transition);
@@ -123,28 +105,10 @@ Transition* TransitionList::recordTransition(QString id)
     transition->id = id;
     transition->label = QString();
     transition->fade = 0;
-    QList<QString> idParts = id.split(".");
     int position = 0;
     for (int index=0; index < transitions.size(); index++) {
-        QList<QString> indexIdParts = (transitions[index]->id).split(".");
-        if (indexIdParts[0].toInt() < idParts[0].toInt()) {
+        if (greaterId(transitions[index]->id, id)) {
             position++;
-        } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
-            if (indexIdParts[1].toInt() < idParts[1].toInt()) {
-                position++;
-            } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
-                if (indexIdParts[2].toInt() < idParts[2].toInt()) {
-                    position++;
-                } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
-                    if (indexIdParts[3].toInt() < idParts[3].toInt()) {
-                        position++;
-                    } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
-                        if (indexIdParts[4].toInt() < idParts[4].toInt()) {
-                            position++;
-                        }
-                    }
-                }
-            }
         }
     }
     transitions.insert(position, transition);
@@ -180,52 +144,18 @@ int TransitionList::rowCount(const QModelIndex &parent) const
     return transitions.size();
 }
 
-int TransitionList::columnCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return 3;
-}
-
 QVariant TransitionList::data(const QModelIndex &index, const int role) const
 {
     const int row = index.row();
     const int column = index.column();
-    if (row >= (this->rowCount()) || row < 0) {
+    if (row >= rowCount() || row < 0) {
         return QVariant();
     }
-    if (column >= (this->columnCount()) || column < 0) {
+    if (column >= columnCount() || column < 0) {
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        if (column == TransitionListColumns::id) {
-            return transitions[row]->id;
-        } else if (column == TransitionListColumns::label) {
-            return transitions[row]->label;
-        } else if (column == TransitionListColumns::fade) {
-            return transitions[row]->fade;
-        } else {
-            return QVariant();
-        }
+        return transitions[row]->id;
     }
     return QVariant();
 }
-
-QVariant TransitionList::headerData(int column, Qt::Orientation orientation, int role) const
-{
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
-    if (orientation == Qt::Horizontal) {
-        if (column == TransitionListColumns::id) {
-            return "ID";
-        } else if (column == TransitionListColumns::label) {
-            return "Label";
-        } else if (column == TransitionListColumns::fade) {
-            return "Fade (s)";
-        } else {
-            return QVariant();
-        }
-    }
-    return QVariant();
-}
-

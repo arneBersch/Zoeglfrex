@@ -11,6 +11,8 @@
 
 #include <QtWidgets>
 
+#include "itemlist.h"
+
 class Kernel;
 struct Intensity;
 struct Color;
@@ -25,15 +27,7 @@ struct Cue {
     QMap<Group*, Color*> colors;
 };
 
-namespace CueListColumns {
-enum {
-    id,
-    label,
-    transition,
-};
-}
-
-class CueList : public QAbstractTableModel {
+class CueList : public ItemList {
     Q_OBJECT
 public:
     CueList(Kernel *core);
@@ -54,9 +48,7 @@ public:
     QString recordCueColor(QList<QString> ids, QString groupId, QString colorId);
     QList<QString> getIds();
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
-    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
 private:
     QList<Cue*> cues;
     Kernel *kernel;

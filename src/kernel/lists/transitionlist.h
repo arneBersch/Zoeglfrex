@@ -11,6 +11,8 @@
 
 #include <QtWidgets>
 
+#include "itemlist.h"
+
 class Kernel;
 
 struct Transition {
@@ -19,15 +21,7 @@ struct Transition {
     float fade;
 };
 
-namespace TransitionListColumns {
-enum {
-    id,
-    label,
-    fade,
-};
-}
-
-class TransitionList : public QAbstractTableModel {
+class TransitionList : public ItemList {
     Q_OBJECT
 public:
     TransitionList(Kernel *core);
@@ -38,9 +32,7 @@ public:
     QString moveTransition(QList<QString> ids, QString targetId);
     QString recordTransitionFade(QList<QString> ids, float fadeIn);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
-    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
     QList<QString> getIds();
 private:
     QList<Transition*> transitions;

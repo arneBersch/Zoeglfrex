@@ -103,28 +103,10 @@ QString FixtureList::moveFixture(QList<QString> ids, QString targetId)
         Fixture* fixture = fixtures[fixtureRow];
         fixtures.removeAt(fixtureRow);
         fixture->id = targetId;
-        QList<QString> idParts = targetId.split(".");
         int position = 0;
         for (int index=0; index < fixtures.size(); index++) {
-            QList<QString> indexIdParts = (fixtures[index]->id).split(".");
-            if (indexIdParts[0].toInt() < idParts[0].toInt()) {
+            if (greaterId(fixtures[index]->id, targetId)) {
                 position++;
-            } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
-                if (indexIdParts[1].toInt() < idParts[1].toInt()) {
-                    position++;
-                } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
-                    if (indexIdParts[2].toInt() < idParts[2].toInt()) {
-                        position++;
-                    } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
-                        if (indexIdParts[3].toInt() < idParts[3].toInt()) {
-                            position++;
-                        } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
-                            if (indexIdParts[4].toInt() < idParts[4].toInt()) {
-                                position++;
-                            }
-                        }
-                    }
-                }
             }
         }
         fixtures.insert(position, fixture);
@@ -137,34 +119,16 @@ Fixture* FixtureList::recordFixture(QString id, Model* model)
     Fixture *fixture = new Fixture;
     fixture->id = id;
     fixture->label = QString();
-    int address = findFreeAddress(model->channels.count());
+    int address = findFreeAddress(model->channels.size());
     if (address <= 0) {
         return nullptr;
     }
     fixture->address = address;
     fixture->model = model;
-    QList<QString> idParts = id.split(".");
     int position = 0;
     for (int index=0; index < fixtures.size(); index++) {
-        QList<QString> indexIdParts = (fixtures[index]->id).split(".");
-        if (indexIdParts[0].toInt() < idParts[0].toInt()) {
+        if (greaterId(fixtures[index]->id, id)) {
             position++;
-        } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
-            if (indexIdParts[1].toInt() < idParts[1].toInt()) {
-                position++;
-            } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
-                if (indexIdParts[2].toInt() < idParts[2].toInt()) {
-                    position++;
-                } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
-                    if (indexIdParts[3].toInt() < idParts[3].toInt()) {
-                        position++;
-                    } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
-                        if (indexIdParts[4].toInt() < idParts[4].toInt()) {
-                            position++;
-                        }
-                    }
-                }
-            }
         }
     }
     fixtures.insert(position, fixture);
@@ -265,55 +229,18 @@ int FixtureList::rowCount(const QModelIndex &parent) const
     return fixtures.size();
 }
 
-int FixtureList::columnCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return 4;
-}
-
 QVariant FixtureList::data(const QModelIndex &index, const int role) const
 {
     const int row = index.row();
     const int column = index.column();
-    if (row >= (this->rowCount()) || row < 0) {
+    if (row >= rowCount() || row < 0) {
         return QVariant();
     }
-    if (column >= (this->columnCount()) || column < 0) {
+    if (column >= columnCount() || column < 0) {
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        if (column == FixtureListColumns::id) {
-            return fixtures[row]->id;
-        } else if (column == FixtureListColumns::label) {
-            return fixtures[row]->label;
-        } else if (column == FixtureListColumns::model) {
-            return (fixtures[row]->model)->label;
-        } else if (column == FixtureListColumns::address) {
-            return fixtures[row]->address;
-        } else {
-            return QVariant();
-        }
-    }
-    return QVariant();
-}
-
-QVariant FixtureList::headerData(int column, Qt::Orientation orientation, int role) const
-{
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
-    if (orientation == Qt::Horizontal) {
-        if (column == FixtureListColumns::id) {
-            return "ID";
-        } else if (column == FixtureListColumns::label) {
-            return "Label";
-        } else if (column == FixtureListColumns::model) {
-            return "Model";
-        } else if (column == FixtureListColumns::address) {
-            return "Address";
-        } else {
-            return QVariant();
-        }
+        return fixtures[row]->id;
     }
     return QVariant();
 }

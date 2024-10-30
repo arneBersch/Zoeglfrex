@@ -11,6 +11,8 @@
 
 #include <QtWidgets>
 
+#include "itemlist.h"
+
 class Kernel;
 
 struct Color {
@@ -21,17 +23,7 @@ struct Color {
     float blue;
 };
 
-namespace ColorListColumns {
-enum {
-    id,
-    label,
-    red,
-    green,
-    blue,
-};
-}
-
-class ColorList : public QAbstractTableModel {
+class ColorList : public ItemList {
     Q_OBJECT
 public:
     ColorList(Kernel *core);
@@ -45,9 +37,7 @@ public:
     QString recordColorGreen(QList<QString> ids, float green);
     QString recordColorBlue(QList<QString> ids, float blue);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
-    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
     QList<QString> getIds();
 private:
     QList<Color*> colors;

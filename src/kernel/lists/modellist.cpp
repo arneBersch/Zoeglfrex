@@ -88,28 +88,10 @@ QString ModelList::moveModel(QList<QString> ids, QString targetId)
         Model* model = models[modelRow];
         models.removeAt(modelRow);
         model->id = targetId;
-        QList<QString> idParts = targetId.split(".");
         int position = 0;
         for (int index=0; index < models.size(); index++) {
-            QList<QString> indexIdParts = (models[index]->id).split(".");
-            if (indexIdParts[0].toInt() < idParts[0].toInt()) {
+            if (greaterId(models[index]->id, targetId)) {
                 position++;
-            } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
-                if (indexIdParts[1].toInt() < idParts[1].toInt()) {
-                    position++;
-                } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
-                    if (indexIdParts[2].toInt() < idParts[2].toInt()) {
-                        position++;
-                    } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
-                        if (indexIdParts[3].toInt() < idParts[3].toInt()) {
-                            position++;
-                        } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
-                            if (indexIdParts[4].toInt() < idParts[4].toInt()) {
-                                position++;
-                            }
-                        }
-                    }
-                }
             }
         }
         models.insert(position, model);
@@ -123,28 +105,10 @@ Model* ModelList::recordModel(QString id)
     model->id = id;
     model->label = QString();
     model->channels = "D";
-    QList<QString> idParts = id.split(".");
     int position = 0;
     for (int index=0; index < models.size(); index++) {
-        QList<QString> indexIdParts = (models[index]->id).split(".");
-        if (indexIdParts[0].toInt() < idParts[0].toInt()) {
+        if (greaterId(models[index]->id, id)) {
             position++;
-        } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
-            if (indexIdParts[1].toInt() < idParts[1].toInt()) {
-                position++;
-            } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
-                if (indexIdParts[2].toInt() < idParts[2].toInt()) {
-                    position++;
-                } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
-                    if (indexIdParts[3].toInt() < idParts[3].toInt()) {
-                        position++;
-                    } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
-                        if (indexIdParts[4].toInt() < idParts[4].toInt()) {
-                            position++;
-                        }
-                    }
-                }
-            }
         }
     }
     models.insert(position, model);
@@ -196,51 +160,18 @@ int ModelList::rowCount(const QModelIndex &parent) const
     return models.size();
 }
 
-int ModelList::columnCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return 3;
-}
-
 QVariant ModelList::data(const QModelIndex &index, const int role) const
 {
     const int row = index.row();
     const int column = index.column();
-    if (row >= (this->rowCount()) || row < 0) {
+    if (row >= (rowCount()) || row < 0) {
         return QVariant();
     }
-    if (column >= (this->columnCount()) || column < 0) {
+    if (column >= (columnCount()) || column < 0) {
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        if (column == ModelListColumns::id) {
-            return models[row]->id;
-        } else if (column == ModelListColumns::label) {
-            return models[row]->label;
-        } else if (column == ModelListColumns::channels) {
-            return models[row]->channels;
-        } else {
-            return QVariant();
-        }
-    }
-    return QVariant();
-}
-
-QVariant ModelList::headerData(int column, Qt::Orientation orientation, int role) const
-{
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
-    if (orientation == Qt::Horizontal) {
-        if (column == ModelListColumns::id) {
-            return "ID";
-        } else if (column == ModelListColumns::label) {
-            return "Label";
-        } else if (column == ModelListColumns::channels) {
-            return "Channels";
-        } else {
-            return QVariant();
-        }
+        return models[row]->id;
     }
     return QVariant();
 }

@@ -90,28 +90,10 @@ QString ColorList::moveColor(QList<QString> ids, QString targetId)
         Color* color = colors[colorRow];
         colors.removeAt(colorRow);
         color->id = targetId;
-        QList<QString> idParts = targetId.split(".");
         int position = 0;
         for (int index=0; index < colors.size(); index++) {
-            QList<QString> indexIdParts = (colors[index]->id).split(".");
-            if (indexIdParts[0].toInt() < idParts[0].toInt()) {
+            if (greaterId(colors[index]->id, targetId)) {
                 position++;
-            } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
-                if (indexIdParts[1].toInt() < idParts[1].toInt()) {
-                    position++;
-                } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
-                    if (indexIdParts[2].toInt() < idParts[2].toInt()) {
-                        position++;
-                    } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
-                        if (indexIdParts[3].toInt() < idParts[3].toInt()) {
-                            position++;
-                        } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
-                            if (indexIdParts[4].toInt() < idParts[4].toInt()) {
-                                position++;
-                            }
-                        }
-                    }
-                }
             }
         }
         colors.insert(position, color);
@@ -127,28 +109,10 @@ Color* ColorList::recordColor(QString id)
     color->red = 100;
     color->green = 100;
     color->blue = 100;
-    QList<QString> idParts = id.split(".");
     int position = 0;
     for (int index=0; index < colors.size(); index++) {
-        QList<QString> indexIdParts = (colors[index]->id).split(".");
-        if (indexIdParts[0].toInt() < idParts[0].toInt()) {
+        if (greaterId(colors[index]->id, id)) {
             position++;
-        } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
-            if (indexIdParts[1].toInt() < idParts[1].toInt()) {
-                position++;
-            } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
-                if (indexIdParts[2].toInt() < idParts[2].toInt()) {
-                    position++;
-                } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
-                    if (indexIdParts[3].toInt() < idParts[3].toInt()) {
-                        position++;
-                    } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
-                        if (indexIdParts[4].toInt() < idParts[4].toInt()) {
-                            position++;
-                        }
-                    }
-                }
-            }
         }
     }
     colors.insert(position, color);
@@ -214,59 +178,18 @@ int ColorList::rowCount(const QModelIndex &parent) const
     return colors.size();
 }
 
-int ColorList::columnCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return 5;
-}
-
 QVariant ColorList::data(const QModelIndex &index, const int role) const
 {
     const int row = index.row();
     const int column = index.column();
-    if (row >= (this->rowCount()) || row < 0) {
+    if (row >= rowCount() || row < 0) {
         return QVariant();
     }
-    if (column >= (this->columnCount()) || column < 0) {
+    if (column >= columnCount() || column < 0) {
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        if (column == ColorListColumns::id) {
-            return colors[row]->id;
-        } else if (column == ColorListColumns::label) {
-            return colors[row]->label;
-        } else if (column == ColorListColumns::red) {
-            return colors[row]->red;
-        } else if (column == ColorListColumns::green) {
-            return colors[row]->green;
-        } else if (column == ColorListColumns::blue) {
-            return colors[row]->blue;
-        } else {
-            return QVariant();
-        }
-    }
-    return QVariant();
-}
-
-QVariant ColorList::headerData(int column, Qt::Orientation orientation, int role) const
-{
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
-    if (orientation == Qt::Horizontal) {
-        if (column == ColorListColumns::id) {
-            return "ID";
-        } else if (column == ColorListColumns::label) {
-            return "Label";
-        } else if (column == ColorListColumns::red) {
-            return "Red (%)";
-        } else if (column == ColorListColumns::green) {
-            return "Green (%)";
-        } else if (column == ColorListColumns::blue) {
-            return "Blue (%)";
-        } else {
-            return QVariant();
-        }
+        return colors[row]->id;
     }
     return QVariant();
 }

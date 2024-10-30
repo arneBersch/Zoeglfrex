@@ -11,6 +11,8 @@
 
 #include <QtWidgets>
 
+#include "itemlist.h"
+
 class Kernel;
 
 struct Intensity {
@@ -19,16 +21,7 @@ struct Intensity {
     float dimmer;
 };
 
-namespace IntensityListColumns {
-enum {
-    id,
-    label,
-    dimmer,
-};
-}
-
-
-class IntensityList : public QAbstractTableModel {
+class IntensityList : public ItemList {
     Q_OBJECT
 public:
     IntensityList(Kernel *core);
@@ -40,9 +33,7 @@ public:
     QString moveIntensity(QList<QString> ids, QString targetId);
     QString recordIntensityDimmer(QList<QString> ids, float dimmer);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
-    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
     QList<QString> getIds();
 private:
     QList<Intensity*> intensities;

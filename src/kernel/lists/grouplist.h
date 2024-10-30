@@ -11,6 +11,8 @@
 
 #include <QtWidgets>
 
+#include "itemlist.h"
+
 class Kernel;
 struct Fixture;
 
@@ -20,15 +22,7 @@ struct Group {
     QSet<Fixture*> fixtures;
 };
 
-namespace GroupListColumns {
-enum {
-    id,
-    label,
-    fixtures,
-};
-}
-
-class GroupList : public QAbstractTableModel {
+class GroupList : public ItemList {
     Q_OBJECT
 public:
     GroupList(Kernel *core);
@@ -41,9 +35,7 @@ public:
     QString moveGroup(QList<QString> ids, QString targetId);
     QString recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
-    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
     QList<QString> getIds();
 private:
     QList<Group*> groups;

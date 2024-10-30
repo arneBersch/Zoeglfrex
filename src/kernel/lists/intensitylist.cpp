@@ -88,28 +88,10 @@ QString IntensityList::moveIntensity(QList<QString> ids, QString targetId)
         Intensity* intensity = intensities[intensityRow];
         intensities.removeAt(intensityRow);
         intensity->id = targetId;
-        QList<QString> idParts = targetId.split(".");
         int position = 0;
         for (int index=0; index < intensities.size(); index++) {
-            QList<QString> indexIdParts = (intensities[index]->id).split(".");
-            if (indexIdParts[0].toInt() < idParts[0].toInt()) {
+            if (greaterId(intensities[index]->id, targetId)) {
                 position++;
-            } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
-                if (indexIdParts[1].toInt() < idParts[1].toInt()) {
-                    position++;
-                } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
-                    if (indexIdParts[2].toInt() < idParts[2].toInt()) {
-                        position++;
-                    } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
-                        if (indexIdParts[3].toInt() < idParts[3].toInt()) {
-                            position++;
-                        } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
-                            if (indexIdParts[4].toInt() < idParts[4].toInt()) {
-                                position++;
-                            }
-                        }
-                    }
-                }
             }
         }
         intensities.insert(position, intensity);
@@ -123,28 +105,10 @@ Intensity* IntensityList::recordIntensity(QString id)
     intensity->id = id;
     intensity->label = QString();
     intensity->dimmer = 100;
-    QList<QString> idParts = id.split(".");
     int position = 0;
     for (int index=0; index < intensities.size(); index++) {
-        QList<QString> indexIdParts = (intensities[index]->id).split(".");
-        if (indexIdParts[0].toInt() < idParts[0].toInt()) {
+        if (greaterId(intensities[index]->id, id)) {
             position++;
-        } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
-            if (indexIdParts[1].toInt() < idParts[1].toInt()) {
-                position++;
-            } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
-                if (indexIdParts[2].toInt() < idParts[2].toInt()) {
-                    position++;
-                } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
-                    if (indexIdParts[3].toInt() < idParts[3].toInt()) {
-                        position++;
-                    } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
-                        if (indexIdParts[4].toInt() < idParts[4].toInt()) {
-                            position++;
-                        }
-                    }
-                }
-            }
         }
     }
     intensities.insert(position, intensity);
@@ -180,51 +144,18 @@ int IntensityList::rowCount(const QModelIndex &parent) const
     return intensities.size();
 }
 
-int IntensityList::columnCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return 3;
-}
-
 QVariant IntensityList::data(const QModelIndex &index, const int role) const
 {
     const int row = index.row();
     const int column = index.column();
-    if (row >= (this->rowCount()) || row < 0) {
+    if (row >= rowCount() || row < 0) {
         return QVariant();
     }
-    if (column >= (this->columnCount()) || column < 0) {
+    if (column >= columnCount() || column < 0) {
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        if (column == IntensityListColumns::id) {
-            return intensities[row]->id;
-        } else if (column == IntensityListColumns::label) {
-            return intensities[row]->label;
-        } else if (column == IntensityListColumns::dimmer) {
-            return intensities[row]->dimmer;
-        } else {
-            return QVariant();
-        }
-    }
-    return QVariant();
-}
-
-QVariant IntensityList::headerData(int column, Qt::Orientation orientation, int role) const
-{
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
-    if (orientation == Qt::Horizontal) {
-        if (column == IntensityListColumns::id) {
-            return "ID";
-        } else if (column == IntensityListColumns::label) {
-            return "Label";
-        } else if (column == IntensityListColumns::dimmer) {
-            return "Dimmer (%)";
-        } else {
-            return QVariant();
-        }
+        return intensities[row]->id;
     }
     return QVariant();
 }
