@@ -27,11 +27,11 @@ public:
     IntensityList(Kernel *core);
     Intensity* getIntensity(QString id);
     int getIntensityRow(QString id);
-    QString copyIntensity(QList<QString> ids, QString targetId);
-    QString deleteIntensity(QList<QString> ids);
-    QString labelIntensity(QList<QString> ids, QString label);
-    QString moveIntensity(QList<QString> ids, QString targetId);
-    QString recordIntensityDimmer(QList<QString> ids, float dimmer);
+    bool copyIntensity(QList<QString> ids, QString targetId);
+    bool deleteIntensity(QList<QString> ids);
+    bool labelIntensity(QList<QString> ids, QString label);
+    bool moveIntensity(QList<QString> ids, QString targetId);
+    bool recordIntensityDimmer(QList<QString> ids, float dimmer);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
     QList<QString> getIds();

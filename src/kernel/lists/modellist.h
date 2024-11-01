@@ -27,11 +27,11 @@ public:
     ModelList(Kernel *core);
     Model* getModel(QString id);
     int getModelRow(QString id);
-    QString copyModel(QList<QString> ids, QString targetId);
-    QString deleteModel(QList<QString> ids);
-    QString labelModel(QList<QString> ids, QString label);
-    QString moveModel(QList<QString> ids, QString targetId);
-    QString recordModelChannels(QList<QString> ids, QString channels);
+    bool copyModel(QList<QString> ids, QString targetId);
+    bool deleteModel(QList<QString> ids);
+    bool labelModel(QList<QString> ids, QString label);
+    bool moveModel(QList<QString> ids, QString targetId);
+    bool recordModelChannels(QList<QString> ids, QString channels);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
     QList<QString> getIds();

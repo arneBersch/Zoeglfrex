@@ -31,59 +31,65 @@ int TransitionList::getTransitionRow(QString id)
     return -1;
 }
 
-QString TransitionList::copyTransition(QList<QString> ids, QString targetId)
+bool TransitionList::copyTransition(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
         Transition* transition = getTransition(id);
         if (transition == nullptr) {
-            return "Transition can't be copied because it doesn't exist.";
+            kernel->terminal->error("Transition can't be copied because it doesn't exist.");
+            return false;
         }
         if (getTransition(targetId) != nullptr) {
-            return "Transition can't be copied because Target ID is already used.";
+            kernel->terminal->error("Transition can't be copied because Target ID is already used.");
+            return false;
         }
         Transition *targetTransition = recordTransition(targetId);
         targetTransition->label = transition->label;
         targetTransition->fade = transition->fade;
     }
-    return QString();
+    return true;
 }
 
-QString TransitionList::deleteTransition(QList<QString> ids)
+bool TransitionList::deleteTransition(QList<QString> ids)
 {
     for (QString id : ids) {
         int transitionRow = getTransitionRow(id);
         if (transitionRow < 0) {
-            return "Transition can't be deleted because it doesn't exist.";
+            kernel->terminal->error("Transition can't be deleted because it doesn't exist.");
+            return false;
         }
         Transition *transition = transitions[transitionRow];
         kernel->cues->deleteTransition(transition);
         transitions.removeAt(transitionRow);
         delete transition;
     }
-    return QString();
+    return true;
 }
 
-QString TransitionList::labelTransition(QList<QString> ids, QString label)
+bool TransitionList::labelTransition(QList<QString> ids, QString label)
 {
     for (QString id : ids) {
         Transition* transition = getTransition(id);
         if (transition == nullptr) {
-            return "Transition can't be labeled because it doesn't exist.";
+            kernel->terminal->error("Transition can't be labeled because it doesn't exist.");
+            return false;
         }
         transition->label = label;
     }
-    return QString();
+    return true;
 }
 
-QString TransitionList::moveTransition(QList<QString> ids, QString targetId)
+bool TransitionList::moveTransition(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
         int transitionRow = getTransitionRow(id);
         if (transitionRow < 0) {
-            return "Transition can't be moved because it doesn't exist.";
+            kernel->terminal->error("Transition can't be moved because it doesn't exist.");
+            return false;
         }
         if (getTransition(targetId) != nullptr) {
-            return "Transition can't be moved because Target ID is already used.";
+            kernel->terminal->error("Transition can't be moved because Target ID is already used.");
+            return false;
         }
         Transition* transition = transitions[transitionRow];
         transitions.removeAt(transitionRow);
@@ -96,7 +102,7 @@ QString TransitionList::moveTransition(QList<QString> ids, QString targetId)
         }
         transitions.insert(position, transition);
     }
-    return QString();
+    return true;
 }
 
 Transition* TransitionList::recordTransition(QString id)
@@ -115,10 +121,11 @@ Transition* TransitionList::recordTransition(QString id)
     return transition;
 }
 
-QString TransitionList::recordTransitionFade(QList<QString> ids, float fade)
+bool TransitionList::recordTransitionFade(QList<QString> ids, float fade)
 {
     if (fade > 60 || fade < 0) {
-        return "Record Transition Fade only allows from 0s to 60s.";
+        kernel->terminal->error("Record Transition Fade only allows from 0s to 60s.");
+        return false;
     }
     for (QString id : ids) {
         Transition* transition = getTransition(id);
@@ -127,7 +134,7 @@ QString TransitionList::recordTransitionFade(QList<QString> ids, float fade)
         }
         transition->fade = fade;
     }
-    return QString();
+    return true;
 }
 
 QList<QString> TransitionList::getIds() {

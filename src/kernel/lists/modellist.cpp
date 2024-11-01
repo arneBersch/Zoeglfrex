@@ -31,59 +31,65 @@ int ModelList::getModelRow(QString id)
     return -1;
 }
 
-QString ModelList::copyModel(QList<QString> ids, QString targetId)
+bool ModelList::copyModel(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
         Model* model = getModel(id);
         if (model == nullptr) {
-            return "Model can't be copied because it doesn't exist.";
+            kernel->terminal->error("Model can't be copied because it doesn't exist.");
+            return false;
         }
         if (getModel(targetId) != nullptr) {
-            return "Model can't be copied because Target ID is already used.";
+            kernel->terminal->error("Model can't be copied because Target ID is already used.");
+            return false;
         }
         Model *targetModel = recordModel(targetId);
         targetModel->label = model->label;
         targetModel->channels = model->channels;
     }
-    return QString();
+    return true;
 }
 
-QString ModelList::deleteModel(QList<QString> ids)
+bool ModelList::deleteModel(QList<QString> ids)
 {
     for (QString id : ids) {
         int modelRow = getModelRow(id);
         if (modelRow < 0) {
-            return "Model can't be deleted because it doesn't exist.";
+            kernel->terminal->error("Model can't be deleted because it doesn't exist.");
+            return false;
         }
         Model *model= models[modelRow];
         kernel->fixtures->deleteModel(model);
         models.removeAt(modelRow);
         delete model;
     }
-    return QString();
+    return true;
 }
 
-QString ModelList::labelModel(QList<QString> ids, QString label)
+bool ModelList::labelModel(QList<QString> ids, QString label)
 {
     for (QString id : ids) {
         Model* model = getModel(id);
         if (model == nullptr) {
-            return "Model can't be labeled because it doesn't exist.";
+            kernel->terminal->error("Model can't be labeled because it doesn't exist.");
+            return false;
         }
         model->label = label;
     }
-    return QString();
+    return true;
 }
 
-QString ModelList::moveModel(QList<QString> ids, QString targetId)
+bool ModelList::moveModel(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
         int modelRow = getModelRow(id);
         if (modelRow < 0) {
-            return "Model can't be moved because it doesn't exist.";
+            kernel->terminal->error("Model can't be moved because it doesn't exist.");
+            return false;
         }
         if (getModel(targetId) != nullptr) {
-            return "Model can't be moved because Target ID is already used.";
+            kernel->terminal->error("Model can't be moved because Target ID is already used.");
+            return false;
         }
         Model* model = models[modelRow];
         models.removeAt(modelRow);
@@ -96,7 +102,7 @@ QString ModelList::moveModel(QList<QString> ids, QString targetId)
         }
         models.insert(position, model);
     }
-    return QString();
+    return true;
 }
 
 Model* ModelList::recordModel(QString id)
@@ -115,10 +121,11 @@ Model* ModelList::recordModel(QString id)
     return model;
 }
 
-QString ModelList::recordModelChannels(QList<QString> ids, QString channels)
+bool ModelList::recordModelChannels(QList<QString> ids, QString channels)
 {
     if (!channels.contains(QRegularExpression("^[DRGB]+$"))) {
-        return tr("Channels \"%1\" are not valid.").arg(channels);
+        kernel->terminal->error("Channels \"" + channels + "\" are not valid.");
+        return false;
     }
     for (QString id : ids) {
         Model* model = getModel(id);
@@ -131,10 +138,12 @@ QString ModelList::recordModelChannels(QList<QString> ids, QString channels)
                     if (fixture->model == model) {
                         for (int channel=(fixture->address + model->channels.size()); channel < (fixture->address + channels.size()); channel++) {
                             if (channel > 512) {
-                                return "Can't record Model Channels because this would result in an address conflict.";
+                                kernel->terminal->error("Can't record Model Channels because this would result in an address conflict.");
+                                return false;
                             }
                             if (kernel->fixtures->usedChannels().contains(channel)) {
-                                return "Can't record Model Channels because this would result in an address conflict.";
+                                kernel->terminal->error("Can't record Model Channels because this would result in an address conflict.");
+                                return false;
                             }
                         }
                     }
@@ -143,7 +152,7 @@ QString ModelList::recordModelChannels(QList<QString> ids, QString channels)
         }
         model->channels = channels;
     }
-    return QString();
+    return true;
 }
 
 QList<QString> ModelList::getIds() {

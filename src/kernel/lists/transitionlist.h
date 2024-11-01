@@ -26,11 +26,11 @@ class TransitionList : public ItemList {
 public:
     TransitionList(Kernel *core);
     Transition* getTransition(QString id);
-    QString copyTransition(QList<QString> ids, QString targetId);
-    QString deleteTransition(QList <QString> ids);
-    QString labelTransition(QList<QString> ids, QString label);
-    QString moveTransition(QList<QString> ids, QString targetId);
-    QString recordTransitionFade(QList<QString> ids, float fadeIn);
+    bool copyTransition(QList<QString> ids, QString targetId);
+    bool deleteTransition(QList <QString> ids);
+    bool labelTransition(QList<QString> ids, QString label);
+    bool moveTransition(QList<QString> ids, QString targetId);
+    bool recordTransitionFade(QList<QString> ids, float fadeIn);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
     QList<QString> getIds();

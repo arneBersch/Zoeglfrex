@@ -31,15 +31,17 @@ int ColorList::getColorRow(QString id)
     return -1;
 }
 
-QString ColorList::copyColor(QList<QString> ids, QString targetId)
+bool ColorList::copyColor(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
         Color* color = getColor(id);
         if (color == nullptr) {
-            return "Color can't be copied because it doesn't exist.";
+            kernel->terminal->error("Color can't be copied because it doesn't exist.");
+            return false;
         }
         if (getColor(targetId) != nullptr) {
-            return "Color can't be copied because Target ID is already used.";
+            kernel->terminal->error("Color can't be copied because Target ID is already used.");
+            return false;
         }
         Color *targetColor = recordColor(targetId);
         targetColor->label = color->label;
@@ -47,45 +49,49 @@ QString ColorList::copyColor(QList<QString> ids, QString targetId)
         targetColor->green = color->green;
         targetColor->blue = color->blue;
     }
-    return QString();
+    return true;
 }
 
-QString ColorList::deleteColor(QList<QString> ids)
+bool ColorList::deleteColor(QList<QString> ids)
 {
     for (QString id : ids) {
         int colorRow = getColorRow(id);
         if (colorRow < 0) {
-            return "Color can't be deleted because it doesn't exist.";
+            kernel->terminal->error("Color can't be deleted because it doesn't exist.");
+            return false;
         }
         Color *color = colors[colorRow];
         kernel->cues->deleteColor(color);
         colors.removeAt(colorRow);
         delete color;
     }
-    return QString();
+    return true;
 }
 
-QString ColorList::labelColor(QList<QString> ids, QString label)
+bool ColorList::labelColor(QList<QString> ids, QString label)
 {
     for (QString id : ids) {
         Color* color = getColor(id);
         if (color == nullptr) {
-            return "Color can't be labeled because it doesn't exist.";
+            kernel->terminal->error("Color can't be labeled because it doesn't exist.");
+            return false;
         }
         color->label = label;
     }
-    return QString();
+    return true;
 }
 
-QString ColorList::moveColor(QList<QString> ids, QString targetId)
+bool ColorList::moveColor(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
         int colorRow = getColorRow(id);
         if (colorRow < 0) {
-            return "Color can't be moved because it doesn't exist.";
+            kernel->terminal->error("Color can't be moved because it doesn't exist.");
+            return false;
         }
         if (getColor(targetId) != nullptr) {
-            return "Color can't be moved because Target ID is already used.";
+            kernel->terminal->error("Color can't be moved because Target ID is already used.");
+            return false;
         }
         Color* color = colors[colorRow];
         colors.removeAt(colorRow);
@@ -98,7 +104,7 @@ QString ColorList::moveColor(QList<QString> ids, QString targetId)
         }
         colors.insert(position, color);
     }
-    return QString();
+    return true;
 }
 
 Color* ColorList::recordColor(QString id)
@@ -119,10 +125,11 @@ Color* ColorList::recordColor(QString id)
     return color;
 }
 
-QString ColorList::recordColorRed(QList<QString> ids, float red)
+bool ColorList::recordColorRed(QList<QString> ids, float red)
 {
     if (red > 100 || red < 0) {
-        return "Record Color Red only allows from 0% to 100%.";
+        kernel->terminal->error("Record Color Red only allows from 0% to 100%.");
+        return false;
     }
     for (QString id : ids) {
         Color* color = getColor(id);
@@ -131,13 +138,14 @@ QString ColorList::recordColorRed(QList<QString> ids, float red)
         }
         color->red = red;
     }
-    return QString();
+    return true;
 }
 
-QString ColorList::recordColorGreen(QList<QString> ids, float green)
+bool ColorList::recordColorGreen(QList<QString> ids, float green)
 {
     if (green > 100 || green < 0) {
-        return "Record Color Green only allows from 0% to 100%.";
+        kernel->terminal->error("Record Color Green only allows from 0% to 100%.");
+        return false;
     }
     for (QString id : ids) {
         Color* color = getColor(id);
@@ -146,10 +154,10 @@ QString ColorList::recordColorGreen(QList<QString> ids, float green)
         }
         color->green = green;
     }
-    return QString();
+    return true;
 }
 
-QString ColorList::recordColorBlue(QList<QString> ids, float blue)
+bool ColorList::recordColorBlue(QList<QString> ids, float blue)
 {
     if (blue > 100 || blue < 0) {
         return "Record Color Blue only allows from 0% to 100%.";
@@ -161,7 +169,7 @@ QString ColorList::recordColorBlue(QList<QString> ids, float blue)
         }
         color->blue = blue;
     }
-    return QString();
+    return true;
 }
 
 QList<QString> ColorList::getIds() {

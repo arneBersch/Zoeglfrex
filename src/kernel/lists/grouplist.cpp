@@ -32,36 +32,39 @@ int GroupList::getGroupRow(QString id)
     return -1;
 }
 
-QString GroupList::copyGroup(QList<QString> ids, QString targetId)
+bool GroupList::copyGroup(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
         Group *group = getGroup(id);
         if (group == nullptr) {
-            return "Group can't be copied because it doesn't exist.";
+            kernel->terminal->error("Group can't be copied because it doesn't exist.");
+            return false;
         }
         if (getGroup(targetId) != nullptr) {
-            return "Group can't be copied because Target ID is already used.";
+            kernel->terminal->error("Group can't be copied because Target ID is already used.");
+            return false;
         }
         Group *targetGroup = recordGroup(targetId);
         targetGroup->label = group->label;
         targetGroup->fixtures = group->fixtures;
     }
-    return QString();
+    return true;
 }
 
-QString GroupList::deleteGroup(QList<QString> ids)
+bool GroupList::deleteGroup(QList<QString> ids)
 {
     for (QString id : ids) {
         int groupRow = getGroupRow(id);
         if (groupRow < 0) {
-            return "Group can't be deleted because it doesn't exist.";
+            kernel->terminal->error("Group can't be deleted because it doesn't exist.");
+            return false;
         }
         Group *group = groups[groupRow];
         kernel->cues->deleteGroup(group);
         groups.removeAt(groupRow);
         delete group;
     }
-    return QString();
+    return true;
 }
 
 void GroupList::deleteFixture(Fixture *fixture)
@@ -71,27 +74,30 @@ void GroupList::deleteFixture(Fixture *fixture)
     }
 }
 
-QString GroupList::labelGroup(QList<QString> ids, QString label)
+bool GroupList::labelGroup(QList<QString> ids, QString label)
 {
     for (QString id : ids) {
         Group* group = getGroup(id);
         if (group == nullptr) {
-            return "Group can't be labeled because it doesn't exist.";
+            kernel->terminal->error("Group can't be labeled because it doesn't exist.");
+            return false;
         }
         group->label = label;
     }
-    return QString();
+    return true;
 }
 
-QString GroupList::moveGroup(QList<QString> ids, QString targetId)
+bool GroupList::moveGroup(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
         int groupRow = getGroupRow(id);
         if (groupRow < 0) {
-            return "Group can't be moved because it doesn't exist.";
+            kernel->terminal->error("Group can't be moved because it doesn't exist.");
+            return false;
         }
         if (getGroup(targetId) != nullptr) {
-            return "Group can't be moved because Target ID is already used.";
+            kernel->terminal->error("Group can't be moved because Target ID is already used.");
+            return false;
         }
         Group* group = groups[groupRow];
         groups.removeAt(groupRow);
@@ -104,7 +110,7 @@ QString GroupList::moveGroup(QList<QString> ids, QString targetId)
         }
         groups.insert(position, group);
     }
-    return QString();
+    return true;
 }
 
 Group* GroupList::recordGroup(QString id)
@@ -123,13 +129,14 @@ Group* GroupList::recordGroup(QString id)
     return group;
 }
 
-QString GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds)
+bool GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds)
 {
     QSet<Fixture*> fixtureSelection;
     for (QString fixtureId : fixtureIds) {
         Fixture* fixture = kernel->fixtures->getFixture(fixtureId);
         if (fixture == nullptr) {
-            return "Can't record Group Fixtures because Fixture doesn't exist.";
+            kernel->terminal->error("Can't record Group Fixtures because Fixture doesn't exist.");
+            return false;
         }
         fixtureSelection.insert(fixture);
     }
@@ -140,7 +147,7 @@ QString GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtur
         }
         group->fixtures = fixtureSelection;
     }
-    return QString();
+    return false;
 }
 
 QList<QString> GroupList::getIds() {

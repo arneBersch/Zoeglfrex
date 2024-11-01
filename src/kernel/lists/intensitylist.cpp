@@ -31,59 +31,65 @@ int IntensityList::getIntensityRow(QString id)
     return -1;
 }
 
-QString IntensityList::copyIntensity(QList<QString> ids, QString targetId)
+bool IntensityList::copyIntensity(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
         Intensity* intensity = getIntensity(id);
         if (intensity == nullptr) {
-            return "Intensity can't be copied because it doesn't exist.";
+            kernel->terminal->error("Intensity can't be copied because it doesn't exist.");
+            return false;
         }
         if (getIntensity(targetId) != nullptr) {
-            return "Intensity can't be copied because Target ID is already used.";
+            kernel->terminal->error("Intensity can't be copied because Target ID is already used.");
+            return false;
         }
         Intensity *targetIntensity = recordIntensity(targetId);
         targetIntensity->label = intensity->label;
         targetIntensity->dimmer = intensity->dimmer;
     }
-    return QString();
+    return true;
 }
 
-QString IntensityList::deleteIntensity(QList<QString> ids)
+bool IntensityList::deleteIntensity(QList<QString> ids)
 {
     for (QString id : ids) {
         int intensityRow = getIntensityRow(id);
         if (intensityRow < 0) {
-            return "Intensity can't be deleted because it doesn't exist.";
+            kernel->terminal->error("Intensity can't be deleted because it doesn't exist.");
+            return false;
         }
         Intensity *intensity = intensities[intensityRow];
         kernel->cues->deleteIntensity(intensity);
         intensities.removeAt(intensityRow);
         delete intensity;
     }
-    return QString();
+    return true;
 }
 
-QString IntensityList::labelIntensity(QList<QString> ids, QString label)
+bool IntensityList::labelIntensity(QList<QString> ids, QString label)
 {
     for (QString id : ids) {
         Intensity* intensity = getIntensity(id);
         if (intensity == nullptr) {
-            return "Intensity can't be labeled because it doesn't exist.";
+            kernel->terminal->error("Intensity can't be labeled because it doesn't exist.");
+            return false;
         }
         intensity->label = label;
     }
-    return QString();
+    return true;
 }
 
-QString IntensityList::moveIntensity(QList<QString> ids, QString targetId)
+bool IntensityList::moveIntensity(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
         int intensityRow = getIntensityRow(id);
         if (intensityRow < 0) {
-            return "Intensity can't be moved because it doesn't exist.";
+            kernel->terminal->error("Intensity can't be moved because it doesn't exist.");
+            return false;
         }
         if (getIntensity(targetId) != nullptr) {
-            return "Intensity can't be moved because Target ID is already used.";
+            kernel->terminal->error("Intenity can't be moved because Target ID is already used.");
+            return false;
         }
         Intensity* intensity = intensities[intensityRow];
         intensities.removeAt(intensityRow);
@@ -96,7 +102,7 @@ QString IntensityList::moveIntensity(QList<QString> ids, QString targetId)
         }
         intensities.insert(position, intensity);
     }
-    return QString();
+    return true;
 }
 
 Intensity* IntensityList::recordIntensity(QString id)
@@ -115,10 +121,11 @@ Intensity* IntensityList::recordIntensity(QString id)
     return intensity;
 }
 
-QString IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer)
+bool IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer)
 {
     if (dimmer > 100 || dimmer < 0) {
-        return "Record Intensity Dimmer only allows from 0% to 100%.";
+        kernel->terminal->error("Record Intensity Dimmer only allows from 0% to 100%.");
+        return false;
     }
     for (QString id : ids) {
         Intensity* intensity = getIntensity(id);
@@ -127,7 +134,7 @@ QString IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer)
         }
         intensity->dimmer = dimmer;
     }
-    return QString();
+    return true;
 }
 
 QList<QString> IntensityList::getIds() {

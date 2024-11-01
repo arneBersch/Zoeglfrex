@@ -32,39 +32,43 @@ int FixtureList::getFixtureRow(QString id)
     return -1;
 }
 
-QString FixtureList::copyFixture(QList<QString> ids, QString targetId)
+bool FixtureList::copyFixture(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
         Fixture* fixture = getFixture(id);
         if (fixture == nullptr) {
-            return "Fixture can't be copied because it doesn't exist.";
+            kernel->terminal->error("Fixture can't be copied because it doesn't exist.");
+            return false;
         }
         if (getFixture(targetId) != nullptr) {
-            return "Fixture can't be copied because Target ID is already used.";
+            kernel->terminal->error("Fixture can't be copied because Target ID is already used.");
+            return false;
         }
         Fixture *targetFixture = recordFixture(targetId, fixture->model);
         if (targetFixture == nullptr) {
-            return "Fixture can't be copied because no free address was found.";
+            kernel->terminal->error("Fixture can't be copied because no free address was found.");
+            return false;
         }
         targetFixture->label = fixture->label;
         targetFixture->model = fixture->model;
     }
-    return QString();
+    return true;
 }
 
-QString FixtureList::deleteFixture(QList<QString> ids)
+bool FixtureList::deleteFixture(QList<QString> ids)
 {
     for (QString id : ids) {
         int fixtureRow = getFixtureRow(id);
         if (fixtureRow < 0) {
-            return "Fixture can't be deleted because it doesn't exist.";
+            kernel->terminal->error("Fixture can't be deleted because it doesn't exist.");
+            return false;
         }
         Fixture *fixture = fixtures[fixtureRow];
         kernel->groups->deleteFixture(fixture);
         fixtures.removeAt(fixtureRow);
         delete fixture;
     }
-    return QString();
+    return true;
 }
 
 void FixtureList::deleteModel(Model *model)
@@ -78,27 +82,30 @@ void FixtureList::deleteModel(Model *model)
     deleteFixture(invalidFixtures);
 }
 
-QString FixtureList::labelFixture(QList<QString> ids, QString label)
+bool FixtureList::labelFixture(QList<QString> ids, QString label)
 {
     for (QString id : ids) {
         Fixture* fixture = getFixture(id);
         if (fixture == nullptr) {
-            return tr("Fixture %1 can't be labeled because it doesn't exist.").arg(id);
+            kernel->terminal->error("Fixture " + id + " can't be labeled because it doesn't exist.");
+            return false;
         }
         fixture->label = label;
     }
-    return QString();
+    return true;
 }
 
-QString FixtureList::moveFixture(QList<QString> ids, QString targetId)
+bool FixtureList::moveFixture(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
         int fixtureRow = getFixtureRow(id);
         if (fixtureRow < 0) {
-            return tr("Fixture %1 can't be moved because it doesn't exist.").arg(id);
+            kernel->terminal->error("Fixture " + id + " can't be moved because it doesn't exist.");
+            return false;
         }
         if (getFixture(targetId) != nullptr) {
-            return tr("Fixture %1 can't be moved because Target ID is already used.").arg(id);
+            kernel->terminal->error("Fixture " + id + " can't be moved because Target ID is already used.");
+            return false;
         }
         Fixture* fixture = fixtures[fixtureRow];
         fixtures.removeAt(fixtureRow);
@@ -111,7 +118,7 @@ QString FixtureList::moveFixture(QList<QString> ids, QString targetId)
         }
         fixtures.insert(position, fixture);
     }
-    return QString();
+    return true;
 }
 
 Fixture* FixtureList::recordFixture(QString id, Model* model)
@@ -135,13 +142,14 @@ Fixture* FixtureList::recordFixture(QString id, Model* model)
     return fixture;
 }
 
-QString FixtureList::recordFixtureAddress(QList<QString> ids, int address)
+bool FixtureList::recordFixtureAddress(QList<QString> ids, int address)
 {
     QSet<int> fixtureChannels;
     for (QString id : ids) {
         Fixture *fixture = getFixture(id);
         if (fixture == nullptr) {
-            return tr("Fixture can't record address because Fixture %1 doesn't exist.").arg(id);
+            kernel->terminal->error("Fixture can't record address because Fixture " + id + " doesn't exist.");
+            return false;
         }
         for (int channel = fixture->address; channel < (fixture->address + fixture->model->channels.length()); channel++) {
             fixtureChannels.insert(channel);
@@ -151,44 +159,47 @@ QString FixtureList::recordFixtureAddress(QList<QString> ids, int address)
         Fixture* fixture = getFixture(id);
         for (int channel = address; channel < (address + fixture->model->channels.length()); channel++) {
             if (channel < 1 || channel > 512) {
-                return tr("Can't record Fixture Address because address %1 is out of range.").arg(channel);
+                kernel->terminal->error("Can't record Fixture Address because address " + QString::number(channel) + " is out of range.");
+                return false;
             }
             if (usedChannels().contains(channel) && !fixtureChannels.contains(channel)) {
-                return tr("Can't record Fixture Address because channel %1 is already used.").arg(channel);
+                kernel->terminal->error("Can't record Fixture Address because DMX channel " + QString::number(channel) + " is already used.");
+                return false;
             }
         }
         fixture->address = address;
         address += fixture->model->channels.length();
     }
-    return QString();
+    return true;
 }
 
-QString FixtureList::recordFixtureModel(QList<QString> ids, QString modelId, int address)
+bool FixtureList::recordFixtureModel(QList<QString> ids, QString modelId, int address)
 {
     Model *model = kernel->models->getModel(modelId);
     if (model == nullptr) {
-        return tr("Can't record Fixture Model because Model %1 doesn't exist.").arg(modelId);
+        kernel->terminal->error("Can't record Fixture Model because Model " + modelId + " doesn't exist.");
+        return false;
     }
     for (QString id : ids) {
         Fixture* fixture = getFixture(id);
         if (fixture == nullptr) {
             fixture = recordFixture(id, model);
             if (fixture == nullptr) {
-                return "Can't record Fixture because no free DMX address was found.";
+                kernel->terminal->error("Can't record Fixture because no free DMX address was found.");
+                return false;
             }
         }
         fixture->model = model;
         if (address > 0) {
             QList<QString> fixtureId;
             fixtureId.append(id);
-            QString result = recordFixtureAddress(fixtureId, address);
-            if (!result.isEmpty()) {
-                return result;
+            if (!recordFixtureAddress(fixtureId, address)) {
+                return false;
             }
             address += model->channels.length();
         }
     }
-    return QString();
+    return true;
 }
 
 QList<QString> FixtureList::getIds() {

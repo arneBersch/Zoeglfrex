@@ -28,12 +28,12 @@ public:
     GroupList(Kernel *core);
     Group* getGroup(QString id);
     int getGroupRow(QString id);
-    QString copyGroup(QList<QString> ids, QString targetId);
-    QString deleteGroup(QList<QString> ids);
+    bool copyGroup(QList<QString> ids, QString targetId);
+    bool deleteGroup(QList<QString> ids);
     void deleteFixture(Fixture *fixture);
-    QString labelGroup(QList<QString> ids, QString label);
-    QString moveGroup(QList<QString> ids, QString targetId);
-    QString recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
+    bool labelGroup(QList<QString> ids, QString label);
+    bool moveGroup(QList<QString> ids, QString targetId);
+    bool recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
     QList<QString> getIds();

@@ -29,13 +29,13 @@ public:
     ColorList(Kernel *core);
     Color* getColor(QString color);
 
-    QString copyColor(QList<QString> ids, QString targetId);
-    QString deleteColor(QList<QString> ids);
-    QString labelColor(QList<QString> ids, QString label);
-    QString moveColor(QList<QString> ids, QString targetId);
-    QString recordColorRed(QList<QString> ids, float red);
-    QString recordColorGreen(QList<QString> ids, float green);
-    QString recordColorBlue(QList<QString> ids, float blue);
+    bool copyColor(QList<QString> ids, QString targetId);
+    bool deleteColor(QList<QString> ids);
+    bool labelColor(QList<QString> ids, QString label);
+    bool moveColor(QList<QString> ids, QString targetId);
+    bool recordColorRed(QList<QString> ids, float red);
+    bool recordColorGreen(QList<QString> ids, float green);
+    bool recordColorBlue(QList<QString> ids, float blue);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
     QList<QString> getIds();
