@@ -22,6 +22,7 @@ SOURCES += \
     kernel/items/fixture.cpp \
     kernel/items/group.cpp \
     kernel/items/intensity.cpp \
+    kernel/items/item.cpp \
     kernel/items/model.cpp \
     kernel/items/transition.cpp \
     kernel/kernel.cpp \
@@ -49,6 +50,7 @@ HEADERS += \
     kernel/items/fixture.h \
     kernel/items/group.h \
     kernel/items/intensity.h \
+    kernel/items/item.h \
     kernel/items/model.h \
     kernel/items/transition.h \
     kernel/kernel.h \

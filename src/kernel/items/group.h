@@ -3,13 +3,12 @@
 
 #include <QtWidgets>
 
+#include "item.h"
 #include "fixture.h"
 
-class Group {
+class Group : public Item {
 public:
     Group();
-    QString id;
-    QString label;
     QSet<Fixture*> fixtures;
 };
 

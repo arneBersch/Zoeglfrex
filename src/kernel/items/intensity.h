@@ -3,11 +3,11 @@
 
 #include <QtWidgets>
 
-class Intensity {
+#include "item.h"
+
+class Intensity : public Item {
 public:
     Intensity();
-    QString id;
-    QString label;
     float dimmer;
 };
 

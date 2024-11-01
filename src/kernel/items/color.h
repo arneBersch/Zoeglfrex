@@ -3,11 +3,11 @@
 
 #include <QtWidgets>
 
-class Color {
+#include "item.h"
+
+class Color : public Item {
 public:
     Color();
-    QString id;
-    QString label;
     float red;
     float green;
     float blue;

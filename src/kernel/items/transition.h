@@ -3,11 +3,11 @@
 
 #include <QtWidgets>
 
-class Transition {
+#include "item.h"
+
+class Transition : public Item {
 public:
     Transition();
-    QString id;
-    QString label;
     float fade;
 };
 

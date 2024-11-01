@@ -3,11 +3,11 @@
 
 #include <QtWidgets>
 
-class Model {
+#include "item.h"
+
+class Model : public Item {
 public:
     Model();
-    QString id;
-    QString label;
     QString channels;
 };
 

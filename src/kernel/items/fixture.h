@@ -3,13 +3,12 @@
 
 #include <QtWidgets>
 
+#include "item.h"
 #include "model.h"
 
-class Fixture {
+class Fixture : public Item {
 public:
     Fixture();
-    QString id;
-    QString label;
     Model* model;
     int address;
 };
