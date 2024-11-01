@@ -20,33 +20,41 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     QMenu *fileMenu = menuBar()->addMenu("File");
 
-    QAction *newFileAction = new QAction("New File", this);
+    QAction *newFileAction = new QAction("New File");
     fileMenu->addAction(newFileAction);
     connect(newFileAction, &QAction::triggered, this, &MainWindow::newFile);
 
-    QAction *openFileAction = new QAction("Open File", this);
+    QAction *openFileAction = new QAction("Open File");
     fileMenu->addAction(openFileAction);
     connect(openFileAction, &QAction::triggered, this, &MainWindow::openFile);
 
-    QAction *saveFileAction = new QAction("Save File", this);
+    QAction *saveFileAction = new QAction("Save File");
     fileMenu->addAction(saveFileAction);
     connect(saveFileAction, &QAction::triggered, this, &MainWindow::saveFile);
 
-    QAction *saveFileAsAction = new QAction("Save File as", this);
+    QAction *saveFileAsAction = new QAction("Save File as");
     fileMenu->addAction(saveFileAsAction);
     connect(saveFileAsAction, &QAction::triggered, this, &MainWindow::saveFileAs);
 
     fileMenu->addSeparator();
 
-    QAction *quitAction = new QAction("Quit", this);
+    QAction *quitAction = new QAction("Quit");
     fileMenu->addAction(quitAction);
     connect(quitAction, &QAction::triggered, this, &MainWindow::close);
 
     QMenu *helpMenu = menuBar()->addMenu("Help");
 
-    QAction *aboutAction = new QAction("About Zöglfrex", this);
+    QAction *aboutAction = new QAction("About Zöglfrex");
     helpMenu->addAction(aboutAction);
     connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
+
+    QAction *openGuideAction = new QAction("Quick Start Guide");
+    helpMenu->addAction(openGuideAction);
+    connect(openGuideAction, &QAction::triggered, this, []{ QDesktopServices::openUrl(QUrl("https://github.com/arneBersch/Zoeglfrex/blob/main/docs/quick_start_guide.md")); });
+
+    QAction *openReferenceAction = new QAction("Reference");
+    helpMenu->addAction(openReferenceAction);
+    connect(openReferenceAction, &QAction::triggered, this, []{ QDesktopServices::openUrl(QUrl("https://github.com/arneBersch/Zoeglfrex/blob/main/docs/reference.md")); });
 
     kernel = new Kernel();
 
