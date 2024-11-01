@@ -17,6 +17,13 @@ SOURCES += \
     cuelistview/dmxengine.cpp \
     cuelistview/sacnserver.cpp \
     inspector/inspector.cpp \
+    kernel/items/color.cpp \
+    kernel/items/cue.cpp \
+    kernel/items/fixture.cpp \
+    kernel/items/group.cpp \
+    kernel/items/intensity.cpp \
+    kernel/items/model.cpp \
+    kernel/items/transition.cpp \
     kernel/kernel.cpp \
     kernel/lists/colorlist.cpp \
     kernel/lists/cuelist.cpp \
@@ -37,6 +44,13 @@ HEADERS += \
     cuelistview/dmxengine.h \
     cuelistview/sacnserver.h \
     inspector/inspector.h \
+    kernel/items/color.h \
+    kernel/items/cue.h \
+    kernel/items/fixture.h \
+    kernel/items/group.h \
+    kernel/items/intensity.h \
+    kernel/items/model.h \
+    kernel/items/transition.h \
     kernel/kernel.h \
     kernel/lists/colorlist.h \
     kernel/lists/cuelist.h \

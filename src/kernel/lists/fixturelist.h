@@ -12,16 +12,9 @@
 #include <QtWidgets>
 
 #include "itemlist.h"
+#include "../items/fixture.h"
 
 class Kernel;
-struct Model;
-
-struct Fixture {
-    QString id;
-    QString label;
-    Model* model;
-    int address;
-};
 
 class FixtureList : public ItemList {
     Q_OBJECT

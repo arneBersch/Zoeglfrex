@@ -12,15 +12,9 @@
 #include <QtWidgets>
 
 #include "itemlist.h"
+#include "../items/group.h"
 
 class Kernel;
-struct Fixture;
-
-struct Group {
-    QString id;
-    QString label;
-    QSet<Fixture*> fixtures;
-};
 
 class GroupList : public ItemList {
     Q_OBJECT

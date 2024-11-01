@@ -12,14 +12,9 @@
 #include <QtWidgets>
 
 #include "itemlist.h"
+#include "../items/intensity.h"
 
 class Kernel;
-
-struct Intensity {
-    QString id;
-    QString label;
-    float dimmer;
-};
 
 class IntensityList : public ItemList {
     Q_OBJECT

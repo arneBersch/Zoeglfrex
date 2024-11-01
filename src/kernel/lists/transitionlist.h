@@ -12,14 +12,9 @@
 #include <QtWidgets>
 
 #include "itemlist.h"
+#include "../items/transition.h"
 
 class Kernel;
-
-struct Transition {
-    QString id;
-    QString label;
-    float fade;
-};
 
 class TransitionList : public ItemList {
     Q_OBJECT

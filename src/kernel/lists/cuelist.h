@@ -12,20 +12,9 @@
 #include <QtWidgets>
 
 #include "itemlist.h"
+#include "../items/cue.h"
 
 class Kernel;
-struct Intensity;
-struct Color;
-struct Group;
-struct Transition;
-
-struct Cue {
-    QString id;
-    QString label;
-    Transition* transition;
-    QMap<Group*, Intensity*> intensities;
-    QMap<Group*, Color*> colors;
-};
 
 class CueList : public ItemList {
     Q_OBJECT

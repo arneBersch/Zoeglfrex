@@ -12,16 +12,9 @@
 #include <QtWidgets>
 
 #include "itemlist.h"
+#include "../items/color.h"
 
 class Kernel;
-
-struct Color {
-    QString id;
-    QString label;
-    float red;
-    float green;
-    float blue;
-};
 
 class ColorList : public ItemList {
     Q_OBJECT

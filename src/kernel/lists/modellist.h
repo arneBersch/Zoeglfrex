@@ -12,14 +12,9 @@
 #include <QtWidgets>
 
 #include "itemlist.h"
+#include "../items/model.h"
 
 class Kernel;
-
-struct Model {
-    QString id;
-    QString label;
-    QString channels;
-};
 
 class ModelList : public ItemList {
     Q_OBJECT
