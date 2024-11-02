@@ -44,7 +44,7 @@ void CuelistView::loadCue() {
     if (currentCue == nullptr) {
         cueLabel->setText(QString());
         if (!kernel->cues->getIds().isEmpty()) {
-            currentCue = kernel->cues->getCue(kernel->cues->getIds()[0]); // select first cue
+            currentCue = kernel->cues->getItem(kernel->cues->getIds()[0]); // select first cue
             loadCue();
         }
         return;
@@ -57,14 +57,14 @@ void CuelistView::previousCue() {
     if (currentCue == nullptr) {
         if (kernel->cues->getIds().size() > 0) {
             QString firstCue = kernel->cues->getIds().at(0);
-            currentCue = kernel->cues->getCue(firstCue);
+            currentCue = kernel->cues->getItem(firstCue);
             loadCue();
         }
     }
     QString previousCue;
     for (QString cueId : kernel->cues->getIds()) {
         if (cueId == currentCue->id && !previousCue.isEmpty()) {
-            currentCue = kernel->cues->getCue(previousCue);
+            currentCue = kernel->cues->getItem(previousCue);
             loadCue();
             return;
         }
@@ -77,14 +77,14 @@ void CuelistView::nextCue() {
     if (currentCue == nullptr) {
         if (kernel->cues->getIds().size() > 0) {
             QString firstCue = kernel->cues->getIds().at(0);
-            currentCue = kernel->cues->getCue(firstCue);
+            currentCue = kernel->cues->getItem(firstCue);
             loadCue();
         }
     }
     bool nextCue = false;
     for (QString cueId : kernel->cues->getIds()) {
         if (nextCue) {
-            currentCue = kernel->cues->getCue(cueId);
+            currentCue = kernel->cues->getItem(cueId);
             loadCue();
             return;
         }

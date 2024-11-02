@@ -20,11 +20,12 @@ class TransitionList : public ItemList {
     Q_OBJECT
 public:
     TransitionList(Kernel *core);
-    Transition* getTransition(QString id);
-    bool copyTransition(QList<QString> ids, QString targetId);
-    bool deleteTransition(QList <QString> ids);
-    bool labelTransition(QList<QString> ids, QString label);
-    bool moveTransition(QList<QString> ids, QString targetId);
+    Transition* getItem(QString id);
+    int getItemRow(QString id);
+    bool copyItems(QList<QString> ids, QString targetId);
+    bool deleteItems(QList <QString> ids);
+    bool labelItems(QList<QString> ids, QString label);
+    bool moveItems(QList<QString> ids, QString targetId);
     bool recordTransitionFade(QList<QString> ids, float fadeIn);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
@@ -33,7 +34,6 @@ private:
     QList<Transition*> transitions;
     Kernel *kernel;
     Transition* recordTransition(QString id);
-    int getTransitionRow(QString id);
 };
 
 #include "kernel/kernel.h"

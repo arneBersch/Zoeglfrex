@@ -20,18 +20,18 @@ class CueList : public ItemList {
     Q_OBJECT
 public:
     CueList(Kernel *core);
-    Cue* getCue(QString id);
-    int getCueRow(QString id);
-    bool copyCue(QList<QString> ids, QString targetId);
-    bool deleteCue(QList<QString> ids);
+    Cue* getItem(QString id);
+    int getItemRow(QString id);
+    bool copyItems(QList<QString> ids, QString targetId);
+    bool deleteItems(QList<QString> ids);
     bool deleteCueGroupIntensity(QList<QString> ids, QString groupId);
     bool deleteCueGroupColor(QList<QString> ids, QString groupId);
     void deleteIntensity(Intensity *intensity);
     void deleteColor(Color *color);
     void deleteTransition(Transition *transition);
     void deleteGroup(Group *group);
-    bool labelCue(QList<QString> ids, QString label);
-    bool moveCue(QList<QString> ids, QString targetId);
+    bool labelItems(QList<QString> ids, QString label);
+    bool moveItems(QList<QString> ids, QString targetId);
     bool recordCueTransition(QList<QString> ids, QString transitionId);
     bool recordCueIntensity(QList<QString> ids, QString groupId, QString intensityId);
     bool recordCueColor(QList<QString> ids, QString groupId, QString colorId);

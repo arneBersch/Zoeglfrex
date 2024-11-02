@@ -166,13 +166,13 @@ void MainWindow::openFile() {
 
 void MainWindow::clearKernel() {
     fileName = QString();
-    kernel->models->deleteModel(kernel->models->getIds());
-    kernel->fixtures->deleteFixture(kernel->fixtures->getIds());
-    kernel->groups->deleteGroup(kernel->groups->getIds());
-    kernel->intensities->deleteIntensity(kernel->intensities->getIds());
-    kernel->colors->deleteColor(kernel->colors->getIds());
-    kernel->transitions->deleteTransition(kernel->transitions->getIds());
-    kernel->cues->deleteCue(kernel->cues->getIds());
+    kernel->models->deleteItems(kernel->models->getIds());
+    kernel->fixtures->deleteItems(kernel->fixtures->getIds());
+    kernel->groups->deleteItems(kernel->groups->getIds());
+    kernel->intensities->deleteItems(kernel->intensities->getIds());
+    kernel->colors->deleteItems(kernel->colors->getIds());
+    kernel->transitions->deleteItems(kernel->transitions->getIds());
+    kernel->cues->deleteItems(kernel->cues->getIds());
 }
 
 void MainWindow::newFile() {
@@ -209,19 +209,19 @@ void MainWindow::saveFile() {
     fileStream << "ZOEGLFREX_00.00.00\n";
 
     for (QString modelId : kernel->models->getIds()) {
-        Model *model = kernel->models->getModel(modelId);
+        Model *model = kernel->models->getItem(modelId);
         fileStream << "m" << model->id << "R\"" << model->channels << "\"\n";
         fileStream << "m" << model->id << "L\"" << model->label << "\"\n";
     }
 
     for (QString fixtureId : kernel->fixtures->getIds()) {
-        Fixture *fixture = kernel->fixtures->getFixture(fixtureId);
+        Fixture *fixture = kernel->fixtures->getItem(fixtureId);
         fileStream << "f" << fixture->id << "R" << fixture->address << "m" << fixture->model->id << "\n";
         fileStream << "f" << fixture->id << "L\"" << fixture->label << "\"\n";
     }
 
     for (QString groupId : kernel->groups->getIds()) {
-        Group* group = kernel->groups->getGroup(groupId);
+        Group* group = kernel->groups->getItem(groupId);
         QString fixtures;
         if (!group->fixtures.isEmpty()) {
             fixtures = "f";
@@ -237,29 +237,29 @@ void MainWindow::saveFile() {
     }
 
     for (QString intensityId : kernel->intensities->getIds()) {
-        Intensity *intensity = kernel->intensities->getIntensity(intensityId);
+        Intensity *intensity = kernel->intensities->getItem(intensityId);
         fileStream << "i" << intensity->id << "R" << intensity->dimmer << "\n";
         fileStream << "i" << intensity->id << "L\"" << intensity->label << "\"\n";
     }
 
     for (QString colorId : kernel->colors->getIds()) {
-        Color *color = kernel->colors->getColor(colorId);
+        Color *color = kernel->colors->getItem(colorId);
         fileStream << "c" << color->id << "R" << color->red << "," << color->green << "," << color->blue << "\n";
         fileStream << "c" << color->id << "L\"" << color->label << "\"\n";
     }
 
     for (QString transitionId : kernel->transitions->getIds()) {
-        Transition *transition = kernel->transitions->getTransition(transitionId);
+        Transition *transition = kernel->transitions->getItem(transitionId);
         fileStream << "t" << transition->id << "R" << transition->fade << "\n";
         fileStream << "t" << transition->id << "L\"" << transition->label << "\"\n";
     }
 
     for (QString cueId : kernel->cues->getIds()) {
-        Cue *cue = kernel->cues->getCue(cueId);
+        Cue *cue = kernel->cues->getItem(cueId);
         fileStream << "q" << cue->id << "Rt" << cue->transition->id << "\n";
         fileStream << "q" << cue->id << "L\"" << cue->label << "\"\n";
         for (QString groupId : kernel->groups->getIds()) {
-            Group *group = kernel->groups->getGroup(groupId);
+            Group *group = kernel->groups->getItem (groupId);
             if (cue->intensities.contains(group)) {
                 fileStream << "q" << cue->id << "Rg" << group->id << "i" << cue->intensities.value(group)->id << "\n";
             }

@@ -13,16 +13,16 @@ GroupList::GroupList(Kernel *core)
     kernel = core;
 }
 
-Group* GroupList::getGroup(QString id)
+Group* GroupList::getItem(QString id)
 {
-    int groupRow = getGroupRow(id);
+    int groupRow = getItemRow(id);
     if (groupRow < 0 || groupRow >= groups.size()) {
         return nullptr;
     }
     return groups[groupRow];
 }
 
-int GroupList::getGroupRow(QString id)
+int GroupList::getItemRow(QString id)
 {
     for (int groupRow = 0; groupRow < groups.size(); groupRow++) {
         if (groups[groupRow]->id == id) {
@@ -32,15 +32,15 @@ int GroupList::getGroupRow(QString id)
     return -1;
 }
 
-bool GroupList::copyGroup(QList<QString> ids, QString targetId)
+bool GroupList::copyItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
-        Group *group = getGroup(id);
+        Group *group = getItem(id);
         if (group == nullptr) {
             kernel->terminal->error("Group can't be copied because it doesn't exist.");
             return false;
         }
-        if (getGroup(targetId) != nullptr) {
+        if (getItem(targetId) != nullptr) {
             kernel->terminal->error("Group can't be copied because Target ID is already used.");
             return false;
         }
@@ -51,10 +51,10 @@ bool GroupList::copyGroup(QList<QString> ids, QString targetId)
     return true;
 }
 
-bool GroupList::deleteGroup(QList<QString> ids)
+bool GroupList::deleteItems(QList<QString> ids)
 {
     for (QString id : ids) {
-        int groupRow = getGroupRow(id);
+        int groupRow = getItemRow(id);
         if (groupRow < 0) {
             kernel->terminal->error("Group can't be deleted because it doesn't exist.");
             return false;
@@ -74,10 +74,10 @@ void GroupList::deleteFixture(Fixture *fixture)
     }
 }
 
-bool GroupList::labelGroup(QList<QString> ids, QString label)
+bool GroupList::labelItems(QList<QString> ids, QString label)
 {
     for (QString id : ids) {
-        Group* group = getGroup(id);
+        Group* group = getItem(id);
         if (group == nullptr) {
             kernel->terminal->error("Group can't be labeled because it doesn't exist.");
             return false;
@@ -87,15 +87,15 @@ bool GroupList::labelGroup(QList<QString> ids, QString label)
     return true;
 }
 
-bool GroupList::moveGroup(QList<QString> ids, QString targetId)
+bool GroupList::moveItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
-        int groupRow = getGroupRow(id);
+        int groupRow = getItemRow(id);
         if (groupRow < 0) {
             kernel->terminal->error("Group can't be moved because it doesn't exist.");
             return false;
         }
-        if (getGroup(targetId) != nullptr) {
+        if (getItem(targetId) != nullptr) {
             kernel->terminal->error("Group can't be moved because Target ID is already used.");
             return false;
         }
@@ -133,7 +133,7 @@ bool GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureId
 {
     QSet<Fixture*> fixtureSelection;
     for (QString fixtureId : fixtureIds) {
-        Fixture* fixture = kernel->fixtures->getFixture(fixtureId);
+        Fixture* fixture = kernel->fixtures->getItem(fixtureId);
         if (fixture == nullptr) {
             kernel->terminal->error("Can't record Group Fixtures because Fixture doesn't exist.");
             return false;
@@ -141,7 +141,7 @@ bool GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureId
         fixtureSelection.insert(fixture);
     }
     for (QString id : ids) {
-        Group* group = getGroup(id);
+        Group* group = getItem(id);
         if (group == nullptr) {
             group = recordGroup(id);
         }

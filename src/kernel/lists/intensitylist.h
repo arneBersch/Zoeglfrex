@@ -20,12 +20,12 @@ class IntensityList : public ItemList {
     Q_OBJECT
 public:
     IntensityList(Kernel *core);
-    Intensity* getIntensity(QString id);
-    int getIntensityRow(QString id);
-    bool copyIntensity(QList<QString> ids, QString targetId);
-    bool deleteIntensity(QList<QString> ids);
-    bool labelIntensity(QList<QString> ids, QString label);
-    bool moveIntensity(QList<QString> ids, QString targetId);
+    Intensity* getItem(QString id);
+    int getItemRow(QString id);
+    bool copyItems(QList<QString> ids, QString targetId);
+    bool deleteItems(QList<QString> ids);
+    bool labelItems(QList<QString> ids, QString label);
+    bool moveItems(QList<QString> ids, QString targetId);
     bool recordIntensityDimmer(QList<QString> ids, float dimmer);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;

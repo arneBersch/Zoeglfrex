@@ -77,19 +77,19 @@ bool Kernel::execute(QList<int> command, QString text) {
             }
             bool result = false;
             if (selectionType == Keys::Model) { // COPY MODEL
-                result = models->copyModel(ids, targetId);
+                result = models->copyItems(ids, targetId);
             } else if (selectionType == Keys::Fixture) { // COPY FIXTURE
-                result = fixtures->copyFixture(ids, targetId);
+                result = fixtures->copyItems(ids, targetId);
             } else if (selectionType == Keys::Group) { // COPY GROUP
-                result = groups->copyGroup(ids, targetId);
+                result = groups->copyItems(ids, targetId);
             } else if (selectionType == Keys::Intensity) { // COPY INTENSITY
-                result = intensities->copyIntensity(ids, targetId);
+                result = intensities->copyItems(ids, targetId);
             } else if (selectionType == Keys::Color) { // COPY COLOR
-                result = colors->copyColor(ids, targetId);
+                result = colors->copyItems(ids, targetId);
             } else if (selectionType == Keys::Transition) { // COPY TRANSITION
-                result = transitions->copyTransition(ids, targetId);
+                result = transitions->copyItems(ids, targetId);
             } else if (selectionType == Keys::Cue) { // COPY CUE
-                result = cues->copyCue(ids, targetId);
+                result = cues->copyItems(ids, targetId);
             } else {
                 terminal->error("Unknown item type.");
                 return false;
@@ -104,20 +104,20 @@ bool Kernel::execute(QList<int> command, QString text) {
             }
             bool result = false;
             if (selectionType == Keys::Model) { // DELETE MODEL
-                result = models->deleteModel(ids);
+                result = models->deleteItems(ids);
             } else if (selectionType == Keys::Fixture) { // DELETE FIXTURE
-                result = fixtures->deleteFixture(ids);
+                result = fixtures->deleteItems(ids);
             } else if (selectionType == Keys::Group) { // DELETE GROUP
-                result = groups->deleteGroup(ids);
+                result = groups->deleteItems(ids);
             } else if (selectionType == Keys::Intensity) { // DELETE INTENSITY
-                result = intensities->deleteIntensity(ids);
+                result = intensities->deleteItems(ids);
             } else if (selectionType == Keys::Color) { // DELETE COLOR
-                result = colors->deleteColor(ids);
+                result = colors->deleteItems(ids);
             } else if (selectionType == Keys::Transition) { // DELETE TRANSITION
-                result = transitions->deleteTransition(ids);
+                result = transitions->deleteItems(ids);
             } else if (selectionType == Keys::Cue) { // DELETE CUE
                 if (operation.isEmpty()) {
-                    result = cues->deleteCue(ids);
+                    result = cues->deleteItems(ids);
                 } else {
                     if (operation[0] != Keys::Group) {
                         terminal->error("Delete Cue takes either no parameters or a Group.");
@@ -187,19 +187,19 @@ bool Kernel::execute(QList<int> command, QString text) {
             label.replace("\"", "");
             bool result = false;
             if (selectionType == Keys::Model) { // LABEL MODEL
-                result = models->labelModel(ids, label);
+                result = models->labelItems(ids, label);
             } else if (selectionType == Keys::Fixture) { // LABEL FIXTURE
-                result = fixtures->labelFixture(ids, label);
+                result = fixtures->labelItems(ids, label);
             } else if (selectionType == Keys::Group) { // LABEL GROUP
-                result = groups->labelGroup(ids, label);
+                result = groups->labelItems(ids, label);
             } else if (selectionType == Keys::Intensity) { // LABEL INTENSITY
-                result = intensities->labelIntensity(ids, label);
+                result = intensities->labelItems(ids, label);
             } else if (selectionType == Keys::Color) { // LABEL COLOR
-                result = colors->labelColor(ids, label);
+                result = colors->labelItems(ids, label);
             } else if (selectionType == Keys::Transition) { // LABEL TRANSITION
-                result = transitions->labelTransition(ids, label);
+                result = transitions->labelItems(ids, label);
             } else if (selectionType == Keys::Cue) { // LABEL CUE
-                result = cues->labelCue(ids, label);
+                result = cues->labelItems(ids, label);
             } else {
                 terminal->error("Unknown item type.");
                 return false;
@@ -215,19 +215,19 @@ bool Kernel::execute(QList<int> command, QString text) {
             }
             bool result = false;
             if (selectionType == Keys::Model) { // MOVE MODEL
-                result = models->moveModel(ids, targetId);
+                result = models->moveItems(ids, targetId);
             } else if (selectionType == Keys::Fixture) { // MOVE FIXTURE
-                result = fixtures->moveFixture(ids, targetId);
+                result = fixtures->moveItems(ids, targetId);
             } else if (selectionType == Keys::Group) { // MOVE GROUP
-                result = groups->moveGroup(ids, targetId);
+                result = groups->moveItems(ids, targetId);
             } else if (selectionType == Keys::Intensity) { // MOVE INTENSITY
-                result = intensities->moveIntensity(ids, targetId);
+                result = intensities->moveItems(ids, targetId);
             } else if (selectionType == Keys::Color) { // MOVE COLOR
-                result = colors->moveColor(ids, targetId);
+                result = colors->moveItems(ids, targetId);
             } else if (selectionType == Keys::Transition) { // MOVE TRANSITION
-                result = transitions->moveTransition(ids, targetId);
+                result = transitions->moveItems(ids, targetId);
             } else if (selectionType == Keys::Cue) { // MOVE CUE
-                result = cues->moveCue(ids, targetId);
+                result = cues->moveItems(ids, targetId);
             } else {
                 terminal->error("Unknown item type.");
                 return false;

@@ -12,16 +12,16 @@ ColorList::ColorList(Kernel *core) {
     kernel = core;
 }
 
-Color* ColorList::getColor(QString id)
+Color* ColorList::getItem(QString id)
 {
-    int colorRow = getColorRow(id);
+    int colorRow = getItemRow(id);
     if (colorRow < 0) {
         return nullptr;
     }
     return colors[colorRow];
 }
 
-int ColorList::getColorRow(QString id)
+int ColorList::getItemRow(QString id)
 {
     for (int colorRow = 0; colorRow < colors.size(); colorRow++) {
         if (colors[colorRow]->id == id) {
@@ -31,15 +31,15 @@ int ColorList::getColorRow(QString id)
     return -1;
 }
 
-bool ColorList::copyColor(QList<QString> ids, QString targetId)
+bool ColorList::copyItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
-        Color* color = getColor(id);
+        Color* color = getItem(id);
         if (color == nullptr) {
             kernel->terminal->error("Color can't be copied because it doesn't exist.");
             return false;
         }
-        if (getColor(targetId) != nullptr) {
+        if (getItem(targetId) != nullptr) {
             kernel->terminal->error("Color can't be copied because Target ID is already used.");
             return false;
         }
@@ -52,10 +52,10 @@ bool ColorList::copyColor(QList<QString> ids, QString targetId)
     return true;
 }
 
-bool ColorList::deleteColor(QList<QString> ids)
+bool ColorList::deleteItems(QList<QString> ids)
 {
     for (QString id : ids) {
-        int colorRow = getColorRow(id);
+        int colorRow = getItemRow(id);
         if (colorRow < 0) {
             kernel->terminal->error("Color can't be deleted because it doesn't exist.");
             return false;
@@ -68,10 +68,10 @@ bool ColorList::deleteColor(QList<QString> ids)
     return true;
 }
 
-bool ColorList::labelColor(QList<QString> ids, QString label)
+bool ColorList::labelItems(QList<QString> ids, QString label)
 {
     for (QString id : ids) {
-        Color* color = getColor(id);
+        Color* color = getItem(id);
         if (color == nullptr) {
             kernel->terminal->error("Color can't be labeled because it doesn't exist.");
             return false;
@@ -81,15 +81,15 @@ bool ColorList::labelColor(QList<QString> ids, QString label)
     return true;
 }
 
-bool ColorList::moveColor(QList<QString> ids, QString targetId)
+bool ColorList::moveItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
-        int colorRow = getColorRow(id);
+        int colorRow = getItemRow(id);
         if (colorRow < 0) {
             kernel->terminal->error("Color can't be moved because it doesn't exist.");
             return false;
         }
-        if (getColor(targetId) != nullptr) {
+        if (getItem(targetId) != nullptr) {
             kernel->terminal->error("Color can't be moved because Target ID is already used.");
             return false;
         }
@@ -132,7 +132,7 @@ bool ColorList::recordColorRed(QList<QString> ids, float red)
         return false;
     }
     for (QString id : ids) {
-        Color* color = getColor(id);
+        Color* color = getItem(id);
         if (color == nullptr) {
             color = recordColor(id);
         }
@@ -148,7 +148,7 @@ bool ColorList::recordColorGreen(QList<QString> ids, float green)
         return false;
     }
     for (QString id : ids) {
-        Color* color = getColor(id);
+        Color* color = getItem(id);
         if (color == nullptr) {
             color = recordColor(id);
         }
@@ -163,7 +163,7 @@ bool ColorList::recordColorBlue(QList<QString> ids, float blue)
         return "Record Color Blue only allows from 0% to 100%.";
     }
     for (QString id : ids) {
-        Color* color = getColor(id);
+        Color* color = getItem(id);
         if (color == nullptr) {
             color = recordColor(id);
         }

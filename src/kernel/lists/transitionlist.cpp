@@ -12,16 +12,16 @@ TransitionList::TransitionList(Kernel *core) {
     kernel = core;
 }
 
-Transition* TransitionList::getTransition(QString id)
+Transition* TransitionList::getItem(QString id)
 {
-    int transitionRow = getTransitionRow(id);
+    int transitionRow = getItemRow(id);
     if (transitionRow < 0) {
         return nullptr;
     }
     return transitions[transitionRow];
 }
 
-int TransitionList::getTransitionRow(QString id)
+int TransitionList::getItemRow(QString id)
 {
     for (int transitionRow = 0; transitionRow < transitions.size(); transitionRow++) {
         if (transitions[transitionRow]->id == id) {
@@ -31,15 +31,15 @@ int TransitionList::getTransitionRow(QString id)
     return -1;
 }
 
-bool TransitionList::copyTransition(QList<QString> ids, QString targetId)
+bool TransitionList::copyItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
-        Transition* transition = getTransition(id);
+        Transition* transition = getItem(id);
         if (transition == nullptr) {
             kernel->terminal->error("Transition can't be copied because it doesn't exist.");
             return false;
         }
-        if (getTransition(targetId) != nullptr) {
+        if (getItem(targetId) != nullptr) {
             kernel->terminal->error("Transition can't be copied because Target ID is already used.");
             return false;
         }
@@ -50,10 +50,10 @@ bool TransitionList::copyTransition(QList<QString> ids, QString targetId)
     return true;
 }
 
-bool TransitionList::deleteTransition(QList<QString> ids)
+bool TransitionList::deleteItems(QList<QString> ids)
 {
     for (QString id : ids) {
-        int transitionRow = getTransitionRow(id);
+        int transitionRow = getItemRow(id);
         if (transitionRow < 0) {
             kernel->terminal->error("Transition can't be deleted because it doesn't exist.");
             return false;
@@ -66,10 +66,10 @@ bool TransitionList::deleteTransition(QList<QString> ids)
     return true;
 }
 
-bool TransitionList::labelTransition(QList<QString> ids, QString label)
+bool TransitionList::labelItems(QList<QString> ids, QString label)
 {
     for (QString id : ids) {
-        Transition* transition = getTransition(id);
+        Transition* transition = getItem(id);
         if (transition == nullptr) {
             kernel->terminal->error("Transition can't be labeled because it doesn't exist.");
             return false;
@@ -79,15 +79,15 @@ bool TransitionList::labelTransition(QList<QString> ids, QString label)
     return true;
 }
 
-bool TransitionList::moveTransition(QList<QString> ids, QString targetId)
+bool TransitionList::moveItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
-        int transitionRow = getTransitionRow(id);
+        int transitionRow = getItemRow(id);
         if (transitionRow < 0) {
             kernel->terminal->error("Transition can't be moved because it doesn't exist.");
             return false;
         }
-        if (getTransition(targetId) != nullptr) {
+        if (getItem(targetId) != nullptr) {
             kernel->terminal->error("Transition can't be moved because Target ID is already used.");
             return false;
         }
@@ -128,7 +128,7 @@ bool TransitionList::recordTransitionFade(QList<QString> ids, float fade)
         return false;
     }
     for (QString id : ids) {
-        Transition* transition = getTransition(id);
+        Transition* transition = getItem(id);
         if (transition == nullptr) {
             transition = recordTransition(id);
         }

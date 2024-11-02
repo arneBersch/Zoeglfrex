@@ -12,16 +12,16 @@ ModelList::ModelList(Kernel *core) {
     kernel = core;
 }
 
-Model* ModelList::getModel(QString id)
+Model* ModelList::getItem(QString id)
 {
-    int modelRow = getModelRow(id);
+    int modelRow = getItemRow(id);
     if (modelRow < 0 || modelRow >= models.size()) {
         return nullptr;
     }
     return models[modelRow];
 }
 
-int ModelList::getModelRow(QString id)
+int ModelList::getItemRow(QString id)
 {
     for (int modelRow = 0; modelRow < models.size(); modelRow++) {
         if (models[modelRow]->id == id) {
@@ -31,15 +31,15 @@ int ModelList::getModelRow(QString id)
     return -1;
 }
 
-bool ModelList::copyModel(QList<QString> ids, QString targetId)
+bool ModelList::copyItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
-        Model* model = getModel(id);
+        Model* model = getItem(id);
         if (model == nullptr) {
             kernel->terminal->error("Model can't be copied because it doesn't exist.");
             return false;
         }
-        if (getModel(targetId) != nullptr) {
+        if (getItem(targetId) != nullptr) {
             kernel->terminal->error("Model can't be copied because Target ID is already used.");
             return false;
         }
@@ -50,10 +50,10 @@ bool ModelList::copyModel(QList<QString> ids, QString targetId)
     return true;
 }
 
-bool ModelList::deleteModel(QList<QString> ids)
+bool ModelList::deleteItems(QList<QString> ids)
 {
     for (QString id : ids) {
-        int modelRow = getModelRow(id);
+        int modelRow = getItemRow(id);
         if (modelRow < 0) {
             kernel->terminal->error("Model can't be deleted because it doesn't exist.");
             return false;
@@ -66,10 +66,10 @@ bool ModelList::deleteModel(QList<QString> ids)
     return true;
 }
 
-bool ModelList::labelModel(QList<QString> ids, QString label)
+bool ModelList::labelItems(QList<QString> ids, QString label)
 {
     for (QString id : ids) {
-        Model* model = getModel(id);
+        Model* model = getItem(id);
         if (model == nullptr) {
             kernel->terminal->error("Model can't be labeled because it doesn't exist.");
             return false;
@@ -79,15 +79,15 @@ bool ModelList::labelModel(QList<QString> ids, QString label)
     return true;
 }
 
-bool ModelList::moveModel(QList<QString> ids, QString targetId)
+bool ModelList::moveItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
-        int modelRow = getModelRow(id);
+        int modelRow = getItemRow(id);
         if (modelRow < 0) {
             kernel->terminal->error("Model can't be moved because it doesn't exist.");
             return false;
         }
-        if (getModel(targetId) != nullptr) {
+        if (getItem(targetId) != nullptr) {
             kernel->terminal->error("Model can't be moved because Target ID is already used.");
             return false;
         }
@@ -128,13 +128,13 @@ bool ModelList::recordModelChannels(QList<QString> ids, QString channels)
         return false;
     }
     for (QString id : ids) {
-        Model* model = getModel(id);
+        Model* model = getItem(id);
         if (model == nullptr) {
             model = recordModel(id);
         } else {
             if (channels.size() > model->channels.size()) {
                 for (QString fixtureId : kernel->fixtures->getIds()) {
-                    Fixture *fixture = kernel->fixtures->getFixture(fixtureId);
+                    Fixture *fixture = kernel->fixtures->getItem(fixtureId);
                     if (fixture->model == model) {
                         for (int channel=(fixture->address + model->channels.size()); channel < (fixture->address + channels.size()); channel++) {
                             if (channel > 512) {

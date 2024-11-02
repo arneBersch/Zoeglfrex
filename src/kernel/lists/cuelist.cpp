@@ -12,15 +12,15 @@ CueList::CueList(Kernel *core) {
     kernel = core;
 }
 
-Cue* CueList::getCue(QString id) {
-    int cueRow = getCueRow(id);
+Cue* CueList::getItem(QString id) {
+    int cueRow = getItemRow(id);
     if (cueRow < 0 || cueRow >= cues.size()) {
         return nullptr;
     }
     return cues[cueRow];
 }
 
-int CueList::getCueRow(QString id) {
+int CueList::getItemRow(QString id) {
     for (int cueRow = 0; cueRow < cues.size(); cueRow++) {
         if (cues[cueRow]->id == id) {
             return cueRow;
@@ -29,14 +29,14 @@ int CueList::getCueRow(QString id) {
     return -1;
 }
 
-bool CueList::copyCue(QList<QString> ids, QString targetId) {
+bool CueList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
-        Cue* cue = getCue(id);
+        Cue* cue = getItem(id);
         if (cue == nullptr) {
             kernel->terminal->error("Cue can't be copied because it doesn't exist.");
             return false;
         }
-        if (getCue(targetId) != nullptr) {
+        if (getItem(targetId) != nullptr) {
             kernel->terminal->error("Cue can't be copied because Target ID is already used.");
             return false;
         }
@@ -49,9 +49,9 @@ bool CueList::copyCue(QList<QString> ids, QString targetId) {
     return true;
 }
 
-bool CueList::deleteCue(QList<QString> ids) {
+bool CueList::deleteItems(QList<QString> ids) {
     for (QString id : ids) {
-        int cueRow = getCueRow(id);
+        int cueRow = getItemRow(id);
         if (cueRow < 0) {
             kernel->terminal->error("Cue can't be deleted because it doesn't exist.");
             return false;
@@ -93,7 +93,7 @@ void CueList::deleteTransition(Transition* transition) {
             invalidCues.append(cue->id);
         }
     }
-    deleteCue(invalidCues);
+    deleteItems(invalidCues);
 }
 
 void CueList::deleteGroup(Group *group) {
@@ -104,13 +104,13 @@ void CueList::deleteGroup(Group *group) {
 }
 
 bool CueList::deleteCueGroupIntensity(QList<QString> ids, QString groupId) {
-    Group* group = kernel->groups->getGroup(groupId);
+    Group* group = kernel->groups->getItem(groupId);
     if (group == nullptr) {
         kernel->terminal->error("Can't delete Cue Group Intensity: Group " + groupId + " doesn't exist.");
         return false;
     }
     for (QString id : ids) {
-        Cue *cue = getCue(id);
+        Cue *cue = getItem(id);
         if (cue == nullptr) {
             kernel->terminal->error("Can't delete Group Intensity because Intensity " + id + " doesn't exist");
             return false;
@@ -121,13 +121,13 @@ bool CueList::deleteCueGroupIntensity(QList<QString> ids, QString groupId) {
 }
 
 bool CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
-    Group* group = kernel->groups->getGroup(groupId);
+    Group* group = kernel->groups->getItem(groupId);
     if (group == nullptr) {
         kernel->terminal->error("Can't delete Cue Group Color: Group " + groupId + " doesn't exist.");
         return false;
     }
     for (QString id : ids) {
-        Cue *cue = getCue(id);
+        Cue *cue = getItem(id);
         if (cue == nullptr) {
             kernel->terminal->error("Can't delete Cue Group Color because Color " + id + " doesn't exist");
             return false;
@@ -137,9 +137,9 @@ bool CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
     return true;
 }
 
-bool CueList::labelCue(QList<QString> ids, QString label) {
+bool CueList::labelItems(QList<QString> ids, QString label) {
     for (QString id : ids) {
-        Cue* cue = getCue(id);
+        Cue* cue = getItem(id);
         if (cue == nullptr) {
             kernel->terminal->error("Cue can't be labeled because it doesn't exist.");
             return false;
@@ -149,14 +149,14 @@ bool CueList::labelCue(QList<QString> ids, QString label) {
     return true;
 }
 
-bool CueList::moveCue(QList<QString> ids, QString targetId) {
+bool CueList::moveItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
-        int cueRow = getCueRow(id);
+        int cueRow = getItemRow(id);
         if (cueRow < 0) {
             kernel->terminal->error("Cue can't be moved because it doesn't exist.");
             return false;
         }
-        if (getCue(targetId) != nullptr) {
+        if (getItem(targetId) != nullptr) {
             kernel->terminal->error("Cue can't be moved because Target ID is already used.");
             return false;
         }
@@ -191,13 +191,13 @@ Cue* CueList::recordCue(QString id, Transition *transition) {
 }
 
 bool CueList::recordCueTransition(QList<QString> ids, QString transitionId) {
-    Transition* transition = kernel->transitions->getTransition(transitionId);
+    Transition* transition = kernel->transitions->getItem(transitionId);
     if (transition == nullptr) {
         kernel->terminal->error("Can't record Cue because Transition doesn't exist.");
         return false;
     }
     for (QString id : ids) {
-        Cue* cue = getCue(id);
+        Cue* cue = getItem(id);
         if (cue == nullptr) {
             cue = recordCue(id, transition);
         }
@@ -207,18 +207,18 @@ bool CueList::recordCueTransition(QList<QString> ids, QString transitionId) {
 }
 
 bool CueList::recordCueIntensity(QList<QString> ids, QString groupId, QString intensityId) {
-    Group* group = kernel->groups->getGroup(groupId);
+    Group* group = kernel->groups->getItem(groupId);
     if (group == nullptr) {
         kernel->terminal->error("Can't record Cue because Group doesn't exist.");
         return false;
     }
-    Intensity* intensity = kernel->intensities->getIntensity(intensityId);
+    Intensity* intensity = kernel->intensities->getItem(intensityId);
     if (intensity == nullptr) {
         kernel->terminal->error("Can't record Cue because Intensity doesn't exist.");
         return false;
     }
     for (QString id : ids) {
-        Cue* cue = getCue(id);
+        Cue* cue = getItem(id);
         if (cue == nullptr) {
             kernel->terminal->error("Can't record Cue because no Transition was specified.");
             return false;
@@ -229,18 +229,18 @@ bool CueList::recordCueIntensity(QList<QString> ids, QString groupId, QString in
 }
 
 bool CueList::recordCueColor(QList<QString> ids, QString groupId, QString colorId) {
-    Group* group = kernel->groups->getGroup(groupId);
+    Group* group = kernel->groups->getItem(groupId);
     if (group == nullptr) {
         kernel->terminal->error("Can't record Cue because Group doesn't exist.");
         return false;
     }
-    Color* color = kernel->colors->getColor(colorId);
+    Color* color = kernel->colors->getItem(colorId);
     if (color == nullptr) {
         kernel->terminal->error("Can't record Cue because Color doesn't exist.");
         return false;
     }
     for (QString id : ids) {
-        Cue* cue = getCue(id);
+        Cue* cue = getItem(id);
         if (cue == nullptr) {
             kernel->terminal->error("Can't record Cue because no Transition was specified.");
             return false;

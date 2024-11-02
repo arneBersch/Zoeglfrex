@@ -53,14 +53,14 @@ QVariant CueModel::data(const QModelIndex &index, const int role) const
         if (column == CueModelColumns::group) {
             return groups[row];
         } else if (column == CueModelColumns::intensity) {
-            Group *currentGroup = kernel->groups->getGroup(groups[row]);
+            Group *currentGroup = kernel->groups->getItem(groups[row]);
             if (currentCue->intensities.contains(currentGroup)) {
                 QString id = (currentCue->intensities[currentGroup])->id;
                 return id;
             }
             return QVariant();
         } else if (column == CueModelColumns::color) {
-            Group *currentGroup = kernel->groups->getGroup(groups[row]);
+            Group *currentGroup = kernel->groups->getItem(groups[row]);
             if (currentCue->colors.contains(currentGroup)) {
                 QString id = (currentCue->colors[currentGroup])->id;
                 return id;

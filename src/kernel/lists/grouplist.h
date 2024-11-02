@@ -20,13 +20,13 @@ class GroupList : public ItemList {
     Q_OBJECT
 public:
     GroupList(Kernel *core);
-    Group* getGroup(QString id);
-    int getGroupRow(QString id);
-    bool copyGroup(QList<QString> ids, QString targetId);
-    bool deleteGroup(QList<QString> ids);
+    Group* getItem(QString id);
+    int getItemRow(QString id);
+    bool copyItems(QList<QString> ids, QString targetId);
+    bool deleteItems(QList<QString> ids);
     void deleteFixture(Fixture *fixture);
-    bool labelGroup(QList<QString> ids, QString label);
-    bool moveGroup(QList<QString> ids, QString targetId);
+    bool labelItems(QList<QString> ids, QString label);
+    bool moveItems(QList<QString> ids, QString targetId);
     bool recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;

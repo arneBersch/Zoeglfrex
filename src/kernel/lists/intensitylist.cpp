@@ -12,16 +12,16 @@ IntensityList::IntensityList(Kernel *core) {
     kernel = core;
 }
 
-Intensity* IntensityList::getIntensity(QString id)
+Intensity* IntensityList::getItem(QString id)
 {
-    int intensityRow = getIntensityRow(id);
+    int intensityRow = getItemRow(id);
     if (intensityRow < 0 || intensityRow >= intensities.size()) {
         return nullptr;
     }
     return intensities[intensityRow];
 }
 
-int IntensityList::getIntensityRow(QString id)
+int IntensityList::getItemRow(QString id)
 {
     for (int intensityRow = 0; intensityRow < intensities.size(); intensityRow++) {
         if (intensities[intensityRow]->id == id) {
@@ -31,15 +31,15 @@ int IntensityList::getIntensityRow(QString id)
     return -1;
 }
 
-bool IntensityList::copyIntensity(QList<QString> ids, QString targetId)
+bool IntensityList::copyItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
-        Intensity* intensity = getIntensity(id);
+        Intensity* intensity = getItem(id);
         if (intensity == nullptr) {
             kernel->terminal->error("Intensity can't be copied because it doesn't exist.");
             return false;
         }
-        if (getIntensity(targetId) != nullptr) {
+        if (getItem(targetId) != nullptr) {
             kernel->terminal->error("Intensity can't be copied because Target ID is already used.");
             return false;
         }
@@ -50,10 +50,10 @@ bool IntensityList::copyIntensity(QList<QString> ids, QString targetId)
     return true;
 }
 
-bool IntensityList::deleteIntensity(QList<QString> ids)
+bool IntensityList::deleteItems(QList<QString> ids)
 {
     for (QString id : ids) {
-        int intensityRow = getIntensityRow(id);
+        int intensityRow = getItemRow(id);
         if (intensityRow < 0) {
             kernel->terminal->error("Intensity can't be deleted because it doesn't exist.");
             return false;
@@ -66,10 +66,10 @@ bool IntensityList::deleteIntensity(QList<QString> ids)
     return true;
 }
 
-bool IntensityList::labelIntensity(QList<QString> ids, QString label)
+bool IntensityList::labelItems(QList<QString> ids, QString label)
 {
     for (QString id : ids) {
-        Intensity* intensity = getIntensity(id);
+        Intensity* intensity = getItem(id);
         if (intensity == nullptr) {
             kernel->terminal->error("Intensity can't be labeled because it doesn't exist.");
             return false;
@@ -79,15 +79,15 @@ bool IntensityList::labelIntensity(QList<QString> ids, QString label)
     return true;
 }
 
-bool IntensityList::moveIntensity(QList<QString> ids, QString targetId)
+bool IntensityList::moveItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
-        int intensityRow = getIntensityRow(id);
+        int intensityRow = getItemRow(id);
         if (intensityRow < 0) {
             kernel->terminal->error("Intensity can't be moved because it doesn't exist.");
             return false;
         }
-        if (getIntensity(targetId) != nullptr) {
+        if (getItem(targetId) != nullptr) {
             kernel->terminal->error("Intenity can't be moved because Target ID is already used.");
             return false;
         }
@@ -128,7 +128,7 @@ bool IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer)
         return false;
     }
     for (QString id : ids) {
-        Intensity* intensity = getIntensity(id);
+        Intensity* intensity = getItem(id);
         if (intensity == nullptr) {
             intensity = recordIntensity(id);
         }
