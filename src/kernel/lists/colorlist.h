@@ -20,12 +20,12 @@ class ColorList : public ItemList {
     Q_OBJECT
 public:
     ColorList(Kernel *core);
-    Color* getItem(QString color);
-    int getItemRow(QString id);
-    bool copyItems(QList<QString> ids, QString targetId);
-    bool deleteItems(QList<QString> ids);
-    bool labelItems(QList<QString> ids, QString label);
-    bool moveItems(QList<QString> ids, QString targetId);
+    Color* getItem(QString color) override;
+    int getItemRow(QString id) override;
+    bool copyItems(QList<QString> ids, QString targetId) override;
+    bool deleteItems(QList<QString> ids) override;
+    bool labelItems(QList<QString> ids, QString label) override;
+    bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordColorRed(QList<QString> ids, float red);
     bool recordColorGreen(QList<QString> ids, float green);
     bool recordColorBlue(QList<QString> ids, float blue);

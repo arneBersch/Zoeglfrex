@@ -20,13 +20,13 @@ class FixtureList : public ItemList {
     Q_OBJECT
 public:
     FixtureList(Kernel *core);
-    Fixture* getItem(QString id);
-    int getItemRow(QString id);
-    bool copyItems(QList<QString> ids, QString targetId);
-    bool deleteItems(QList<QString> ids);
+    Fixture* getItem(QString id) override;
+    int getItemRow(QString id) override;
+    bool copyItems(QList<QString> ids, QString targetId) override;
+    bool deleteItems(QList<QString> ids) override;
     void deleteModel(Model *model);
-    bool labelItems(QList<QString> ids, QString label);
-    bool moveItems(QList<QString> ids, QString targetId);
+    bool labelItems(QList<QString> ids, QString label) override;
+    bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordFixtureAddress(QList<QString> ids, int address);
     bool recordFixtureModel(QList<QString> ids, QString model, int address=0);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;

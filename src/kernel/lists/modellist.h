@@ -20,12 +20,12 @@ class ModelList : public ItemList {
     Q_OBJECT
 public:
     ModelList(Kernel *core);
-    Model* getItem(QString id);
-    int getItemRow(QString id);
-    bool copyItems(QList<QString> ids, QString targetId);
-    bool deleteItems(QList<QString> ids);
-    bool labelItems(QList<QString> ids, QString label);
-    bool moveItems(QList<QString> ids, QString targetId);
+    Model* getItem(QString id) override;
+    int getItemRow(QString id) override;
+    bool copyItems(QList<QString> ids, QString targetId) override;
+    bool deleteItems(QList<QString> ids) override;
+    bool labelItems(QList<QString> ids, QString label) override;
+    bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordModelChannels(QList<QString> ids, QString channels);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
