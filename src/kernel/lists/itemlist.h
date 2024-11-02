@@ -3,6 +3,7 @@
 
 #include <QtWidgets>
 
+class Kernel;
 #include "kernel/items/item.h"
 
 class ItemList : public QAbstractTableModel {
@@ -17,6 +18,7 @@ public:
     virtual bool moveItems(QList<QString> ids, QString targetId) = 0;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     bool greaterId(QString firstId, QString secondId);
+    Kernel *kernel;
 };
 
 #endif // ITEMLIST_H

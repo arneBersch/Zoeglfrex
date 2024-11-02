@@ -1,4 +1,5 @@
 #include "itemlist.h"
+#include "kernel/kernel.h"
 
 ItemList::ItemList() {
     //
@@ -6,14 +7,19 @@ ItemList::ItemList() {
 
 bool ItemList::labelItems(QList<QString> ids, QString label)
 {
+    QList<Item*> items;
     for (QString id : ids) {
         Item* item = getItem(id);
         if (item == nullptr) {
-            //kernel->terminal->error("Item can't be labeled because it doesn't exist.");
+            kernel->terminal->error("Couldn't label items because item with ID " + id + " doesn't exist.");
             return false;
         }
+        items.append(item);
+    }
+    for (Item* item : items) {
         item->label = label;
     }
+    kernel->terminal->success("Labeled " + QString::number(ids.length()) + " items as \"" + label + "\"");
     return true;
 }
 

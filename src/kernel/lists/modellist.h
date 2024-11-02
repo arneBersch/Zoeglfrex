@@ -31,7 +31,6 @@ public:
     QList<QString> getIds();
 private:
     QList<Model*> models;
-    Kernel *kernel;
     Model* recordModel(QString id);
 };
 

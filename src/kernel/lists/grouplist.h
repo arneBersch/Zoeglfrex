@@ -32,7 +32,6 @@ public:
     QList<QString> getIds();
 private:
     QList<Group*> groups;
-    Kernel *kernel;
     Group* recordGroup(QString id);
 };
 

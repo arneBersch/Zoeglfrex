@@ -31,7 +31,6 @@ public:
     QList<QString> getIds();
 private:
     QList<Transition*> transitions;
-    Kernel *kernel;
     Transition* recordTransition(QString id);
 };
 

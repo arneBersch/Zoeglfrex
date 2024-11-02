@@ -34,7 +34,6 @@ public:
 private:
     QList<Color*> colors;
     Color* recordColor(QString id);
-    Kernel *kernel;
 };
 
 #include "kernel/kernel.h"

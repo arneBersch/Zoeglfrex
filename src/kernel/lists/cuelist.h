@@ -39,7 +39,6 @@ public:
     QVariant data(const QModelIndex &index, const int role) const override;
 private:
     QList<Cue*> cues;
-    Kernel *kernel;
     Cue* recordCue(QString id, Transition *transition);
 };
 

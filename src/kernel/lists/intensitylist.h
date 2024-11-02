@@ -31,7 +31,6 @@ public:
     QList<QString> getIds();
 private:
     QList<Intensity*> intensities;
-    Kernel *kernel;
     Intensity* recordIntensity(QString id);
 };
 
