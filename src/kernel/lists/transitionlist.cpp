@@ -149,7 +149,7 @@ QVariant TransitionList::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return transitions[row]->id;
+        return transitions[row]->name();
     }
     return QVariant();
 }

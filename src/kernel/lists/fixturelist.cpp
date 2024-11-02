@@ -238,7 +238,7 @@ QVariant FixtureList::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return fixtures[row]->id;
+        return fixtures[row]->name();
     }
     return QVariant();
 }

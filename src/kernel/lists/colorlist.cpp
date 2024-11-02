@@ -184,7 +184,7 @@ QVariant ColorList::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return colors[row]->id;
+        return colors[row]->name();
     }
     return QVariant();
 }

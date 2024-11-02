@@ -261,7 +261,7 @@ QVariant CueList::data(const QModelIndex &index, const int role) const {
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return cues[row]->id;
+        return cues[row]->name();
     }
     return QVariant();
 }

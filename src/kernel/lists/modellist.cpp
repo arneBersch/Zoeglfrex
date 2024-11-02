@@ -167,7 +167,7 @@ QVariant ModelList::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return models[row]->id;
+        return models[row]->name();
     }
     return QVariant();
 }

@@ -149,7 +149,7 @@ QVariant IntensityList::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return intensities[row]->id;
+        return intensities[row]->name();
     }
     return QVariant();
 }

@@ -162,7 +162,7 @@ QVariant GroupList::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return groups[row]->id;
+        return groups[row]->name();
     }
     return QVariant();
 }

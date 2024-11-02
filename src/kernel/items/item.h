@@ -9,6 +9,7 @@ public:
     Item();
     QString id;
     QString label;
+    QString name();
 };
 
 #endif // ITEM_H
