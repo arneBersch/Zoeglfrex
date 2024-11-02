@@ -24,7 +24,6 @@ public:
     int getItemRow(QString id) override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
-    bool labelItems(QList<QString> ids, QString label) override;
     bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordModelChannels(QList<QString> ids, QString channels);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;

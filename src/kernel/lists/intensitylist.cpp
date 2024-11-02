@@ -66,19 +66,6 @@ bool IntensityList::deleteItems(QList<QString> ids)
     return true;
 }
 
-bool IntensityList::labelItems(QList<QString> ids, QString label)
-{
-    for (QString id : ids) {
-        Intensity* intensity = getItem(id);
-        if (intensity == nullptr) {
-            kernel->terminal->error("Intensity can't be labeled because it doesn't exist.");
-            return false;
-        }
-        intensity->label = label;
-    }
-    return true;
-}
-
 bool IntensityList::moveItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {

@@ -82,19 +82,6 @@ void FixtureList::deleteModel(Model *model)
     deleteItems(invalidFixtures);
 }
 
-bool FixtureList::labelItems(QList<QString> ids, QString label)
-{
-    for (QString id : ids) {
-        Fixture* fixture = getItem(id);
-        if (fixture == nullptr) {
-            kernel->terminal->error("Fixture " + id + " can't be labeled because it doesn't exist.");
-            return false;
-        }
-        fixture->label = label;
-    }
-    return true;
-}
-
 bool FixtureList::moveItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {

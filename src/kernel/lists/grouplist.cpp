@@ -74,19 +74,6 @@ void GroupList::deleteFixture(Fixture *fixture)
     }
 }
 
-bool GroupList::labelItems(QList<QString> ids, QString label)
-{
-    for (QString id : ids) {
-        Group* group = getItem(id);
-        if (group == nullptr) {
-            kernel->terminal->error("Group can't be labeled because it doesn't exist.");
-            return false;
-        }
-        group->label = label;
-    }
-    return true;
-}
-
 bool GroupList::moveItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {

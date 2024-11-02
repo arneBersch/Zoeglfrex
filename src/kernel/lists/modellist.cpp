@@ -66,19 +66,6 @@ bool ModelList::deleteItems(QList<QString> ids)
     return true;
 }
 
-bool ModelList::labelItems(QList<QString> ids, QString label)
-{
-    for (QString id : ids) {
-        Model* model = getItem(id);
-        if (model == nullptr) {
-            kernel->terminal->error("Model can't be labeled because it doesn't exist.");
-            return false;
-        }
-        model->label = label;
-    }
-    return true;
-}
-
 bool ModelList::moveItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {

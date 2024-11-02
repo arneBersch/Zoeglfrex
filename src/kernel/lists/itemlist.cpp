@@ -4,6 +4,19 @@ ItemList::ItemList() {
     //
 }
 
+bool ItemList::labelItems(QList<QString> ids, QString label)
+{
+    for (QString id : ids) {
+        Item* item = getItem(id);
+        if (item == nullptr) {
+            //kernel->terminal->error("Item can't be labeled because it doesn't exist.");
+            return false;
+        }
+        item->label = label;
+    }
+    return true;
+}
+
 int ItemList::columnCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return 1;

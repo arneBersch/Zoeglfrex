@@ -137,18 +137,6 @@ bool CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
     return true;
 }
 
-bool CueList::labelItems(QList<QString> ids, QString label) {
-    for (QString id : ids) {
-        Cue* cue = getItem(id);
-        if (cue == nullptr) {
-            kernel->terminal->error("Cue can't be labeled because it doesn't exist.");
-            return false;
-        }
-        cue->label = label;
-    }
-    return true;
-}
-
 bool CueList::moveItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         int cueRow = getItemRow(id);

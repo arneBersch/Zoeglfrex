@@ -66,19 +66,6 @@ bool TransitionList::deleteItems(QList<QString> ids)
     return true;
 }
 
-bool TransitionList::labelItems(QList<QString> ids, QString label)
-{
-    for (QString id : ids) {
-        Transition* transition = getItem(id);
-        if (transition == nullptr) {
-            kernel->terminal->error("Transition can't be labeled because it doesn't exist.");
-            return false;
-        }
-        transition->label = label;
-    }
-    return true;
-}
-
 bool TransitionList::moveItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {

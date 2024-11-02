@@ -68,19 +68,6 @@ bool ColorList::deleteItems(QList<QString> ids)
     return true;
 }
 
-bool ColorList::labelItems(QList<QString> ids, QString label)
-{
-    for (QString id : ids) {
-        Color* color = getItem(id);
-        if (color == nullptr) {
-            kernel->terminal->error("Color can't be labeled because it doesn't exist.");
-            return false;
-        }
-        color->label = label;
-    }
-    return true;
-}
-
 bool ColorList::moveItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {

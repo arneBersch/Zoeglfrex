@@ -24,7 +24,6 @@ public:
     int getItemRow(QString id) override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
-    bool labelItems(QList<QString> ids, QString label) override;
     bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordColorRed(QList<QString> ids, float red);
     bool recordColorGreen(QList<QString> ids, float green);

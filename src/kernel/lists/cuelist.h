@@ -30,7 +30,6 @@ public:
     void deleteColor(Color *color);
     void deleteTransition(Transition *transition);
     void deleteGroup(Group *group);
-    bool labelItems(QList<QString> ids, QString label) override;
     bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordCueTransition(QList<QString> ids, QString transitionId);
     bool recordCueIntensity(QList<QString> ids, QString groupId, QString intensityId);
