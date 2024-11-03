@@ -20,9 +20,9 @@ class CueList : public ItemList {
     Q_OBJECT
 public:
     CueList(Kernel *core);
-    Cue* getItem(QString id) override;
-    int getItemRow(QString id) override;
-    Cue* getItemByRow(int row) override;
+    Cue* getItem(QString id) const override;
+    int getItemRow(QString id) const override;
+    Cue* getItemByRow(int row) const override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     bool deleteCueGroupIntensity(QList<QString> ids, QString groupId);

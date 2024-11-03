@@ -20,9 +20,9 @@ class ModelList : public ItemList {
     Q_OBJECT
 public:
     ModelList(Kernel *core);
-    Model* getItem(QString id) override;
-    int getItemRow(QString id) override;
-    Model* getItemByRow(int row) override;
+    Model* getItem(QString id) const override;
+    int getItemRow(QString id) const override;
+    Model* getItemByRow(int row) const override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     bool moveItems(QList<QString> ids, QString targetId) override;

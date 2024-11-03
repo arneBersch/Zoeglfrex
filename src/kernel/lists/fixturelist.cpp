@@ -13,8 +13,7 @@ FixtureList::FixtureList(Kernel *core)
     kernel = core;
 }
 
-Fixture* FixtureList::getItem(QString id)
-{
+Fixture* FixtureList::getItem(QString id) const {
     int fixtureRow = getItemRow(id);
     if (fixtureRow < 0 || fixtureRow >= items.size()) {
         return nullptr;
@@ -22,8 +21,7 @@ Fixture* FixtureList::getItem(QString id)
     return items[fixtureRow];
 }
 
-int FixtureList::getItemRow(QString id)
-{
+int FixtureList::getItemRow(QString id) const {
     for (int fixtureRow = 0; fixtureRow < items.size(); fixtureRow++) {
         if (items[fixtureRow]->id == id) {
             return fixtureRow;
@@ -32,7 +30,7 @@ int FixtureList::getItemRow(QString id)
     return -1;
 }
 
-Fixture* FixtureList::getItemByRow(int row) {
+Fixture* FixtureList::getItemByRow(int row) const {
     if (row >= items.size() || row < 0) {
         return nullptr;
     }
@@ -62,8 +60,7 @@ bool FixtureList::copyItems(QList<QString> ids, QString targetId)
     return true;
 }
 
-bool FixtureList::deleteItems(QList<QString> ids)
-{
+bool FixtureList::deleteItems(QList<QString> ids) {
     for (QString id : ids) {
         int fixtureRow = getItemRow(id);
         if (fixtureRow < 0) {
@@ -89,8 +86,7 @@ void FixtureList::deleteModel(Model *model)
     deleteItems(invalidFixtures);
 }
 
-bool FixtureList::moveItems(QList<QString> ids, QString targetId)
-{
+bool FixtureList::moveItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         int fixtureRow = getItemRow(id);
         if (fixtureRow < 0) {
@@ -115,8 +111,7 @@ bool FixtureList::moveItems(QList<QString> ids, QString targetId)
     return true;
 }
 
-Fixture* FixtureList::recordFixture(QString id, Model* model)
-{
+Fixture* FixtureList::recordFixture(QString id, Model* model) {
     Fixture *fixture = new Fixture;
     fixture->id = id;
     fixture->label = QString();
@@ -136,8 +131,7 @@ Fixture* FixtureList::recordFixture(QString id, Model* model)
     return fixture;
 }
 
-bool FixtureList::recordFixtureAddress(QList<QString> ids, int address)
-{
+bool FixtureList::recordFixtureAddress(QList<QString> ids, int address) {
     QSet<int> fixtureChannels;
     for (QString id : ids) {
         Fixture *fixture = getItem(id);
@@ -167,8 +161,7 @@ bool FixtureList::recordFixtureAddress(QList<QString> ids, int address)
     return true;
 }
 
-bool FixtureList::recordFixtureModel(QList<QString> ids, QString modelId, int address)
-{
+bool FixtureList::recordFixtureModel(QList<QString> ids, QString modelId, int address) {
     Model *model = kernel->models->getItem(modelId);
     if (model == nullptr) {
         kernel->terminal->error("Can't record Fixture Model because Model " + modelId + " doesn't exist.");

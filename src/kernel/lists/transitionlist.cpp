@@ -12,8 +12,7 @@ TransitionList::TransitionList(Kernel *core) {
     kernel = core;
 }
 
-Transition* TransitionList::getItem(QString id)
-{
+Transition* TransitionList::getItem(QString id) const {
     int transitionRow = getItemRow(id);
     if (transitionRow < 0) {
         return nullptr;
@@ -21,8 +20,7 @@ Transition* TransitionList::getItem(QString id)
     return items[transitionRow];
 }
 
-int TransitionList::getItemRow(QString id)
-{
+int TransitionList::getItemRow(QString id) const {
     for (int transitionRow = 0; transitionRow < items.size(); transitionRow++) {
         if (items[transitionRow]->id == id) {
             return transitionRow;
@@ -31,15 +29,14 @@ int TransitionList::getItemRow(QString id)
     return -1;
 }
 
-Transition* TransitionList::getItemByRow(int row) {
+Transition* TransitionList::getItemByRow(int row) const {
     if (row >= items.size() || row < 0) {
         return nullptr;
     }
     return items[row];
 }
 
-bool TransitionList::copyItems(QList<QString> ids, QString targetId)
-{
+bool TransitionList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Transition* transition = getItem(id);
         if (transition == nullptr) {
@@ -57,8 +54,7 @@ bool TransitionList::copyItems(QList<QString> ids, QString targetId)
     return true;
 }
 
-bool TransitionList::deleteItems(QList<QString> ids)
-{
+bool TransitionList::deleteItems(QList<QString> ids) {
     for (QString id : ids) {
         int transitionRow = getItemRow(id);
         if (transitionRow < 0) {
@@ -73,8 +69,7 @@ bool TransitionList::deleteItems(QList<QString> ids)
     return true;
 }
 
-bool TransitionList::moveItems(QList<QString> ids, QString targetId)
-{
+bool TransitionList::moveItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         int transitionRow = getItemRow(id);
         if (transitionRow < 0) {
@@ -99,8 +94,7 @@ bool TransitionList::moveItems(QList<QString> ids, QString targetId)
     return true;
 }
 
-Transition* TransitionList::recordTransition(QString id)
-{
+Transition* TransitionList::recordTransition(QString id) {
     Transition *transition = new Transition;
     transition->id = id;
     transition->label = QString();
@@ -115,8 +109,7 @@ Transition* TransitionList::recordTransition(QString id)
     return transition;
 }
 
-bool TransitionList::recordTransitionFade(QList<QString> ids, float fade)
-{
+bool TransitionList::recordTransitionFade(QList<QString> ids, float fade) {
     if (fade > 60 || fade < 0) {
         kernel->terminal->error("Record Transition Fade only allows from 0s to 60s.");
         return false;
@@ -139,8 +132,7 @@ QList<QString> TransitionList::getIds() {
     return ids;
 }
 
-int TransitionList::rowCount(const QModelIndex &parent) const
-{
+int TransitionList::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return items.size();
 }

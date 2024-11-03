@@ -12,8 +12,7 @@ ColorList::ColorList(Kernel *core) {
     kernel = core;
 }
 
-Color* ColorList::getItem(QString id)
-{
+Color* ColorList::getItem(QString id) const {
     int colorRow = getItemRow(id);
     if (colorRow < 0) {
         return nullptr;
@@ -21,8 +20,7 @@ Color* ColorList::getItem(QString id)
     return items[colorRow];
 }
 
-int ColorList::getItemRow(QString id)
-{
+int ColorList::getItemRow(QString id) const {
     for (int colorRow = 0; colorRow < items.size(); colorRow++) {
         if (items[colorRow]->id == id) {
             return colorRow;
@@ -31,15 +29,14 @@ int ColorList::getItemRow(QString id)
     return -1;
 }
 
-Color* ColorList::getItemByRow(int row) {
+Color* ColorList::getItemByRow(int row) const {
     if (row >= items.size() || row < 0) {
         return nullptr;
     }
     return items[row];
 }
 
-bool ColorList::copyItems(QList<QString> ids, QString targetId)
-{
+bool ColorList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Color* color = getItem(id);
         if (color == nullptr) {
@@ -59,8 +56,7 @@ bool ColorList::copyItems(QList<QString> ids, QString targetId)
     return true;
 }
 
-bool ColorList::deleteItems(QList<QString> ids)
-{
+bool ColorList::deleteItems(QList<QString> ids) {
     for (QString id : ids) {
         int colorRow = getItemRow(id);
         if (colorRow < 0) {
@@ -75,8 +71,7 @@ bool ColorList::deleteItems(QList<QString> ids)
     return true;
 }
 
-bool ColorList::moveItems(QList<QString> ids, QString targetId)
-{
+bool ColorList::moveItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         int colorRow = getItemRow(id);
         if (colorRow < 0) {
@@ -101,8 +96,7 @@ bool ColorList::moveItems(QList<QString> ids, QString targetId)
     return true;
 }
 
-Color* ColorList::recordColor(QString id)
-{
+Color* ColorList::recordColor(QString id) {
     Color* color = new Color;
     color->id = id;
     color->label = QString();
@@ -119,8 +113,7 @@ Color* ColorList::recordColor(QString id)
     return color;
 }
 
-bool ColorList::recordColorRed(QList<QString> ids, float red)
-{
+bool ColorList::recordColorRed(QList<QString> ids, float red) {
     if (red > 100 || red < 0) {
         kernel->terminal->error("Record Color Red only allows from 0% to 100%.");
         return false;
@@ -135,8 +128,7 @@ bool ColorList::recordColorRed(QList<QString> ids, float red)
     return true;
 }
 
-bool ColorList::recordColorGreen(QList<QString> ids, float green)
-{
+bool ColorList::recordColorGreen(QList<QString> ids, float green) {
     if (green > 100 || green < 0) {
         kernel->terminal->error("Record Color Green only allows from 0% to 100%.");
         return false;
@@ -151,8 +143,7 @@ bool ColorList::recordColorGreen(QList<QString> ids, float green)
     return true;
 }
 
-bool ColorList::recordColorBlue(QList<QString> ids, float blue)
-{
+bool ColorList::recordColorBlue(QList<QString> ids, float blue) {
     if (blue > 100 || blue < 0) {
         return "Record Color Blue only allows from 0% to 100%.";
     }
@@ -174,8 +165,7 @@ QList<QString> ColorList::getIds() {
     return ids;
 }
 
-int ColorList::rowCount(const QModelIndex &parent) const
-{
+int ColorList::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return items.size();
 }

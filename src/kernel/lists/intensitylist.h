@@ -20,9 +20,9 @@ class IntensityList : public ItemList {
     Q_OBJECT
 public:
     IntensityList(Kernel *core);
-    Intensity* getItem(QString id) override;
-    Intensity* getItemByRow(int row) override;
-    int getItemRow(QString id) override;
+    Intensity* getItem(QString id) const override;
+    Intensity* getItemByRow(int row) const override;
+    int getItemRow(QString id) const override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     bool moveItems(QList<QString> ids, QString targetId) override;

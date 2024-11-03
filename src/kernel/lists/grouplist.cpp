@@ -13,8 +13,7 @@ GroupList::GroupList(Kernel *core)
     kernel = core;
 }
 
-Group* GroupList::getItem(QString id)
-{
+Group* GroupList::getItem(QString id) const {
     int groupRow = getItemRow(id);
     if (groupRow < 0 || groupRow >= items.size()) {
         return nullptr;
@@ -22,8 +21,7 @@ Group* GroupList::getItem(QString id)
     return items[groupRow];
 }
 
-int GroupList::getItemRow(QString id)
-{
+int GroupList::getItemRow(QString id) const {
     for (int groupRow = 0; groupRow < items.size(); groupRow++) {
         if (items[groupRow]->id == id) {
             return groupRow;
@@ -32,15 +30,14 @@ int GroupList::getItemRow(QString id)
     return -1;
 }
 
-Group* GroupList::getItemByRow(int row) {
+Group* GroupList::getItemByRow(int row) const {
     if (row >= items.size() || row < 0) {
         return nullptr;
     }
     return items[row];
 }
 
-bool GroupList::copyItems(QList<QString> ids, QString targetId)
-{
+bool GroupList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Group *group = getItem(id);
         if (group == nullptr) {
@@ -58,8 +55,7 @@ bool GroupList::copyItems(QList<QString> ids, QString targetId)
     return true;
 }
 
-bool GroupList::deleteItems(QList<QString> ids)
-{
+bool GroupList::deleteItems(QList<QString> ids) {
     for (QString id : ids) {
         int groupRow = getItemRow(id);
         if (groupRow < 0) {
@@ -74,15 +70,13 @@ bool GroupList::deleteItems(QList<QString> ids)
     return true;
 }
 
-void GroupList::deleteFixture(Fixture *fixture)
-{
+void GroupList::deleteFixture(Fixture *fixture) {
     for (Group* group : items) {
         group->fixtures.remove(fixture);
     }
 }
 
-bool GroupList::moveItems(QList<QString> ids, QString targetId)
-{
+bool GroupList::moveItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         int groupRow = getItemRow(id);
         if (groupRow < 0) {
@@ -107,8 +101,7 @@ bool GroupList::moveItems(QList<QString> ids, QString targetId)
     return true;
 }
 
-Group* GroupList::recordGroup(QString id)
-{
+Group* GroupList::recordGroup(QString id) {
     Group *group = new Group;
     group->id = id;
     group->label = QString();
@@ -123,8 +116,7 @@ Group* GroupList::recordGroup(QString id)
     return group;
 }
 
-bool GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds)
-{
+bool GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds) {
     QSet<Fixture*> fixtureSelection;
     for (QString fixtureId : fixtureIds) {
         Fixture* fixture = kernel->fixtures->getItem(fixtureId);
@@ -152,8 +144,7 @@ QList<QString> GroupList::getIds() {
     return ids;
 }
 
-int GroupList::rowCount(const QModelIndex &parent) const
-{
+int GroupList::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return items.size();
 }

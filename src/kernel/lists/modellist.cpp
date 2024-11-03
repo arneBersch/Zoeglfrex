@@ -12,8 +12,7 @@ ModelList::ModelList(Kernel *core) {
     kernel = core;
 }
 
-Model* ModelList::getItem(QString id)
-{
+Model* ModelList::getItem(QString id) const {
     int modelRow = getItemRow(id);
     if (modelRow < 0 || modelRow >= items.size()) {
         return nullptr;
@@ -21,8 +20,7 @@ Model* ModelList::getItem(QString id)
     return items[modelRow];
 }
 
-int ModelList::getItemRow(QString id)
-{
+int ModelList::getItemRow(QString id) const {
     for (int modelRow = 0; modelRow < items.size(); modelRow++) {
         if (items[modelRow]->id == id) {
             return modelRow;
@@ -31,15 +29,14 @@ int ModelList::getItemRow(QString id)
     return -1;
 }
 
-Model* ModelList::getItemByRow(int row) {
+Model* ModelList::getItemByRow(int row) const {
     if (row >= items.size() || row < 0) {
         return nullptr;
     }
     return items[row];
 }
 
-bool ModelList::copyItems(QList<QString> ids, QString targetId)
-{
+bool ModelList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Model* model = getItem(id);
         if (model == nullptr) {
@@ -73,8 +70,7 @@ bool ModelList::deleteItems(QList<QString> ids)
     return true;
 }
 
-bool ModelList::moveItems(QList<QString> ids, QString targetId)
-{
+bool ModelList::moveItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         int modelRow = getItemRow(id);
         if (modelRow < 0) {
@@ -99,8 +95,7 @@ bool ModelList::moveItems(QList<QString> ids, QString targetId)
     return true;
 }
 
-Model* ModelList::recordModel(QString id)
-{
+Model* ModelList::recordModel(QString id) {
     Model *model = new Model;
     model->id = id;
     model->label = QString();
@@ -115,8 +110,7 @@ Model* ModelList::recordModel(QString id)
     return model;
 }
 
-bool ModelList::recordModelChannels(QList<QString> ids, QString channels)
-{
+bool ModelList::recordModelChannels(QList<QString> ids, QString channels) {
     if (!channels.contains(QRegularExpression("^[DRGB]+$"))) {
         kernel->terminal->error("Channels \"" + channels + "\" are not valid.");
         return false;
@@ -157,8 +151,7 @@ QList<QString> ModelList::getIds() {
     return ids;
 }
 
-int ModelList::rowCount(const QModelIndex &parent) const
-{
+int ModelList::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return items.size();
 }

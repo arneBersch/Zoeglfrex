@@ -12,7 +12,7 @@ CueList::CueList(Kernel *core) {
     kernel = core;
 }
 
-Cue* CueList::getItem(QString id) {
+Cue* CueList::getItem(QString id) const {
     int cueRow = getItemRow(id);
     if (cueRow < 0 || cueRow >= items.size()) {
         return nullptr;
@@ -20,7 +20,7 @@ Cue* CueList::getItem(QString id) {
     return items[cueRow];
 }
 
-int CueList::getItemRow(QString id) {
+int CueList::getItemRow(QString id) const {
     for (int cueRow = 0; cueRow < items.size(); cueRow++) {
         if (items[cueRow]->id == id) {
             return cueRow;
@@ -29,7 +29,7 @@ int CueList::getItemRow(QString id) {
     return -1;
 }
 
-Cue* CueList::getItemByRow(int row) {
+Cue* CueList::getItemByRow(int row) const {
     if (row >= items.size() || row < 0) {
         return nullptr;
     }

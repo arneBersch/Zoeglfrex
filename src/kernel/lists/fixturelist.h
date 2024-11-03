@@ -20,9 +20,9 @@ class FixtureList : public ItemList {
     Q_OBJECT
 public:
     FixtureList(Kernel *core);
-    Fixture* getItem(QString id) override;
-    int getItemRow(QString id) override;
-    Fixture* getItemByRow(int row) override;
+    Fixture* getItem(QString id) const override;
+    int getItemRow(QString id) const override;
+    Fixture* getItemByRow(int row) const override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     void deleteModel(Model *model);

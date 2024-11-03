@@ -10,8 +10,9 @@ class ItemList : public QAbstractTableModel {
     Q_OBJECT
 public:
     ItemList();
-    virtual Item* getItem(QString id) = 0;
-    virtual int getItemRow(QString id) = 0;
+    virtual Item* getItem(QString id) const = 0;
+    virtual int getItemRow(QString id) const = 0;
+    virtual Item* getItemByRow(int row) const = 0;
     virtual bool copyItems(QList<QString> ids, QString targetId) = 0;
     virtual bool deleteItems(QList<QString> ids) = 0;
     bool labelItems(QList<QString> ids, QString label);
@@ -19,7 +20,6 @@ public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override = 0;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
-    virtual Item* getItemByRow(int row) = 0;
     bool greaterId(QString firstId, QString secondId);
     Kernel *kernel;
 };

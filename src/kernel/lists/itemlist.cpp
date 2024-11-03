@@ -5,8 +5,7 @@ ItemList::ItemList() {
     //
 }
 
-bool ItemList::labelItems(QList<QString> ids, QString label)
-{
+bool ItemList::labelItems(QList<QString> ids, QString label) {
     QList<Item*> items;
     for (QString id : ids) {
         Item* item = getItem(id);
@@ -28,8 +27,7 @@ int ItemList::columnCount(const QModelIndex &parent) const {
     return 1;
 }
 
-QVariant ItemList::data(const QModelIndex &index, const int role) const
-{
+QVariant ItemList::data(const QModelIndex &index, const int role) const {
     const int row = index.row();
     const int column = index.column();
     if (row >= rowCount() || row < 0) {
@@ -39,7 +37,7 @@ QVariant ItemList::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        //return name();
+        return getItemByRow(row)->name();
     }
     return QVariant();
 }

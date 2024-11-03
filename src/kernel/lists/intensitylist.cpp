@@ -12,8 +12,7 @@ IntensityList::IntensityList(Kernel *core) {
     kernel = core;
 }
 
-Intensity* IntensityList::getItem(QString id)
-{
+Intensity* IntensityList::getItem(QString id) const {
     int intensityRow = getItemRow(id);
     if (intensityRow < 0 || intensityRow >= items.size()) {
         return nullptr;
@@ -21,8 +20,7 @@ Intensity* IntensityList::getItem(QString id)
     return items[intensityRow];
 }
 
-int IntensityList::getItemRow(QString id)
-{
+int IntensityList::getItemRow(QString id) const {
     for (int intensityRow = 0; intensityRow < items.size(); intensityRow++) {
         if (items[intensityRow]->id == id) {
             return intensityRow;
@@ -31,15 +29,14 @@ int IntensityList::getItemRow(QString id)
     return -1;
 }
 
-Intensity* IntensityList::getItemByRow(int row) {
+Intensity* IntensityList::getItemByRow(int row) const {
     if (row >= items.size() || row < 0) {
         return nullptr;
     }
     return items[row];
 }
 
-bool IntensityList::copyItems(QList<QString> ids, QString targetId)
-{
+bool IntensityList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Intensity* intensity = getItem(id);
         if (intensity == nullptr) {
@@ -57,8 +54,7 @@ bool IntensityList::copyItems(QList<QString> ids, QString targetId)
     return true;
 }
 
-bool IntensityList::deleteItems(QList<QString> ids)
-{
+bool IntensityList::deleteItems(QList<QString> ids) {
     for (QString id : ids) {
         int intensityRow = getItemRow(id);
         if (intensityRow < 0) {
@@ -73,8 +69,7 @@ bool IntensityList::deleteItems(QList<QString> ids)
     return true;
 }
 
-bool IntensityList::moveItems(QList<QString> ids, QString targetId)
-{
+bool IntensityList::moveItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         int intensityRow = getItemRow(id);
         if (intensityRow < 0) {
@@ -99,8 +94,7 @@ bool IntensityList::moveItems(QList<QString> ids, QString targetId)
     return true;
 }
 
-Intensity* IntensityList::recordIntensity(QString id)
-{
+Intensity* IntensityList::recordIntensity(QString id) {
     Intensity *intensity = new Intensity;
     intensity->id = id;
     intensity->label = QString();
@@ -115,8 +109,7 @@ Intensity* IntensityList::recordIntensity(QString id)
     return intensity;
 }
 
-bool IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer)
-{
+bool IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer) {
     if (dimmer > 100 || dimmer < 0) {
         kernel->terminal->error("Record Intensity Dimmer only allows from 0% to 100%.");
         return false;
@@ -139,8 +132,7 @@ QList<QString> IntensityList::getIds() {
     return ids;
 }
 
-int IntensityList::rowCount(const QModelIndex &parent) const
-{
+int IntensityList::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return items.size();
 }
