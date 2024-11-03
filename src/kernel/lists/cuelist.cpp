@@ -245,7 +245,7 @@ bool CueList::recordCueColor(QList<QString> ids, QString groupId, QString colorI
     return true;
 }
 
-QList<QString> CueList::getIds() {
+QList<QString> CueList::getIds() const {
     QList<QString> ids;
     for (Cue *cue : items) {
         ids.append(cue->id);

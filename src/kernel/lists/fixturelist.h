@@ -30,7 +30,7 @@ public:
     bool recordFixtureAddress(QList<QString> ids, int address);
     bool recordFixtureModel(QList<QString> ids, QString model, int address=0);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    QList<QString> getIds();
+    QList<QString> getIds() const override;
     QSet<int> usedChannels();
 private:
     QList<Fixture*> items;

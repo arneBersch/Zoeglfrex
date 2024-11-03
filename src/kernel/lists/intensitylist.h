@@ -28,7 +28,7 @@ public:
     bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordIntensityDimmer(QList<QString> ids, float dimmer);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    QList<QString> getIds();
+    QList<QString> getIds() const override;
 private:
     QList<Intensity*> items;
     Intensity* recordIntensity(QString id);

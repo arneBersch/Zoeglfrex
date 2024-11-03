@@ -143,7 +143,7 @@ bool ModelList::recordModelChannels(QList<QString> ids, QString channels) {
     return true;
 }
 
-QList<QString> ModelList::getIds() {
+QList<QString> ModelList::getIds() const {
     QList<QString> ids;
     for (Model *model : items) {
         ids.append(model->id);

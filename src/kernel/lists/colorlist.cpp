@@ -157,7 +157,7 @@ bool ColorList::recordColorBlue(QList<QString> ids, float blue) {
     return true;
 }
 
-QList<QString> ColorList::getIds() {
+QList<QString> ColorList::getIds() const {
     QList<QString> ids;
     for (Color *color : items) {
         ids.append(color->id);

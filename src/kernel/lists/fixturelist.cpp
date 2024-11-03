@@ -189,7 +189,7 @@ bool FixtureList::recordFixtureModel(QList<QString> ids, QString modelId, int ad
     return true;
 }
 
-QList<QString> FixtureList::getIds() {
+QList<QString> FixtureList::getIds() const {
     QList<QString> ids;
     for (Fixture *fixture : items) {
         ids.append(fixture->id);
