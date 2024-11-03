@@ -28,7 +28,6 @@ public:
     void deleteFixture(Fixture *fixture);
     bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QList<QString> getIds() const override;
 private:
     QList<Group*> items;

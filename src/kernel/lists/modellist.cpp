@@ -150,8 +150,3 @@ QList<QString> ModelList::getIds() const {
     }
     return ids;
 }
-
-int ModelList::rowCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
-    return items.size();
-}

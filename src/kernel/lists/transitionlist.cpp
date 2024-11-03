@@ -131,8 +131,3 @@ QList<QString> TransitionList::getIds() const {
     }
     return ids;
 }
-
-int TransitionList::rowCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
-    return items.size();
-}

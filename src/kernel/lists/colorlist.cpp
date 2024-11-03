@@ -164,8 +164,3 @@ QList<QString> ColorList::getIds() const {
     }
     return ids;
 }
-
-int ColorList::rowCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
-    return items.size();
-}

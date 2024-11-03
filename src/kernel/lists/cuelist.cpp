@@ -252,8 +252,3 @@ QList<QString> CueList::getIds() const {
     }
     return ids;
 }
-
-int CueList::rowCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
-    return items.size();
-}

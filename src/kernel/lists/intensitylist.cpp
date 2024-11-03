@@ -131,8 +131,3 @@ QList<QString> IntensityList::getIds() const {
     }
     return ids;
 }
-
-int IntensityList::rowCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
-    return items.size();
-}

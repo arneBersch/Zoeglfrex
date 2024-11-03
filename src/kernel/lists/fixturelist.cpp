@@ -220,9 +220,3 @@ QSet<int> FixtureList::usedChannels() {
     }
     return channels;
 }
-
-int FixtureList::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return items.size();
-}

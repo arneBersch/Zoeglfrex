@@ -18,7 +18,7 @@ public:
     virtual bool deleteItems(QList<QString> ids) = 0;
     bool labelItems(QList<QString> ids, QString label);
     virtual bool moveItems(QList<QString> ids, QString targetId) = 0;
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override = 0;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
     bool greaterId(QString firstId, QString secondId);

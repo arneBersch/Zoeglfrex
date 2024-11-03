@@ -143,8 +143,3 @@ QList<QString> GroupList::getIds() const {
     }
     return ids;
 }
-
-int GroupList::rowCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
-    return items.size();
-}

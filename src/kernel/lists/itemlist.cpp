@@ -22,6 +22,11 @@ bool ItemList::labelItems(QList<QString> ids, QString label) {
     return true;
 }
 
+int ItemList::rowCount(const QModelIndex &parent) const {
+    Q_UNUSED(parent);
+    return getIds().size();
+}
+
 int ItemList::columnCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return 1;

@@ -29,7 +29,6 @@ public:
     bool recordColorRed(QList<QString> ids, float red);
     bool recordColorGreen(QList<QString> ids, float green);
     bool recordColorBlue(QList<QString> ids, float blue);
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QList<QString> getIds() const override;
 private:
     QList<Color*> items;

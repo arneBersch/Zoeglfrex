@@ -36,7 +36,6 @@ public:
     bool recordCueIntensity(QList<QString> ids, QString groupId, QString intensityId);
     bool recordCueColor(QList<QString> ids, QString groupId, QString colorId);
     QList<QString> getIds() const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 private:
     QList<Cue*> items;
     Cue* recordCue(QString id, Transition *transition);
