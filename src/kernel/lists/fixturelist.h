@@ -33,7 +33,7 @@ public:
     QList<QString> getIds();
     QSet<int> usedChannels();
 private:
-    QList<Fixture*> fixtures;
+    QList<Fixture*> items;
     Fixture* recordFixture(QString id, Model* model);
     int findFreeAddress(int channelCount);
 };

@@ -18,13 +18,13 @@ Transition* TransitionList::getItem(QString id)
     if (transitionRow < 0) {
         return nullptr;
     }
-    return transitions[transitionRow];
+    return items[transitionRow];
 }
 
 int TransitionList::getItemRow(QString id)
 {
-    for (int transitionRow = 0; transitionRow < transitions.size(); transitionRow++) {
-        if (transitions[transitionRow]->id == id) {
+    for (int transitionRow = 0; transitionRow < items.size(); transitionRow++) {
+        if (items[transitionRow]->id == id) {
             return transitionRow;
         }
     }
@@ -58,9 +58,9 @@ bool TransitionList::deleteItems(QList<QString> ids)
             kernel->terminal->error("Transition can't be deleted because it doesn't exist.");
             return false;
         }
-        Transition *transition = transitions[transitionRow];
+        Transition *transition = items[transitionRow];
         kernel->cues->deleteTransition(transition);
-        transitions.removeAt(transitionRow);
+        items.removeAt(transitionRow);
         delete transition;
     }
     return true;
@@ -78,16 +78,16 @@ bool TransitionList::moveItems(QList<QString> ids, QString targetId)
             kernel->terminal->error("Transition can't be moved because Target ID is already used.");
             return false;
         }
-        Transition* transition = transitions[transitionRow];
-        transitions.removeAt(transitionRow);
+        Transition* transition = items[transitionRow];
+        items.removeAt(transitionRow);
         transition->id = targetId;
         int position = 0;
-        for (int index=0; index < transitions.size(); index++) {
-            if (greaterId(transitions[index]->id, targetId)) {
+        for (int index=0; index < items.size(); index++) {
+            if (greaterId(items[index]->id, targetId)) {
                 position++;
             }
         }
-        transitions.insert(position, transition);
+        items.insert(position, transition);
     }
     return true;
 }
@@ -99,12 +99,12 @@ Transition* TransitionList::recordTransition(QString id)
     transition->label = QString();
     transition->fade = 0;
     int position = 0;
-    for (int index=0; index < transitions.size(); index++) {
-        if (greaterId(transitions[index]->id, id)) {
+    for (int index=0; index < items.size(); index++) {
+        if (greaterId(items[index]->id, id)) {
             position++;
         }
     }
-    transitions.insert(position, transition);
+    items.insert(position, transition);
     return transition;
 }
 
@@ -126,7 +126,7 @@ bool TransitionList::recordTransitionFade(QList<QString> ids, float fade)
 
 QList<QString> TransitionList::getIds() {
     QList<QString> ids;
-    for (Transition *transition : transitions) {
+    for (Transition *transition : items) {
         ids.append(transition->id);
     }
     return ids;
@@ -135,7 +135,7 @@ QList<QString> TransitionList::getIds() {
 int TransitionList::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return transitions.size();
+    return items.size();
 }
 
 QVariant TransitionList::data(const QModelIndex &index, const int role) const
@@ -149,7 +149,7 @@ QVariant TransitionList::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return transitions[row]->name();
+        return items[row]->name();
     }
     return QVariant();
 }

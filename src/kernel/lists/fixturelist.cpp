@@ -16,16 +16,16 @@ FixtureList::FixtureList(Kernel *core)
 Fixture* FixtureList::getItem(QString id)
 {
     int fixtureRow = getItemRow(id);
-    if (fixtureRow < 0 || fixtureRow >= fixtures.size()) {
+    if (fixtureRow < 0 || fixtureRow >= items.size()) {
         return nullptr;
     }
-    return fixtures[fixtureRow];
+    return items[fixtureRow];
 }
 
 int FixtureList::getItemRow(QString id)
 {
-    for (int fixtureRow = 0; fixtureRow < fixtures.size(); fixtureRow++) {
-        if (fixtures[fixtureRow]->id == id) {
+    for (int fixtureRow = 0; fixtureRow < items.size(); fixtureRow++) {
+        if (items[fixtureRow]->id == id) {
             return fixtureRow;
         }
     }
@@ -63,9 +63,9 @@ bool FixtureList::deleteItems(QList<QString> ids)
             kernel->terminal->error("Fixture can't be deleted because it doesn't exist.");
             return false;
         }
-        Fixture *fixture = fixtures[fixtureRow];
+        Fixture *fixture = items[fixtureRow];
         kernel->groups->deleteFixture(fixture);
-        fixtures.removeAt(fixtureRow);
+        items.removeAt(fixtureRow);
         delete fixture;
     }
     return true;
@@ -74,7 +74,7 @@ bool FixtureList::deleteItems(QList<QString> ids)
 void FixtureList::deleteModel(Model *model)
 {
     QList<QString> invalidFixtures;
-    for (Fixture* fixture : fixtures) {
+    for (Fixture* fixture : items) {
         if (fixture->model == model) {
             invalidFixtures.append(fixture->id);
         }
@@ -94,16 +94,16 @@ bool FixtureList::moveItems(QList<QString> ids, QString targetId)
             kernel->terminal->error("Fixture " + id + " can't be moved because Target ID is already used.");
             return false;
         }
-        Fixture* fixture = fixtures[fixtureRow];
-        fixtures.removeAt(fixtureRow);
+        Fixture* fixture = items[fixtureRow];
+        items.removeAt(fixtureRow);
         fixture->id = targetId;
         int position = 0;
-        for (int index=0; index < fixtures.size(); index++) {
-            if (greaterId(fixtures[index]->id, targetId)) {
+        for (int index=0; index < items.size(); index++) {
+            if (greaterId(items[index]->id, targetId)) {
                 position++;
             }
         }
-        fixtures.insert(position, fixture);
+        items.insert(position, fixture);
     }
     return true;
 }
@@ -120,12 +120,12 @@ Fixture* FixtureList::recordFixture(QString id, Model* model)
     fixture->address = address;
     fixture->model = model;
     int position = 0;
-    for (int index=0; index < fixtures.size(); index++) {
-        if (greaterId(fixtures[index]->id, id)) {
+    for (int index=0; index < items.size(); index++) {
+        if (greaterId(items[index]->id, id)) {
             position++;
         }
     }
-    fixtures.insert(position, fixture);
+    items.insert(position, fixture);
     return fixture;
 }
 
@@ -191,7 +191,7 @@ bool FixtureList::recordFixtureModel(QList<QString> ids, QString modelId, int ad
 
 QList<QString> FixtureList::getIds() {
     QList<QString> ids;
-    for (Fixture *fixture : fixtures) {
+    for (Fixture *fixture : items) {
         ids.append(fixture->id);
     }
     return ids;
@@ -213,7 +213,7 @@ int FixtureList::findFreeAddress(int channelCount) {
 
 QSet<int> FixtureList::usedChannels() {
     QSet<int> channels;
-    for (Fixture* fixture : fixtures) {
+    for (Fixture* fixture : items) {
         for (int channel = fixture->address; channel < (fixture->address + fixture->model->channels.size()); channel++) {
             channels.insert(channel);
         }
@@ -224,7 +224,7 @@ QSet<int> FixtureList::usedChannels() {
 int FixtureList::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return fixtures.size();
+    return items.size();
 }
 
 QVariant FixtureList::data(const QModelIndex &index, const int role) const
@@ -238,7 +238,7 @@ QVariant FixtureList::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return fixtures[row]->name();
+        return items[row]->name();
     }
     return QVariant();
 }

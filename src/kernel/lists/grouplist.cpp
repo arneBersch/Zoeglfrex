@@ -16,16 +16,16 @@ GroupList::GroupList(Kernel *core)
 Group* GroupList::getItem(QString id)
 {
     int groupRow = getItemRow(id);
-    if (groupRow < 0 || groupRow >= groups.size()) {
+    if (groupRow < 0 || groupRow >= items.size()) {
         return nullptr;
     }
-    return groups[groupRow];
+    return items[groupRow];
 }
 
 int GroupList::getItemRow(QString id)
 {
-    for (int groupRow = 0; groupRow < groups.size(); groupRow++) {
-        if (groups[groupRow]->id == id) {
+    for (int groupRow = 0; groupRow < items.size(); groupRow++) {
+        if (items[groupRow]->id == id) {
             return groupRow;
         }
     }
@@ -59,9 +59,9 @@ bool GroupList::deleteItems(QList<QString> ids)
             kernel->terminal->error("Group can't be deleted because it doesn't exist.");
             return false;
         }
-        Group *group = groups[groupRow];
+        Group *group = items[groupRow];
         kernel->cues->deleteGroup(group);
-        groups.removeAt(groupRow);
+        items.removeAt(groupRow);
         delete group;
     }
     return true;
@@ -69,7 +69,7 @@ bool GroupList::deleteItems(QList<QString> ids)
 
 void GroupList::deleteFixture(Fixture *fixture)
 {
-    for (Group* group : groups) {
+    for (Group* group : items) {
         group->fixtures.remove(fixture);
     }
 }
@@ -86,16 +86,16 @@ bool GroupList::moveItems(QList<QString> ids, QString targetId)
             kernel->terminal->error("Group can't be moved because Target ID is already used.");
             return false;
         }
-        Group* group = groups[groupRow];
-        groups.removeAt(groupRow);
+        Group* group = items[groupRow];
+        items.removeAt(groupRow);
         group->id = targetId;
         int position = 0;
-        for (int index=0; index < groups.size(); index++) {
-            if (greaterId(groups[index]->id, targetId)) {
+        for (int index=0; index < items.size(); index++) {
+            if (greaterId(items[index]->id, targetId)) {
                 position++;
             }
         }
-        groups.insert(position, group);
+        items.insert(position, group);
     }
     return true;
 }
@@ -107,12 +107,12 @@ Group* GroupList::recordGroup(QString id)
     group->label = QString();
     group->fixtures = QSet<Fixture*>();
     int position = 0;
-    for (int index=0; index < groups.size(); index++) {
-        if (greaterId(groups[index]->id, id)) {
+    for (int index=0; index < items.size(); index++) {
+        if (greaterId(items[index]->id, id)) {
             position++;
         }
     }
-    groups.insert(position, group);
+    items.insert(position, group);
     return group;
 }
 
@@ -139,7 +139,7 @@ bool GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureId
 
 QList<QString> GroupList::getIds() {
     QList<QString> ids;
-    for (Group *group : groups) {
+    for (Group *group : items) {
         ids.append(group->id);
     }
     return ids;
@@ -148,7 +148,7 @@ QList<QString> GroupList::getIds() {
 int GroupList::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return groups.size();
+    return items.size();
 }
 
 QVariant GroupList::data(const QModelIndex &index, const int role) const
@@ -162,7 +162,7 @@ QVariant GroupList::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return groups[row]->name();
+        return items[row]->name();
     }
     return QVariant();
 }

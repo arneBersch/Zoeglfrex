@@ -32,7 +32,7 @@ public:
     QVariant data(const QModelIndex &index, const int role) const override;
     QList<QString> getIds();
 private:
-    QList<Color*> colors;
+    QList<Color*> items;
     Color* recordColor(QString id);
 };
 

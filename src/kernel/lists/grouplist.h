@@ -31,7 +31,7 @@ public:
     QVariant data(const QModelIndex &index, const int role) const override;
     QList<QString> getIds();
 private:
-    QList<Group*> groups;
+    QList<Group*> items;
     Group* recordGroup(QString id);
 };
 

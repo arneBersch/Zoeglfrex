@@ -14,15 +14,15 @@ CueList::CueList(Kernel *core) {
 
 Cue* CueList::getItem(QString id) {
     int cueRow = getItemRow(id);
-    if (cueRow < 0 || cueRow >= cues.size()) {
+    if (cueRow < 0 || cueRow >= items.size()) {
         return nullptr;
     }
-    return cues[cueRow];
+    return items[cueRow];
 }
 
 int CueList::getItemRow(QString id) {
-    for (int cueRow = 0; cueRow < cues.size(); cueRow++) {
-        if (cues[cueRow]->id == id) {
+    for (int cueRow = 0; cueRow < items.size(); cueRow++) {
+        if (items[cueRow]->id == id) {
             return cueRow;
         }
     }
@@ -56,8 +56,8 @@ bool CueList::deleteItems(QList<QString> ids) {
             kernel->terminal->error("Cue can't be deleted because it doesn't exist.");
             return false;
         }
-        Cue *cue = cues[cueRow];
-        cues.removeAt(cueRow);
+        Cue *cue = items[cueRow];
+        items.removeAt(cueRow);
         delete cue;
         if (kernel->cuelistView->currentCue == cue) {
             kernel->cuelistView->currentCue = nullptr;
@@ -67,7 +67,7 @@ bool CueList::deleteItems(QList<QString> ids) {
 }
 
 void CueList::deleteIntensity(Intensity* intensity) {
-    for (Cue *cue : cues) {
+    for (Cue *cue : items) {
         for (Group *group : cue->intensities.keys()) {
             if (cue->intensities.value(group) == intensity) {
                 cue->intensities.remove(group);
@@ -77,7 +77,7 @@ void CueList::deleteIntensity(Intensity* intensity) {
 }
 
 void CueList::deleteColor(Color* color) {
-    for (Cue *cue : cues) {
+    for (Cue *cue : items) {
         for (Group *group : cue->colors.keys()) {
             if (cue->colors.value(group) == color) {
                 cue->colors.remove(group);
@@ -88,7 +88,7 @@ void CueList::deleteColor(Color* color) {
 
 void CueList::deleteTransition(Transition* transition) {
     QList<QString> invalidCues;
-    for (Cue *cue : cues) {
+    for (Cue *cue : items) {
         if (cue->transition == transition) {
             invalidCues.append(cue->id);
         }
@@ -97,7 +97,7 @@ void CueList::deleteTransition(Transition* transition) {
 }
 
 void CueList::deleteGroup(Group *group) {
-    for (Cue *cue : cues) {
+    for (Cue *cue : items) {
         cue->intensities.remove(group);
         cue->colors.remove(group);
     }
@@ -148,16 +148,16 @@ bool CueList::moveItems(QList<QString> ids, QString targetId) {
             kernel->terminal->error("Cue can't be moved because Target ID is already used.");
             return false;
         }
-        Cue* cue = cues[cueRow];
-        cues.removeAt(cueRow);
+        Cue* cue = items[cueRow];
+        items.removeAt(cueRow);
         cue->id = targetId;
         int position = 0;
-        for (int index=0; index < cues.size(); index++) {
-            if (greaterId(cues[index]->id, targetId)) {
+        for (int index=0; index < items.size(); index++) {
+            if (greaterId(items[index]->id, targetId)) {
                 position++;
             }
         }
-        cues.insert(position, cue);
+        items.insert(position, cue);
     }
     return true;
 }
@@ -169,12 +169,12 @@ Cue* CueList::recordCue(QString id, Transition *transition) {
     cue->transition = transition;
     QList<QString> idParts = id.split(".");
     int position = 0;
-    for (int index=0; index < cues.size(); index++) {
-        if (greaterId(cues[index]->id, id)) {
+    for (int index=0; index < items.size(); index++) {
+        if (greaterId(items[index]->id, id)) {
             position++;
         }
     }
-    cues.insert(position, cue);
+    items.insert(position, cue);
     return cue;
 }
 
@@ -240,7 +240,7 @@ bool CueList::recordCueColor(QList<QString> ids, QString groupId, QString colorI
 
 QList<QString> CueList::getIds() {
     QList<QString> ids;
-    for (Cue *cue : cues) {
+    for (Cue *cue : items) {
         ids.append(cue->id);
     }
     return ids;
@@ -248,7 +248,7 @@ QList<QString> CueList::getIds() {
 
 int CueList::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
-    return cues.size();
+    return items.size();
 }
 
 QVariant CueList::data(const QModelIndex &index, const int role) const {
@@ -261,7 +261,7 @@ QVariant CueList::data(const QModelIndex &index, const int role) const {
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return cues[row]->name();
+        return items[row]->name();
     }
     return QVariant();
 }

@@ -38,7 +38,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
 private:
-    QList<Cue*> cues;
+    QList<Cue*> items;
     Cue* recordCue(QString id, Transition *transition);
 };
 

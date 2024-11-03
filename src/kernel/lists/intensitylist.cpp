@@ -15,16 +15,16 @@ IntensityList::IntensityList(Kernel *core) {
 Intensity* IntensityList::getItem(QString id)
 {
     int intensityRow = getItemRow(id);
-    if (intensityRow < 0 || intensityRow >= intensities.size()) {
+    if (intensityRow < 0 || intensityRow >= items.size()) {
         return nullptr;
     }
-    return intensities[intensityRow];
+    return items[intensityRow];
 }
 
 int IntensityList::getItemRow(QString id)
 {
-    for (int intensityRow = 0; intensityRow < intensities.size(); intensityRow++) {
-        if (intensities[intensityRow]->id == id) {
+    for (int intensityRow = 0; intensityRow < items.size(); intensityRow++) {
+        if (items[intensityRow]->id == id) {
             return intensityRow;
         }
     }
@@ -58,9 +58,9 @@ bool IntensityList::deleteItems(QList<QString> ids)
             kernel->terminal->error("Intensity can't be deleted because it doesn't exist.");
             return false;
         }
-        Intensity *intensity = intensities[intensityRow];
+        Intensity *intensity = items[intensityRow];
         kernel->cues->deleteIntensity(intensity);
-        intensities.removeAt(intensityRow);
+        items.removeAt(intensityRow);
         delete intensity;
     }
     return true;
@@ -78,16 +78,16 @@ bool IntensityList::moveItems(QList<QString> ids, QString targetId)
             kernel->terminal->error("Intenity can't be moved because Target ID is already used.");
             return false;
         }
-        Intensity* intensity = intensities[intensityRow];
-        intensities.removeAt(intensityRow);
+        Intensity* intensity = items[intensityRow];
+        items.removeAt(intensityRow);
         intensity->id = targetId;
         int position = 0;
-        for (int index=0; index < intensities.size(); index++) {
-            if (greaterId(intensities[index]->id, targetId)) {
+        for (int index=0; index < items.size(); index++) {
+            if (greaterId(items[index]->id, targetId)) {
                 position++;
             }
         }
-        intensities.insert(position, intensity);
+        items.insert(position, intensity);
     }
     return true;
 }
@@ -99,12 +99,12 @@ Intensity* IntensityList::recordIntensity(QString id)
     intensity->label = QString();
     intensity->dimmer = 100;
     int position = 0;
-    for (int index=0; index < intensities.size(); index++) {
-        if (greaterId(intensities[index]->id, id)) {
+    for (int index=0; index < items.size(); index++) {
+        if (greaterId(items[index]->id, id)) {
             position++;
         }
     }
-    intensities.insert(position, intensity);
+    items.insert(position, intensity);
     return intensity;
 }
 
@@ -126,7 +126,7 @@ bool IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer)
 
 QList<QString> IntensityList::getIds() {
     QList<QString> ids;
-    for (Intensity *intensity : intensities) {
+    for (Intensity *intensity : items) {
         ids.append(intensity->id);
     }
     return ids;
@@ -135,7 +135,7 @@ QList<QString> IntensityList::getIds() {
 int IntensityList::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return intensities.size();
+    return items.size();
 }
 
 QVariant IntensityList::data(const QModelIndex &index, const int role) const
@@ -149,7 +149,7 @@ QVariant IntensityList::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return intensities[row]->name();
+        return items[row]->name();
     }
     return QVariant();
 }

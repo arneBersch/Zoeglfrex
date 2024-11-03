@@ -15,16 +15,16 @@ ModelList::ModelList(Kernel *core) {
 Model* ModelList::getItem(QString id)
 {
     int modelRow = getItemRow(id);
-    if (modelRow < 0 || modelRow >= models.size()) {
+    if (modelRow < 0 || modelRow >= items.size()) {
         return nullptr;
     }
-    return models[modelRow];
+    return items[modelRow];
 }
 
 int ModelList::getItemRow(QString id)
 {
-    for (int modelRow = 0; modelRow < models.size(); modelRow++) {
-        if (models[modelRow]->id == id) {
+    for (int modelRow = 0; modelRow < items.size(); modelRow++) {
+        if (items[modelRow]->id == id) {
             return modelRow;
         }
     }
@@ -58,9 +58,9 @@ bool ModelList::deleteItems(QList<QString> ids)
             kernel->terminal->error("Model can't be deleted because it doesn't exist.");
             return false;
         }
-        Model *model= models[modelRow];
+        Model *model= items[modelRow];
         kernel->fixtures->deleteModel(model);
-        models.removeAt(modelRow);
+        items.removeAt(modelRow);
         delete model;
     }
     return true;
@@ -78,16 +78,16 @@ bool ModelList::moveItems(QList<QString> ids, QString targetId)
             kernel->terminal->error("Model can't be moved because Target ID is already used.");
             return false;
         }
-        Model* model = models[modelRow];
-        models.removeAt(modelRow);
+        Model* model = items[modelRow];
+        items.removeAt(modelRow);
         model->id = targetId;
         int position = 0;
-        for (int index=0; index < models.size(); index++) {
-            if (greaterId(models[index]->id, targetId)) {
+        for (int index=0; index < items.size(); index++) {
+            if (greaterId(items[index]->id, targetId)) {
                 position++;
             }
         }
-        models.insert(position, model);
+        items.insert(position, model);
     }
     return true;
 }
@@ -99,12 +99,12 @@ Model* ModelList::recordModel(QString id)
     model->label = QString();
     model->channels = "D";
     int position = 0;
-    for (int index=0; index < models.size(); index++) {
-        if (greaterId(models[index]->id, id)) {
+    for (int index=0; index < items.size(); index++) {
+        if (greaterId(items[index]->id, id)) {
             position++;
         }
     }
-    models.insert(position, model);
+    items.insert(position, model);
     return model;
 }
 
@@ -144,7 +144,7 @@ bool ModelList::recordModelChannels(QList<QString> ids, QString channels)
 
 QList<QString> ModelList::getIds() {
     QList<QString> ids;
-    for (Model *model : models) {
+    for (Model *model : items) {
         ids.append(model->id);
     }
     return ids;
@@ -153,7 +153,7 @@ QList<QString> ModelList::getIds() {
 int ModelList::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return models.size();
+    return items.size();
 }
 
 QVariant ModelList::data(const QModelIndex &index, const int role) const
@@ -167,7 +167,7 @@ QVariant ModelList::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return models[row]->name();
+        return items[row]->name();
     }
     return QVariant();
 }

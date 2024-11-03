@@ -18,13 +18,13 @@ Color* ColorList::getItem(QString id)
     if (colorRow < 0) {
         return nullptr;
     }
-    return colors[colorRow];
+    return items[colorRow];
 }
 
 int ColorList::getItemRow(QString id)
 {
-    for (int colorRow = 0; colorRow < colors.size(); colorRow++) {
-        if (colors[colorRow]->id == id) {
+    for (int colorRow = 0; colorRow < items.size(); colorRow++) {
+        if (items[colorRow]->id == id) {
             return colorRow;
         }
     }
@@ -60,9 +60,9 @@ bool ColorList::deleteItems(QList<QString> ids)
             kernel->terminal->error("Color can't be deleted because it doesn't exist.");
             return false;
         }
-        Color *color = colors[colorRow];
+        Color *color = items[colorRow];
         kernel->cues->deleteColor(color);
-        colors.removeAt(colorRow);
+        items.removeAt(colorRow);
         delete color;
     }
     return true;
@@ -80,16 +80,16 @@ bool ColorList::moveItems(QList<QString> ids, QString targetId)
             kernel->terminal->error("Color can't be moved because Target ID is already used.");
             return false;
         }
-        Color* color = colors[colorRow];
-        colors.removeAt(colorRow);
+        Color* color = items[colorRow];
+        items.removeAt(colorRow);
         color->id = targetId;
         int position = 0;
-        for (int index=0; index < colors.size(); index++) {
-            if (greaterId(colors[index]->id, targetId)) {
+        for (int index=0; index < items.size(); index++) {
+            if (greaterId(items[index]->id, targetId)) {
                 position++;
             }
         }
-        colors.insert(position, color);
+        items.insert(position, color);
     }
     return true;
 }
@@ -103,12 +103,12 @@ Color* ColorList::recordColor(QString id)
     color->green = 100;
     color->blue = 100;
     int position = 0;
-    for (int index=0; index < colors.size(); index++) {
-        if (greaterId(colors[index]->id, id)) {
+    for (int index=0; index < items.size(); index++) {
+        if (greaterId(items[index]->id, id)) {
             position++;
         }
     }
-    colors.insert(position, color);
+    items.insert(position, color);
     return color;
 }
 
@@ -161,7 +161,7 @@ bool ColorList::recordColorBlue(QList<QString> ids, float blue)
 
 QList<QString> ColorList::getIds() {
     QList<QString> ids;
-    for (Color *color : colors) {
+    for (Color *color : items) {
         ids.append(color->id);
     }
     return ids;
@@ -170,7 +170,7 @@ QList<QString> ColorList::getIds() {
 int ColorList::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return colors.size();
+    return items.size();
 }
 
 QVariant ColorList::data(const QModelIndex &index, const int role) const
@@ -184,7 +184,7 @@ QVariant ColorList::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return colors[row]->name();
+        return items[row]->name();
     }
     return QVariant();
 }
