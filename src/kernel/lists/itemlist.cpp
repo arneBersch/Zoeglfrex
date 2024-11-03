@@ -28,6 +28,22 @@ int ItemList::columnCount(const QModelIndex &parent) const {
     return 1;
 }
 
+QVariant ItemList::data(const QModelIndex &index, const int role) const
+{
+    const int row = index.row();
+    const int column = index.column();
+    if (row >= rowCount() || row < 0) {
+        return QVariant();
+    }
+    if (column >= columnCount() || column < 0) {
+        return QVariant();
+    }
+    if (index.isValid() && role == Qt::DisplayRole) {
+        //return name();
+    }
+    return QVariant();
+}
+
 bool ItemList::greaterId(QString firstId, QString secondId) {
     QList<QString> firstIdParts = firstId.split(".");
     QList<QString> secondIdParts = secondId.split(".");

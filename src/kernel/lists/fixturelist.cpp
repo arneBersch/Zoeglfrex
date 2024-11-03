@@ -32,6 +32,13 @@ int FixtureList::getItemRow(QString id)
     return -1;
 }
 
+Fixture* FixtureList::getItemByRow(int row) {
+    if (row >= items.size() || row < 0) {
+        return nullptr;
+    }
+    return items[row];
+}
+
 bool FixtureList::copyItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {
@@ -225,20 +232,4 @@ int FixtureList::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return items.size();
-}
-
-QVariant FixtureList::data(const QModelIndex &index, const int role) const
-{
-    const int row = index.row();
-    const int column = index.column();
-    if (row >= rowCount() || row < 0) {
-        return QVariant();
-    }
-    if (column >= columnCount() || column < 0) {
-        return QVariant();
-    }
-    if (index.isValid() && role == Qt::DisplayRole) {
-        return items[row]->name();
-    }
-    return QVariant();
 }

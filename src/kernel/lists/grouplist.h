@@ -22,13 +22,13 @@ public:
     GroupList(Kernel *core);
     Group* getItem(QString id) override;
     int getItemRow(QString id) override;
+    Group* getItemByRow(int row) override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     void deleteFixture(Fixture *fixture);
     bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, const int role) const override;
     QList<QString> getIds();
 private:
     QList<Group*> items;

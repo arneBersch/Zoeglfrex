@@ -22,6 +22,7 @@ public:
     CueList(Kernel *core);
     Cue* getItem(QString id) override;
     int getItemRow(QString id) override;
+    Cue* getItemByRow(int row) override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     bool deleteCueGroupIntensity(QList<QString> ids, QString groupId);
@@ -36,7 +37,6 @@ public:
     bool recordCueColor(QList<QString> ids, QString groupId, QString colorId);
     QList<QString> getIds();
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, const int role) const override;
 private:
     QList<Cue*> items;
     Cue* recordCue(QString id, Transition *transition);

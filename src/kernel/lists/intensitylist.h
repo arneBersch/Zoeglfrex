@@ -21,13 +21,13 @@ class IntensityList : public ItemList {
 public:
     IntensityList(Kernel *core);
     Intensity* getItem(QString id) override;
+    Intensity* getItemByRow(int row) override;
     int getItemRow(QString id) override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordIntensityDimmer(QList<QString> ids, float dimmer);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, const int role) const override;
     QList<QString> getIds();
 private:
     QList<Intensity*> items;

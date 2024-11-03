@@ -22,6 +22,7 @@ public:
     ColorList(Kernel *core);
     Color* getItem(QString color) override;
     int getItemRow(QString id) override;
+    Color* getItemByRow(int row) override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     bool moveItems(QList<QString> ids, QString targetId) override;
@@ -29,7 +30,6 @@ public:
     bool recordColorGreen(QList<QString> ids, float green);
     bool recordColorBlue(QList<QString> ids, float blue);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, const int role) const override;
     QList<QString> getIds();
 private:
     QList<Color*> items;
