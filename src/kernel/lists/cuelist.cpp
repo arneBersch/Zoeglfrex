@@ -12,15 +12,6 @@ CueList::CueList(Kernel *core) {
     kernel = core;
 }
 
-int CueList::getItemRow(QString id) const {
-    for (int cueRow = 0; cueRow < items.size(); cueRow++) {
-        if (items[cueRow]->id == id) {
-            return cueRow;
-        }
-    }
-    return -1;
-}
-
 bool CueList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Cue* cue = getItem(id);

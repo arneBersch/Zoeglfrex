@@ -12,15 +12,6 @@ TransitionList::TransitionList(Kernel *core) {
     kernel = core;
 }
 
-int TransitionList::getItemRow(QString id) const {
-    for (int transitionRow = 0; transitionRow < items.size(); transitionRow++) {
-        if (items[transitionRow]->id == id) {
-            return transitionRow;
-        }
-    }
-    return -1;
-}
-
 bool TransitionList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Transition* transition = getItem(id);

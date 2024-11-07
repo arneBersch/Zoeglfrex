@@ -13,15 +13,6 @@ GroupList::GroupList(Kernel *core)
     kernel = core;
 }
 
-int GroupList::getItemRow(QString id) const {
-    for (int groupRow = 0; groupRow < items.size(); groupRow++) {
-        if (items[groupRow]->id == id) {
-            return groupRow;
-        }
-    }
-    return -1;
-}
-
 bool GroupList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Group *group = getItem(id);

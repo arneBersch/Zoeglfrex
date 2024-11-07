@@ -13,6 +13,15 @@ template <class T> T* ItemList<T>::getItem(QString id) const {
     return items[itemRow];
 }
 
+template <class T> int ItemList<T>::getItemRow(QString id) const {
+    for (int itemRow = 0; itemRow < items.size(); itemRow++) {
+        if (items[itemRow]->id == id) {
+            return itemRow;
+        }
+    }
+    return -1;
+}
+
 template <class T> bool ItemList<T>::labelItems(QList<QString> ids, QString label) {
     QList<Item*> items;
     for (QString id : ids) {

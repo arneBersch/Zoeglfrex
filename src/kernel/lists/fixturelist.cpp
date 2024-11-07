@@ -13,15 +13,6 @@ FixtureList::FixtureList(Kernel *core)
     kernel = core;
 }
 
-int FixtureList::getItemRow(QString id) const {
-    for (int fixtureRow = 0; fixtureRow < items.size(); fixtureRow++) {
-        if (items[fixtureRow]->id == id) {
-            return fixtureRow;
-        }
-    }
-    return -1;
-}
-
 bool FixtureList::copyItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {

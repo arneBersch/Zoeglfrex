@@ -12,15 +12,6 @@ ColorList::ColorList(Kernel *core) {
     kernel = core;
 }
 
-int ColorList::getItemRow(QString id) const {
-    for (int colorRow = 0; colorRow < items.size(); colorRow++) {
-        if (items[colorRow]->id == id) {
-            return colorRow;
-        }
-    }
-    return -1;
-}
-
 bool ColorList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Color* color = getItem(id);

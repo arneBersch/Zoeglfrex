@@ -12,15 +12,6 @@ IntensityList::IntensityList(Kernel *core) {
     kernel = core;
 }
 
-int IntensityList::getItemRow(QString id) const {
-    for (int intensityRow = 0; intensityRow < items.size(); intensityRow++) {
-        if (items[intensityRow]->id == id) {
-            return intensityRow;
-        }
-    }
-    return -1;
-}
-
 bool IntensityList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Intensity* intensity = getItem(id);

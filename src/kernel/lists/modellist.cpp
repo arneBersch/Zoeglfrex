@@ -12,15 +12,6 @@ ModelList::ModelList(Kernel *core) {
     kernel = core;
 }
 
-int ModelList::getItemRow(QString id) const {
-    for (int modelRow = 0; modelRow < items.size(); modelRow++) {
-        if (items[modelRow]->id == id) {
-            return modelRow;
-        }
-    }
-    return -1;
-}
-
 bool ModelList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Model* model = getItem(id);
