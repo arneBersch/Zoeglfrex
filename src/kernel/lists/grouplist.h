@@ -16,7 +16,7 @@
 
 class Kernel;
 
-class GroupList : public ItemList {
+class GroupList : public ItemList<Group> {
     Q_OBJECT
 public:
     GroupList(Kernel *core);

@@ -16,7 +16,7 @@
 
 class Kernel;
 
-class ModelList : public ItemList {
+class ModelList : public ItemList<Model> {
     Q_OBJECT
 public:
     ModelList(Kernel *core);

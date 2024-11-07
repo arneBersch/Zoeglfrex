@@ -16,7 +16,7 @@
 
 class Kernel;
 
-class IntensityList : public ItemList {
+class IntensityList : public ItemList<Intensity> {
     Q_OBJECT
 public:
     IntensityList(Kernel *core);

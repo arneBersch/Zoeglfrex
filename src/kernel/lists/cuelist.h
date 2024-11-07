@@ -16,7 +16,7 @@
 
 class Kernel;
 
-class CueList : public ItemList {
+class CueList : public ItemList<Cue> {
     Q_OBJECT
 public:
     CueList(Kernel *core);

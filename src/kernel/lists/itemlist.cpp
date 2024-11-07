@@ -1,11 +1,11 @@
 #include "itemlist.h"
 #include "kernel/kernel.h"
 
-ItemList::ItemList() {
+template <typename T> ItemList<T>::ItemList() {
     //
 }
 
-bool ItemList::labelItems(QList<QString> ids, QString label) {
+template <typename T> bool ItemList<T>::labelItems(QList<QString> ids, QString label) {
     QList<Item*> items;
     for (QString id : ids) {
         Item* item = getItem(id);
@@ -22,17 +22,17 @@ bool ItemList::labelItems(QList<QString> ids, QString label) {
     return true;
 }
 
-int ItemList::rowCount(const QModelIndex &parent) const {
+template <typename T> int ItemList<T>::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return getIds().size();
 }
 
-int ItemList::columnCount(const QModelIndex &parent) const {
+template <typename T> int ItemList<T>::columnCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return 1;
 }
 
-QVariant ItemList::data(const QModelIndex &index, const int role) const {
+template <typename T> QVariant ItemList<T>::data(const QModelIndex &index, const int role) const {
     const int row = index.row();
     const int column = index.column();
     if (row >= rowCount() || row < 0) {
@@ -47,7 +47,7 @@ QVariant ItemList::data(const QModelIndex &index, const int role) const {
     return QVariant();
 }
 
-bool ItemList::greaterId(QString firstId, QString secondId) {
+template <typename T> bool ItemList<T>::greaterId(QString firstId, QString secondId) {
     QList<QString> firstIdParts = firstId.split(".");
     QList<QString> secondIdParts = secondId.split(".");
     if (firstIdParts[0].toInt() < secondIdParts[0].toInt()) {

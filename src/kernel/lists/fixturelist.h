@@ -16,7 +16,7 @@
 
 class Kernel;
 
-class FixtureList : public ItemList {
+class FixtureList : public ItemList<Fixture> {
     Q_OBJECT
 public:
     FixtureList(Kernel *core);

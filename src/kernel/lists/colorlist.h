@@ -16,7 +16,7 @@
 
 class Kernel;
 
-class ColorList : public ItemList {
+class ColorList : public ItemList<Color> {
     Q_OBJECT
 public:
     ColorList(Kernel *core);

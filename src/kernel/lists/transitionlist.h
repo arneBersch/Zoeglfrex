@@ -16,7 +16,7 @@
 
 class Kernel;
 
-class TransitionList : public ItemList {
+class TransitionList : public ItemList<Transition> {
     Q_OBJECT
 public:
     TransitionList(Kernel *core);
