@@ -29,13 +29,6 @@ int CueList::getItemRow(QString id) const {
     return -1;
 }
 
-Cue* CueList::getItemByRow(int row) const {
-    if (row >= items.size() || row < 0) {
-        return nullptr;
-    }
-    return items[row];
-}
-
 bool CueList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Cue* cue = getItem(id);

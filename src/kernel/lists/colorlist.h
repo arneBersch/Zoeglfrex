@@ -22,7 +22,6 @@ public:
     ColorList(Kernel *core);
     Color* getItem(QString color) const override;
     int getItemRow(QString id) const override;
-    Color* getItemByRow(int row) const override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     bool moveItems(QList<QString> ids, QString targetId) override;

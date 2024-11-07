@@ -24,7 +24,7 @@ template <class T> bool ItemList<T>::labelItems(QList<QString> ids, QString labe
 
 template <class T> int ItemList<T>::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
-    return getIds().size();
+    return items.size();
 }
 
 template <class T> int ItemList<T>::columnCount(const QModelIndex &parent) const {
@@ -42,7 +42,7 @@ template <class T> QVariant ItemList<T>::data(const QModelIndex &index, const in
         return QVariant();
     }
     if (index.isValid() && role == Qt::DisplayRole) {
-        return getItemByRow(row)->name();
+        return items[row]->name();
     }
     return QVariant();
 }

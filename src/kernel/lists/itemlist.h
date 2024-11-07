@@ -9,9 +9,8 @@ class Kernel;
 template <class T> class ItemList : public QAbstractTableModel {
 public:
     ItemList();
-    virtual Item* getItem(QString id) const = 0;
+    virtual T* getItem(QString id) const = 0;
     virtual int getItemRow(QString id) const = 0;
-    virtual Item* getItemByRow(int row) const = 0;
     virtual QList<QString> getIds() const = 0;
     virtual bool copyItems(QList<QString> ids, QString targetId) = 0;
     virtual bool deleteItems(QList<QString> ids) = 0;

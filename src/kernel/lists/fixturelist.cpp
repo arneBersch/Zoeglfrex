@@ -30,13 +30,6 @@ int FixtureList::getItemRow(QString id) const {
     return -1;
 }
 
-Fixture* FixtureList::getItemByRow(int row) const {
-    if (row >= items.size() || row < 0) {
-        return nullptr;
-    }
-    return items[row];
-}
-
 bool FixtureList::copyItems(QList<QString> ids, QString targetId)
 {
     for (QString id : ids) {

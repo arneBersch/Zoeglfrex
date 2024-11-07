@@ -29,13 +29,6 @@ int IntensityList::getItemRow(QString id) const {
     return -1;
 }
 
-Intensity* IntensityList::getItemByRow(int row) const {
-    if (row >= items.size() || row < 0) {
-        return nullptr;
-    }
-    return items[row];
-}
-
 bool IntensityList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Intensity* intensity = getItem(id);

@@ -29,13 +29,6 @@ int ColorList::getItemRow(QString id) const {
     return -1;
 }
 
-Color* ColorList::getItemByRow(int row) const {
-    if (row >= items.size() || row < 0) {
-        return nullptr;
-    }
-    return items[row];
-}
-
 bool ColorList::copyItems(QList<QString> ids, QString targetId) {
     for (QString id : ids) {
         Color* color = getItem(id);

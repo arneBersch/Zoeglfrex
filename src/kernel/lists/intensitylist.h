@@ -21,7 +21,6 @@ class IntensityList : public ItemList<Intensity> {
 public:
     IntensityList(Kernel *core);
     Intensity* getItem(QString id) const override;
-    Intensity* getItemByRow(int row) const override;
     int getItemRow(QString id) const override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;

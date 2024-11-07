@@ -22,7 +22,6 @@ public:
     CueList(Kernel *core);
     Cue* getItem(QString id) const override;
     int getItemRow(QString id) const override;
-    Cue* getItemByRow(int row) const override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     bool deleteCueGroupIntensity(QList<QString> ids, QString groupId);
