@@ -227,7 +227,7 @@ void MainWindow::saveFile() {
             fixtures = "f";
             for (Fixture *fixture : group->fixtures) {
                 fixtures += fixture->id;
-                fixtures += ",";
+                fixtures += "+";
             }
         } else {
             fixtures = "";
@@ -244,7 +244,7 @@ void MainWindow::saveFile() {
 
     for (QString colorId : kernel->colors->getIds()) {
         Color *color = kernel->colors->getItem(colorId);
-        fileStream << "c" << color->id << "R" << color->red << "," << color->green << "," << color->blue << "\n";
+        fileStream << "c" << color->id << "R" << color->red << "+" << color->green << "+" << color->blue << "\n";
         fileStream << "c" << color->id << "L\"" << color->label << "\"\n";
     }
 
