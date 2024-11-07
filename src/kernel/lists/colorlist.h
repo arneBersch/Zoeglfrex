@@ -27,7 +27,6 @@ public:
     bool recordColorRed(QList<QString> ids, float red);
     bool recordColorGreen(QList<QString> ids, float green);
     bool recordColorBlue(QList<QString> ids, float blue);
-    QList<QString> getIds() const override;
 private:
     Color* recordColor(QString id);
 };

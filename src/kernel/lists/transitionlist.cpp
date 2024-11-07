@@ -99,11 +99,3 @@ bool TransitionList::recordTransitionFade(QList<QString> ids, float fade) {
     }
     return true;
 }
-
-QList<QString> TransitionList::getIds() const {
-    QList<QString> ids;
-    for (Transition *transition : items) {
-        ids.append(transition->id);
-    }
-    return ids;
-}

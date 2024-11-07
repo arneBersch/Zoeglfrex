@@ -99,11 +99,3 @@ bool IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer) {
     }
     return true;
 }
-
-QList<QString> IntensityList::getIds() const {
-    QList<QString> ids;
-    for (Intensity *intensity : items) {
-        ids.append(intensity->id);
-    }
-    return ids;
-}

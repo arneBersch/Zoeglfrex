@@ -22,6 +22,14 @@ template <class T> int ItemList<T>::getItemRow(QString id) const {
     return -1;
 }
 
+template <class T> QList<QString> ItemList<T>::getIds() const {
+    QList<QString> ids;
+    for (T *item : items) {
+        ids.append(item->id);
+    }
+    return ids;
+}
+
 template <class T> bool ItemList<T>::labelItems(QList<QString> ids, QString label) {
     QList<Item*> items;
     for (QString id : ids) {

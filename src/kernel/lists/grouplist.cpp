@@ -111,11 +111,3 @@ bool GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureId
     }
     return false;
 }
-
-QList<QString> GroupList::getIds() const {
-    QList<QString> ids;
-    for (Group *group : items) {
-        ids.append(group->id);
-    }
-    return ids;
-}

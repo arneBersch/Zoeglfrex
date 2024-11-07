@@ -25,7 +25,6 @@ public:
     bool deleteItems(QList <QString> ids) override;
     bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordTransitionFade(QList<QString> ids, float fadeIn);
-    QList<QString> getIds() const override;
 private:
     Transition* recordTransition(QString id);
 };

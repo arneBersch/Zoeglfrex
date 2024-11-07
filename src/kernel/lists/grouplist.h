@@ -26,7 +26,6 @@ public:
     void deleteFixture(Fixture *fixture);
     bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
-    QList<QString> getIds() const override;
 private:
     Group* recordGroup(QString id);
 };

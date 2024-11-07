@@ -165,14 +165,6 @@ bool FixtureList::recordFixtureModel(QList<QString> ids, QString modelId, int ad
     return true;
 }
 
-QList<QString> FixtureList::getIds() const {
-    QList<QString> ids;
-    for (Fixture *fixture : items) {
-        ids.append(fixture->id);
-    }
-    return ids;
-}
-
 int FixtureList::findFreeAddress(int channelCount) {
     int lastUsedChannel = 0;
     for (int channel=1; channel<=512; channel++) {

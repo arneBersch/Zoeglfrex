@@ -25,7 +25,6 @@ public:
     bool deleteItems(QList<QString> ids) override;
     bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordModelChannels(QList<QString> ids, QString channels);
-    QList<QString> getIds() const override;
 private:
     Model* recordModel(QString id);
 };

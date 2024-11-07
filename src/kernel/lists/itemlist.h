@@ -11,7 +11,7 @@ public:
     ItemList();
     T* getItem(QString id) const;
     int getItemRow(QString id) const;
-    virtual QList<QString> getIds() const = 0;
+    QList<QString> getIds() const;
     virtual bool copyItems(QList<QString> ids, QString targetId) = 0;
     virtual bool deleteItems(QList<QString> ids) = 0;
     bool labelItems(QList<QString> ids, QString label);

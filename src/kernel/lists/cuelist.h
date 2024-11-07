@@ -33,7 +33,6 @@ public:
     bool recordCueTransition(QList<QString> ids, QString transitionId);
     bool recordCueIntensity(QList<QString> ids, QString groupId, QString intensityId);
     bool recordCueColor(QList<QString> ids, QString groupId, QString colorId);
-    QList<QString> getIds() const override;
 private:
     Cue* recordCue(QString id, Transition *transition);
 };
