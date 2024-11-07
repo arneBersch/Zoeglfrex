@@ -23,7 +23,6 @@ public:
     IntensityList(Kernel *core);
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
-    bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordIntensityDimmer(QList<QString> ids, float dimmer);
 private:
     Intensity* recordIntensity(QString id);

@@ -47,31 +47,6 @@ bool ColorList::deleteItems(QList<QString> ids) {
     return true;
 }
 
-bool ColorList::moveItems(QList<QString> ids, QString targetId) {
-    for (QString id : ids) {
-        int colorRow = getItemRow(id);
-        if (colorRow < 0) {
-            kernel->terminal->error("Color can't be moved because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Color can't be moved because Target ID is already used.");
-            return false;
-        }
-        Color* color = items[colorRow];
-        items.removeAt(colorRow);
-        color->id = targetId;
-        int position = 0;
-        for (int index=0; index < items.size(); index++) {
-            if (greaterId(items[index]->id, targetId)) {
-                position++;
-            }
-        }
-        items.insert(position, color);
-    }
-    return true;
-}
-
 Color* ColorList::recordColor(QString id) {
     Color* color = new Color;
     color->id = id;

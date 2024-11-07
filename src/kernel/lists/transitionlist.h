@@ -23,7 +23,6 @@ public:
     TransitionList(Kernel *core);
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList <QString> ids) override;
-    bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordTransitionFade(QList<QString> ids, float fadeIn);
 private:
     Transition* recordTransition(QString id);

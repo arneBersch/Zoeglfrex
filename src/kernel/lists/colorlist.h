@@ -23,7 +23,6 @@ public:
     ColorList(Kernel *core);
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
-    bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordColorRed(QList<QString> ids, float red);
     bool recordColorGreen(QList<QString> ids, float green);
     bool recordColorBlue(QList<QString> ids, float blue);

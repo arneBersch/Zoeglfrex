@@ -45,31 +45,6 @@ bool IntensityList::deleteItems(QList<QString> ids) {
     return true;
 }
 
-bool IntensityList::moveItems(QList<QString> ids, QString targetId) {
-    for (QString id : ids) {
-        int intensityRow = getItemRow(id);
-        if (intensityRow < 0) {
-            kernel->terminal->error("Intensity can't be moved because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Intenity can't be moved because Target ID is already used.");
-            return false;
-        }
-        Intensity* intensity = items[intensityRow];
-        items.removeAt(intensityRow);
-        intensity->id = targetId;
-        int position = 0;
-        for (int index=0; index < items.size(); index++) {
-            if (greaterId(items[index]->id, targetId)) {
-                position++;
-            }
-        }
-        items.insert(position, intensity);
-    }
-    return true;
-}
-
 Intensity* IntensityList::recordIntensity(QString id) {
     Intensity *intensity = new Intensity;
     intensity->id = id;

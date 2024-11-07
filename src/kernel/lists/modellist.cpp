@@ -46,31 +46,6 @@ bool ModelList::deleteItems(QList<QString> ids)
     return true;
 }
 
-bool ModelList::moveItems(QList<QString> ids, QString targetId) {
-    for (QString id : ids) {
-        int modelRow = getItemRow(id);
-        if (modelRow < 0) {
-            kernel->terminal->error("Model can't be moved because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Model can't be moved because Target ID is already used.");
-            return false;
-        }
-        Model* model = items[modelRow];
-        items.removeAt(modelRow);
-        model->id = targetId;
-        int position = 0;
-        for (int index=0; index < items.size(); index++) {
-            if (greaterId(items[index]->id, targetId)) {
-                position++;
-            }
-        }
-        items.insert(position, model);
-    }
-    return true;
-}
-
 Model* ModelList::recordModel(QString id) {
     Model *model = new Model;
     model->id = id;

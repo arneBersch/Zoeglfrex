@@ -24,7 +24,6 @@ public:
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     void deleteFixture(Fixture *fixture);
-    bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
 private:
     Group* recordGroup(QString id);

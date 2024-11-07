@@ -52,31 +52,6 @@ void GroupList::deleteFixture(Fixture *fixture) {
     }
 }
 
-bool GroupList::moveItems(QList<QString> ids, QString targetId) {
-    for (QString id : ids) {
-        int groupRow = getItemRow(id);
-        if (groupRow < 0) {
-            kernel->terminal->error("Group can't be moved because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Group can't be moved because Target ID is already used.");
-            return false;
-        }
-        Group* group = items[groupRow];
-        items.removeAt(groupRow);
-        group->id = targetId;
-        int position = 0;
-        for (int index=0; index < items.size(); index++) {
-            if (greaterId(items[index]->id, targetId)) {
-                position++;
-            }
-        }
-        items.insert(position, group);
-    }
-    return true;
-}
-
 Group* GroupList::recordGroup(QString id) {
     Group *group = new Group;
     group->id = id;

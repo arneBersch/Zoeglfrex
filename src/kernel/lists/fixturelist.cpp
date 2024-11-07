@@ -62,31 +62,6 @@ void FixtureList::deleteModel(Model *model)
     deleteItems(invalidFixtures);
 }
 
-bool FixtureList::moveItems(QList<QString> ids, QString targetId) {
-    for (QString id : ids) {
-        int fixtureRow = getItemRow(id);
-        if (fixtureRow < 0) {
-            kernel->terminal->error("Fixture " + id + " can't be moved because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Fixture " + id + " can't be moved because Target ID is already used.");
-            return false;
-        }
-        Fixture* fixture = items[fixtureRow];
-        items.removeAt(fixtureRow);
-        fixture->id = targetId;
-        int position = 0;
-        for (int index=0; index < items.size(); index++) {
-            if (greaterId(items[index]->id, targetId)) {
-                position++;
-            }
-        }
-        items.insert(position, fixture);
-    }
-    return true;
-}
-
 Fixture* FixtureList::recordFixture(QString id, Model* model) {
     Fixture *fixture = new Fixture;
     fixture->id = id;

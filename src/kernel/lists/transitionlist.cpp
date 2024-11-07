@@ -45,31 +45,6 @@ bool TransitionList::deleteItems(QList<QString> ids) {
     return true;
 }
 
-bool TransitionList::moveItems(QList<QString> ids, QString targetId) {
-    for (QString id : ids) {
-        int transitionRow = getItemRow(id);
-        if (transitionRow < 0) {
-            kernel->terminal->error("Transition can't be moved because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Transition can't be moved because Target ID is already used.");
-            return false;
-        }
-        Transition* transition = items[transitionRow];
-        items.removeAt(transitionRow);
-        transition->id = targetId;
-        int position = 0;
-        for (int index=0; index < items.size(); index++) {
-            if (greaterId(items[index]->id, targetId)) {
-                position++;
-            }
-        }
-        items.insert(position, transition);
-    }
-    return true;
-}
-
 Transition* TransitionList::recordTransition(QString id) {
     Transition *transition = new Transition;
     transition->id = id;

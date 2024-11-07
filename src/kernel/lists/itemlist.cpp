@@ -43,7 +43,33 @@ template <class T> bool ItemList<T>::labelItems(QList<QString> ids, QString labe
     for (Item* item : items) {
         item->label = label;
     }
-    kernel->terminal->success("Labeled " + QString::number(ids.length()) + " items as \"" + label + "\"");
+    kernel->terminal->success("Labeled " + QString::number(ids.length()) + " items as \"" + label + ".");
+    return true;
+}
+
+template <class T> bool ItemList<T>::moveItems(QList<QString> ids, QString targetId) {
+    for (QString id : ids) {
+        int itemRow = getItemRow(id);
+        if (itemRow < 0) {
+            kernel->terminal->error("Couldn't move items because item with ID " + id + " doesn't exist.");
+            return false;
+        }
+        if (getItem(targetId) != nullptr) {
+            kernel->terminal->error("Couldn't move items because target ID " + targetId + " is already used.");
+            return false;
+        }
+        T* item = items[itemRow];
+        items.removeAt(itemRow);
+        item->id = targetId;
+        int position = 0;
+        for (int index=0; index < items.size(); index++) {
+            if (greaterId(items[index]->id, targetId)) {
+                position++;
+            }
+        }
+        items.insert(position, item);
+    }
+    kernel->terminal->success("Moved " + QString::number(ids.length()) + " items to " + targetId + ".");
     return true;
 }
 

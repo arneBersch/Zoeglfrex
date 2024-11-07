@@ -4,7 +4,6 @@
 #include <QtWidgets>
 
 class Kernel;
-#include "kernel/items/item.h"
 
 template <class T> class ItemList : public QAbstractTableModel {
 public:
@@ -15,7 +14,7 @@ public:
     virtual bool copyItems(QList<QString> ids, QString targetId) = 0;
     virtual bool deleteItems(QList<QString> ids) = 0;
     bool labelItems(QList<QString> ids, QString label);
-    virtual bool moveItems(QList<QString> ids, QString targetId) = 0;
+    bool moveItems(QList<QString> ids, QString targetId);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;

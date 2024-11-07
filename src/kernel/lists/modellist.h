@@ -23,7 +23,6 @@ public:
     ModelList(Kernel *core);
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
-    bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordModelChannels(QList<QString> ids, QString channels);
 private:
     Model* recordModel(QString id);

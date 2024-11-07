@@ -24,7 +24,6 @@ public:
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     void deleteModel(Model *model);
-    bool moveItems(QList<QString> ids, QString targetId) override;
     bool recordFixtureAddress(QList<QString> ids, int address);
     bool recordFixtureModel(QList<QString> ids, QString model, int address=0);
     QSet<int> usedChannels();

@@ -120,31 +120,6 @@ bool CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
     return true;
 }
 
-bool CueList::moveItems(QList<QString> ids, QString targetId) {
-    for (QString id : ids) {
-        int cueRow = getItemRow(id);
-        if (cueRow < 0) {
-            kernel->terminal->error("Cue can't be moved because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Cue can't be moved because Target ID is already used.");
-            return false;
-        }
-        Cue* cue = items[cueRow];
-        items.removeAt(cueRow);
-        cue->id = targetId;
-        int position = 0;
-        for (int index=0; index < items.size(); index++) {
-            if (greaterId(items[index]->id, targetId)) {
-                position++;
-            }
-        }
-        items.insert(position, cue);
-    }
-    return true;
-}
-
 Cue* CueList::recordCue(QString id, Transition *transition) {
     Cue *cue = new Cue;
     cue->id = id;
