@@ -29,7 +29,6 @@ public:
     bool recordIntensityDimmer(QList<QString> ids, float dimmer);
     QList<QString> getIds() const override;
 private:
-    QList<Intensity*> items;
     Intensity* recordIntensity(QString id);
 };
 

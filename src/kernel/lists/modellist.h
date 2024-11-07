@@ -29,7 +29,6 @@ public:
     bool recordModelChannels(QList<QString> ids, QString channels);
     QList<QString> getIds() const override;
 private:
-    QList<Model*> items;
     Model* recordModel(QString id);
 };
 

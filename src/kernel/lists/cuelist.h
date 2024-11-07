@@ -37,7 +37,6 @@ public:
     bool recordCueColor(QList<QString> ids, QString groupId, QString colorId);
     QList<QString> getIds() const override;
 private:
-    QList<Cue*> items;
     Cue* recordCue(QString id, Transition *transition);
 };
 

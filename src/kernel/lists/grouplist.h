@@ -30,7 +30,6 @@ public:
     bool recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
     QList<QString> getIds() const override;
 private:
-    QList<Group*> items;
     Group* recordGroup(QString id);
 };
 

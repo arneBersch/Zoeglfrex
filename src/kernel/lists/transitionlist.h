@@ -29,7 +29,6 @@ public:
     bool recordTransitionFade(QList<QString> ids, float fadeIn);
     QList<QString> getIds() const override;
 private:
-    QList<Transition*> items;
     Transition* recordTransition(QString id);
 };
 

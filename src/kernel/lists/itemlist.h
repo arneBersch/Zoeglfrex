@@ -6,7 +6,7 @@
 class Kernel;
 #include "kernel/items/item.h"
 
-template <typename T> class ItemList : public QAbstractTableModel {
+template <class T> class ItemList : public QAbstractTableModel {
 public:
     ItemList();
     virtual Item* getItem(QString id) const = 0;
@@ -22,6 +22,7 @@ public:
     QVariant data(const QModelIndex &index, const int role) const override;
     bool greaterId(QString firstId, QString secondId);
     Kernel *kernel;
+    QList<T*> items;
 };
 
 #include "kernel/items/model.h"
