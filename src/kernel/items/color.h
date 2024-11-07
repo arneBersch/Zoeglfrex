@@ -11,6 +11,7 @@ public:
     float red;
     float green;
     float blue;
+    QString name() override;
 };
 
 #endif // COLOR_H

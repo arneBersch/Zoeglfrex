@@ -10,6 +10,7 @@ class Group : public Item {
 public:
     Group();
     QList<Fixture*> fixtures;
+    QString name() override;
 };
 
 #endif // GROUP_H

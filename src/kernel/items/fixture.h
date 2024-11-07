@@ -11,6 +11,7 @@ public:
     Fixture();
     Model* model;
     int address;
+    QString name() override;
 };
 
 #endif // FIXTURE_H

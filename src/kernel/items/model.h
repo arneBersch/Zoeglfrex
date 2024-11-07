@@ -9,6 +9,7 @@ class Model : public Item {
 public:
     Model();
     QString channels;
+    QString name() override;
 };
 
 #endif // MODEL_H

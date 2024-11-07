@@ -9,6 +9,7 @@ class Transition : public Item {
 public:
     Transition();
     float fade;
+    QString name() override;
 };
 
 #endif // TRANSITION_H

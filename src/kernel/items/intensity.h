@@ -9,6 +9,7 @@ class Intensity : public Item {
 public:
     Intensity();
     float dimmer;
+    QString name() override;
 };
 
 #endif // INTENSITY_H
