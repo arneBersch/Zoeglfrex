@@ -21,7 +21,6 @@ class TransitionList : public ItemList<Transition> {
     Q_OBJECT
 public:
     TransitionList(Kernel *core);
-    Transition* getItem(QString id) const override;
     int getItemRow(QString id) const override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList <QString> ids) override;

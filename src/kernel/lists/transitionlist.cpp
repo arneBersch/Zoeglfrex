@@ -12,14 +12,6 @@ TransitionList::TransitionList(Kernel *core) {
     kernel = core;
 }
 
-Transition* TransitionList::getItem(QString id) const {
-    int transitionRow = getItemRow(id);
-    if (transitionRow < 0) {
-        return nullptr;
-    }
-    return items[transitionRow];
-}
-
 int TransitionList::getItemRow(QString id) const {
     for (int transitionRow = 0; transitionRow < items.size(); transitionRow++) {
         if (items[transitionRow]->id == id) {

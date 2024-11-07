@@ -12,14 +12,6 @@ IntensityList::IntensityList(Kernel *core) {
     kernel = core;
 }
 
-Intensity* IntensityList::getItem(QString id) const {
-    int intensityRow = getItemRow(id);
-    if (intensityRow < 0 || intensityRow >= items.size()) {
-        return nullptr;
-    }
-    return items[intensityRow];
-}
-
 int IntensityList::getItemRow(QString id) const {
     for (int intensityRow = 0; intensityRow < items.size(); intensityRow++) {
         if (items[intensityRow]->id == id) {

@@ -5,6 +5,14 @@ template <class T> ItemList<T>::ItemList() {
     //
 }
 
+template <class T> T* ItemList<T>::getItem(QString id) const {
+    int itemRow = getItemRow(id);
+    if (itemRow < 0 || itemRow >= items.size()) {
+        return nullptr;
+    }
+    return items[itemRow];
+}
+
 template <class T> bool ItemList<T>::labelItems(QList<QString> ids, QString label) {
     QList<Item*> items;
     for (QString id : ids) {

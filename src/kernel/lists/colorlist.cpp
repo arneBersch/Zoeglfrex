@@ -12,14 +12,6 @@ ColorList::ColorList(Kernel *core) {
     kernel = core;
 }
 
-Color* ColorList::getItem(QString id) const {
-    int colorRow = getItemRow(id);
-    if (colorRow < 0) {
-        return nullptr;
-    }
-    return items[colorRow];
-}
-
 int ColorList::getItemRow(QString id) const {
     for (int colorRow = 0; colorRow < items.size(); colorRow++) {
         if (items[colorRow]->id == id) {

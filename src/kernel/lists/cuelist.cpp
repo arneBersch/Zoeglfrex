@@ -12,14 +12,6 @@ CueList::CueList(Kernel *core) {
     kernel = core;
 }
 
-Cue* CueList::getItem(QString id) const {
-    int cueRow = getItemRow(id);
-    if (cueRow < 0 || cueRow >= items.size()) {
-        return nullptr;
-    }
-    return items[cueRow];
-}
-
 int CueList::getItemRow(QString id) const {
     for (int cueRow = 0; cueRow < items.size(); cueRow++) {
         if (items[cueRow]->id == id) {

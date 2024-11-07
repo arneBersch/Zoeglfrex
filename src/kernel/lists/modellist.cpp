@@ -12,14 +12,6 @@ ModelList::ModelList(Kernel *core) {
     kernel = core;
 }
 
-Model* ModelList::getItem(QString id) const {
-    int modelRow = getItemRow(id);
-    if (modelRow < 0 || modelRow >= items.size()) {
-        return nullptr;
-    }
-    return items[modelRow];
-}
-
 int ModelList::getItemRow(QString id) const {
     for (int modelRow = 0; modelRow < items.size(); modelRow++) {
         if (items[modelRow]->id == id) {

@@ -13,14 +13,6 @@ FixtureList::FixtureList(Kernel *core)
     kernel = core;
 }
 
-Fixture* FixtureList::getItem(QString id) const {
-    int fixtureRow = getItemRow(id);
-    if (fixtureRow < 0 || fixtureRow >= items.size()) {
-        return nullptr;
-    }
-    return items[fixtureRow];
-}
-
 int FixtureList::getItemRow(QString id) const {
     for (int fixtureRow = 0; fixtureRow < items.size(); fixtureRow++) {
         if (items[fixtureRow]->id == id) {

@@ -21,7 +21,6 @@ class CueList : public ItemList<Cue> {
     Q_OBJECT
 public:
     CueList(Kernel *core);
-    Cue* getItem(QString id) const override;
     int getItemRow(QString id) const override;
     bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;

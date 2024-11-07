@@ -13,14 +13,6 @@ GroupList::GroupList(Kernel *core)
     kernel = core;
 }
 
-Group* GroupList::getItem(QString id) const {
-    int groupRow = getItemRow(id);
-    if (groupRow < 0 || groupRow >= items.size()) {
-        return nullptr;
-    }
-    return items[groupRow];
-}
-
 int GroupList::getItemRow(QString id) const {
     for (int groupRow = 0; groupRow < items.size(); groupRow++) {
         if (items[groupRow]->id == id) {
