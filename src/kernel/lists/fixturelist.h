@@ -16,6 +16,7 @@
 
 class Kernel;
 
+template class ItemList<Fixture>;
 class FixtureList : public ItemList<Fixture> {
     Q_OBJECT
 public:

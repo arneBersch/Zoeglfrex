@@ -16,6 +16,7 @@
 
 class Kernel;
 
+template class ItemList<Model>;
 class ModelList : public ItemList<Model> {
     Q_OBJECT
 public:

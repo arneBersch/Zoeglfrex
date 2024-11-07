@@ -16,6 +16,7 @@
 
 class Kernel;
 
+template class ItemList<Color>;
 class ColorList : public ItemList<Color> {
     Q_OBJECT
 public:

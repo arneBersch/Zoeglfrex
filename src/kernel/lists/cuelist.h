@@ -16,6 +16,7 @@
 
 class Kernel;
 
+template class ItemList<Cue>;
 class CueList : public ItemList<Cue> {
     Q_OBJECT
 public:

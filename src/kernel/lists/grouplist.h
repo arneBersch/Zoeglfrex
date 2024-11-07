@@ -16,6 +16,7 @@
 
 class Kernel;
 
+template class ItemList<Group>;
 class GroupList : public ItemList<Group> {
     Q_OBJECT
 public:

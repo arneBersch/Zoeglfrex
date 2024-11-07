@@ -24,19 +24,4 @@ public:
     QList<T*> items;
 };
 
-#include "kernel/items/model.h"
-template class ItemList<Model>;
-#include "kernel/items/fixture.h"
-template class ItemList<Fixture>;
-#include "kernel/items/group.h"
-template class ItemList<Group>;
-#include "kernel/items/intensity.h"
-template class ItemList<Intensity>;
-#include "kernel/items/color.h"
-template class ItemList<Color>;
-#include "kernel/items/transition.h"
-template class ItemList<Transition>;
-#include "kernel/items/cue.h"
-template class ItemList<Cue>;
-
 #endif // ITEMLIST_H

@@ -16,6 +16,7 @@
 
 class Kernel;
 
+template class ItemList<Intensity>;
 class IntensityList : public ItemList<Intensity> {
     Q_OBJECT
 public:

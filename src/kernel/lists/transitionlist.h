@@ -16,6 +16,7 @@
 
 class Kernel;
 
+template class ItemList<Transition>;
 class TransitionList : public ItemList<Transition> {
     Q_OBJECT
 public:
