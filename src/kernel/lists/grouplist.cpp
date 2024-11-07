@@ -48,7 +48,7 @@ bool GroupList::deleteItems(QList<QString> ids) {
 
 void GroupList::deleteFixture(Fixture *fixture) {
     for (Group* group : items) {
-        group->fixtures.remove(fixture);
+        group->fixtures.removeAll(fixture);
     }
 }
 
@@ -56,7 +56,7 @@ Group* GroupList::recordGroup(QString id) {
     Group *group = new Group;
     group->id = id;
     group->label = QString();
-    group->fixtures = QSet<Fixture*>();
+    group->fixtures = QList<Fixture*>();
     int position = 0;
     for (int index=0; index < items.size(); index++) {
         if (greaterId(items[index]->id, id)) {
@@ -68,14 +68,14 @@ Group* GroupList::recordGroup(QString id) {
 }
 
 bool GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds) {
-    QSet<Fixture*> fixtureSelection;
+    QList<Fixture*> fixtureSelection;
     for (QString fixtureId : fixtureIds) {
         Fixture* fixture = kernel->fixtures->getItem(fixtureId);
         if (fixture == nullptr) {
             kernel->terminal->error("Can't record Group Fixtures because Fixture doesn't exist.");
             return false;
         }
-        fixtureSelection.insert(fixture);
+        fixtureSelection.append(fixture);
     }
     for (QString id : ids) {
         Group* group = getItem(id);

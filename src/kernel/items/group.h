@@ -9,7 +9,7 @@
 class Group : public Item {
 public:
     Group();
-    QSet<Fixture*> fixtures;
+    QList<Fixture*> fixtures;
 };
 
 #endif // GROUP_H
