@@ -3,5 +3,5 @@
 Item::Item() {}
 
 QString Item::name() {
-    return id + ": " + label;
+    return id + " " + label;
 }

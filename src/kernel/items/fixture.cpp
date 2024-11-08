@@ -4,7 +4,7 @@ Fixture::Fixture() {}
 
 QString Fixture::name() {
     if (label.isEmpty()) {
-        return Item::name() + model->name();
+        return Item::name() + model->channels;
     }
     return Item::name();
 }

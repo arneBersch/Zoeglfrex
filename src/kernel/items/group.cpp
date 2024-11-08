@@ -4,9 +4,11 @@ Group::Group() {}
 
 QString Group::name() {
     if (label.isEmpty()) {
-        if (fixtures.length() == 1) {
-            return Item::name() + fixtures[0]->name();
+        QString response = Item::name();
+        for (Fixture* fixture : fixtures) {
+            response += fixture->name() + "; ";
         }
+        return response;
     }
     return Item::name();
 }
