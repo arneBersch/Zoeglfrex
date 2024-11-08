@@ -51,18 +51,18 @@ QVariant CueModel::data(const QModelIndex &index, const int role) const
     if (index.isValid() && role == Qt::DisplayRole) {
         QMutexLocker locker(kernel->mutex);
         if (column == CueModelColumns::group) {
-            return groups[row];
+            return kernel->groups->getItem(groups[row])->name();
         } else if (column == CueModelColumns::intensity) {
             Group *currentGroup = kernel->groups->getItem(groups[row]);
             if (currentCue->intensities.contains(currentGroup)) {
-                QString id = (currentCue->intensities[currentGroup])->id;
+                QString id = (currentCue->intensities[currentGroup])->name();
                 return id;
             }
             return QVariant();
         } else if (column == CueModelColumns::color) {
             Group *currentGroup = kernel->groups->getItem(groups[row]);
             if (currentCue->colors.contains(currentGroup)) {
-                QString id = (currentCue->colors[currentGroup])->id;
+                QString id = (currentCue->colors[currentGroup])->name();
                 return id;
             }
             return QVariant();
