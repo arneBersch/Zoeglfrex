@@ -1,9 +1,11 @@
 #include "cue.h"
 
-Cue::Cue() {}
+Cue::Cue(Kernel *core) : Item(core) {}
+
+Cue::~Cue() {}
 
 Cue* Cue::copy() {
-    Cue* cue = new Cue();
+    Cue* cue = new Cue(kernel);
     cue->id = id;
     cue->label = label;
     cue->transition = transition;

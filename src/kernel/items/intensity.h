@@ -7,7 +7,8 @@
 
 class Intensity : public Item {
 public:
-    Intensity();
+    Intensity(Kernel* core);
+    ~Intensity();
     float dimmer;
     QString name() override;
     Intensity* copy() override;

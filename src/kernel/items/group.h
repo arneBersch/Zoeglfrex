@@ -8,7 +8,8 @@
 
 class Group : public Item {
 public:
-    Group();
+    Group(Kernel* core);
+    ~Group();
     QList<Fixture*> fixtures;
     QString name() override;
     Group* copy() override;

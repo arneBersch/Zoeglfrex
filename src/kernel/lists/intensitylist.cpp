@@ -12,23 +12,8 @@ IntensityList::IntensityList(Kernel *core) {
     kernel = core;
 }
 
-bool IntensityList::deleteItems(QList<QString> ids) {
-    for (QString id : ids) {
-        int intensityRow = getItemRow(id);
-        if (intensityRow < 0) {
-            kernel->terminal->error("Intensity can't be deleted because it doesn't exist.");
-            return false;
-        }
-        Intensity *intensity = items[intensityRow];
-        kernel->cues->deleteIntensity(intensity);
-        items.removeAt(intensityRow);
-        delete intensity;
-    }
-    return true;
-}
-
 Intensity* IntensityList::recordIntensity(QString id) {
-    Intensity *intensity = new Intensity;
+    Intensity *intensity = new Intensity(kernel);
     intensity->id = id;
     intensity->label = QString();
     intensity->dimmer = 100;

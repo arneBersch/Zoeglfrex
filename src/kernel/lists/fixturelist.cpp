@@ -13,21 +13,6 @@ FixtureList::FixtureList(Kernel *core)
     kernel = core;
 }
 
-bool FixtureList::deleteItems(QList<QString> ids) {
-    for (QString id : ids) {
-        int fixtureRow = getItemRow(id);
-        if (fixtureRow < 0) {
-            kernel->terminal->error("Fixture can't be deleted because it doesn't exist.");
-            return false;
-        }
-        Fixture *fixture = items[fixtureRow];
-        kernel->groups->deleteFixture(fixture);
-        items.removeAt(fixtureRow);
-        delete fixture;
-    }
-    return true;
-}
-
 void FixtureList::deleteModel(Model *model)
 {
     QList<QString> invalidFixtures;
@@ -40,7 +25,7 @@ void FixtureList::deleteModel(Model *model)
 }
 
 Fixture* FixtureList::recordFixture(QString id, Model* model) {
-    Fixture *fixture = new Fixture;
+    Fixture *fixture = new Fixture(kernel);
     fixture->id = id;
     fixture->label = QString();
     int address = findFreeAddress(model->channels.size());

@@ -11,7 +11,8 @@
 
 class Cue : public Item {
 public:
-    Cue();
+    Cue(Kernel *core);
+    ~Cue();
     Transition* transition;
     QMap<Group*, Intensity*> intensities;
     QMap<Group*, Color*> colors;

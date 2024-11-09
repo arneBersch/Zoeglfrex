@@ -12,23 +12,6 @@ CueList::CueList(Kernel *core) {
     kernel = core;
 }
 
-bool CueList::deleteItems(QList<QString> ids) {
-    for (QString id : ids) {
-        int cueRow = getItemRow(id);
-        if (cueRow < 0) {
-            kernel->terminal->error("Cue can't be deleted because it doesn't exist.");
-            return false;
-        }
-        Cue *cue = items[cueRow];
-        items.removeAt(cueRow);
-        delete cue;
-        if (kernel->cuelistView->currentCue == cue) {
-            kernel->cuelistView->currentCue = nullptr;
-        }
-    }
-    return true;
-}
-
 void CueList::deleteIntensity(Intensity* intensity) {
     for (Cue *cue : items) {
         for (Group *group : cue->intensities.keys()) {
@@ -101,7 +84,7 @@ bool CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
 }
 
 Cue* CueList::recordCue(QString id, Transition *transition) {
-    Cue *cue = new Cue;
+    Cue *cue = new Cue(kernel);
     cue->id = id;
     cue->label = QString();
     cue->transition = transition;

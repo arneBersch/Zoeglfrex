@@ -7,7 +7,8 @@
 
 class Model : public Item {
 public:
-    Model();
+    Model(Kernel* core);
+    ~Model();
     QString channels;
     QString name() override;
     Model* copy() override;

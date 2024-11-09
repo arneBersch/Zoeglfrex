@@ -7,7 +7,8 @@
 
 class Color : public Item {
 public:
-    Color();
+    Color(Kernel* core);
+    ~Color();
     float red;
     float green;
     float blue;

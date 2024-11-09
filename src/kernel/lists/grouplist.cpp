@@ -13,21 +13,6 @@ GroupList::GroupList(Kernel *core)
     kernel = core;
 }
 
-bool GroupList::deleteItems(QList<QString> ids) {
-    for (QString id : ids) {
-        int groupRow = getItemRow(id);
-        if (groupRow < 0) {
-            kernel->terminal->error("Group can't be deleted because it doesn't exist.");
-            return false;
-        }
-        Group *group = items[groupRow];
-        kernel->cues->deleteGroup(group);
-        items.removeAt(groupRow);
-        delete group;
-    }
-    return true;
-}
-
 void GroupList::deleteFixture(Fixture *fixture) {
     for (Group* group : items) {
         group->fixtures.removeAll(fixture);
@@ -35,7 +20,7 @@ void GroupList::deleteFixture(Fixture *fixture) {
 }
 
 Group* GroupList::recordGroup(QString id) {
-    Group *group = new Group;
+    Group *group = new Group(kernel);
     group->id = id;
     group->label = QString();
     group->fixtures = QList<Fixture*>();

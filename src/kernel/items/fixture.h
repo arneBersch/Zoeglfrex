@@ -8,7 +8,8 @@
 
 class Fixture : public Item {
 public:
-    Fixture();
+    Fixture(Kernel* core);
+    ~Fixture();
     Model* model;
     int address;
     QString name() override;

@@ -12,24 +12,8 @@ ModelList::ModelList(Kernel *core) {
     kernel = core;
 }
 
-bool ModelList::deleteItems(QList<QString> ids)
-{
-    for (QString id : ids) {
-        int modelRow = getItemRow(id);
-        if (modelRow < 0) {
-            kernel->terminal->error("Model can't be deleted because it doesn't exist.");
-            return false;
-        }
-        Model *model= items[modelRow];
-        kernel->fixtures->deleteModel(model);
-        items.removeAt(modelRow);
-        delete model;
-    }
-    return true;
-}
-
 Model* ModelList::recordModel(QString id) {
-    Model *model = new Model;
+    Model *model = new Model(kernel);
     model->id = id;
     model->label = QString();
     model->channels = "D";

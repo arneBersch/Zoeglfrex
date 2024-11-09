@@ -12,23 +12,8 @@ TransitionList::TransitionList(Kernel *core) {
     kernel = core;
 }
 
-bool TransitionList::deleteItems(QList<QString> ids) {
-    for (QString id : ids) {
-        int transitionRow = getItemRow(id);
-        if (transitionRow < 0) {
-            kernel->terminal->error("Transition can't be deleted because it doesn't exist.");
-            return false;
-        }
-        Transition *transition = items[transitionRow];
-        kernel->cues->deleteTransition(transition);
-        items.removeAt(transitionRow);
-        delete transition;
-    }
-    return true;
-}
-
 Transition* TransitionList::recordTransition(QString id) {
-    Transition *transition = new Transition;
+    Transition *transition = new Transition(kernel);
     transition->id = id;
     transition->label = QString();
     transition->fade = 0;

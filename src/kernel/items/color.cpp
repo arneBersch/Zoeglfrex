@@ -1,6 +1,11 @@
 #include "color.h"
+#include "kernel/kernel.h"
 
-Color::Color() {}
+Color::Color(Kernel* core) : Item(core) {}
+
+Color::~Color() {
+    kernel->cues->deleteColor(this);
+}
 
 QString Color::name() {
     if (label.isEmpty()) {
@@ -10,7 +15,7 @@ QString Color::name() {
 }
 
 Color* Color::copy() {
-    Color* color = new Color();
+    Color* color = new Color(kernel);
     color->id = id;
     color->label = label;
     color->red = red;

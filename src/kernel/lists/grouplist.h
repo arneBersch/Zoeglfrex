@@ -21,7 +21,6 @@ class GroupList : public ItemList<Group> {
     Q_OBJECT
 public:
     GroupList(Kernel *core);
-    bool deleteItems(QList<QString> ids) override;
     void deleteFixture(Fixture *fixture);
     bool recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
 private:

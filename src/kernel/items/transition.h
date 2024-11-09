@@ -7,7 +7,8 @@
 
 class Transition : public Item {
 public:
-    Transition();
+    Transition(Kernel* core);
+    ~Transition();
     float fade;
     QString name() override;
     Transition* copy() override;

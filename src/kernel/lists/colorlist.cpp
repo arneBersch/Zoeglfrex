@@ -12,23 +12,8 @@ ColorList::ColorList(Kernel *core) {
     kernel = core;
 }
 
-bool ColorList::deleteItems(QList<QString> ids) {
-    for (QString id : ids) {
-        int colorRow = getItemRow(id);
-        if (colorRow < 0) {
-            kernel->terminal->error("Color can't be deleted because it doesn't exist.");
-            return false;
-        }
-        Color *color = items[colorRow];
-        kernel->cues->deleteColor(color);
-        items.removeAt(colorRow);
-        delete color;
-    }
-    return true;
-}
-
 Color* ColorList::recordColor(QString id) {
-    Color* color = new Color;
+    Color* color = new Color(kernel);
     color->id = id;
     color->label = QString();
     color->red = 100;
