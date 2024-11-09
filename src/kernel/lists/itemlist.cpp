@@ -31,43 +31,52 @@ template <class T> QList<QString> ItemList<T>::getIds() const {
 }
 
 template <class T> bool ItemList<T>::labelItems(QList<QString> ids, QString label) {
-    QList<Item*> items;
+    QList<int> itemRows;
     for (QString id : ids) {
-        Item* item = getItem(id);
-        if (item == nullptr) {
+        int itemRow = getItemRow(id);
+        if (itemRow < 0) {
             kernel->terminal->error("Couldn't label items because item with ID " + id + " doesn't exist.");
             return false;
         }
-        items.append(item);
+        itemRows.append(itemRow);
     }
-    for (Item* item : items) {
-        item->label = label;
+    for (int itemRow : itemRows) {
+        items[itemRow]->label = label;
+        emit dataChanged(index(itemRow, 0), index(itemRow, 0), {Qt::DisplayRole, Qt::EditRole});
     }
     kernel->terminal->success("Labeled " + QString::number(ids.length()) + " items as \"" + label + ".");
     return true;
 }
 
 template <class T> bool ItemList<T>::moveItems(QList<QString> ids, QString targetId) {
+    QList<int> itemRows;
     for (QString id : ids) {
         int itemRow = getItemRow(id);
         if (itemRow < 0) {
             kernel->terminal->error("Couldn't move items because item with ID " + id + " doesn't exist.");
             return false;
         }
+        itemRows.append(itemRow);
+    }
+    for (int itemRow : itemRows) {
         if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Couldn't move items because target ID " + targetId + " is already used.");
-            return false;
-        }
-        T* item = items[itemRow];
-        items.removeAt(itemRow);
-        item->id = targetId;
-        int position = 0;
-        for (int index=0; index < items.size(); index++) {
-            if (greaterId(items[index]->id, targetId)) {
-                position++;
+            kernel->terminal->error("Couldn't move item " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
+        } else {
+            T* item = items[itemRow];
+            beginRemoveRows(QModelIndex(), itemRow, itemRow);
+            items.removeAt(itemRow);
+            endRemoveRows();
+            item->id = targetId;
+            int position = 0;
+            for (int index=0; index < items.size(); index++) {
+                if (greaterId(items[index]->id, targetId)) {
+                    position++;
+                }
             }
+            beginInsertRows(QModelIndex(), position, position);
+            items.insert(position, item);
+            endInsertRows();
         }
-        items.insert(position, item);
     }
     kernel->terminal->success("Moved " + QString::number(ids.length()) + " items to " + targetId + ".");
     return true;
