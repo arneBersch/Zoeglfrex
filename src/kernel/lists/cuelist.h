@@ -21,7 +21,6 @@ class CueList : public ItemList<Cue> {
     Q_OBJECT
 public:
     CueList(Kernel *core);
-    bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     bool deleteCueGroupIntensity(QList<QString> ids, QString groupId);
     bool deleteCueGroupColor(QList<QString> ids, QString groupId);

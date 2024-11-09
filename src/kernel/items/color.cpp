@@ -8,3 +8,13 @@ QString Color::name() {
     }
     return Item::name();
 }
+
+Color* Color::copy() {
+    Color* color = new Color();
+    color->id = id;
+    color->label = label;
+    color->red = red;
+    color->green = green;
+    color->blue = blue;
+    return color;
+}

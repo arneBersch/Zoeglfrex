@@ -10,6 +10,7 @@ public:
     Transition();
     float fade;
     QString name() override;
+    Transition* copy() override;
 };
 
 #endif // TRANSITION_H

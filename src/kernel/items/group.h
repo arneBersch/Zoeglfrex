@@ -11,6 +11,7 @@ public:
     Group();
     QList<Fixture*> fixtures;
     QString name() override;
+    Group* copy() override;
 };
 
 #endif // GROUP_H

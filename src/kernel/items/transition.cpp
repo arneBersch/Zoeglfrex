@@ -8,3 +8,11 @@ QString Transition::name() {
     }
     return Item::name();
 }
+
+Transition* Transition::copy() {
+    Transition* transition = new Transition();
+    transition->id = id;
+    transition->label = label;
+    transition->fade = fade;
+    return transition;
+}

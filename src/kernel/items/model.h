@@ -10,6 +10,7 @@ public:
     Model();
     QString channels;
     QString name() override;
+    Model* copy() override;
 };
 
 #endif // MODEL_H

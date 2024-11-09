@@ -8,3 +8,11 @@ QString Model::name() {
     }
     return Item::name();
 }
+
+Model* Model::copy() {
+    Model* model = new Model();
+    model->id = id;
+    model->label = label;
+    model->channels = channels;
+    return model;
+}

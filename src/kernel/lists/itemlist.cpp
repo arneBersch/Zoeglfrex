@@ -30,6 +30,37 @@ template <class T> QList<QString> ItemList<T>::getIds() const {
     return ids;
 }
 
+template <class T> bool ItemList<T>::copyItems(QList<QString> ids, QString targetId) {
+    QList<int> itemRows;
+    for (QString id : ids) {
+        int itemRow = getItemRow(id);
+        if (itemRow < 0) {
+            kernel->terminal->error("Couldn't copy items because item with ID " + id + " doesn't exist.");
+            return false;
+        }
+        itemRows.append(itemRow);
+    }
+    for (int itemRow : itemRows) {
+        if (getItem(targetId) != nullptr) {
+            kernel->terminal->error("Couldn't copy item " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
+        } else {
+            T* targetItem = items[itemRow]->copy();
+            targetItem->id = targetId;
+            int position = 0;
+            for (int index=0; index < items.size(); index++) {
+                if (greaterId(items[index]->id, targetId)) {
+                    position++;
+                }
+            }
+            beginInsertRows(QModelIndex(), position, position);
+            items.insert(position, targetItem);
+            endInsertRows();
+        }
+    }
+    kernel->terminal->success("Copied " + QString::number(ids.length()) + " items to \"" + targetId + ".");
+    return true;
+}
+
 template <class T> bool ItemList<T>::labelItems(QList<QString> ids, QString label) {
     QList<int> itemRows;
     for (QString id : ids) {

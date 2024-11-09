@@ -10,6 +10,7 @@ public:
     Intensity();
     float dimmer;
     QString name() override;
+    Intensity* copy() override;
 };
 
 #endif // INTENSITY_H

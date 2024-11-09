@@ -8,3 +8,10 @@ QString Intensity::name() {
     }
     return Item::name();
 }
+
+Intensity* Intensity::copy() {
+    Intensity* intensity = new Intensity();
+    intensity->label = label;
+    intensity->dimmer = dimmer;
+    return intensity;
+}

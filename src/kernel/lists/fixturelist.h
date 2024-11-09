@@ -21,7 +21,6 @@ class FixtureList : public ItemList<Fixture> {
     Q_OBJECT
 public:
     FixtureList(Kernel *core);
-    bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     void deleteModel(Model *model);
     bool recordFixtureAddress(QList<QString> ids, int address);

@@ -13,29 +13,6 @@ FixtureList::FixtureList(Kernel *core)
     kernel = core;
 }
 
-bool FixtureList::copyItems(QList<QString> ids, QString targetId)
-{
-    for (QString id : ids) {
-        Fixture* fixture = getItem(id);
-        if (fixture == nullptr) {
-            kernel->terminal->error("Fixture can't be copied because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Fixture can't be copied because Target ID is already used.");
-            return false;
-        }
-        Fixture *targetFixture = recordFixture(targetId, fixture->model);
-        if (targetFixture == nullptr) {
-            kernel->terminal->error("Fixture can't be copied because no free address was found.");
-            return false;
-        }
-        targetFixture->label = fixture->label;
-        targetFixture->model = fixture->model;
-    }
-    return true;
-}
-
 bool FixtureList::deleteItems(QList<QString> ids) {
     for (QString id : ids) {
         int fixtureRow = getItemRow(id);

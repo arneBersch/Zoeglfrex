@@ -15,6 +15,7 @@ public:
     Transition* transition;
     QMap<Group*, Intensity*> intensities;
     QMap<Group*, Color*> colors;
+    Cue* copy() override;
 };
 
 #endif // CUE_H

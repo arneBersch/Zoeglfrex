@@ -12,6 +12,7 @@ public:
     float green;
     float blue;
     QString name() override;
+    Color* copy() override;
 };
 
 #endif // COLOR_H

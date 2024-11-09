@@ -12,24 +12,6 @@ IntensityList::IntensityList(Kernel *core) {
     kernel = core;
 }
 
-bool IntensityList::copyItems(QList<QString> ids, QString targetId) {
-    for (QString id : ids) {
-        Intensity* intensity = getItem(id);
-        if (intensity == nullptr) {
-            kernel->terminal->error("Intensity can't be copied because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Intensity can't be copied because Target ID is already used.");
-            return false;
-        }
-        Intensity *targetIntensity = recordIntensity(targetId);
-        targetIntensity->label = intensity->label;
-        targetIntensity->dimmer = intensity->dimmer;
-    }
-    return true;
-}
-
 bool IntensityList::deleteItems(QList<QString> ids) {
     for (QString id : ids) {
         int intensityRow = getItemRow(id);

@@ -21,7 +21,6 @@ class ColorList : public ItemList<Color> {
     Q_OBJECT
 public:
     ColorList(Kernel *core);
-    bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     bool recordColorRed(QList<QString> ids, float red);
     bool recordColorGreen(QList<QString> ids, float green);

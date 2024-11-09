@@ -12,26 +12,6 @@ ColorList::ColorList(Kernel *core) {
     kernel = core;
 }
 
-bool ColorList::copyItems(QList<QString> ids, QString targetId) {
-    for (QString id : ids) {
-        Color* color = getItem(id);
-        if (color == nullptr) {
-            kernel->terminal->error("Color can't be copied because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Color can't be copied because Target ID is already used.");
-            return false;
-        }
-        Color *targetColor = recordColor(targetId);
-        targetColor->label = color->label;
-        targetColor->red = color->red;
-        targetColor->green = color->green;
-        targetColor->blue = color->blue;
-    }
-    return true;
-}
-
 bool ColorList::deleteItems(QList<QString> ids) {
     for (QString id : ids) {
         int colorRow = getItemRow(id);

@@ -21,7 +21,6 @@ class ModelList : public ItemList<Model> {
     Q_OBJECT
 public:
     ModelList(Kernel *core);
-    bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     bool recordModelChannels(QList<QString> ids, QString channels);
 private:

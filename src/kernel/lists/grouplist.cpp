@@ -13,24 +13,6 @@ GroupList::GroupList(Kernel *core)
     kernel = core;
 }
 
-bool GroupList::copyItems(QList<QString> ids, QString targetId) {
-    for (QString id : ids) {
-        Group *group = getItem(id);
-        if (group == nullptr) {
-            kernel->terminal->error("Group can't be copied because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Group can't be copied because Target ID is already used.");
-            return false;
-        }
-        Group *targetGroup = recordGroup(targetId);
-        targetGroup->label = group->label;
-        targetGroup->fixtures = group->fixtures;
-    }
-    return true;
-}
-
 bool GroupList::deleteItems(QList<QString> ids) {
     for (QString id : ids) {
         int groupRow = getItemRow(id);
@@ -84,5 +66,5 @@ bool GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureId
         }
         group->fixtures = fixtureSelection;
     }
-    return false;
+    return true;
 }

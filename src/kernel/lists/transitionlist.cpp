@@ -12,24 +12,6 @@ TransitionList::TransitionList(Kernel *core) {
     kernel = core;
 }
 
-bool TransitionList::copyItems(QList<QString> ids, QString targetId) {
-    for (QString id : ids) {
-        Transition* transition = getItem(id);
-        if (transition == nullptr) {
-            kernel->terminal->error("Transition can't be copied because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Transition can't be copied because Target ID is already used.");
-            return false;
-        }
-        Transition *targetTransition = recordTransition(targetId);
-        targetTransition->label = transition->label;
-        targetTransition->fade = transition->fade;
-    }
-    return true;
-}
-
 bool TransitionList::deleteItems(QList<QString> ids) {
     for (QString id : ids) {
         int transitionRow = getItemRow(id);

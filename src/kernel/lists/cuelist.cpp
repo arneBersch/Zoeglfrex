@@ -12,26 +12,6 @@ CueList::CueList(Kernel *core) {
     kernel = core;
 }
 
-bool CueList::copyItems(QList<QString> ids, QString targetId) {
-    for (QString id : ids) {
-        Cue* cue = getItem(id);
-        if (cue == nullptr) {
-            kernel->terminal->error("Cue can't be copied because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Cue can't be copied because Target ID is already used.");
-            return false;
-        }
-        Cue *targetCue = recordCue(targetId, cue->transition);
-        targetCue->label = cue->label;
-        targetCue->intensities = cue->intensities;
-        targetCue->colors = cue->colors;
-        targetCue->transition = cue->transition;
-    }
-    return true;
-}
-
 bool CueList::deleteItems(QList<QString> ids) {
     for (QString id : ids) {
         int cueRow = getItemRow(id);

@@ -21,7 +21,6 @@ class IntensityList : public ItemList<Intensity> {
     Q_OBJECT
 public:
     IntensityList(Kernel *core);
-    bool copyItems(QList<QString> ids, QString targetId) override;
     bool deleteItems(QList<QString> ids) override;
     bool recordIntensityDimmer(QList<QString> ids, float dimmer);
 private:

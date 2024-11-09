@@ -12,24 +12,6 @@ ModelList::ModelList(Kernel *core) {
     kernel = core;
 }
 
-bool ModelList::copyItems(QList<QString> ids, QString targetId) {
-    for (QString id : ids) {
-        Model* model = getItem(id);
-        if (model == nullptr) {
-            kernel->terminal->error("Model can't be copied because it doesn't exist.");
-            return false;
-        }
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Model can't be copied because Target ID is already used.");
-            return false;
-        }
-        Model *targetModel = recordModel(targetId);
-        targetModel->label = model->label;
-        targetModel->channels = model->channels;
-    }
-    return true;
-}
-
 bool ModelList::deleteItems(QList<QString> ids)
 {
     for (QString id : ids) {

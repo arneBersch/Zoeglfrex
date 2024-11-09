@@ -12,3 +12,11 @@ QString Group::name() {
     }
     return Item::name();
 }
+
+Group* Group::copy() {
+    Group* group = new Group();
+    group->id = id;
+    group->label = label;
+    group->fixtures = fixtures;
+    return group;
+}
