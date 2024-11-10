@@ -8,7 +8,7 @@
 
 #include "transitionlist.h"
 
-TransitionList::TransitionList(Kernel *core) {
+TransitionList::TransitionList(Kernel *core) : ItemList("Transition", "Transitions") {
     kernel = core;
 }
 

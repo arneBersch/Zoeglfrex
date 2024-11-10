@@ -1,8 +1,9 @@
 #include "itemlist.h"
 #include "kernel/kernel.h"
 
-template <class T> ItemList<T>::ItemList() {
-    //
+template <class T> ItemList<T>::ItemList(QString singular, QString plural) {
+    singularItemName = singular;
+    pluralItemName = plural;
 }
 
 template <class T> T* ItemList<T>::getItem(QString id) const {
@@ -35,14 +36,14 @@ template <class T> bool ItemList<T>::copyItems(QList<QString> ids, QString targe
     for (QString id : ids) {
         int itemRow = getItemRow(id);
         if (itemRow < 0) {
-            kernel->terminal->error("Couldn't copy items because item with ID " + id + " doesn't exist.");
+            kernel->terminal->error("Couldn't copy " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
             return false;
         }
         itemRows.append(itemRow);
     }
     for (int itemRow : itemRows) {
         if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Couldn't copy item " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
+            kernel->terminal->error("Couldn't copy " + singularItemName + " " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
         } else {
             T* targetItem = new T(items[itemRow]);
             targetItem->id = targetId;
@@ -57,7 +58,7 @@ template <class T> bool ItemList<T>::copyItems(QList<QString> ids, QString targe
             endInsertRows();
         }
     }
-    kernel->terminal->success("Copied " + QString::number(ids.length()) + " items to \"" + targetId + ".");
+    kernel->terminal->success("Copied " + QString::number(ids.length()) + " " + pluralItemName + " to \"" + targetId + ".");
     return true;
 }
 
@@ -65,7 +66,7 @@ template <class T> bool ItemList<T>::deleteItems(QList<QString> ids) {
     for (QString id : ids) {
         int itemRow = getItemRow(id);
         if (itemRow < 0) {
-            kernel->terminal->error("Couldn't delete items because item with ID " + id + " doesn't exist.");
+            kernel->terminal->error("Couldn't delete " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
             return false;
         }
     }
@@ -77,7 +78,7 @@ template <class T> bool ItemList<T>::deleteItems(QList<QString> ids) {
         items.removeAt(itemRow);
         endRemoveRows();
     }
-    kernel->terminal->success("Deleted " + QString::number(ids.length()) + " items.");
+    kernel->terminal->success("Deleted " + QString::number(ids.length()) + " " + pluralItemName + ".");
     return true;
 }
 
@@ -86,7 +87,7 @@ template <class T> bool ItemList<T>::labelItems(QList<QString> ids, QString labe
     for (QString id : ids) {
         int itemRow = getItemRow(id);
         if (itemRow < 0) {
-            kernel->terminal->error("Couldn't label items because item with ID " + id + " doesn't exist.");
+            kernel->terminal->error("Couldn't label " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
             return false;
         }
         itemRows.append(itemRow);
@@ -95,7 +96,7 @@ template <class T> bool ItemList<T>::labelItems(QList<QString> ids, QString labe
         items[itemRow]->label = label;
         emit dataChanged(index(itemRow, 0), index(itemRow, 0), {Qt::DisplayRole, Qt::EditRole});
     }
-    kernel->terminal->success("Labeled " + QString::number(ids.length()) + " items as \"" + label + "\".");
+    kernel->terminal->success("Labeled " + QString::number(ids.length()) + " " + pluralItemName + " as \"" + label + "\".");
     return true;
 }
 
@@ -104,14 +105,14 @@ template <class T> bool ItemList<T>::moveItems(QList<QString> ids, QString targe
     for (QString id : ids) {
         int itemRow = getItemRow(id);
         if (itemRow < 0) {
-            kernel->terminal->error("Couldn't move items because item with ID " + id + " doesn't exist.");
+            kernel->terminal->error("Couldn't move " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
             return false;
         }
         itemRows.append(itemRow);
     }
     for (int itemRow : itemRows) {
         if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Couldn't move item " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
+            kernel->terminal->error("Couldn't move " + singularItemName + " " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
         } else {
             T* item = items[itemRow];
             beginRemoveRows(QModelIndex(), itemRow, itemRow);
@@ -129,7 +130,7 @@ template <class T> bool ItemList<T>::moveItems(QList<QString> ids, QString targe
             endInsertRows();
         }
     }
-    kernel->terminal->success("Moved " + QString::number(ids.length()) + " items to " + targetId + ".");
+    kernel->terminal->success("Moved " + QString::number(ids.length()) + " " + pluralItemName + " to " + targetId + ".");
     return true;
 }
 

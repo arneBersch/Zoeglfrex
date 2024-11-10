@@ -7,7 +7,7 @@ class Kernel;
 
 template <class T> class ItemList : public QAbstractTableModel {
 public:
-    ItemList();
+    ItemList(QString singularName, QString pluralName);
     T* getItem(QString id) const;
     int getItemRow(QString id) const;
     QList<QString> getIds() const;
@@ -21,6 +21,9 @@ public:
     bool greaterId(QString firstId, QString secondId);
     Kernel *kernel;
     QList<T*> items;
+private:
+    QString singularItemName = "item";
+    QString pluralItemName = "items";
 };
 
 #endif // ITEMLIST_H

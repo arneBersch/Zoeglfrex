@@ -8,7 +8,7 @@
 
 #include "cuelist.h"
 
-CueList::CueList(Kernel *core) {
+CueList::CueList(Kernel *core) : ItemList("Cue", "Cues") {
     kernel = core;
 }
 

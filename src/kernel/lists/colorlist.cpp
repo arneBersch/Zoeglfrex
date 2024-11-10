@@ -8,7 +8,7 @@
 
 #include "colorlist.h"
 
-ColorList::ColorList(Kernel *core) {
+ColorList::ColorList(Kernel *core) : ItemList("Color", "Colors") {
     kernel = core;
 }
 

@@ -8,7 +8,7 @@
 
 #include "intensitylist.h"
 
-IntensityList::IntensityList(Kernel *core) {
+IntensityList::IntensityList(Kernel *core) : ItemList("Intensity", "Intensities") {
     kernel = core;
 }
 

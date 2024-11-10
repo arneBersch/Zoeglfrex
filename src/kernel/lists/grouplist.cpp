@@ -8,8 +8,7 @@
 
 #include "grouplist.h"
 
-GroupList::GroupList(Kernel *core)
-{
+GroupList::GroupList(Kernel *core) : ItemList("Group", "Groups") {
     kernel = core;
 }
 
