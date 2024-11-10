@@ -10,9 +10,9 @@ public:
     Color(Kernel* core);
     Color(const Color* item);
     ~Color();
-    float red;
-    float green;
-    float blue;
+    float red = 100;
+    float green = 100;
+    float blue= 100;
     QString name() override;
 };
 

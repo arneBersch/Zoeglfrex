@@ -10,7 +10,7 @@ public:
     Intensity(Kernel* core);
     Intensity(const Intensity* item);
     ~Intensity();
-    float dimmer;
+    float dimmer = 100;
     QString name() override;
 };
 

@@ -86,7 +86,6 @@ bool CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
 Cue* CueList::recordCue(QString id, Transition *transition) {
     Cue *cue = new Cue(kernel);
     cue->id = id;
-    cue->label = QString();
     cue->transition = transition;
     QList<QString> idParts = id.split(".");
     int position = 0;

@@ -12,7 +12,7 @@ public:
     virtual ~Item();
     Kernel *kernel;
     QString id;
-    QString label;
+    QString label = QString();
     virtual QString name();
 };
 

@@ -10,7 +10,7 @@ public:
     Transition(Kernel* core);
     Transition(const Transition* item);
     ~Transition();
-    float fade;
+    float fade = 0;
     QString name() override;
 };
 

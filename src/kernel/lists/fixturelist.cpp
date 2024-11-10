@@ -27,7 +27,6 @@ void FixtureList::deleteModel(Model *model)
 Fixture* FixtureList::recordFixture(QString id, Model* model) {
     Fixture *fixture = new Fixture(kernel);
     fixture->id = id;
-    fixture->label = QString();
     int address = findFreeAddress(model->channels.size());
     if (address <= 0) {
         return nullptr;

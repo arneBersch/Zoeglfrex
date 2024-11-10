@@ -15,8 +15,6 @@ TransitionList::TransitionList(Kernel *core) {
 Transition* TransitionList::recordTransition(QString id) {
     Transition *transition = new Transition(kernel);
     transition->id = id;
-    transition->label = QString();
-    transition->fade = 0;
     int position = 0;
     for (int index=0; index < items.size(); index++) {
         if (greaterId(items[index]->id, id)) {

@@ -15,8 +15,6 @@ IntensityList::IntensityList(Kernel *core) {
 Intensity* IntensityList::recordIntensity(QString id) {
     Intensity *intensity = new Intensity(kernel);
     intensity->id = id;
-    intensity->label = QString();
-    intensity->dimmer = 100;
     int position = 0;
     for (int index=0; index < items.size(); index++) {
         if (greaterId(items[index]->id, id)) {

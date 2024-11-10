@@ -22,8 +22,6 @@ void GroupList::deleteFixture(Fixture *fixture) {
 Group* GroupList::recordGroup(QString id) {
     Group *group = new Group(kernel);
     group->id = id;
-    group->label = QString();
-    group->fixtures = QList<Fixture*>();
     int position = 0;
     for (int index=0; index < items.size(); index++) {
         if (greaterId(items[index]->id, id)) {

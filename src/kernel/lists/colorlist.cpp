@@ -15,10 +15,6 @@ ColorList::ColorList(Kernel *core) {
 Color* ColorList::recordColor(QString id) {
     Color* color = new Color(kernel);
     color->id = id;
-    color->label = QString();
-    color->red = 100;
-    color->green = 100;
-    color->blue = 100;
     int position = 0;
     for (int index=0; index < items.size(); index++) {
         if (greaterId(items[index]->id, id)) {

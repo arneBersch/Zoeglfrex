@@ -15,8 +15,6 @@ ModelList::ModelList(Kernel *core) {
 Model* ModelList::recordModel(QString id) {
     Model *model = new Model(kernel);
     model->id = id;
-    model->label = QString();
-    model->channels = "D";
     int position = 0;
     for (int index=0; index < items.size(); index++) {
         if (greaterId(items[index]->id, id)) {
