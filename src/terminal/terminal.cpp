@@ -67,7 +67,7 @@ void Terminal::execute(bool clear)
     updateInspector(selectionType);
 }
 
-bool Terminal::execute(QString command) {
+bool Terminal::execute(QString command, QString action) {
     QList<int> commandKeys;
     QString text = QString();
     for (qsizetype index = 0; index < command.size(); index++) {
@@ -134,9 +134,8 @@ bool Terminal::execute(QString command) {
             break;
         }
     }
-    info("file> " + promptText(commandKeys));
-    bool response = kernel->execute(commandKeys, text);
-    return response;
+    info(action + "> " + promptText(commandKeys));
+    return kernel->execute(commandKeys, text);
 }
 
 void Terminal::info(QString message)

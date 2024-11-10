@@ -22,7 +22,7 @@ public:
     void backspace();
     void clear();
     void execute(bool clear=true);
-    bool execute(QString command);
+    bool execute(QString command, QString action);
     void info(QString message);
     void success(QString message);
     void warning(QString message);

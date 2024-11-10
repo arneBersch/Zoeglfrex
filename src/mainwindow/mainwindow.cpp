@@ -152,7 +152,7 @@ void MainWindow::openFile() {
     while (!textStream.atEnd()) {
         QString line = textStream.readLine();
         if (!line.isEmpty()) {
-            bool result = kernel->terminal->execute(line);
+            bool result = kernel->terminal->execute(line, "open file");
             if (!result) {
                 kernel->terminal->error("Can't open file.");
                 clearKernel();
@@ -165,14 +165,60 @@ void MainWindow::openFile() {
 }
 
 void MainWindow::clearKernel() {
-    fileName = QString();
-    kernel->models->deleteItems(kernel->models->getIds());
-    kernel->fixtures->deleteItems(kernel->fixtures->getIds());
-    kernel->groups->deleteItems(kernel->groups->getIds());
-    kernel->intensities->deleteItems(kernel->intensities->getIds());
-    kernel->colors->deleteItems(kernel->colors->getIds());
-    kernel->transitions->deleteItems(kernel->transitions->getIds());
-    kernel->cues->deleteItems(kernel->cues->getIds());
+    fileName = QString(); // reset filename
+    QList<QString> commands;
+    QString modelCommand = "m";
+    for (QString id : kernel->models->getIds()) {
+        modelCommand += id;
+        modelCommand += "+";
+    }
+    modelCommand += "D";
+    commands.append(modelCommand);
+    QString fixtureCommand = "f";
+    for (QString id : kernel->fixtures->getIds()) {
+        fixtureCommand += id;
+        fixtureCommand += "+";
+    }
+    fixtureCommand += "D";
+    commands.append(fixtureCommand);
+    QString groupCommand = "g";
+    for (QString id : kernel->groups->getIds()) {
+        groupCommand += id;
+        groupCommand += "+";
+    }
+    groupCommand += "D";
+    commands.append(groupCommand);
+    QString intensityCommand = "i";
+    for (QString id : kernel->intensities->getIds()) {
+        intensityCommand += id;
+        intensityCommand += "+";
+    }
+    intensityCommand += "D";
+    commands.append(intensityCommand);
+    QString colorCommand = "c";
+    for (QString id : kernel->colors->getIds()) {
+        colorCommand += id;
+        colorCommand += "+";
+    }
+    colorCommand += "D";
+    commands.append(colorCommand);
+    QString transitionCommand = "t";
+    for (QString id : kernel->transitions->getIds()) {
+        transitionCommand += id;
+        transitionCommand += "+";
+    }
+    transitionCommand += "D";
+    commands.append(transitionCommand);
+    QString cueCommand = "q";
+    for (QString id : kernel->cues->getIds()) {
+        cueCommand += id;
+        cueCommand += "+";
+    }
+    cueCommand += "D";
+    commands.append(cueCommand);
+    for (QString command : commands) {
+        kernel->terminal->execute(command, "new file");
+    }
 }
 
 void MainWindow::newFile() {
@@ -184,7 +230,6 @@ void MainWindow::newFile() {
     if (result != QMessageBox::Ok) {
         return;
     }
-    QMutexLocker locker(kernel->mutex);
     clearKernel();
     kernel->terminal->success("Opened new file.");
 }
@@ -269,7 +314,7 @@ void MainWindow::saveFile() {
         }
     }
     fileStream << Qt::endl;
-    kernel->terminal->success("Saved file " + fileName);
+    kernel->terminal->success("Saved file as " + fileName);
 }
 
 void MainWindow::saveFileAs() {

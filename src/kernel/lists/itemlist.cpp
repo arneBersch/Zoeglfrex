@@ -62,19 +62,20 @@ template <class T> bool ItemList<T>::copyItems(QList<QString> ids, QString targe
 }
 
 template <class T> bool ItemList<T>::deleteItems(QList<QString> ids) {
-    QList<int> itemRows;
     for (QString id : ids) {
         int itemRow = getItemRow(id);
         if (itemRow < 0) {
             kernel->terminal->error("Couldn't delete items because item with ID " + id + " doesn't exist.");
             return false;
         }
-        itemRows.append(itemRow);
     }
-    for (int itemRow : itemRows) {
-        T *item= items[itemRow];
-        items.removeAt(itemRow);
+    for (QString id : ids) {
+        int itemRow = getItemRow(id);
+        T *item = items[itemRow];
         delete item;
+        beginRemoveRows(QModelIndex(), itemRow, itemRow);
+        items.removeAt(itemRow);
+        endRemoveRows();
     }
     kernel->terminal->success("Deleted " + QString::number(ids.length()) + " items.");
     return true;
