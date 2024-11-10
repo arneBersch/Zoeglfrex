@@ -3,6 +3,12 @@
 
 Model::Model(Kernel* core) : Item(core) {}
 
+Model::Model(const Model* item) : Item(item->kernel) {
+    id = item->id;
+    label = item->label;
+    channels = item->channels;
+}
+
 Model::~Model() {
     kernel->fixtures->deleteModel(this);
 }
@@ -12,12 +18,4 @@ QString Model::name() {
         return Item::name() + channels;
     }
     return Item::name();
-}
-
-Model* Model::copy() {
-    Model* model = new Model(kernel);
-    model->id = id;
-    model->label = label;
-    model->channels = channels;
-    return model;
 }

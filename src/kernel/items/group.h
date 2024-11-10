@@ -9,10 +9,10 @@
 class Group : public Item {
 public:
     Group(Kernel* core);
+    Group(const Group* item);
     ~Group();
     QList<Fixture*> fixtures;
     QString name() override;
-    Group* copy() override;
 };
 
 #endif // GROUP_H

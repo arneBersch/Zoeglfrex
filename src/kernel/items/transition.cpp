@@ -3,6 +3,12 @@
 
 Transition::Transition(Kernel* core) : Item(core) {}
 
+Transition::Transition(const Transition* item) : Item(item->kernel) {
+    id = item->id;
+    label = item->label;
+    fade = item->fade;
+}
+
 Transition::~Transition() {
     kernel->cues->deleteTransition(this);
 }
@@ -12,12 +18,4 @@ QString Transition::name() {
         return Item::name() + QString::number(fade) + "s";
     }
     return Item::name();
-}
-
-Transition* Transition::copy() {
-    Transition* transition = new Transition(kernel);
-    transition->id = id;
-    transition->label = label;
-    transition->fade = fade;
-    return transition;
 }

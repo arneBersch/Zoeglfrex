@@ -9,11 +9,11 @@
 class Fixture : public Item {
 public:
     Fixture(Kernel* core);
+    Fixture(const Fixture* item);
     ~Fixture();
     Model* model;
     int address;
     QString name() override;
-    Fixture* copy() override;
 };
 
 #endif // FIXTURE_H

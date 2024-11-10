@@ -8,10 +8,10 @@
 class Model : public Item {
 public:
     Model(Kernel* core);
+    Model(const Model* item);
     ~Model();
     QString channels;
     QString name() override;
-    Model* copy() override;
 };
 
 #endif // MODEL_H

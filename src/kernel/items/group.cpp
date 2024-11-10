@@ -3,6 +3,12 @@
 
 Group::Group(Kernel* core) : Item(core) {}
 
+Group::Group(const Group* item) : Item(item->kernel) {
+    id = item->id;
+    label = item->label;
+    fixtures = item->fixtures;
+}
+
 Group::~Group() {
     kernel->cues->deleteGroup(this);
 }
@@ -16,12 +22,4 @@ QString Group::name() {
         return response;
     }
     return Item::name();
-}
-
-Group* Group::copy() {
-    Group* group = new Group(kernel);
-    group->id = id;
-    group->label = label;
-    group->fixtures = fixtures;
-    return group;
 }

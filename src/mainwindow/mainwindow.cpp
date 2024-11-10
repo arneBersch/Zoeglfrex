@@ -206,7 +206,7 @@ void MainWindow::saveFile() {
         return;
     }
     QTextStream fileStream(&file);
-    fileStream << "ZOEGLFREX_00.00.00\n";
+    fileStream << "ZOEGLFREX_00.01.00\n";
 
     for (QString modelId : kernel->models->getIds()) {
         Model *model = kernel->models->getItem(modelId);

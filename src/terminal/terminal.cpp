@@ -58,8 +58,8 @@ void Terminal::execute(bool clear)
         return;
     }
     int selectionType = command[0];
-    bool response = kernel->execute(command);
     info(">>> " + promptText(command));
+    bool response = kernel->execute(command);
     if (response && clear) {
         this->clear();
     }
@@ -134,8 +134,8 @@ bool Terminal::execute(QString command) {
             break;
         }
     }
-    bool response = kernel->execute(commandKeys, text);
     info("file> " + promptText(commandKeys));
+    bool response = kernel->execute(commandKeys, text);
     return response;
 }
 

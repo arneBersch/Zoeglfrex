@@ -8,12 +8,12 @@
 class Color : public Item {
 public:
     Color(Kernel* core);
+    Color(const Color* item);
     ~Color();
     float red;
     float green;
     float blue;
     QString name() override;
-    Color* copy() override;
 };
 
 #endif // COLOR_H

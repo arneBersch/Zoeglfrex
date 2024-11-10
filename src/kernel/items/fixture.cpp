@@ -3,6 +3,13 @@
 
 Fixture::Fixture(Kernel* core) : Item(core) {}
 
+Fixture::Fixture(const Fixture* item) : Item(item->kernel) {
+    id = item->id;
+    label = item->label;
+    model = item->model;
+    address = 0;
+}
+
 Fixture::~Fixture() {
     kernel->groups->deleteFixture(this);
 }
@@ -12,13 +19,4 @@ QString Fixture::name() {
         return Item::name() + model->channels;
     }
     return Item::name();
-}
-
-Fixture* Fixture::copy() {
-    Fixture* fixture = new Fixture(kernel);
-    fixture->id = id;
-    fixture->label = label;
-    fixture->model = model;
-    fixture->address = 0;
-    return fixture;
 }

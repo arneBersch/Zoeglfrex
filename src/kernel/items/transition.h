@@ -8,10 +8,10 @@
 class Transition : public Item {
 public:
     Transition(Kernel* core);
+    Transition(const Transition* item);
     ~Transition();
     float fade;
     QString name() override;
-    Transition* copy() override;
 };
 
 #endif // TRANSITION_H

@@ -2,14 +2,12 @@
 
 Cue::Cue(Kernel *core) : Item(core) {}
 
-Cue::~Cue() {}
-
-Cue* Cue::copy() {
-    Cue* cue = new Cue(kernel);
-    cue->id = id;
-    cue->label = label;
-    cue->transition = transition;
-    cue->intensities = intensities;
-    cue->colors = colors;
-    return cue;
+Cue::Cue(const Cue* item) : Item(item->kernel) {
+    id = item->id;
+    label = item->label;
+    transition = item->transition;
+    intensities = item->intensities;
+    colors = item->colors;
 }
+
+Cue::~Cue() {}

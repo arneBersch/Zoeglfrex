@@ -44,7 +44,7 @@ template <class T> bool ItemList<T>::copyItems(QList<QString> ids, QString targe
         if (getItem(targetId) != nullptr) {
             kernel->terminal->error("Couldn't copy item " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
         } else {
-            T* targetItem = items[itemRow]->copy();
+            T* targetItem = new T(items[itemRow]);
             targetItem->id = targetId;
             int position = 0;
             for (int index=0; index < items.size(); index++) {
@@ -94,7 +94,7 @@ template <class T> bool ItemList<T>::labelItems(QList<QString> ids, QString labe
         items[itemRow]->label = label;
         emit dataChanged(index(itemRow, 0), index(itemRow, 0), {Qt::DisplayRole, Qt::EditRole});
     }
-    kernel->terminal->success("Labeled " + QString::number(ids.length()) + " items as \"" + label + ".");
+    kernel->terminal->success("Labeled " + QString::number(ids.length()) + " items as \"" + label + "\".");
     return true;
 }
 

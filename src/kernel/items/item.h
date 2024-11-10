@@ -14,7 +14,6 @@ public:
     QString id;
     QString label;
     virtual QString name();
-    virtual Item* copy() = 0;
 };
 
 #endif // ITEM_H
