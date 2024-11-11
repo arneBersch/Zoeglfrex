@@ -12,7 +12,7 @@ public:
     int getItemRow(QString id) const;
     QList<QString> getIds() const;
     void copyItems(QList<QString> ids, QString targetId);
-    bool deleteItems(QList<QString> ids);
+    void deleteItems(QList<QString> ids);
     void labelItems(QList<QString> ids, QString label);
     void moveItems(QList<QString> ids, QString targetId);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;

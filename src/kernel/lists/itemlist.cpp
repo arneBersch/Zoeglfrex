@@ -61,24 +61,24 @@ template <class T> void ItemList<T>::copyItems(QList<QString> ids, QString targe
     kernel->terminal->success("Copied " + QString::number(itemRows.length()) + " " + pluralItemName + " to \"" + targetId + ".");
 }
 
-template <class T> bool ItemList<T>::deleteItems(QList<QString> ids) {
+template <class T> void ItemList<T>::deleteItems(QList<QString> ids) {
+    QList<QString> existingIds;
     for (QString id : ids) {
-        int itemRow = getItemRow(id);
-        if (itemRow < 0) {
-            kernel->terminal->error("Couldn't delete " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
-            return false;
+        if (getItem(id) != nullptr) {
+            kernel->terminal->warning("Couldn't delete " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
+        } else {
+            existingIds.append(id);
         }
     }
-    for (QString id : ids) {
+    for (QString id : existingIds) {
         int itemRow = getItemRow(id);
         T *item = items[itemRow];
-        delete item;
         beginRemoveRows(QModelIndex(), itemRow, itemRow);
         items.removeAt(itemRow);
         endRemoveRows();
+        delete item;
     }
     kernel->terminal->success("Deleted " + QString::number(ids.length()) + " " + pluralItemName + ".");
-    return true;
 }
 
 template <class T> void ItemList<T>::labelItems(QList<QString> ids, QString label) {

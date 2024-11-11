@@ -98,22 +98,21 @@ bool Kernel::execute(QList<int> command, QString text) {
                 terminal->error("Delete doesn't take any parameters.");
                 return false;
             }
-            bool result = false;
             if (selectionType == Keys::Model) { // DELETE MODEL
-                result = models->deleteItems(ids);
+                models->deleteItems(ids);
             } else if (selectionType == Keys::Fixture) { // DELETE FIXTURE
-                result = fixtures->deleteItems(ids);
+                fixtures->deleteItems(ids);
             } else if (selectionType == Keys::Group) { // DELETE GROUP
-                result = groups->deleteItems(ids);
+                groups->deleteItems(ids);
             } else if (selectionType == Keys::Intensity) { // DELETE INTENSITY
-                result = intensities->deleteItems(ids);
+                intensities->deleteItems(ids);
             } else if (selectionType == Keys::Color) { // DELETE COLOR
-                result = colors->deleteItems(ids);
+                colors->deleteItems(ids);
             } else if (selectionType == Keys::Transition) { // DELETE TRANSITION
-                result = transitions->deleteItems(ids);
+                transitions->deleteItems(ids);
             } else if (selectionType == Keys::Cue) { // DELETE CUE
                 if (operation.isEmpty()) {
-                    result = cues->deleteItems(ids);
+                    cues->deleteItems(ids);
                 } else {
                     if (operation[0] != Keys::Group) {
                         terminal->error("Delete Cue takes either no parameters or a Group.");
@@ -145,13 +144,13 @@ bool Kernel::execute(QList<int> command, QString text) {
                         return false;
                     }
                     if (intensityDelete || (!(intensityDelete || colorDelete))) {
-                        result = cues->deleteCueGroupIntensity(ids, groupId);
+                        bool result = cues->deleteCueGroupIntensity(ids, groupId);
                         if (!result) {
                             return false;
                         }
                     }
                     if (colorDelete || (!(intensityDelete || colorDelete))) {
-                        result = cues->deleteCueGroupColor(ids, groupId);
+                        bool result = cues->deleteCueGroupColor(ids, groupId);
                         if (!result) {
                             return false;
                         }
@@ -159,9 +158,6 @@ bool Kernel::execute(QList<int> command, QString text) {
                 }
             } else {
                 terminal->error("Unknown item type.");
-                return false;
-            }
-            if (!result) {
                 return false;
             }
         } else if (operationType == Keys::Label) { // LABEL
