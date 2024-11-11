@@ -55,15 +55,13 @@ QVariant CueModel::data(const QModelIndex &index, const int role) const
         } else if (column == CueModelColumns::intensity) {
             Group *currentGroup = kernel->groups->getItem(groups[row]);
             if (currentCue->intensities.contains(currentGroup)) {
-                QString id = (currentCue->intensities[currentGroup])->name();
-                return id;
+                return (currentCue->intensities[currentGroup])->name();
             }
             return QVariant();
         } else if (column == CueModelColumns::color) {
             Group *currentGroup = kernel->groups->getItem(groups[row]);
             if (currentCue->colors.contains(currentGroup)) {
-                QString id = (currentCue->colors[currentGroup])->name();
-                return id;
+                return (currentCue->colors[currentGroup])->name();
             }
             return QVariant();
         } else {
