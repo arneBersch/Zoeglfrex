@@ -23,7 +23,7 @@ public:
     FixtureList(Kernel *core);
     void deleteModel(Model *model);
     void recordFixtureAddress(QList<QString> ids, int address);
-    void recordFixtureModel(QList<QString> ids, QString model, int address=0);
+    void recordFixtureModel(QList<QString> ids, QString model);
     QSet<int> usedChannels();
 private:
     Fixture* recordFixture(QString id, Model* model);

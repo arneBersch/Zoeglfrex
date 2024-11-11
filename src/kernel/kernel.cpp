@@ -267,8 +267,9 @@ bool Kernel::execute(QList<int> command, QString text) {
                         terminal->error("Model selection not valid.");
                         return false;
                     }
-                    fixtures->recordFixtureModel(ids, modelId, address);
-                } else if (address > 0) {
+                    fixtures->recordFixtureModel(ids, modelId);
+                }
+                if (address > 0) {
                     fixtures->recordFixtureAddress(ids, address);
                 }
             } else if (selectionType == Keys::Group) { // RECORD GROUP
