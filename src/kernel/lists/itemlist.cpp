@@ -81,22 +81,21 @@ template <class T> bool ItemList<T>::deleteItems(QList<QString> ids) {
     return true;
 }
 
-template <class T> bool ItemList<T>::labelItems(QList<QString> ids, QString label) {
+template <class T> void ItemList<T>::labelItems(QList<QString> ids, QString label) {
     QList<int> itemRows;
     for (QString id : ids) {
         int itemRow = getItemRow(id);
         if (itemRow < 0) {
-            kernel->terminal->error("Couldn't label " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
-            return false;
+            kernel->terminal->warning("Couldn't label " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
+        } else {
+            itemRows.append(itemRow);
         }
-        itemRows.append(itemRow);
     }
     for (int itemRow : itemRows) {
         items[itemRow]->label = label;
         emit dataChanged(index(itemRow, 0), index(itemRow, 0), {Qt::DisplayRole, Qt::EditRole});
     }
-    kernel->terminal->success("Labeled " + QString::number(ids.length()) + " " + pluralItemName + " as \"" + label + "\".");
-    return true;
+    kernel->terminal->success("Labeled " + QString::number(itemRows.length()) + " " + pluralItemName + " as \"" + label + "\".");
 }
 
 template <class T> bool ItemList<T>::moveItems(QList<QString> ids, QString targetId) {

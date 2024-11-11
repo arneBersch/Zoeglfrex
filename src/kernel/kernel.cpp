@@ -181,26 +181,22 @@ bool Kernel::execute(QList<int> command, QString text) {
                 }
             }
             label.replace("\"", "");
-            bool result = false;
             if (selectionType == Keys::Model) { // LABEL MODEL
-                result = models->labelItems(ids, label);
+                models->labelItems(ids, label);
             } else if (selectionType == Keys::Fixture) { // LABEL FIXTURE
-                result = fixtures->labelItems(ids, label);
+                fixtures->labelItems(ids, label);
             } else if (selectionType == Keys::Group) { // LABEL GROUP
-                result = groups->labelItems(ids, label);
+                groups->labelItems(ids, label);
             } else if (selectionType == Keys::Intensity) { // LABEL INTENSITY
-                result = intensities->labelItems(ids, label);
+                intensities->labelItems(ids, label);
             } else if (selectionType == Keys::Color) { // LABEL COLOR
-                result = colors->labelItems(ids, label);
+                colors->labelItems(ids, label);
             } else if (selectionType == Keys::Transition) { // LABEL TRANSITION
-                result = transitions->labelItems(ids, label);
+                transitions->labelItems(ids, label);
             } else if (selectionType == Keys::Cue) { // LABEL CUE
-                result = cues->labelItems(ids, label);
+                cues->labelItems(ids, label);
             } else {
                 terminal->error("Unknown item type.");
-                return false;
-            }
-            if (!result) { // if the operation failed
                 return false;
             }
         } else if (operationType == Keys::Move) { // MOVE
