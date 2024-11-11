@@ -98,19 +98,19 @@ template <class T> void ItemList<T>::labelItems(QList<QString> ids, QString labe
     kernel->terminal->success("Labeled " + QString::number(itemRows.length()) + " " + pluralItemName + " as \"" + label + "\".");
 }
 
-template <class T> bool ItemList<T>::moveItems(QList<QString> ids, QString targetId) {
+template <class T> void ItemList<T>::moveItems(QList<QString> ids, QString targetId) {
     QList<int> itemRows;
     for (QString id : ids) {
         int itemRow = getItemRow(id);
         if (itemRow < 0) {
-            kernel->terminal->error("Couldn't move " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
-            return false;
+            kernel->terminal->warning("Couldn't move " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
+        } else {
+            itemRows.append(itemRow);
         }
-        itemRows.append(itemRow);
     }
     for (int itemRow : itemRows) {
         if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Couldn't move " + singularItemName + " " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
+            kernel->terminal->warning("Couldn't move " + singularItemName + " " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
         } else {
             T* item = items[itemRow];
             beginRemoveRows(QModelIndex(), itemRow, itemRow);
@@ -128,8 +128,7 @@ template <class T> bool ItemList<T>::moveItems(QList<QString> ids, QString targe
             endInsertRows();
         }
     }
-    kernel->terminal->success("Moved " + QString::number(ids.length()) + " " + pluralItemName + " to " + targetId + ".");
-    return true;
+    kernel->terminal->success("Moved " + QString::number(itemRows.length()) + " " + pluralItemName + " to " + targetId + ".");
 }
 
 template <class T> int ItemList<T>::rowCount(const QModelIndex &parent) const {

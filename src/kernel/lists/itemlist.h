@@ -14,7 +14,7 @@ public:
     void copyItems(QList<QString> ids, QString targetId);
     bool deleteItems(QList<QString> ids);
     void labelItems(QList<QString> ids, QString label);
-    bool moveItems(QList<QString> ids, QString targetId);
+    void moveItems(QList<QString> ids, QString targetId);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;

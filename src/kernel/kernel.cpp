@@ -205,26 +205,22 @@ bool Kernel::execute(QList<int> command, QString text) {
                 terminal->error("Target ID not valid.");
                 return false;
             }
-            bool result = false;
             if (selectionType == Keys::Model) { // MOVE MODEL
-                result = models->moveItems(ids, targetId);
+                models->moveItems(ids, targetId);
             } else if (selectionType == Keys::Fixture) { // MOVE FIXTURE
-                result = fixtures->moveItems(ids, targetId);
+                fixtures->moveItems(ids, targetId);
             } else if (selectionType == Keys::Group) { // MOVE GROUP
-                result = groups->moveItems(ids, targetId);
+                groups->moveItems(ids, targetId);
             } else if (selectionType == Keys::Intensity) { // MOVE INTENSITY
-                result = intensities->moveItems(ids, targetId);
+                intensities->moveItems(ids, targetId);
             } else if (selectionType == Keys::Color) { // MOVE COLOR
-                result = colors->moveItems(ids, targetId);
+                colors->moveItems(ids, targetId);
             } else if (selectionType == Keys::Transition) { // MOVE TRANSITION
-                result = transitions->moveItems(ids, targetId);
+                transitions->moveItems(ids, targetId);
             } else if (selectionType == Keys::Cue) { // MOVE CUE
-                result = cues->moveItems(ids, targetId);
+                cues->moveItems(ids, targetId);
             } else {
                 terminal->error("Unknown item type.");
-                return false;
-            }
-            if (!result) { // if the operation failed
                 return false;
             }
         } else if (operationType == Keys::Record) { // RECORD
