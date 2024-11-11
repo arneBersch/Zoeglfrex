@@ -22,7 +22,7 @@ class GroupList : public ItemList<Group> {
 public:
     GroupList(Kernel *core);
     void deleteFixture(Fixture *fixture);
-    bool recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
+    void recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
 private:
     Group* recordGroup(QString id);
 };

@@ -21,14 +21,16 @@ Intensity* IntensityList::recordIntensity(QString id) {
             position++;
         }
     }
+    beginInsertRows(QModelIndex(), position, position);
     items.insert(position, intensity);
+    endInsertRows();
     return intensity;
 }
 
-bool IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer) {
+void IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer) {
     if (dimmer > 100 || dimmer < 0) {
-        kernel->terminal->error("Record Intensity Dimmer only allows from 0% to 100%.");
-        return false;
+        kernel->terminal->error("Didn't record Intensities because Record Intensity Dimmer only allows values from 0% to 100%.");
+        return;
     }
     for (QString id : ids) {
         Intensity* intensity = getItem(id);
@@ -37,5 +39,5 @@ bool IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer) {
         }
         intensity->dimmer = dimmer;
     }
-    return true;
+    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Intensities with dimmer " + QString::number(dimmer) + "%.");
 }

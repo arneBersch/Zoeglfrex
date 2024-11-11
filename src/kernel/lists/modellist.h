@@ -21,7 +21,7 @@ class ModelList : public ItemList<Model> {
     Q_OBJECT
 public:
     ModelList(Kernel *core);
-    bool recordModelChannels(QList<QString> ids, QString channels);
+    void recordModelChannels(QList<QString> ids, QString channels);
 private:
     Model* recordModel(QString id);
 };

@@ -38,66 +38,87 @@ Fixture* FixtureList::recordFixture(QString id, Model* model) {
             position++;
         }
     }
+    beginInsertRows(QModelIndex(), position, position);
     items.insert(position, fixture);
+    endInsertRows();
     return fixture;
 }
 
-bool FixtureList::recordFixtureAddress(QList<QString> ids, int address) {
+void FixtureList::recordFixtureAddress(QList<QString> ids, int address) {
     QSet<int> fixtureChannels;
+    QList<Fixture*> fixtures;
     for (QString id : ids) {
         Fixture *fixture = getItem(id);
         if (fixture == nullptr) {
-            kernel->terminal->error("Fixture can't record address because Fixture " + id + " doesn't exist.");
-            return false;
-        }
-        for (int channel = fixture->address; channel < (fixture->address + fixture->model->channels.length()); channel++) {
-            fixtureChannels.insert(channel);
+            kernel->terminal->warning("Can't record Fixture " + id + " because it doesn't exist.");
+        } else {
+            fixtures.append(fixture);
+            for (int channel = fixture->address; channel < (fixture->address + fixture->model->channels.length()); channel++) {
+                fixtureChannels.insert(channel);
+            }
         }
     }
-    for (QString id : ids) {
-        Fixture* fixture = getItem(id);
+    int fixtureCounter = 0;
+    for (Fixture* fixture : fixtures) {
+        bool addressAvailable = true;
         for (int channel = address; channel < (address + fixture->model->channels.length()); channel++) {
-            if (channel < 1 || channel > 512) {
-                kernel->terminal->error("Can't record Fixture Address because address " + QString::number(channel) + " is out of range.");
-                return false;
-            }
-            if (usedChannels().contains(channel) && !fixtureChannels.contains(channel)) {
-                kernel->terminal->error("Can't record Fixture Address because DMX channel " + QString::number(channel) + " is already used.");
-                return false;
+            if (channel < 1 || channel > 512 || (usedChannels().contains(channel) && !fixtureChannels.contains(channel))) {
+                kernel->terminal->warning("Can't record Fixture Address of Fixture " + fixture->id + " because DMX address " + QString::number(channel) + " is not available.");
+                addressAvailable = false;
             }
         }
-        fixture->address = address;
-        address += fixture->model->channels.length();
+        if (addressAvailable) {
+            fixture->address = address;
+            address += fixture->model->channels.length();
+            fixtureCounter++;
+        }
     }
-    return true;
+    kernel->terminal->success("Recorded " + QString::number(fixtureCounter) + " Fixtures.");
 }
 
-bool FixtureList::recordFixtureModel(QList<QString> ids, QString modelId, int address) {
+void FixtureList::recordFixtureModel(QList<QString> ids, QString modelId, int address) {
     Model *model = kernel->models->getItem(modelId);
     if (model == nullptr) {
         kernel->terminal->error("Can't record Fixture Model because Model " + modelId + " doesn't exist.");
-        return false;
+        return;
     }
+    int fixtureCounter = 0;
     for (QString id : ids) {
         Fixture* fixture = getItem(id);
         if (fixture == nullptr) {
             fixture = recordFixture(id, model);
-            if (fixture == nullptr) {
-                kernel->terminal->error("Can't record Fixture because no free DMX address was found.");
-                return false;
-            }
         }
-        fixture->model = model;
-        if (address > 0) {
-            QList<QString> fixtureId;
-            fixtureId.append(id);
-            if (!recordFixtureAddress(fixtureId, address)) {
-                return false;
+        if (fixture == nullptr) {
+            kernel->terminal->warning("Can't record Fixture " + id + " because no free DMX address was found.");
+        } else {
+            bool addressConflict = false;
+            for (int channel=(address + fixture->model->channels.size()); channel < (address + model->channels.size()); channel++) {
+                if (channel > 512) {
+                    addressConflict = true;
+                }
+                if (kernel->fixtures->usedChannels().contains(channel)) {
+                    addressConflict = true;
+                }
             }
-            address += model->channels.length();
+            if (addressConflict) {
+                kernel->terminal->warning("Can't record Fixture Model because this would result in an address conflict.");
+            } else {
+                fixture->model = model;
+                if (address > 0) {
+                    QList<QString> fixtureId;
+                    fixtureId.append(id);
+                    recordFixtureAddress(fixtureId, address);
+                    if (fixture->address == address) {
+                        fixtureCounter++;
+                    } else {
+                        kernel->terminal->error("Couldn't set the DMX address of Fixture " + id + " to " + QString::number(address));
+                    }
+                    address += model->channels.length();
+                }
+            }
         }
     }
-    return true;
+    kernel->terminal->success("Recorded " + QString::number(fixtureCounter) + " Fixtures.");
 }
 
 int FixtureList::findFreeAddress(int channelCount) {

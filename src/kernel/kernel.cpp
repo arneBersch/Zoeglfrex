@@ -144,16 +144,10 @@ bool Kernel::execute(QList<int> command, QString text) {
                         return false;
                     }
                     if (intensityDelete || (!(intensityDelete || colorDelete))) {
-                        bool result = cues->deleteCueGroupIntensity(ids, groupId);
-                        if (!result) {
-                            return false;
-                        }
+                        cues->deleteCueGroupIntensity(ids, groupId);
                     }
                     if (colorDelete || (!(intensityDelete || colorDelete))) {
-                        bool result = cues->deleteCueGroupColor(ids, groupId);
-                        if (!result) {
-                            return false;
-                        }
+                        cues->deleteCueGroupColor(ids, groupId);
                     }
                 }
             } else {
@@ -236,9 +230,7 @@ bool Kernel::execute(QList<int> command, QString text) {
                         return false;
                     }
                 }
-                if (!models->recordModelChannels(ids, channels)) {
-                    return false;
-                }
+                models->recordModelChannels(ids, channels);
             } else if (selectionType == Keys::Fixture) { // RECORD FIXTURE
                 if (operation.isEmpty()) {
                     terminal->error("Record Fixture requires arguments.");
@@ -275,18 +267,13 @@ bool Kernel::execute(QList<int> command, QString text) {
                         terminal->error("Model selection not valid.");
                         return false;
                     }
-                    if (!fixtures->recordFixtureModel(ids, modelId, address)) {
-                        return false;
-                    }
+                    fixtures->recordFixtureModel(ids, modelId, address);
                 } else if (address > 0) {
-                    if (!fixtures->recordFixtureAddress(ids, address)) {
-                        return false;
-                    }
+                    fixtures->recordFixtureAddress(ids, address);
                 }
             } else if (selectionType == Keys::Group) { // RECORD GROUP
-                bool result = false;
                 if (operation.isEmpty()) {
-                    result = groups->recordGroupFixtures(ids, QList<QString>());
+                    groups->recordGroupFixtures(ids, QList<QString>());
                 } else {
                     if (operation[0] != Keys::Fixture) {
                         terminal->error("Can't record Group because no Fixtures were given.");
@@ -298,10 +285,7 @@ bool Kernel::execute(QList<int> command, QString text) {
                         terminal->error("Can't record Group because of invalid Fixture selection.");
                         return false;
                     }
-                    result = groups->recordGroupFixtures(ids, fixtureIds);
-                }
-                if (!result) {
-                    return false;
+                    groups->recordGroupFixtures(ids, fixtureIds);
                 }
             } else if (selectionType == Keys::Intensity) { // RECORD INTENSITY
                 if (operation.isEmpty()) {
@@ -315,9 +299,7 @@ bool Kernel::execute(QList<int> command, QString text) {
                 }
                 if (values.size() >= 1) {
                     if (values[0] > -999) {
-                        if (!intensities->recordIntensityDimmer(ids, values[0])) {
-                            return false;
-                        }
+                        intensities->recordIntensityDimmer(ids, values[0]);
                     }
                 }
             } else if (selectionType == Keys::Color) { // RECORD COLOR
@@ -332,23 +314,17 @@ bool Kernel::execute(QList<int> command, QString text) {
                 }
                 if (values.size() >= 1) {
                     if (values[0] > -999) {
-                        if (!colors->recordColorRed(ids, values[0])) {
-                            return false;
-                        }
+                        colors->recordColorRed(ids, values[0]);
                     }
                 }
                 if (values.size() >= 2) {
                     if (values[1] > -999) {
-                        if (!colors->recordColorGreen(ids, values[1])) {
-                            return false;
-                        }
+                        colors->recordColorGreen(ids, values[1]);
                     }
                 }
                 if (values.size() >= 3) {
                     if (values[2] > -999) {
-                        if (!colors->recordColorBlue(ids, values[2])) {
-                            return false;
-                        }
+                        colors->recordColorBlue(ids, values[2]);
                     }
                 }
             } else if (selectionType == Keys::Transition) { // RECORD TRANSITION
@@ -363,9 +339,7 @@ bool Kernel::execute(QList<int> command, QString text) {
                 }
                 if (values.size() >= 1) {
                     if (values[0] > -999) {
-                        if (!transitions->recordTransitionFade(ids, values[0])) {
-                            return false;
-                        }
+                        transitions->recordTransitionFade(ids, values[0]);
                     }
                 }
             } else if (selectionType == Keys::Cue) { // RECORD CUE
@@ -380,9 +354,7 @@ bool Kernel::execute(QList<int> command, QString text) {
                         terminal->error("Transition ID not valid.");
                         return false;
                     }
-                    if (!cues->recordCueTransition(ids, transitionId)) {
-                        return false;
-                    }
+                    cues->recordCueTransition(ids, transitionId);
                 } else if (operation[0] == Keys::Group) {
                     operation.removeFirst();
                     operation.append(Keys::Intensity);
@@ -422,14 +394,10 @@ bool Kernel::execute(QList<int> command, QString text) {
                         return false;
                     }
                     if (!intensityId.isEmpty()) {
-                        if (!cues->recordCueIntensity(ids, groupId, intensityId)) {
-                            return false;
-                        }
+                        cues->recordCueIntensity(ids, groupId, intensityId);
                     }
                     if (!colorId.isEmpty()) {
-                        if (!cues->recordCueColor(ids, groupId, colorId)) {
-                            return false;
-                        }
+                        cues->recordCueColor(ids, groupId, colorId);
                     }
                 } else {
                     terminal->error("Record Cue needs either a Group or a Transition as first argument.");

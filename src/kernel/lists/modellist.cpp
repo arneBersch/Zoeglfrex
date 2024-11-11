@@ -21,17 +21,21 @@ Model* ModelList::recordModel(QString id) {
             position++;
         }
     }
+    beginInsertRows(QModelIndex(), position, position);
     items.insert(position, model);
+    endInsertRows();
     return model;
 }
 
-bool ModelList::recordModelChannels(QList<QString> ids, QString channels) {
+void ModelList::recordModelChannels(QList<QString> ids, QString channels) {
     if (!channels.contains(QRegularExpression("^[DRGB]+$"))) {
-        kernel->terminal->error("Channels \"" + channels + "\" are not valid.");
-        return false;
+        kernel->terminal->error("Didn't record Models because channels \"" + channels + "\" are not valid.");
+        return;
     }
+    int modelCounter = 0;
     for (QString id : ids) {
         Model* model = getItem(id);
+        bool addressConflict = false;
         if (model == nullptr) {
             model = recordModel(id);
         } else {
@@ -41,19 +45,23 @@ bool ModelList::recordModelChannels(QList<QString> ids, QString channels) {
                     if (fixture->model == model) {
                         for (int channel=(fixture->address + model->channels.size()); channel < (fixture->address + channels.size()); channel++) {
                             if (channel > 512) {
-                                kernel->terminal->error("Can't record Model Channels because this would result in an address conflict.");
-                                return false;
+                                kernel->terminal->warning("Can't record Model Channels because this would result in an address conflict.");
+                                addressConflict = true;
                             }
                             if (kernel->fixtures->usedChannels().contains(channel)) {
-                                kernel->terminal->error("Can't record Model Channels because this would result in an address conflict.");
-                                return false;
+                                kernel->terminal->warning("Can't record Model Channels because this would result in an address conflict.");
+                                addressConflict = true;
                             }
                         }
                     }
                 }
             }
         }
-        model->channels = channels;
+        if (!addressConflict) {
+            model->channels = channels;
+            modelCounter++;
+        }
     }
-    return true;
+    kernel->terminal->success("Recorded " + QString::number(modelCounter) + " Models with channels \"" + channels + "\".");
+
 }

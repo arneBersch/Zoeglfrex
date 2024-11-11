@@ -21,14 +21,16 @@ Color* ColorList::recordColor(QString id) {
             position++;
         }
     }
+    beginInsertRows(QModelIndex(), position, position);
     items.insert(position, color);
+    endInsertRows();
     return color;
 }
 
-bool ColorList::recordColorRed(QList<QString> ids, float red) {
+void ColorList::recordColorRed(QList<QString> ids, float red) {
     if (red > 100 || red < 0) {
-        kernel->terminal->error("Record Color Red only allows from 0% to 100%.");
-        return false;
+        kernel->terminal->error("Didn't record Color because Record Color Red only allows values from 0% to 100%.");
+        return;
     }
     for (QString id : ids) {
         Color* color = getItem(id);
@@ -37,13 +39,13 @@ bool ColorList::recordColorRed(QList<QString> ids, float red) {
         }
         color->red = red;
     }
-    return true;
+    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Colors with Red value " + QString::number(red) + "%.");
 }
 
-bool ColorList::recordColorGreen(QList<QString> ids, float green) {
+void ColorList::recordColorGreen(QList<QString> ids, float green) {
     if (green > 100 || green < 0) {
-        kernel->terminal->error("Record Color Green only allows from 0% to 100%.");
-        return false;
+        kernel->terminal->error("Didn't record Color because Record Color Green only allows values from 0% to 100%.");
+        return;
     }
     for (QString id : ids) {
         Color* color = getItem(id);
@@ -52,12 +54,13 @@ bool ColorList::recordColorGreen(QList<QString> ids, float green) {
         }
         color->green = green;
     }
-    return true;
+    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Colors with Green value " + QString::number(green) + "%.");
 }
 
-bool ColorList::recordColorBlue(QList<QString> ids, float blue) {
+void ColorList::recordColorBlue(QList<QString> ids, float blue) {
     if (blue > 100 || blue < 0) {
-        return "Record Color Blue only allows from 0% to 100%.";
+        kernel->terminal->error("Didn't record Color because Record Color Blue only allows values from 0% to 100%.");
+        return;
     }
     for (QString id : ids) {
         Color* color = getItem(id);
@@ -66,5 +69,5 @@ bool ColorList::recordColorBlue(QList<QString> ids, float blue) {
         }
         color->blue = blue;
     }
-    return true;
+    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Colors with Blue value " + QString::number(blue) + "%.");
 }

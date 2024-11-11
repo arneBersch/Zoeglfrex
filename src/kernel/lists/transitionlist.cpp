@@ -21,14 +21,16 @@ Transition* TransitionList::recordTransition(QString id) {
             position++;
         }
     }
+    beginInsertRows(QModelIndex(), position, position);
     items.insert(position, transition);
+    endInsertRows();
     return transition;
 }
 
-bool TransitionList::recordTransitionFade(QList<QString> ids, float fade) {
+void TransitionList::recordTransitionFade(QList<QString> ids, float fade) {
     if (fade > 60 || fade < 0) {
-        kernel->terminal->error("Record Transition Fade only allows from 0s to 60s.");
-        return false;
+        kernel->terminal->error("Didn't record Transitions because Record Transition Fade only allows fade times from 0s to 60s.");
+        return;
     }
     for (QString id : ids) {
         Transition* transition = getItem(id);
@@ -37,5 +39,5 @@ bool TransitionList::recordTransitionFade(QList<QString> ids, float fade) {
         }
         transition->fade = fade;
     }
-    return true;
+    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Transitions with fade time " + QString::number(fade) + "s.");
 }

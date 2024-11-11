@@ -27,17 +27,19 @@ Group* GroupList::recordGroup(QString id) {
             position++;
         }
     }
+    beginInsertRows(QModelIndex(), position, position);
     items.insert(position, group);
+    endInsertRows();
     return group;
 }
 
-bool GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds) {
+void GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds) {
     QList<Fixture*> fixtureSelection;
     for (QString fixtureId : fixtureIds) {
         Fixture* fixture = kernel->fixtures->getItem(fixtureId);
         if (fixture == nullptr) {
-            kernel->terminal->error("Can't record Group Fixtures because Fixture doesn't exist.");
-            return false;
+            kernel->terminal->error("Didn't record Groups because Fixture " + fixtureId + " doesn't exist.");
+            return;
         }
         fixtureSelection.append(fixture);
     }
@@ -48,5 +50,5 @@ bool GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureId
         }
         group->fixtures = fixtureSelection;
     }
-    return true;
+    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Groups.");
 }

@@ -21,9 +21,9 @@ class ColorList : public ItemList<Color> {
     Q_OBJECT
 public:
     ColorList(Kernel *core);
-    bool recordColorRed(QList<QString> ids, float red);
-    bool recordColorGreen(QList<QString> ids, float green);
-    bool recordColorBlue(QList<QString> ids, float blue);
+    void recordColorRed(QList<QString> ids, float red);
+    void recordColorGreen(QList<QString> ids, float green);
+    void recordColorBlue(QList<QString> ids, float blue);
 private:
     Color* recordColor(QString id);
 };

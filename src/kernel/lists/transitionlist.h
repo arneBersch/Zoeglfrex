@@ -21,7 +21,7 @@ class TransitionList : public ItemList<Transition> {
     Q_OBJECT
 public:
     TransitionList(Kernel *core);
-    bool recordTransitionFade(QList<QString> ids, float fadeIn);
+    void recordTransitionFade(QList<QString> ids, float fadeIn);
 private:
     Transition* recordTransition(QString id);
 };

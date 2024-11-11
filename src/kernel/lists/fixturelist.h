@@ -22,8 +22,8 @@ class FixtureList : public ItemList<Fixture> {
 public:
     FixtureList(Kernel *core);
     void deleteModel(Model *model);
-    bool recordFixtureAddress(QList<QString> ids, int address);
-    bool recordFixtureModel(QList<QString> ids, QString model, int address=0);
+    void recordFixtureAddress(QList<QString> ids, int address);
+    void recordFixtureModel(QList<QString> ids, QString model, int address=0);
     QSet<int> usedChannels();
 private:
     Fixture* recordFixture(QString id, Model* model);

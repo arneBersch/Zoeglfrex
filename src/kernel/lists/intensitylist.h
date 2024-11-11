@@ -21,7 +21,7 @@ class IntensityList : public ItemList<Intensity> {
     Q_OBJECT
 public:
     IntensityList(Kernel *core);
-    bool recordIntensityDimmer(QList<QString> ids, float dimmer);
+    void recordIntensityDimmer(QList<QString> ids, float dimmer);
 private:
     Intensity* recordIntensity(QString id);
 };

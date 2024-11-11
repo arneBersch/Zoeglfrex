@@ -49,38 +49,42 @@ void CueList::deleteGroup(Group *group) {
     }
 }
 
-bool CueList::deleteCueGroupIntensity(QList<QString> ids, QString groupId) {
+void CueList::deleteCueGroupIntensity(QList<QString> ids, QString groupId) {
     Group* group = kernel->groups->getItem(groupId);
     if (group == nullptr) {
-        kernel->terminal->error("Can't delete Cue Group Intensity: Group " + groupId + " doesn't exist.");
-        return false;
+        kernel->terminal->error("Can't delete Cue Intensity Entry because Group " + groupId + " doesn't exist.");
+        return;
     }
+    int cueCounter = 0;
     for (QString id : ids) {
         Cue *cue = getItem(id);
         if (cue == nullptr) {
-            kernel->terminal->error("Can't delete Group Intensity because Intensity " + id + " doesn't exist");
-            return false;
+            kernel->terminal->warning("Can't delete Cue Intensity Entry because Cue " + id + " doesn't exist.");
+        } else {
+            cue->intensities.remove(group);
+            cueCounter++;
         }
-        cue->intensities.remove(group);
     }
-    return true;
+    kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Intensity entries.");
 }
 
-bool CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
+void CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
     Group* group = kernel->groups->getItem(groupId);
     if (group == nullptr) {
-        kernel->terminal->error("Can't delete Cue Group Color: Group " + groupId + " doesn't exist.");
-        return false;
+        kernel->terminal->error("Can't delete Cue Color Entry because Group " + groupId + " doesn't exist.");
+        return;
     }
+    int cueCounter = 0;
     for (QString id : ids) {
         Cue *cue = getItem(id);
         if (cue == nullptr) {
-            kernel->terminal->error("Can't delete Cue Group Color because Color " + id + " doesn't exist");
-            return false;
+            kernel->terminal->warning("Can't delete Cue Color Entry because Cue " + id + " doesn't exist.");
+        } else {
+            cue->colors.remove(group);
+            cueCounter++;
         }
-        cue->colors.remove(group);
     }
-    return true;
+    kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Color entries.");
 }
 
 Cue* CueList::recordCue(QString id, Transition *transition) {
@@ -94,15 +98,17 @@ Cue* CueList::recordCue(QString id, Transition *transition) {
             position++;
         }
     }
+    beginInsertRows(QModelIndex(), position, position);
     items.insert(position, cue);
+    endInsertRows();
     return cue;
 }
 
-bool CueList::recordCueTransition(QList<QString> ids, QString transitionId) {
+void CueList::recordCueTransition(QList<QString> ids, QString transitionId) {
     Transition* transition = kernel->transitions->getItem(transitionId);
     if (transition == nullptr) {
-        kernel->terminal->error("Can't record Cue because Transition doesn't exist.");
-        return false;
+        kernel->terminal->error("Can't record Cue because Transition " + transitionId + " doesn't exist.");
+        return;
     }
     for (QString id : ids) {
         Cue* cue = getItem(id);
@@ -111,49 +117,53 @@ bool CueList::recordCueTransition(QList<QString> ids, QString transitionId) {
         }
         cue->transition = transition;
     }
-    return true;
+    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Cues with Transition " + transitionId + ".");
 }
 
-bool CueList::recordCueIntensity(QList<QString> ids, QString groupId, QString intensityId) {
+void CueList::recordCueIntensity(QList<QString> ids, QString groupId, QString intensityId) {
     Group* group = kernel->groups->getItem(groupId);
     if (group == nullptr) {
-        kernel->terminal->error("Can't record Cue because Group doesn't exist.");
-        return false;
+        kernel->terminal->error("Can't record Cue because Group " + groupId + " doesn't exist.");
+        return;
     }
     Intensity* intensity = kernel->intensities->getItem(intensityId);
     if (intensity == nullptr) {
-        kernel->terminal->error("Can't record Cue because Intensity doesn't exist.");
-        return false;
+        kernel->terminal->error("Can't record Cue because Intensity " + intensityId + " doesn't exist.");
+        return;
     }
+    int cueCounter = 0;
     for (QString id : ids) {
         Cue* cue = getItem(id);
         if (cue == nullptr) {
-            kernel->terminal->error("Can't record Cue because no Transition was specified.");
-            return false;
+            kernel->terminal->warning("Can't record Cue " + id + " because it doesn't exist.");
+        } else {
+            cue->intensities[group] = intensity;
+            cueCounter++;
         }
-        cue->intensities[group] = intensity;
     }
-    return true;
+    kernel->terminal->success("Recorded " + QString::number(cueCounter) + " Cues with Intensity " + intensityId + " at Group " + groupId + ".");
 }
 
-bool CueList::recordCueColor(QList<QString> ids, QString groupId, QString colorId) {
+void CueList::recordCueColor(QList<QString> ids, QString groupId, QString colorId) {
     Group* group = kernel->groups->getItem(groupId);
     if (group == nullptr) {
-        kernel->terminal->error("Can't record Cue because Group doesn't exist.");
-        return false;
+        kernel->terminal->error("Can't record Cue because Group " + groupId + " doesn't exist.");
+        return;
     }
     Color* color = kernel->colors->getItem(colorId);
     if (color == nullptr) {
-        kernel->terminal->error("Can't record Cue because Color doesn't exist.");
-        return false;
+        kernel->terminal->error("Can't record Cue because Color " + colorId + " doesn't exist.");
+        return;
     }
+    int cueCounter = 0;
     for (QString id : ids) {
         Cue* cue = getItem(id);
         if (cue == nullptr) {
-            kernel->terminal->error("Can't record Cue because no Transition was specified.");
-            return false;
+            kernel->terminal->warning("Can't record Cue " + id + " because it doesn't exist.");
+        } else {
+            cue->colors[group] = color;
+            cueCounter++;
         }
-        cue->colors[group] = color;
     }
-    return true;
+    kernel->terminal->success("Recorded " + QString::number(cueCounter) + " Cues with Color " + colorId + " at Group " + groupId + ".");
 }
