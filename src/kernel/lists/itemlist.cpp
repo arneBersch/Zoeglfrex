@@ -31,19 +31,19 @@ template <class T> QList<QString> ItemList<T>::getIds() const {
     return ids;
 }
 
-template <class T> bool ItemList<T>::copyItems(QList<QString> ids, QString targetId) {
+template <class T> void ItemList<T>::copyItems(QList<QString> ids, QString targetId) {
     QList<int> itemRows;
     for (QString id : ids) {
         int itemRow = getItemRow(id);
         if (itemRow < 0) {
-            kernel->terminal->error("Couldn't copy " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
-            return false;
+            kernel->terminal->warning("Couldn't copy " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
+        } else {
+            itemRows.append(itemRow);
         }
-        itemRows.append(itemRow);
     }
     for (int itemRow : itemRows) {
         if (getItem(targetId) != nullptr) {
-            kernel->terminal->error("Couldn't copy " + singularItemName + " " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
+            kernel->terminal->warning("Couldn't copy " + singularItemName + " " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
         } else {
             T* targetItem = new T(items[itemRow]);
             targetItem->id = targetId;
@@ -58,8 +58,7 @@ template <class T> bool ItemList<T>::copyItems(QList<QString> ids, QString targe
             endInsertRows();
         }
     }
-    kernel->terminal->success("Copied " + QString::number(ids.length()) + " " + pluralItemName + " to \"" + targetId + ".");
-    return true;
+    kernel->terminal->success("Copied " + QString::number(itemRows.length()) + " " + pluralItemName + " to \"" + targetId + ".");
 }
 
 template <class T> bool ItemList<T>::deleteItems(QList<QString> ids) {

@@ -11,7 +11,7 @@ public:
     T* getItem(QString id) const;
     int getItemRow(QString id) const;
     QList<QString> getIds() const;
-    bool copyItems(QList<QString> ids, QString targetId);
+    void copyItems(QList<QString> ids, QString targetId);
     bool deleteItems(QList<QString> ids);
     bool labelItems(QList<QString> ids, QString label);
     bool moveItems(QList<QString> ids, QString targetId);

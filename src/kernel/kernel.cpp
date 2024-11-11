@@ -75,26 +75,22 @@ bool Kernel::execute(QList<int> command, QString text) {
                 terminal->error("Target ID not valid.");
                 return false;
             }
-            bool result = false;
             if (selectionType == Keys::Model) { // COPY MODEL
-                result = models->copyItems(ids, targetId);
+                models->copyItems(ids, targetId);
             } else if (selectionType == Keys::Fixture) { // COPY FIXTURE
-                result = fixtures->copyItems(ids, targetId);
+                fixtures->copyItems(ids, targetId);
             } else if (selectionType == Keys::Group) { // COPY GROUP
-                result = groups->copyItems(ids, targetId);
+                groups->copyItems(ids, targetId);
             } else if (selectionType == Keys::Intensity) { // COPY INTENSITY
-                result = intensities->copyItems(ids, targetId);
+                intensities->copyItems(ids, targetId);
             } else if (selectionType == Keys::Color) { // COPY COLOR
-                result = colors->copyItems(ids, targetId);
+                colors->copyItems(ids, targetId);
             } else if (selectionType == Keys::Transition) { // COPY TRANSITION
-                result = transitions->copyItems(ids, targetId);
+                transitions->copyItems(ids, targetId);
             } else if (selectionType == Keys::Cue) { // COPY CUE
-                result = cues->copyItems(ids, targetId);
+                cues->copyItems(ids, targetId);
             } else {
                 terminal->error("Unknown item type.");
-                return false;
-            }
-            if (!result) { // if the operation failed
                 return false;
             }
         } else if (operationType == Keys::Delete) { // DELETE
