@@ -255,61 +255,59 @@ void MainWindow::saveFile() {
 
     for (QString modelId : kernel->models->getIds()) {
         Model *model = kernel->models->getItem(modelId);
-        fileStream << "m" << model->id << "R\"" << model->channels << "\"\n";
-        fileStream << "m" << model->id << "L\"" << model->label << "\"\n";
+        fileStream << "m" << model->idString() << "R\"" << model->channels << "\"\n";
+        fileStream << "m" << model->idString() << "L\"" << model->label << "\"\n";
     }
 
     for (QString fixtureId : kernel->fixtures->getIds()) {
         Fixture *fixture = kernel->fixtures->getItem(fixtureId);
-        fileStream << "f" << fixture->id << "R" << fixture->address << "m" << fixture->model->id << "\n";
-        fileStream << "f" << fixture->id << "L\"" << fixture->label << "\"\n";
+        fileStream << "f" << fixture->idString() << "R" << fixture->address << "m" << fixture->model->idString() << "\n";
+        fileStream << "f" << fixture->idString() << "L\"" << fixture->label << "\"\n";
     }
 
     for (QString groupId : kernel->groups->getIds()) {
         Group* group = kernel->groups->getItem(groupId);
-        QString fixtures;
+        QString fixtures = QString();
         if (!group->fixtures.isEmpty()) {
             fixtures = "f";
             for (Fixture *fixture : group->fixtures) {
-                fixtures += fixture->id;
+                fixtures += fixture->idString();
                 fixtures += "+";
             }
-        } else {
-            fixtures = "";
         }
-        fileStream << "g" << group->id << "R" << fixtures << "\n";
-        fileStream << "g" << group->id << "L\"" << group->label << "\"\n";
+        fileStream << "g" << group->idString() << "R" << fixtures << "\n";
+        fileStream << "g" << group->idString() << "L\"" << group->label << "\"\n";
     }
 
     for (QString intensityId : kernel->intensities->getIds()) {
         Intensity *intensity = kernel->intensities->getItem(intensityId);
-        fileStream << "i" << intensity->id << "R" << intensity->dimmer << "\n";
-        fileStream << "i" << intensity->id << "L\"" << intensity->label << "\"\n";
+        fileStream << "i" << intensity->idString() << "R" << intensity->dimmer << "\n";
+        fileStream << "i" << intensity->idString() << "L\"" << intensity->label << "\"\n";
     }
 
     for (QString colorId : kernel->colors->getIds()) {
         Color *color = kernel->colors->getItem(colorId);
-        fileStream << "c" << color->id << "R" << color->red << "+" << color->green << "+" << color->blue << "\n";
-        fileStream << "c" << color->id << "L\"" << color->label << "\"\n";
+        fileStream << "c" << color->idString() << "R" << color->red << "+" << color->green << "+" << color->blue << "\n";
+        fileStream << "c" << color->idString() << "L\"" << color->label << "\"\n";
     }
 
     for (QString transitionId : kernel->transitions->getIds()) {
         Transition *transition = kernel->transitions->getItem(transitionId);
-        fileStream << "t" << transition->id << "R" << transition->fade << "\n";
-        fileStream << "t" << transition->id << "L\"" << transition->label << "\"\n";
+        fileStream << "t" << transition->idString() << "R" << transition->fade << "\n";
+        fileStream << "t" << transition->idString() << "L\"" << transition->label << "\"\n";
     }
 
     for (QString cueId : kernel->cues->getIds()) {
         Cue *cue = kernel->cues->getItem(cueId);
-        fileStream << "q" << cue->id << "Rt" << cue->transition->id << "\n";
-        fileStream << "q" << cue->id << "L\"" << cue->label << "\"\n";
+        fileStream << "q" << cue->idString() << "Rt" << cue->transition->idString() << "\n";
+        fileStream << "q" << cue->idString() << "L\"" << cue->label << "\"\n";
         for (QString groupId : kernel->groups->getIds()) {
             Group *group = kernel->groups->getItem (groupId);
             if (cue->intensities.contains(group)) {
-                fileStream << "q" << cue->id << "Rg" << group->id << "i" << cue->intensities.value(group)->id << "\n";
+                fileStream << "q" << cue->idString() << "Rg" << group->idString() << "i" << cue->intensities.value(group)->idString() << "\n";
             }
             if (cue->colors.contains(group)) {
-                fileStream << "q" << cue->id << "Rg" << group->id << "c" << cue->colors.value(group)->id << "\n";
+                fileStream << "q" << cue->idString() << "Rg" << group->idString() << "c" << cue->colors.value(group)->idString() << "\n";
             }
         }
     }
