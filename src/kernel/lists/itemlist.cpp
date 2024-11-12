@@ -141,25 +141,29 @@ template <class T> QVariant ItemList<T>::data(const QModelIndex &index, const in
 template <class T> int ItemList<T>::findRow(QString id) {
     int position = 0;
     QList<QString> idParts = id.split(".");
-    for (int index=0; index < items.size(); index++) {
-        QList<QString> indexIdParts = items[index]->id.split(".");
-        if (indexIdParts[0].toInt() < idParts[0].toInt()) {
-            position++;
-        } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
-            if (indexIdParts[1].toInt() < idParts[1].toInt()) {
-                position++;
-            } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
-                if (indexIdParts[2].toInt() < idParts[2].toInt()) {
+    for (T* item : items) {
+        QList<QString> indexIdParts = item->id.split(".");
+        bool greaterId = true;
+        bool sameBeginning = true;
+        int minPartAmount = idParts.length();
+        if (indexIdParts.length() < minPartAmount) {
+            minPartAmount = indexIdParts.length();
+        }
+        for (int part = 0; part < minPartAmount; part++) {
+            if (idParts[part].toInt() < indexIdParts[part].toInt()) {
+                greaterId = false;
+            }
+            if (idParts[part].toInt() != indexIdParts[part].toInt()) {
+                sameBeginning = false;
+            }
+        }
+        if (greaterId) {
+            if (sameBeginning) {
+                if (idParts.length() > indexIdParts.length()) {
                     position++;
-                } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
-                    if (indexIdParts[3].toInt() < idParts[3].toInt()) {
-                        position++;
-                    } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
-                        if (indexIdParts[4].toInt() < idParts[4].toInt()) {
-                            position++;
-                        }
-                    }
                 }
+            } else {
+                position++;
             }
         }
     }
