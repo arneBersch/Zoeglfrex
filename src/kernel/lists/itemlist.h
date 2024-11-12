@@ -17,12 +17,12 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
-    int findRow(QString id);
     Kernel *kernel;
     QList<T*> items;
 protected:
     T* recordItem(QString id);
 private:
+    int findRow(QString id);
     QString singularItemName = "item";
     QString pluralItemName = "items";
 };

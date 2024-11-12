@@ -140,22 +140,22 @@ template <class T> QVariant ItemList<T>::data(const QModelIndex &index, const in
 
 template <class T> int ItemList<T>::findRow(QString id) {
     int position = 0;
+    QList<QString> idParts = id.split(".");
     for (int index=0; index < items.size(); index++) {
-        QList<QString> firstIdParts = items[index]->id.split(".");
-        QList<QString> secondIdParts = id.split(".");
-        if (firstIdParts[0].toInt() < secondIdParts[0].toInt()) {
+        QList<QString> indexIdParts = items[index]->id.split(".");
+        if (indexIdParts[0].toInt() < idParts[0].toInt()) {
             position++;
-        } else if (firstIdParts[0].toInt() == secondIdParts[0].toInt()) {
-            if (firstIdParts[1].toInt() < secondIdParts[1].toInt()) {
+        } else if (indexIdParts[0].toInt() == idParts[0].toInt()) {
+            if (indexIdParts[1].toInt() < idParts[1].toInt()) {
                 position++;
-            } else if (firstIdParts[1].toInt() == secondIdParts[1].toInt()) {
-                if (firstIdParts[2].toInt() < secondIdParts[2].toInt()) {
+            } else if (indexIdParts[1].toInt() == idParts[1].toInt()) {
+                if (indexIdParts[2].toInt() < idParts[2].toInt()) {
                     position++;
-                } else if (firstIdParts[2].toInt() == secondIdParts[2].toInt()) {
-                    if (firstIdParts[3].toInt() < secondIdParts[3].toInt()) {
+                } else if (indexIdParts[2].toInt() == idParts[2].toInt()) {
+                    if (indexIdParts[3].toInt() < idParts[3].toInt()) {
                         position++;
-                    } else if (firstIdParts[3].toInt() == secondIdParts[3].toInt()) {
-                        if (firstIdParts[4].toInt() < secondIdParts[4].toInt()) {
+                    } else if (indexIdParts[3].toInt() == idParts[3].toInt()) {
+                        if (indexIdParts[4].toInt() < idParts[4].toInt()) {
                             position++;
                         }
                     }
