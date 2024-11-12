@@ -12,7 +12,7 @@ TransitionList::TransitionList(Kernel *core) : ItemList("Transition", "Transitio
     kernel = core;
 }
 
-Transition* TransitionList::recordTransition(QString id) {
+Transition* TransitionList::recordItem(QString id) {
     Transition *transition = new Transition(kernel);
     transition->id = id;
     int position = 0;
@@ -35,7 +35,7 @@ void TransitionList::recordTransitionFade(QList<QString> ids, float fade) {
     for (QString id : ids) {
         Transition* transition = getItem(id);
         if (transition == nullptr) {
-            transition = recordTransition(id);
+            transition = recordItem(id);
         }
         transition->fade = fade;
     }

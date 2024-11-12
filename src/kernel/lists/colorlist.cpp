@@ -12,7 +12,7 @@ ColorList::ColorList(Kernel *core) : ItemList("Color", "Colors") {
     kernel = core;
 }
 
-Color* ColorList::recordColor(QString id) {
+Color* ColorList::recordItem(QString id) {
     Color* color = new Color(kernel);
     color->id = id;
     int position = 0;
@@ -35,7 +35,7 @@ void ColorList::recordColorRed(QList<QString> ids, float red) {
     for (QString id : ids) {
         Color* color = getItem(id);
         if (color == nullptr) {
-            color = recordColor(id);
+            color = recordItem(id);
         }
         color->red = red;
     }
@@ -50,7 +50,7 @@ void ColorList::recordColorGreen(QList<QString> ids, float green) {
     for (QString id : ids) {
         Color* color = getItem(id);
         if (color == nullptr) {
-            color = recordColor(id);
+            color = recordItem(id);
         }
         color->green = green;
     }
@@ -65,7 +65,7 @@ void ColorList::recordColorBlue(QList<QString> ids, float blue) {
     for (QString id : ids) {
         Color* color = getItem(id);
         if (color == nullptr) {
-            color = recordColor(id);
+            color = recordItem(id);
         }
         color->blue = blue;
     }

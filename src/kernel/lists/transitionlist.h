@@ -23,7 +23,7 @@ public:
     TransitionList(Kernel *core);
     void recordTransitionFade(QList<QString> ids, float fadeIn);
 private:
-    Transition* recordTransition(QString id);
+    Transition* recordItem(QString id);
 };
 
 #include "kernel/kernel.h"

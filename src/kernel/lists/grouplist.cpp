@@ -18,7 +18,7 @@ void GroupList::deleteFixture(Fixture *fixture) {
     }
 }
 
-Group* GroupList::recordGroup(QString id) {
+Group* GroupList::recordItem(QString id) {
     Group *group = new Group(kernel);
     group->id = id;
     int position = 0;
@@ -46,7 +46,7 @@ void GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureId
     for (QString id : ids) {
         Group* group = getItem(id);
         if (group == nullptr) {
-            group = recordGroup(id);
+            group = recordItem(id);
         }
         group->fixtures = fixtureSelection;
     }

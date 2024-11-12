@@ -26,7 +26,7 @@ public:
     void recordFixtureModel(QList<QString> ids, QString model);
     QSet<int> usedChannels();
 private:
-    Fixture* recordFixture(QString id, Model* model);
+    Fixture* recordItem(QString id, Model* model);
     int findFreeAddress(int channelCount);
 };
 

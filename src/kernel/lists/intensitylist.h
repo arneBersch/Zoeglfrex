@@ -23,7 +23,7 @@ public:
     IntensityList(Kernel *core);
     void recordIntensityDimmer(QList<QString> ids, float dimmer);
 private:
-    Intensity* recordIntensity(QString id);
+    Intensity* recordItem(QString id);
 };
 
 #include "kernel/kernel.h"

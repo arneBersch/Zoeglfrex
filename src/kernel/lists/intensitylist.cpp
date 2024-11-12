@@ -12,7 +12,7 @@ IntensityList::IntensityList(Kernel *core) : ItemList("Intensity", "Intensities"
     kernel = core;
 }
 
-Intensity* IntensityList::recordIntensity(QString id) {
+Intensity* IntensityList::recordItem(QString id) {
     Intensity *intensity = new Intensity(kernel);
     intensity->id = id;
     int position = 0;
@@ -35,7 +35,7 @@ void IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer) {
     for (QString id : ids) {
         Intensity* intensity = getItem(id);
         if (intensity == nullptr) {
-            intensity = recordIntensity(id);
+            intensity = recordItem(id);
         }
         intensity->dimmer = dimmer;
     }

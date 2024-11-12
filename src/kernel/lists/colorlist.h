@@ -25,7 +25,7 @@ public:
     void recordColorGreen(QList<QString> ids, float green);
     void recordColorBlue(QList<QString> ids, float blue);
 private:
-    Color* recordColor(QString id);
+    Color* recordItem(QString id);
 };
 
 #include "kernel/kernel.h"

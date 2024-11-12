@@ -12,7 +12,7 @@ ModelList::ModelList(Kernel *core) : ItemList("Model", "Models") {
     kernel = core;
 }
 
-Model* ModelList::recordModel(QString id) {
+Model* ModelList::recordItem(QString id) {
     Model *model = new Model(kernel);
     model->id = id;
     int position = 0;
@@ -37,7 +37,7 @@ void ModelList::recordModelChannels(QList<QString> ids, QString channels) {
         Model* model = getItem(id);
         bool addressConflict = false;
         if (model == nullptr) {
-            model = recordModel(id);
+            model = recordItem(id);
         } else {
             if (channels.size() > model->channels.size()) {
                 for (Fixture* fixture : kernel->fixtures->items) {

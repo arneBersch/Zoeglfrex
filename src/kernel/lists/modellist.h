@@ -23,7 +23,7 @@ public:
     ModelList(Kernel *core);
     void recordModelChannels(QList<QString> ids, QString channels);
 private:
-    Model* recordModel(QString id);
+    Model* recordItem(QString id);
 };
 
 #include "kernel/kernel.h"
