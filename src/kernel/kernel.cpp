@@ -429,11 +429,8 @@ QString Kernel::keysToId(QList<int> keys)
             return QString();
         }
     }
-    while (id.count(".") < 4) {
-        id += ".0";
-    }
-    if (!id.contains(QRegularExpression("^[0-9]+.[0-9]+.[0-9]+.[0-9]+.[0-9]+$"))) {
-        return QString();
+    while (id.endsWith(".0")) {
+        id.chop(2);
     }
     return id;
 }
