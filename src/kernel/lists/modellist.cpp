@@ -40,8 +40,7 @@ void ModelList::recordModelChannels(QList<QString> ids, QString channels) {
             model = recordModel(id);
         } else {
             if (channels.size() > model->channels.size()) {
-                for (QString fixtureId : kernel->fixtures->getIds()) {
-                    Fixture *fixture = kernel->fixtures->getItem(fixtureId);
+                for (Fixture* fixture : kernel->fixtures->items) {
                     if (fixture->model == model) {
                         for (int channel=(fixture->address + model->channels.size()); channel < (fixture->address + channels.size()); channel++) {
                             if (channel > 512) {

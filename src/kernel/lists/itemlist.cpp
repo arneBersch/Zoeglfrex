@@ -23,14 +23,6 @@ template <class T> int ItemList<T>::getItemRow(QString id) const {
     return -1;
 }
 
-template <class T> QList<QString> ItemList<T>::getIds() const {
-    QList<QString> ids;
-    for (T *item : items) {
-        ids.append(item->id);
-    }
-    return ids;
-}
-
 template <class T> void ItemList<T>::copyItems(QList<QString> ids, QString targetId) {
     QList<int> itemRows;
     for (QString id : ids) {

@@ -43,8 +43,8 @@ void CuelistView::loadCue() {
     cueModel->loadCue(currentCue);
     if (currentCue == nullptr) {
         cueLabel->setText(QString());
-        if (!kernel->cues->getIds().isEmpty()) {
-            currentCue = kernel->cues->getItem(kernel->cues->getIds()[0]); // select first cue
+        if (!kernel->cues->items.isEmpty()) {
+            currentCue = kernel->cues->items[0]; // select first cue
             loadCue();
         }
         return;
@@ -55,40 +55,38 @@ void CuelistView::loadCue() {
 void CuelistView::previousCue() {
     QMutexLocker locker(kernel->mutex);
     if (currentCue == nullptr) {
-        if (kernel->cues->getIds().size() > 0) {
-            QString firstCue = kernel->cues->getIds().at(0);
-            currentCue = kernel->cues->getItem(firstCue);
+        if (kernel->cues->rowCount() > 0) {
+            currentCue = kernel->cues->items[0];
             loadCue();
         }
     }
-    QString previousCue;
-    for (QString cueId : kernel->cues->getIds()) {
-        if (cueId == currentCue->id && !previousCue.isEmpty()) {
-            currentCue = kernel->cues->getItem(previousCue);
+    Cue* previousCue = nullptr;
+    for (Cue* cue : kernel->cues->items) {
+        if (cue == currentCue && previousCue != nullptr) {
+            currentCue = previousCue;
             loadCue();
             return;
         }
-        previousCue = cueId;
+        previousCue = cue;
     }
 }
 
 void CuelistView::nextCue() {
     QMutexLocker locker(kernel->mutex);
     if (currentCue == nullptr) {
-        if (kernel->cues->getIds().size() > 0) {
-            QString firstCue = kernel->cues->getIds().at(0);
-            currentCue = kernel->cues->getItem(firstCue);
+        if (kernel->cues->rowCount() > 0) {
+            currentCue = kernel->cues->items[0];
             loadCue();
         }
     }
     bool nextCue = false;
-    for (QString cueId : kernel->cues->getIds()) {
+    for (Cue* cue : kernel->cues->items) {
         if (nextCue) {
-            currentCue = kernel->cues->getItem(cueId);
+            currentCue = cue;
             loadCue();
             return;
         }
-        if (cueId == currentCue->id) {
+        if (cue == currentCue) {
             nextCue = true;
         }
     }

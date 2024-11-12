@@ -10,7 +10,6 @@ public:
     ItemList(QString singularName, QString pluralName);
     T* getItem(QString id) const;
     int getItemRow(QString id) const;
-    QList<QString> getIds() const;
     void copyItems(QList<QString> ids, QString targetId);
     void deleteItems(QList<QString> ids);
     void labelItems(QList<QString> ids, QString label);

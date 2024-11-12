@@ -33,8 +33,7 @@ public:
     QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
 private:
     Kernel *kernel;
-    QList<QString> groups;
-    Cue *currentCue;
+    Cue *currentCue = nullptr;
 };
 
 #endif // CUEMODEL_H

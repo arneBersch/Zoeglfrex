@@ -55,8 +55,7 @@ void DmxEngine::generateDmx() {
         remainingFadeFrames = 40 * fade + 0.5;
         lastCue = kernel->cuelistView->currentCue;
     }
-    for (QString groupId : kernel->groups->getIds()) {
-        Group *group = kernel->groups->getItem(groupId);
+    for (Group* group : kernel->groups->items) {
         if (kernel->cuelistView->currentCue->intensities.contains(group)) {
             float dimmer = kernel->cuelistView->currentCue->intensities.value(group)->dimmer;
             float red = 100.0;

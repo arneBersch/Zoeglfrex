@@ -168,50 +168,50 @@ void MainWindow::clearKernel() {
     fileName = QString(); // reset filename
     QList<QString> commands;
     QString modelCommand = "m";
-    for (QString id : kernel->models->getIds()) {
-        modelCommand += id;
+    for (Model* model : kernel->models->items) {
+        modelCommand += model->id;
         modelCommand += "+";
     }
     modelCommand += "D";
     commands.append(modelCommand);
     QString fixtureCommand = "f";
-    for (QString id : kernel->fixtures->getIds()) {
-        fixtureCommand += id;
+    for (Fixture* fixture : kernel->fixtures->items) {
+        fixtureCommand += fixture->id;
         fixtureCommand += "+";
     }
     fixtureCommand += "D";
     commands.append(fixtureCommand);
     QString groupCommand = "g";
-    for (QString id : kernel->groups->getIds()) {
-        groupCommand += id;
+    for (Group* group : kernel->groups->items) {
+        groupCommand += group->id;
         groupCommand += "+";
     }
     groupCommand += "D";
     commands.append(groupCommand);
     QString intensityCommand = "i";
-    for (QString id : kernel->intensities->getIds()) {
-        intensityCommand += id;
+    for (Intensity* intensity : kernel->intensities->items) {
+        intensityCommand += intensity->id;
         intensityCommand += "+";
     }
     intensityCommand += "D";
     commands.append(intensityCommand);
     QString colorCommand = "c";
-    for (QString id : kernel->colors->getIds()) {
-        colorCommand += id;
+    for (Color* color : kernel->colors->items) {
+        colorCommand += color->id;
         colorCommand += "+";
     }
     colorCommand += "D";
     commands.append(colorCommand);
     QString transitionCommand = "t";
-    for (QString id : kernel->transitions->getIds()) {
-        transitionCommand += id;
+    for (Transition* transition : kernel->transitions->items) {
+        transitionCommand += transition->id;
         transitionCommand += "+";
     }
     transitionCommand += "D";
     commands.append(transitionCommand);
     QString cueCommand = "q";
-    for (QString id : kernel->cues->getIds()) {
-        cueCommand += id;
+    for (Cue* cue : kernel->cues->items) {
+        cueCommand += cue->id;
         cueCommand += "+";
     }
     cueCommand += "D";
@@ -253,61 +253,53 @@ void MainWindow::saveFile() {
     QTextStream fileStream(&file);
     fileStream << "ZOEGLFREX_00.01.00\n";
 
-    for (QString modelId : kernel->models->getIds()) {
-        Model *model = kernel->models->getItem(modelId);
-        fileStream << "m" << model->idString() << "R\"" << model->channels << "\"\n";
-        fileStream << "m" << model->idString() << "L\"" << model->label << "\"\n";
+    for (Model* model : kernel->models->items) {
+        fileStream << "m" << model->id << "R\"" << model->channels << "\"\n";
+        fileStream << "m" << model->id << "L\"" << model->label << "\"\n";
     }
 
-    for (QString fixtureId : kernel->fixtures->getIds()) {
-        Fixture *fixture = kernel->fixtures->getItem(fixtureId);
-        fileStream << "f" << fixture->idString() << "R" << fixture->address << "m" << fixture->model->idString() << "\n";
-        fileStream << "f" << fixture->idString() << "L\"" << fixture->label << "\"\n";
+    for (Fixture* fixture : kernel->fixtures->items) {
+        fileStream << "f" << fixture->id << "R" << fixture->address << "m" << fixture->model->id << "\n";
+        fileStream << "f" << fixture->id << "L\"" << fixture->label << "\"\n";
     }
 
-    for (QString groupId : kernel->groups->getIds()) {
-        Group* group = kernel->groups->getItem(groupId);
+    for (Group* group : kernel->groups->items) {
         QString fixtures = QString();
         if (!group->fixtures.isEmpty()) {
             fixtures = "f";
             for (Fixture *fixture : group->fixtures) {
-                fixtures += fixture->idString();
+                fixtures += fixture->id;
                 fixtures += "+";
             }
         }
-        fileStream << "g" << group->idString() << "R" << fixtures << "\n";
-        fileStream << "g" << group->idString() << "L\"" << group->label << "\"\n";
+        fileStream << "g" << group->id << "R" << fixtures << "\n";
+        fileStream << "g" << group->id << "L\"" << group->label << "\"\n";
     }
 
-    for (QString intensityId : kernel->intensities->getIds()) {
-        Intensity *intensity = kernel->intensities->getItem(intensityId);
-        fileStream << "i" << intensity->idString() << "R" << intensity->dimmer << "\n";
-        fileStream << "i" << intensity->idString() << "L\"" << intensity->label << "\"\n";
+    for (Intensity* intensity : kernel->intensities->items) {
+        fileStream << "i" << intensity->id << "R" << intensity->dimmer << "\n";
+        fileStream << "i" << intensity->id << "L\"" << intensity->label << "\"\n";
     }
 
-    for (QString colorId : kernel->colors->getIds()) {
-        Color *color = kernel->colors->getItem(colorId);
-        fileStream << "c" << color->idString() << "R" << color->red << "+" << color->green << "+" << color->blue << "\n";
-        fileStream << "c" << color->idString() << "L\"" << color->label << "\"\n";
+    for (Color* color : kernel->colors->items) {
+        fileStream << "c" << color->id << "R" << color->red << "+" << color->green << "+" << color->blue << "\n";
+        fileStream << "c" << color->id << "L\"" << color->label << "\"\n";
     }
 
-    for (QString transitionId : kernel->transitions->getIds()) {
-        Transition *transition = kernel->transitions->getItem(transitionId);
-        fileStream << "t" << transition->idString() << "R" << transition->fade << "\n";
-        fileStream << "t" << transition->idString() << "L\"" << transition->label << "\"\n";
+    for (Transition* transition : kernel->transitions->items) {
+        fileStream << "t" << transition->id << "R" << transition->fade << "\n";
+        fileStream << "t" << transition->id << "L\"" << transition->label << "\"\n";
     }
 
-    for (QString cueId : kernel->cues->getIds()) {
-        Cue *cue = kernel->cues->getItem(cueId);
-        fileStream << "q" << cue->idString() << "Rt" << cue->transition->idString() << "\n";
-        fileStream << "q" << cue->idString() << "L\"" << cue->label << "\"\n";
-        for (QString groupId : kernel->groups->getIds()) {
-            Group *group = kernel->groups->getItem (groupId);
+    for (Cue* cue : kernel->cues->items) {
+        fileStream << "q" << cue->id << "Rt" << cue->transition->id << "\n";
+        fileStream << "q" << cue->id << "L\"" << cue->label << "\"\n";
+        for (Group* group : kernel->groups->items) {
             if (cue->intensities.contains(group)) {
-                fileStream << "q" << cue->idString() << "Rg" << group->idString() << "i" << cue->intensities.value(group)->idString() << "\n";
+                fileStream << "q" << cue->id << "Rg" << group->id << "i" << cue->intensities.value(group)->id << "\n";
             }
             if (cue->colors.contains(group)) {
-                fileStream << "q" << cue->idString() << "Rg" << group->idString() << "c" << cue->colors.value(group)->idString() << "\n";
+                fileStream << "q" << cue->id << "Rg" << group->id << "c" << cue->colors.value(group)->id << "\n";
             }
         }
     }

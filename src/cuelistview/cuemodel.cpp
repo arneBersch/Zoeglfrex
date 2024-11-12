@@ -14,22 +14,18 @@ CueModel::CueModel(Kernel *core) {
 }
 
 void CueModel::loadCue(Cue *cue) {
-    beginRemoveRows(QModelIndex(), 0, (groups.length() - 1));
-    groups.clear();
-    endRemoveRows();
     if (cue == nullptr) {
         return;
     }
+    beginResetModel();
     currentCue = cue;
-    beginInsertRows(QModelIndex(), 0, (kernel->groups->getIds().length() - 1));
-    groups = kernel->groups->getIds();
-    endInsertRows();
+    endResetModel();
 }
 
 int CueModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return groups.count();
+    return kernel->groups->rowCount();
 }
 
 int CueModel::columnCount(const QModelIndex &parent) const
@@ -51,16 +47,16 @@ QVariant CueModel::data(const QModelIndex &index, const int role) const
     if (index.isValid() && role == Qt::DisplayRole) {
         QMutexLocker locker(kernel->mutex);
         if (column == CueModelColumns::group) {
-            return kernel->groups->getItem(groups[row])->name();
+            return kernel->groups->items[row]->name();
         } else if (column == CueModelColumns::intensity) {
-            Group *currentGroup = kernel->groups->getItem(groups[row]);
-            if (currentCue->intensities.contains(currentGroup)) {
+            Group *currentGroup = kernel->groups->items[row];
+            if (currentCue != nullptr && currentCue->intensities.contains(currentGroup)) {
                 return (currentCue->intensities[currentGroup])->name();
             }
             return QVariant();
         } else if (column == CueModelColumns::color) {
-            Group *currentGroup = kernel->groups->getItem(groups[row]);
-            if (currentCue->colors.contains(currentGroup)) {
+            Group *currentGroup = kernel->groups->items[row];
+            if (currentCue != nullptr && currentCue->colors.contains(currentGroup)) {
                 return (currentCue->colors[currentGroup])->name();
             }
             return QVariant();
