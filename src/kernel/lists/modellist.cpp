@@ -12,21 +12,6 @@ ModelList::ModelList(Kernel *core) : ItemList("Model", "Models") {
     kernel = core;
 }
 
-Model* ModelList::recordItem(QString id) {
-    Model *model = new Model(kernel);
-    model->id = id;
-    int position = 0;
-    for (int index=0; index < items.size(); index++) {
-        if (greaterId(items[index]->id, id)) {
-            position++;
-        }
-    }
-    beginInsertRows(QModelIndex(), position, position);
-    items.insert(position, model);
-    endInsertRows();
-    return model;
-}
-
 void ModelList::recordModelChannels(QList<QString> ids, QString channels) {
     if (!channels.contains(QRegularExpression("^[DRGB]+$"))) {
         kernel->terminal->error("Didn't record Models because channels \"" + channels + "\" are not valid.");

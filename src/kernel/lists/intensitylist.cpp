@@ -12,21 +12,6 @@ IntensityList::IntensityList(Kernel *core) : ItemList("Intensity", "Intensities"
     kernel = core;
 }
 
-Intensity* IntensityList::recordItem(QString id) {
-    Intensity *intensity = new Intensity(kernel);
-    intensity->id = id;
-    int position = 0;
-    for (int index=0; index < items.size(); index++) {
-        if (greaterId(items[index]->id, id)) {
-            position++;
-        }
-    }
-    beginInsertRows(QModelIndex(), position, position);
-    items.insert(position, intensity);
-    endInsertRows();
-    return intensity;
-}
-
 void IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer) {
     if (dimmer > 100 || dimmer < 0) {
         kernel->terminal->error("Didn't record Intensities because Record Intensity Dimmer only allows values from 0% to 100%.");

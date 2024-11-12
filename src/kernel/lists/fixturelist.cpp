@@ -23,22 +23,6 @@ void FixtureList::deleteModel(Model *model)
     deleteItems(invalidFixtures);
 }
 
-Fixture* FixtureList::recordItem(QString id, Model* model) {
-    Fixture *fixture = new Fixture(kernel);
-    fixture->id = id;
-    fixture->model = model;
-    int position = 0;
-    for (int index=0; index < items.size(); index++) {
-        if (greaterId(items[index]->id, id)) {
-            position++;
-        }
-    }
-    beginInsertRows(QModelIndex(), position, position);
-    items.insert(position, fixture);
-    endInsertRows();
-    return fixture;
-}
-
 void FixtureList::recordFixtureAddress(QList<QString> ids, int address) {
     QSet<int> fixtureChannels;
     QList<Fixture*> fixtures;
@@ -87,7 +71,8 @@ void FixtureList::recordFixtureModel(QList<QString> ids, QString modelId) {
     for (QString id : ids) {
         Fixture* fixture = getItem(id);
         if (fixture == nullptr) {
-            fixture = recordItem(id, model);
+            fixture = recordItem(id);
+            fixture->model = model;
         }
         bool addressConflict = false;
         if (fixture->address > 0) {

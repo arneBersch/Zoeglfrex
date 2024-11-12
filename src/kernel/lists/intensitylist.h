@@ -22,8 +22,6 @@ class IntensityList : public ItemList<Intensity> {
 public:
     IntensityList(Kernel *core);
     void recordIntensityDimmer(QList<QString> ids, float dimmer);
-private:
-    Intensity* recordItem(QString id);
 };
 
 #include "kernel/kernel.h"

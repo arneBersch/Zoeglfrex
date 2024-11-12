@@ -18,21 +18,6 @@ void GroupList::deleteFixture(Fixture *fixture) {
     }
 }
 
-Group* GroupList::recordItem(QString id) {
-    Group *group = new Group(kernel);
-    group->id = id;
-    int position = 0;
-    for (int index=0; index < items.size(); index++) {
-        if (greaterId(items[index]->id, id)) {
-            position++;
-        }
-    }
-    beginInsertRows(QModelIndex(), position, position);
-    items.insert(position, group);
-    endInsertRows();
-    return group;
-}
-
 void GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds) {
     QList<Fixture*> fixtureSelection;
     for (QString fixtureId : fixtureIds) {

@@ -22,8 +22,6 @@ class ModelList : public ItemList<Model> {
 public:
     ModelList(Kernel *core);
     void recordModelChannels(QList<QString> ids, QString channels);
-private:
-    Model* recordItem(QString id);
 };
 
 #include "kernel/kernel.h"

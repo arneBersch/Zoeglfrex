@@ -87,23 +87,6 @@ void CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
     kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Color entries.");
 }
 
-Cue* CueList::recordItem(QString id, Transition *transition) {
-    Cue *cue = new Cue(kernel);
-    cue->id = id;
-    cue->transition = transition;
-    QList<QString> idParts = id.split(".");
-    int position = 0;
-    for (int index=0; index < items.size(); index++) {
-        if (greaterId(items[index]->id, id)) {
-            position++;
-        }
-    }
-    beginInsertRows(QModelIndex(), position, position);
-    items.insert(position, cue);
-    endInsertRows();
-    return cue;
-}
-
 void CueList::recordCueTransition(QList<QString> ids, QString transitionId) {
     Transition* transition = kernel->transitions->getItem(transitionId);
     if (transition == nullptr) {
@@ -113,7 +96,8 @@ void CueList::recordCueTransition(QList<QString> ids, QString transitionId) {
     for (QString id : ids) {
         Cue* cue = getItem(id);
         if (cue == nullptr) {
-            cue = recordItem(id, transition);
+            cue = recordItem(id);
+            cue->transition = transition;
         }
         cue->transition = transition;
     }

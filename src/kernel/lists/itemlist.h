@@ -20,6 +20,8 @@ public:
     bool greaterId(QString firstId, QString secondId);
     Kernel *kernel;
     QList<T*> items;
+protected:
+    T* recordItem(QString id);
 private:
     QString singularItemName = "item";
     QString pluralItemName = "items";

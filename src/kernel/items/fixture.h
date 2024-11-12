@@ -11,8 +11,8 @@ public:
     Fixture(Kernel* core);
     Fixture(const Fixture* item);
     ~Fixture();
-    Model* model;
-    int address;
+    Model* model = nullptr;
+    int address = 0;
     QString name() override;
 };
 

@@ -23,8 +23,6 @@ public:
     GroupList(Kernel *core);
     void deleteFixture(Fixture *fixture);
     void recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
-private:
-    Group* recordItem(QString id);
 };
 
 #include "kernel/kernel.h"

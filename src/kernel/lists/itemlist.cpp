@@ -172,3 +172,18 @@ template <class T> bool ItemList<T>::greaterId(QString firstId, QString secondId
     }
     return false;
 }
+
+template <class T> T* ItemList<T>::recordItem(QString id) {
+    T* item = new T(kernel);
+    item->id = id;
+    int position = 0;
+    for (int index=0; index < items.size(); index++) {
+        if (greaterId(items[index]->id, id)) {
+            position++;
+        }
+    }
+    beginInsertRows(QModelIndex(), position, position);
+    items.insert(position, item);
+    endInsertRows();
+    return item;
+}

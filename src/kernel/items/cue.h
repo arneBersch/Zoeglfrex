@@ -14,7 +14,7 @@ public:
     Cue(Kernel *core);
     Cue(const Cue* item);
     ~Cue();
-    Transition* transition;
+    Transition* transition = nullptr;
     QMap<Group*, Intensity*> intensities;
     QMap<Group*, Color*> colors;
 };

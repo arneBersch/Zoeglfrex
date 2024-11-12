@@ -12,21 +12,6 @@ ColorList::ColorList(Kernel *core) : ItemList("Color", "Colors") {
     kernel = core;
 }
 
-Color* ColorList::recordItem(QString id) {
-    Color* color = new Color(kernel);
-    color->id = id;
-    int position = 0;
-    for (int index=0; index < items.size(); index++) {
-        if (greaterId(items[index]->id, id)) {
-            position++;
-        }
-    }
-    beginInsertRows(QModelIndex(), position, position);
-    items.insert(position, color);
-    endInsertRows();
-    return color;
-}
-
 void ColorList::recordColorRed(QList<QString> ids, float red) {
     if (red > 100 || red < 0) {
         kernel->terminal->error("Didn't record Color because Record Color Red only allows values from 0% to 100%.");

@@ -12,21 +12,6 @@ TransitionList::TransitionList(Kernel *core) : ItemList("Transition", "Transitio
     kernel = core;
 }
 
-Transition* TransitionList::recordItem(QString id) {
-    Transition *transition = new Transition(kernel);
-    transition->id = id;
-    int position = 0;
-    for (int index=0; index < items.size(); index++) {
-        if (greaterId(items[index]->id, id)) {
-            position++;
-        }
-    }
-    beginInsertRows(QModelIndex(), position, position);
-    items.insert(position, transition);
-    endInsertRows();
-    return transition;
-}
-
 void TransitionList::recordTransitionFade(QList<QString> ids, float fade) {
     if (fade > 60 || fade < 0) {
         kernel->terminal->error("Didn't record Transitions because Record Transition Fade only allows fade times from 0s to 60s.");
