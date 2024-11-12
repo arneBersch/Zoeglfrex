@@ -39,12 +39,7 @@ template <class T> void ItemList<T>::copyItems(QList<QString> ids, QString targe
         } else {
             T* targetItem = new T(items[itemRow]);
             targetItem->id = targetId;
-            int position = 0;
-            for (int index=0; index < items.size(); index++) {
-                if (greaterId(items[index]->id, targetId)) {
-                    position++;
-                }
-            }
+            int position = findRow(targetId);
             beginInsertRows(QModelIndex(), position, position);
             items.insert(position, targetItem);
             endInsertRows();
@@ -109,14 +104,9 @@ template <class T> void ItemList<T>::moveItems(QList<QString> ids, QString targe
             items.removeAt(itemRow);
             endRemoveRows();
             item->id = targetId;
-            int position = 0;
-            for (int index=0; index < items.size(); index++) {
-                if (greaterId(items[index]->id, targetId)) {
-                    position++;
-                }
-            }
-            beginInsertRows(QModelIndex(), position, position);
-            items.insert(position, item);
+            int row = findRow(targetId);
+            beginInsertRows(QModelIndex(), row, row);
+            items.insert(row, item);
             endInsertRows();
         }
     }
@@ -148,42 +138,40 @@ template <class T> QVariant ItemList<T>::data(const QModelIndex &index, const in
     return QVariant();
 }
 
-template <class T> bool ItemList<T>::greaterId(QString firstId, QString secondId) {
-    QList<QString> firstIdParts = firstId.split(".");
-    QList<QString> secondIdParts = secondId.split(".");
-    if (firstIdParts[0].toInt() < secondIdParts[0].toInt()) {
-        return true;
-    } else if (firstIdParts[0].toInt() == secondIdParts[0].toInt()) {
-        if (firstIdParts[1].toInt() < secondIdParts[1].toInt()) {
-            return true;
-        } else if (firstIdParts[1].toInt() == secondIdParts[1].toInt()) {
-            if (firstIdParts[2].toInt() < secondIdParts[2].toInt()) {
-                return true;
-            } else if (firstIdParts[2].toInt() == secondIdParts[2].toInt()) {
-                if (firstIdParts[3].toInt() < secondIdParts[3].toInt()) {
-                    return true;
-                } else if (firstIdParts[3].toInt() == secondIdParts[3].toInt()) {
-                    if (firstIdParts[4].toInt() < secondIdParts[4].toInt()) {
-                        return true;
+template <class T> int ItemList<T>::findRow(QString id) {
+    int position = 0;
+    for (int index=0; index < items.size(); index++) {
+        QList<QString> firstIdParts = items[index]->id.split(".");
+        QList<QString> secondIdParts = id.split(".");
+        if (firstIdParts[0].toInt() < secondIdParts[0].toInt()) {
+            position++;
+        } else if (firstIdParts[0].toInt() == secondIdParts[0].toInt()) {
+            if (firstIdParts[1].toInt() < secondIdParts[1].toInt()) {
+                position++;
+            } else if (firstIdParts[1].toInt() == secondIdParts[1].toInt()) {
+                if (firstIdParts[2].toInt() < secondIdParts[2].toInt()) {
+                    position++;
+                } else if (firstIdParts[2].toInt() == secondIdParts[2].toInt()) {
+                    if (firstIdParts[3].toInt() < secondIdParts[3].toInt()) {
+                        position++;
+                    } else if (firstIdParts[3].toInt() == secondIdParts[3].toInt()) {
+                        if (firstIdParts[4].toInt() < secondIdParts[4].toInt()) {
+                            position++;
+                        }
                     }
                 }
             }
         }
     }
-    return false;
+    return position;
 }
 
 template <class T> T* ItemList<T>::recordItem(QString id) {
     T* item = new T(kernel);
     item->id = id;
-    int position = 0;
-    for (int index=0; index < items.size(); index++) {
-        if (greaterId(items[index]->id, id)) {
-            position++;
-        }
-    }
-    beginInsertRows(QModelIndex(), position, position);
-    items.insert(position, item);
+    int row = findRow(id);
+    beginInsertRows(QModelIndex(), row, row);
+    items.insert(row, item);
     endInsertRows();
     return item;
 }

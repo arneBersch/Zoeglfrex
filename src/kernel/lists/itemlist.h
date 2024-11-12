@@ -17,7 +17,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
-    bool greaterId(QString firstId, QString secondId);
+    int findRow(QString id);
     Kernel *kernel;
     QList<T*> items;
 protected:
