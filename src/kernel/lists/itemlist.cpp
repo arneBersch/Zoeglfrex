@@ -157,14 +157,8 @@ template <class T> int ItemList<T>::findRow(QString id) {
                 sameBeginning = false;
             }
         }
-        if (greaterId) {
-            if (sameBeginning) {
-                if (idParts.length() > indexIdParts.length()) {
-                    position++;
-                }
-            } else {
-                position++;
-            }
+        if (greaterId && (!sameBeginning || (idParts.length() > indexIdParts.length()))) {
+            position++;
         }
     }
     return position;
