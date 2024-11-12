@@ -70,7 +70,7 @@ template <class T> void ItemList<T>::deleteItems(QList<QString> ids) {
         endRemoveRows();
         delete item;
     }
-    kernel->terminal->success("Deleted " + QString::number(ids.length()) + " " + pluralItemName + ".");
+    kernel->terminal->success("Deleted " + QString::number(existingIds.length()) + " " + pluralItemName + ".");
 }
 
 template <class T> void ItemList<T>::labelItems(QList<QString> ids, QString label) {
