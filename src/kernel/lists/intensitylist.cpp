@@ -23,6 +23,7 @@ void IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer) {
             intensity = recordItem(id);
         }
         intensity->dimmer = dimmer;
+        emit dataChanged(index(getItemRow(intensity->id), 0), index(getItemRow(intensity->id), 0), {Qt::DisplayRole, Qt::EditRole});
     }
     kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Intensities with dimmer " + QString::number(dimmer) + "%.");
 }

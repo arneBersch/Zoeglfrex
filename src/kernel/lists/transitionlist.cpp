@@ -23,6 +23,7 @@ void TransitionList::recordTransitionFade(QList<QString> ids, float fade) {
             transition = recordItem(id);
         }
         transition->fade = fade;
+        emit dataChanged(index(getItemRow(transition->id), 0), index(getItemRow(transition->id), 0), {Qt::DisplayRole, Qt::EditRole});
     }
     kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Transitions with fade time " + QString::number(fade) + "s.");
 }

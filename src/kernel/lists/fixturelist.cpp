@@ -57,6 +57,7 @@ void FixtureList::recordFixtureAddress(QList<QString> ids, int address) {
             fixture->address = 0;
             fixtureCounter++;
         }
+        emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
     }
     kernel->terminal->success("Recorded " + QString::number(fixtureCounter) + " Fixtures.");
 }
@@ -89,6 +90,7 @@ void FixtureList::recordFixtureModel(QList<QString> ids, QString modelId) {
             kernel->terminal->warning("Can't record Fixture Model because this would result in an address conflict.");
         } else {
             fixture->model = model;
+            emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
             fixtureCounter++;
         }
     }

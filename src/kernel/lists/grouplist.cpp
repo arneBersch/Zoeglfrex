@@ -34,6 +34,7 @@ void GroupList::recordGroupFixtures(QList<QString> ids, QList<QString> fixtureId
             group = recordItem(id);
         }
         group->fixtures = fixtureSelection;
+        emit dataChanged(index(getItemRow(group->id), 0), index(getItemRow(group->id), 0), {Qt::DisplayRole, Qt::EditRole});
     }
     kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Groups.");
 }

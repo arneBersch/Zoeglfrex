@@ -43,6 +43,7 @@ void ModelList::recordModelChannels(QList<QString> ids, QString channels) {
         }
         if (!addressConflict) {
             model->channels = channels;
+            emit dataChanged(index(getItemRow(model->id), 0), index(getItemRow(model->id), 0), {Qt::DisplayRole, Qt::EditRole});
             modelCounter++;
         }
     }

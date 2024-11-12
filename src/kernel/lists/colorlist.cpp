@@ -23,6 +23,7 @@ void ColorList::recordColorRed(QList<QString> ids, float red) {
             color = recordItem(id);
         }
         color->red = red;
+        emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
     }
     kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Colors with Red value " + QString::number(red) + "%.");
 }
@@ -38,6 +39,7 @@ void ColorList::recordColorGreen(QList<QString> ids, float green) {
             color = recordItem(id);
         }
         color->green = green;
+        emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
     }
     kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Colors with Green value " + QString::number(green) + "%.");
 }
@@ -53,6 +55,7 @@ void ColorList::recordColorBlue(QList<QString> ids, float blue) {
             color = recordItem(id);
         }
         color->blue = blue;
+        emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
     }
     kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Colors with Blue value " + QString::number(blue) + "%.");
 }
