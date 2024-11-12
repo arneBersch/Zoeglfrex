@@ -56,7 +56,7 @@ template <class T> void ItemList<T>::copyItems(QList<QString> ids, QString targe
 template <class T> void ItemList<T>::deleteItems(QList<QString> ids) {
     QList<QString> existingIds;
     for (QString id : ids) {
-        if (getItem(id) != nullptr) {
+        if (getItem(id) == nullptr) {
             kernel->terminal->warning("Couldn't delete " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
         } else {
             existingIds.append(id);
