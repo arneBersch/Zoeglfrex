@@ -59,15 +59,15 @@ void Terminal::execute(bool clear)
     }
     int selectionType = command[0];
     info(">>> " + promptText(command));
-    bool response = kernel->execute(command);
-    if (response && clear) {
+    kernel->execute(command);
+    if (clear) {
         this->clear();
     }
     QMutexLocker locker(kernel->mutex);
     updateInspector(selectionType);
 }
 
-bool Terminal::execute(QString command, QString action) {
+void Terminal::execute(QString command, QString action) {
     QList<int> commandKeys;
     QString text = QString();
     for (qsizetype index = 0; index < command.size(); index++) {
@@ -128,14 +128,14 @@ bool Terminal::execute(QString command, QString action) {
         } else if (command.at(index) == QChar('"')) {
             text = command.mid((index + 1), (command.length() - index - 2));
         } else {
-            return false;
+            return;
         }
         if (!text.isEmpty()) {
             break;
         }
     }
     info(action + "> " + promptText(commandKeys));
-    return kernel->execute(commandKeys, text);
+    kernel->execute(commandKeys, text);
 }
 
 void Terminal::info(QString message)

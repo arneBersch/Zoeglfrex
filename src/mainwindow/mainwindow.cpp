@@ -152,12 +152,7 @@ void MainWindow::openFile() {
     while (!textStream.atEnd()) {
         QString line = textStream.readLine();
         if (!line.isEmpty()) {
-            bool result = kernel->terminal->execute(line, "open file");
-            if (!result) {
-                kernel->terminal->error("Can't open file.");
-                clearKernel();
-                return;
-            }
+            kernel->terminal->execute(line, "open file");
         }
     }
     fileName = newFileName;
