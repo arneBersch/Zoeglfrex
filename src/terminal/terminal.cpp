@@ -31,7 +31,7 @@ void Terminal::write(int key)
     command.append(key);
     prompt->setText(promptText(command));
     QMutexLocker locker(kernel->mutex);
-    updateInspector(key);
+    kernel->inspector->loadItemList(key);
 }
 
 void Terminal::backspace()
@@ -43,7 +43,7 @@ void Terminal::backspace()
     prompt->setText(promptText(command));
     QMutexLocker locker(kernel->mutex);
     for (int key : command) {
-        updateInspector(key);
+        kernel->inspector->loadItemList(key);
     }
 }
 
@@ -64,7 +64,7 @@ void Terminal::execute(bool clear)
         this->clear();
     }
     QMutexLocker locker(kernel->mutex);
-    updateInspector(selectionType);
+    kernel->inspector->loadItemList(selectionType);
 }
 
 void Terminal::execute(QString command, QString action) {
@@ -239,22 +239,6 @@ QString Terminal::promptText(QList<int> keys)
         commandString.remove(commandString.size(), 1); // remove last character
     }
     return commandString;
-}
-
-void Terminal::updateInspector(int key) {
-    if (key == Keys::Model) {
-        kernel->inspector->loadModels();
-    } else if (key == Keys::Fixture) {
-        kernel->inspector->loadFixtures();
-    } else if (key == Keys::Group) {
-        kernel->inspector->loadGroups();
-    } else if (key == Keys::Intensity) {
-        kernel->inspector->loadIntensities();
-    } else if (key == Keys::Color) {
-        kernel->inspector->loadColors();
-    } else if (key == Keys::Cue) {
-        kernel->inspector->loadCues();
-    }
 }
 
 void Terminal::scrollToLastMessage(int min, int max)

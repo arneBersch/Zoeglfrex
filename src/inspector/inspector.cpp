@@ -19,40 +19,29 @@ Inspector::Inspector(Kernel *core, QWidget *parent) : QWidget{parent}
     table->setSelectionMode(QAbstractItemView::NoSelection);
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->setFocusPolicy(Qt::NoFocus);
+    infos = new QLabel();
+    layout->addWidget(infos);
 }
 
-void Inspector::loadModels()
+void Inspector::loadItemList(int key)
 {
-    table->setModel(kernel->models);
-    title->setText("Models");
-}
-
-void Inspector::loadFixtures()
-{
-    table->setModel(kernel->fixtures);
-    title->setText("Fixtures");
-}
-
-void Inspector::loadGroups()
-{
-    table->setModel(kernel->groups);
-    title->setText("Groups");
-}
-
-void Inspector::loadIntensities()
-{
-    table->setModel(kernel->intensities);
-    title->setText("Intensities");
-}
-
-void Inspector::loadColors()
-{
-    table->setModel(kernel->colors);
-    title->setText("Colors");
-}
-
-void Inspector::loadCues()
-{
-    table->setModel(kernel->cues);
-    title->setText("Cues");
+    if (key == Keys::Model) {
+        table->setModel(kernel->models);
+        title->setText("Models");
+    } else if (key == Keys::Fixture) {
+        table->setModel(kernel->fixtures);
+        title->setText("Fixtures");
+    } else if (key == Keys::Group) {
+        table->setModel(kernel->groups);
+        title->setText("Groups");
+    } else if (key == Keys::Intensity) {
+        table->setModel(kernel->intensities);
+        title->setText("Intensities");
+    } else if (key == Keys::Color) {
+        table->setModel(kernel->colors);
+        title->setText("Colors");
+    } else if (key == Keys::Color) {
+        table->setModel(kernel->cues);
+        title->setText("Cues");
+    }
 }

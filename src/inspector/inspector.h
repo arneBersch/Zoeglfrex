@@ -17,18 +17,12 @@ class Inspector : public QWidget {
     Q_OBJECT
 public:
     Inspector(Kernel *core, QWidget *parent = nullptr);
-    void loadModels();
-    void loadFixtures();
-    void loadGroups();
-    void loadIntensities();
-    void loadColors();
-    void loadTransitions();
-    void loadCues();
-    void loadRows();
+    void loadItemList(int key);
 private:
     Kernel *kernel;
     QListView *table;
     QLabel *title;
+    QLabel *infos;
 };
 
 #include "kernel/kernel.h"

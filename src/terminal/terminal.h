@@ -29,7 +29,6 @@ public:
     void error(QString message);
 private:
     Kernel *kernel;
-    void updateInspector(int key);
     QString promptText(QList<int> keys);
     QList<int> command;
     QVBoxLayout *grid;
