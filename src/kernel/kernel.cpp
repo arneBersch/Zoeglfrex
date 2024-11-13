@@ -387,24 +387,18 @@ void Kernel::execute(QList<int> command, QString text) {
 QString Kernel::keysToId(QList<int> keys)
 {
     QString id;
-    bool numberBefore = false;
+    int number = 0;
     for (const int key : keys) {
         if (isNumber(key)){
-            id += QString::number(keyToNumber(key));
-            numberBefore = true;
+            number = (number * 10) + keyToNumber(key);
         } else if (key == Keys::Period) {
-            if (!numberBefore) {
-                return QString();
-            }
-            id += ".";
-            numberBefore = false;
+            id += QString::number(number) + ".";
+            number = 0;
         } else {
             return QString();
         }
     }
-    while (id.endsWith(".")) {
-        id.chop(1);
-    }
+    id += QString::number(keyToNumber(number));
     while (id.endsWith(".0")) {
         id.chop(2);
     }
