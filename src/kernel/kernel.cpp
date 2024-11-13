@@ -227,40 +227,23 @@ void Kernel::execute(QList<int> command, QString text) {
                     terminal->error("Record Fixture requires arguments.");
                     return;
                 }
-                int address = 0;
-                QList<int> model;
-                bool addressFinished = false;
-                for (int key : operation) {
-                    if (isNumber(key) || key == Keys::Period) {
-                        if (!addressFinished) {
-                            if (!isNumber(key)) {
-                                terminal->error("DMX Address only allows numbers as input");
-                                return;
-                            }
-                            address = (address * 10) + keyToNumber(key);
-                        } else {
-                            model.append(key);
-                        }
-                    } else if (key == Keys::Model) {
-                        if (addressFinished) {
-                            terminal->error("Record Fixture only takes one Model");
-                            return;
-                        }
-                        addressFinished = true;
-                    } else {
-                        terminal->error("Record Fixture only takes DMX Address and Model");
-                        return;
-                    }
-                }
-                if (addressFinished) {
-                    QString modelId = keysToId(model);
+                if (operation[0] == Keys::Model) {
+                    operation.removeFirst();
+                    QString modelId = keysToId(operation);
                     if (modelId.isEmpty()) {
-                        terminal->error("Model selection not valid.");
+                        terminal->error("Can't record Fixture Model because Model ID is not vaild.");
                         return;
                     }
                     fixtures->recordFixtureModel(ids, modelId);
-                }
-                if (address > 0) {
+                } else {
+                    int address = 0;
+                    for (int key : operation) {
+                        if (!isNumber(key)) {
+                            terminal->error("Can't record Fixture address because address only allows numbers as input.");
+                            return;
+                        }
+                        address = (address * 10) + keyToNumber(key);
+                    }
                     fixtures->recordFixtureAddress(ids, address);
                 }
             } else if (selectionType == Keys::Group) { // RECORD GROUP
