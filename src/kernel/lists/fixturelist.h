@@ -24,9 +24,8 @@ public:
     void deleteModel(Model *model);
     void recordFixtureAddress(QList<QString> ids, int address);
     void recordFixtureModel(QList<QString> ids, QString model);
-    QSet<int> usedChannels();
+    bool channelsOkay();
 private:
-    int findFreeAddress(int channelCount);
 };
 
 #include "kernel/kernel.h"

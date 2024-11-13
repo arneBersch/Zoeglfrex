@@ -20,33 +20,17 @@ void ModelList::recordModelChannels(QList<QString> ids, QString channels) {
     int modelCounter = 0;
     for (QString id : ids) {
         Model* model = getItem(id);
-        bool addressConflict = false;
         if (model == nullptr) {
             model = recordItem(id);
-        } else {
-            if (channels.size() > model->channels.size()) {
-                for (Fixture* fixture : kernel->fixtures->items) {
-                    if (fixture->model == model) {
-                        for (int channel=(fixture->address + model->channels.size()); channel < (fixture->address + channels.size()); channel++) {
-                            if (channel > 512) {
-                                kernel->terminal->warning("Can't record Model Channels because this would result in an address conflict.");
-                                addressConflict = true;
-                            }
-                            if (kernel->fixtures->usedChannels().contains(channel)) {
-                                kernel->terminal->warning("Can't record Model Channels because this would result in an address conflict.");
-                                addressConflict = true;
-                            }
-                        }
-                    }
-                }
-            }
         }
-        if (!addressConflict) {
-            model->channels = channels;
+        QString oldChannels = model->channels;
+        model->channels = channels;
+        if (kernel->fixtures->channelsOkay()) {
             emit dataChanged(index(getItemRow(model->id), 0), index(getItemRow(model->id), 0), {Qt::DisplayRole, Qt::EditRole});
             modelCounter++;
+        } else {
+            model->channels = oldChannels; // do not change channels if this would result in DMX address conflicts
         }
     }
     kernel->terminal->success("Recorded " + QString::number(modelCounter) + " Models with channels \"" + channels + "\".");
-
 }
