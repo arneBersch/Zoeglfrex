@@ -98,7 +98,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(new QShortcut(QKeySequence(Qt::Key_G), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Group); }); // Group
     connect(new QShortcut(QKeySequence(Qt::Key_I), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Intensity); }); // Intensity
     connect(new QShortcut(QKeySequence(Qt::Key_M), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Model); }); // Model
-    connect(new QShortcut(QKeySequence(Qt::Key_T), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Transition); }); // Transition
     connect(new QShortcut(QKeySequence(Qt::Key_Q), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Cue); }); // Cue
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_C), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Copy); }); // Copy
     connect(new QShortcut(QKeySequence(Qt::SHIFT| Qt::Key_D), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Delete); }); // Delete
@@ -197,13 +196,6 @@ void MainWindow::clearKernel() {
     }
     colorCommand += "D";
     commands.append(colorCommand);
-    QString transitionCommand = "t";
-    for (Transition* transition : kernel->transitions->items) {
-        transitionCommand += transition->id;
-        transitionCommand += "+";
-    }
-    transitionCommand += "D";
-    commands.append(transitionCommand);
     QString cueCommand = "q";
     for (Cue* cue : kernel->cues->items) {
         cueCommand += cue->id;
@@ -254,7 +246,8 @@ void MainWindow::saveFile() {
     }
 
     for (Fixture* fixture : kernel->fixtures->items) {
-        fileStream << "f" << fixture->id << "R" << fixture->address << "m" << fixture->model->id << "\n";
+        fileStream << "f" << fixture->id << "Rm" << fixture->model->id << "\n";
+        fileStream << "f" << fixture->id << "R" << fixture->address << "\n";
         fileStream << "f" << fixture->id << "L\"" << fixture->label << "\"\n";
     }
 
@@ -281,13 +274,8 @@ void MainWindow::saveFile() {
         fileStream << "c" << color->id << "L\"" << color->label << "\"\n";
     }
 
-    for (Transition* transition : kernel->transitions->items) {
-        fileStream << "t" << transition->id << "R" << transition->fade << "\n";
-        fileStream << "t" << transition->id << "L\"" << transition->label << "\"\n";
-    }
-
     for (Cue* cue : kernel->cues->items) {
-        fileStream << "q" << cue->id << "Rt" << cue->transition->id << "\n";
+        fileStream << "q" << cue->id << "R" << cue->fade << "\n";
         fileStream << "q" << cue->id << "L\"" << cue->label << "\"\n";
         for (Group* group : kernel->groups->items) {
             if (cue->intensities.contains(group)) {

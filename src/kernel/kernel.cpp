@@ -14,7 +14,6 @@ Kernel::Kernel() {
     groups = new GroupList(this);
     intensities = new IntensityList(this);
     colors = new ColorList(this);
-    transitions = new TransitionList(this);
     cues = new CueList(this);
     terminal = new Terminal(this);
     inspector = new Inspector(this);
@@ -85,8 +84,6 @@ void Kernel::execute(QList<int> command, QString text) {
                 intensities->copyItems(ids, targetId);
             } else if (selectionType == Keys::Color) { // COPY COLOR
                 colors->copyItems(ids, targetId);
-            } else if (selectionType == Keys::Transition) { // COPY TRANSITION
-                transitions->copyItems(ids, targetId);
             } else if (selectionType == Keys::Cue) { // COPY CUE
                 cues->copyItems(ids, targetId);
             } else {
@@ -108,8 +105,6 @@ void Kernel::execute(QList<int> command, QString text) {
                 intensities->deleteItems(ids);
             } else if (selectionType == Keys::Color) { // DELETE COLOR
                 colors->deleteItems(ids);
-            } else if (selectionType == Keys::Transition) { // DELETE TRANSITION
-                transitions->deleteItems(ids);
             } else if (selectionType == Keys::Cue) { // DELETE CUE
                 if (operation.isEmpty()) {
                     cues->deleteItems(ids);
@@ -178,8 +173,6 @@ void Kernel::execute(QList<int> command, QString text) {
                 intensities->labelItems(ids, label);
             } else if (selectionType == Keys::Color) { // LABEL COLOR
                 colors->labelItems(ids, label);
-            } else if (selectionType == Keys::Transition) { // LABEL TRANSITION
-                transitions->labelItems(ids, label);
             } else if (selectionType == Keys::Cue) { // LABEL CUE
                 cues->labelItems(ids, label);
             }
@@ -199,8 +192,6 @@ void Kernel::execute(QList<int> command, QString text) {
                 intensities->moveItems(ids, targetId);
             } else if (selectionType == Keys::Color) { // MOVE COLOR
                 colors->moveItems(ids, targetId);
-            } else if (selectionType == Keys::Transition) { // MOVE TRANSITION
-                transitions->moveItems(ids, targetId);
             } else if (selectionType == Keys::Cue) { // MOVE CUE
                 cues->moveItems(ids, targetId);
             }
@@ -302,35 +293,12 @@ void Kernel::execute(QList<int> command, QString text) {
                         colors->recordColorBlue(ids, values[2]);
                     }
                 }
-            } else if (selectionType == Keys::Transition) { // RECORD TRANSITION
-                if (operation.isEmpty()) {
-                    terminal->error("Record Transition requires arguments.");
-                    return;
-                }
-                QList<float> values = keysToValue(operation);
-                if (values.empty() || values.size() > 1) {
-                    terminal->error("Invalid values given to Record Transition.");
-                    return;
-                }
-                if (values.size() >= 1) {
-                    if (values[0] > -999) {
-                        transitions->recordTransitionFade(ids, values[0]);
-                    }
-                }
             } else if (selectionType == Keys::Cue) { // RECORD CUE
                 if (operation.isEmpty()) {
                     terminal->error("Record Cue requires an argument.");
                     return;
                 }
-                if (operation[0] == Keys::Transition) {
-                    operation.removeFirst();
-                    QString transitionId = keysToId(operation);
-                    if (transitionId.isEmpty()) {
-                        terminal->error("Transition ID not valid.");
-                        return;
-                    }
-                    cues->recordCueTransition(ids, transitionId);
-                } else if (operation[0] == Keys::Group) {
+                if (operation[0] == Keys::Group) {
                     operation.removeFirst();
                     operation.append(Keys::Intensity);
                     QString intensityId;
@@ -375,8 +343,15 @@ void Kernel::execute(QList<int> command, QString text) {
                         cues->recordCueColor(ids, groupId, colorId);
                     }
                 } else {
-                    terminal->error("Record Cue needs either a Group or a Transition as first argument.");
-                    return;
+                    operation.removeFirst();
+                    QList<float> values = keysToValue(operation);
+                    if (values.empty() || values.size() > 1) {
+                        terminal->error("Invalid values given to Record Cue Fade.");
+                        return;
+                    }
+                    if ((values.size() >= 1) && (values[0] > 0)) {
+                        cues->recordCueFade(ids, values[0]);
+                    }
                 }
             }
         }
@@ -473,7 +448,6 @@ bool Kernel::isItem(int key)
         (key == Keys::Group) ||
         (key == Keys::Intensity) ||
         (key == Keys::Color) ||
-        (key == Keys::Transition) ||
         (key == Keys::Cue)
     );
 }

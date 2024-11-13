@@ -4,7 +4,6 @@
 #include <QtWidgets>
 
 #include "item.h"
-#include "transition.h"
 #include "group.h"
 #include "intensity.h"
 #include "color.h"
@@ -14,9 +13,9 @@ public:
     Cue(Kernel *core);
     Cue(const Cue* item);
     ~Cue();
-    Transition* transition = nullptr;
-    QMap<Group*, Intensity*> intensities;
-    QMap<Group*, Color*> colors;
+    float fade = 0;
+    QMap<Group*, Intensity*> intensities = QMap<Group*, Intensity*>();
+    QMap<Group*, Color*> colors = QMap<Group*, Color*>();
 };
 
 #endif // CUE_H

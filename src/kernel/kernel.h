@@ -16,7 +16,6 @@
 #include "kernel/lists/grouplist.h"
 #include "kernel/lists/intensitylist.h"
 #include "kernel/lists/colorlist.h"
-#include "kernel/lists/transitionlist.h"
 #include "kernel/lists/cuelist.h"
 #include "terminal/terminal.h"
 #include "inspector/inspector.h"
@@ -44,7 +43,6 @@ enum {
     Group, // G
     Intensity, // I
     Color, // C
-    Transition, // T
     Cue, // Q
     Copy, // SHIFT C
     Delete, // SHIFT D
@@ -63,7 +61,6 @@ public:
     GroupList *groups;
     IntensityList *intensities;
     ColorList *colors;
-    TransitionList *transitions;
     CueList *cues;
     Terminal *terminal;
     Inspector *inspector;

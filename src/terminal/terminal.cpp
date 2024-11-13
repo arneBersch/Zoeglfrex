@@ -111,8 +111,6 @@ void Terminal::execute(QString command, QString action) {
             commandKeys.append(Keys::Intensity);;
         } else if (command.at(index) == QChar('c')) {
             commandKeys.append(Keys::Color);
-        } else if (command.at(index) == QChar('t')) {
-            commandKeys.append(Keys::Transition);
         } else if (command.at(index) == QChar('q')) {
             commandKeys.append(Keys::Cue);
         } else if (command.at(index) == QChar('C')) {
@@ -217,8 +215,6 @@ QString Terminal::promptText(QList<int> keys)
             commandString += " Intensity ";
         } else if (key == Keys::Color) {
             commandString += " Color ";
-        } else if (key == Keys::Transition) {
-            commandString += " Transition ";
         } else if (key == Keys::Cue) {
             commandString += " Cue ";
         } else if (key == Keys::Copy) {
@@ -256,8 +252,6 @@ void Terminal::updateInspector(int key) {
         kernel->inspector->loadIntensities();
     } else if (key == Keys::Color) {
         kernel->inspector->loadColors();
-    } else if (key == Keys::Transition) {
-        kernel->inspector->loadTransitions();
     } else if (key == Keys::Cue) {
         kernel->inspector->loadCues();
     }

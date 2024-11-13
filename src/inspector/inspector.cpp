@@ -51,12 +51,6 @@ void Inspector::loadColors()
     title->setText("Colors");
 }
 
-void Inspector::loadTransitions()
-{
-    table->setModel(kernel->transitions);
-    title->setText("Transitions");
-}
-
 void Inspector::loadCues()
 {
     table->setModel(kernel->cues);

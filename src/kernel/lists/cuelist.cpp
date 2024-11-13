@@ -32,16 +32,6 @@ void CueList::deleteColor(Color* color) {
     }
 }
 
-void CueList::deleteTransition(Transition* transition) {
-    QList<QString> invalidCues;
-    for (Cue *cue : items) {
-        if (cue->transition == transition) {
-            invalidCues.append(cue->id);
-        }
-    }
-    deleteItems(invalidCues);
-}
-
 void CueList::deleteGroup(Group *group) {
     for (Cue *cue : items) {
         cue->intensities.remove(group);
@@ -87,21 +77,19 @@ void CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
     kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Color entries.");
 }
 
-void CueList::recordCueTransition(QList<QString> ids, QString transitionId) {
-    Transition* transition = kernel->transitions->getItem(transitionId);
-    if (transition == nullptr) {
-        kernel->terminal->error("Can't record Cue because Transition " + transitionId + " doesn't exist.");
+void CueList::recordCueFade(QList<QString> ids, float fade) {
+    if (fade < 0 || fade > 60) {
+        kernel->terminal->error("Can't record Cue because fade time has to be between 0 and 60 seconds.");
         return;
     }
     for (QString id : ids) {
         Cue* cue = getItem(id);
         if (cue == nullptr) {
             cue = recordItem(id);
-            cue->transition = transition;
         }
-        cue->transition = transition;
+        cue->fade = fade;
     }
-    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Cues with Transition " + transitionId + ".");
+    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Cues with Fade time " + QString::number(fade) + "s.");
 }
 
 void CueList::recordCueIntensity(QList<QString> ids, QString groupId, QString intensityId) {
