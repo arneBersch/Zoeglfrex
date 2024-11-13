@@ -14,6 +14,7 @@ public:
     QString id;
     QString label = QString();
     virtual QString name();
+    virtual QString info();
 };
 
 #endif // ITEM_H
