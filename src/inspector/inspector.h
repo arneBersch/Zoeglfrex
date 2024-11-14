@@ -17,7 +17,7 @@ class Inspector : public QWidget {
     Q_OBJECT
 public:
     Inspector(Kernel *core, QWidget *parent = nullptr);
-    void loadItemList(int key);
+    void load(QList<int> keys);
 private:
     Kernel *kernel;
     QListView *table;

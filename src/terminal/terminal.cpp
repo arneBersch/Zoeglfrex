@@ -31,7 +31,7 @@ void Terminal::write(int key)
     command.append(key);
     prompt->setText(promptText(command));
     QMutexLocker locker(kernel->mutex);
-    kernel->inspector->loadItemList(key);
+    kernel->inspector->load(command);
 }
 
 void Terminal::backspace()
@@ -42,9 +42,7 @@ void Terminal::backspace()
     command.removeLast();
     prompt->setText(promptText(command));
     QMutexLocker locker(kernel->mutex);
-    for (int key : command) {
-        kernel->inspector->loadItemList(key);
-    }
+    kernel->inspector->load(command);
 }
 
 void Terminal::clear() {
@@ -57,14 +55,15 @@ void Terminal::execute(bool clear)
     if(command.isEmpty()) {
         return;
     }
-    int selectionType = command[0];
+    QList<int> selectionType;
+    selectionType.append(command[0]);
     info(">>> " + promptText(command));
     kernel->execute(command);
     if (clear) {
         this->clear();
     }
     QMutexLocker locker(kernel->mutex);
-    kernel->inspector->loadItemList(selectionType);
+    kernel->inspector->load(selectionType);
 }
 
 void Terminal::execute(QString command, QString action) {

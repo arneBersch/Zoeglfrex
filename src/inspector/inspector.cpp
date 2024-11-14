@@ -23,25 +23,33 @@ Inspector::Inspector(Kernel *core, QWidget *parent) : QWidget{parent}
     layout->addWidget(infos);
 }
 
-void Inspector::loadItemList(int key)
+void Inspector::load(QList<int> keys)
 {
-    if (key == Keys::Model) {
-        table->setModel(kernel->models);
-        title->setText("Models");
-    } else if (key == Keys::Fixture) {
-        table->setModel(kernel->fixtures);
-        title->setText("Fixtures");
-    } else if (key == Keys::Group) {
-        table->setModel(kernel->groups);
-        title->setText("Groups");
-    } else if (key == Keys::Intensity) {
-        table->setModel(kernel->intensities);
-        title->setText("Intensities");
-    } else if (key == Keys::Color) {
-        table->setModel(kernel->colors);
-        title->setText("Colors");
-    } else if (key == Keys::Color) {
-        table->setModel(kernel->cues);
-        title->setText("Cues");
+    for (int keyIndex = (keys.length() - 1); keyIndex >= 0; keyIndex--) {
+        if (keys[keyIndex] == Keys::Model) {
+            table->setModel(kernel->models);
+            title->setText("Models");
+            return;
+        } else if (keys[keyIndex] == Keys::Fixture) {
+            table->setModel(kernel->fixtures);
+            title->setText("Fixtures");
+            return;
+        } else if (keys[keyIndex] == Keys::Group) {
+            table->setModel(kernel->groups);
+            title->setText("Groups");
+            return;
+        } else if (keys[keyIndex] == Keys::Intensity) {
+            table->setModel(kernel->intensities);
+            title->setText("Intensities");
+            return;
+        } else if (keys[keyIndex] == Keys::Color) {
+            table->setModel(kernel->colors);
+            title->setText("Colors");
+            return;
+        } else if (keys[keyIndex] == Keys::Color) {
+            table->setModel(kernel->cues);
+            title->setText("Cues");
+            return;
+        }
     }
 }
