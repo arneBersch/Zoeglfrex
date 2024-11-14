@@ -52,7 +52,7 @@ void Kernel::execute(QList<int> command, QString text) {
         terminal->error("No selection given.");
         return;
     }
-    QList<QString> ids = keysToSelection(selection);
+    QList<QString> ids = keysToSelection(selection, selectionType);
     if (ids.isEmpty()) {
         terminal->error("Invalid fixture selection.");
         return;
@@ -246,7 +246,7 @@ void Kernel::execute(QList<int> command, QString text) {
                         return;
                     }
                     operation.removeFirst();
-                    QList<QString> fixtureIds = keysToSelection(operation);
+                    QList<QString> fixtureIds = keysToSelection(operation, Keys::Fixture);
                     if (fixtureIds.isEmpty()) {
                         terminal->error("Can't record Group because of invalid Fixture selection.");
                         return;
@@ -359,8 +359,7 @@ void Kernel::execute(QList<int> command, QString text) {
     cuelistView->loadCue();
 }
 
-QString Kernel::keysToId(QList<int> keys)
-{
+QString Kernel::keysToId(QList<int> keys) {
     QString id;
     int number = 0;
     for (const int key : keys) {
@@ -380,8 +379,7 @@ QString Kernel::keysToId(QList<int> keys)
     return id;
 }
 
-QList<float> Kernel::keysToValue(QList<int> keys)
-{
+QList<float> Kernel::keysToValue(QList<int> keys) {
     keys.append(Keys::Plus);
     QList<float> values;
     QString value;
@@ -413,8 +411,23 @@ QList<float> Kernel::keysToValue(QList<int> keys)
     return values;
 }
 
-QList<QString> Kernel::keysToSelection(QList<int> keys)
-{
+QList<QString> Kernel::keysToSelection(QList<int> keys, int itemType) {
+    QList<QString> allIds;
+    if (itemType == Keys::Model) {
+        allIds = models->getIds();
+    } else if (itemType == Keys::Fixture) {
+        allIds = fixtures->getIds();
+    } else if (itemType == Keys::Group) {
+        allIds = colors->getIds();
+    } else if (itemType == Keys::Intensity) {
+        allIds = intensities->getIds();
+    } else if (itemType == Keys::Color) {
+        allIds = colors->getIds();
+    } else if (itemType == Keys::Cue) {
+        allIds = cues->getIds();
+    } else {
+        return QList<QString>();
+    }
     if (keys.isEmpty()) {
         return QList<QString>();
     }
@@ -440,8 +453,7 @@ QList<QString> Kernel::keysToSelection(QList<int> keys)
     return ids;
 }
 
-bool Kernel::isItem(int key)
-{
+bool Kernel::isItem(int key) {
     return (
         (key == Keys::Model) ||
         (key == Keys::Fixture) ||
@@ -452,8 +464,7 @@ bool Kernel::isItem(int key)
     );
 }
 
-bool Kernel::isOperator(int key)
-{
+bool Kernel::isOperator(int key) {
     return (
         (key == Keys::Copy) ||
         (key == Keys::Delete) ||
@@ -463,8 +474,7 @@ bool Kernel::isOperator(int key)
         );
 }
 
-bool Kernel::isNumber(int key)
-{
+bool Kernel::isNumber(int key) {
     return (
         (key == Keys::Zero) ||
         (key == Keys::One) ||
@@ -479,8 +489,7 @@ bool Kernel::isNumber(int key)
         );
 }
 
-int Kernel::keyToNumber(int key)
-{
+int Kernel::keyToNumber(int key) {
     if (key == Keys::Zero) {
         return 0;
     } else if (key == Keys::One) {
