@@ -66,7 +66,7 @@ public:
     Inspector *inspector;
     CuelistView *cuelistView;
     QMutex *mutex;
-    QString keysToId(QList<int> keys);
+    QString keysToId(QList<int> keys, bool removeTrailingZeros = true);
 private:
     bool isItem(int key);
     bool isOperator(int key);

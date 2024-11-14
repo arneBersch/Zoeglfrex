@@ -54,7 +54,7 @@ void Kernel::execute(QList<int> command, QString text) {
     }
     QList<QString> ids = keysToSelection(selection, selectionType);
     if (ids.isEmpty()) {
-        terminal->error("Invalid fixture selection.");
+        terminal->error("No fixtures selected.");
         return;
     }
     if (operations.size() < 1) {
@@ -359,7 +359,7 @@ void Kernel::execute(QList<int> command, QString text) {
     cuelistView->loadCue();
 }
 
-QString Kernel::keysToId(QList<int> keys) {
+QString Kernel::keysToId(QList<int> keys, bool removeTrailingZeros) {
     QString id;
     int number = 0;
     for (const int key : keys) {
@@ -373,8 +373,10 @@ QString Kernel::keysToId(QList<int> keys) {
         }
     }
     id += QString::number(number);
-    while (id.endsWith(".0")) {
-        id.chop(2);
+    if (removeTrailingZeros) {
+        while (id.endsWith(".0")) {
+            id.chop(2);
+        }
     }
     return id;
 }
@@ -440,11 +442,27 @@ QList<QString> Kernel::keysToSelection(QList<int> keys, int itemType) {
         if (isNumber(key) || key == Keys::Period) {
             idKeys += key;
         } else if (key == Keys::Plus) {
-            QString id = keysToId(idKeys);
-            if (id.isEmpty()) {
-                return QList<QString>();
+            if (idKeys.endsWith(Keys::Period)) {
+                idKeys.removeLast();
+                if (idKeys.isEmpty()) {
+                    ids.append(allIds);
+                } else {
+                    QString idStart = keysToId(idKeys, false);
+                    for (QString id : allIds) {
+                        if (id.startsWith(idStart + ".")) {
+                            ids.append(id);
+                        } else if (idStart == id) {
+                            ids.append(idStart);
+                        }
+                    }
+                }
+            } else {
+                QString id = keysToId(idKeys);
+                if (id.isEmpty()) {
+                    return QList<QString>();
+                }
+                ids.append(id);
             }
-            ids.append(id);
             idKeys.clear();
         } else {
             return QList<QString>();
