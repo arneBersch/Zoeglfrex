@@ -66,12 +66,12 @@ public:
     Inspector *inspector;
     CuelistView *cuelistView;
     QMutex *mutex;
+    QString keysToId(QList<int> keys);
 private:
     bool isItem(int key);
     bool isOperator(int key);
     bool isNumber(int key);
     int keyToNumber(int key);
-    QString keysToId(QList<int> keys);
     QList<float> keysToValue(QList<int> keys);
     QList<QString> keysToSelection(QList<int> keys);
 };

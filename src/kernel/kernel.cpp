@@ -364,7 +364,7 @@ QString Kernel::keysToId(QList<int> keys)
     QString id;
     int number = 0;
     for (const int key : keys) {
-        if (isNumber(key)){
+        if (isNumber(key)) {
             number = (number * 10) + keyToNumber(key);
         } else if (key == Keys::Period) {
             id += QString::number(number) + ".";
@@ -373,7 +373,7 @@ QString Kernel::keysToId(QList<int> keys)
             return QString();
         }
     }
-    id += QString::number(keyToNumber(number));
+    id += QString::number(number);
     while (id.endsWith(".0")) {
         id.chop(2);
     }

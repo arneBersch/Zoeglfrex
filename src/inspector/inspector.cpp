@@ -25,30 +25,59 @@ Inspector::Inspector(Kernel *core, QWidget *parent) : QWidget{parent}
 
 void Inspector::load(QList<int> keys)
 {
+    infos->setText(QString()); // reset Info label
     for (int keyIndex = (keys.length() - 1); keyIndex >= 0; keyIndex--) {
+        QString id = QString();
+        if (keyIndex < (keys.length() - 1)) {
+            id = kernel->keysToId(keys.mid((keyIndex + 1), (keys.length() - keyIndex)));
+        }
         if (keys[keyIndex] == Keys::Model) {
             table->setModel(kernel->models);
             title->setText("Models");
+            Model* item = kernel->models->getItem(id);
+            if (item != nullptr) {
+                infos->setText(item->info());
+            }
             return;
         } else if (keys[keyIndex] == Keys::Fixture) {
             table->setModel(kernel->fixtures);
             title->setText("Fixtures");
+            Fixture* item = kernel->fixtures->getItem(id);
+            if (item != nullptr) {
+                infos->setText(item->info());
+            }
             return;
         } else if (keys[keyIndex] == Keys::Group) {
             table->setModel(kernel->groups);
             title->setText("Groups");
+            Group* item = kernel->groups->getItem(id);
+            if (item != nullptr) {
+                infos->setText(item->info());
+            }
             return;
         } else if (keys[keyIndex] == Keys::Intensity) {
             table->setModel(kernel->intensities);
             title->setText("Intensities");
+            Intensity* item = kernel->intensities->getItem(id);
+            if (item != nullptr) {
+                infos->setText(item->info());
+            }
             return;
         } else if (keys[keyIndex] == Keys::Color) {
             table->setModel(kernel->colors);
             title->setText("Colors");
+            Color* item = kernel->colors->getItem(id);
+            if (item != nullptr) {
+                infos->setText(item->info());
+            }
             return;
         } else if (keys[keyIndex] == Keys::Color) {
             table->setModel(kernel->cues);
             title->setText("Cues");
+            Cue* item = kernel->cues->getItem(id);
+            if (item != nullptr) {
+                infos->setText(item->info());
+            }
             return;
         }
     }
