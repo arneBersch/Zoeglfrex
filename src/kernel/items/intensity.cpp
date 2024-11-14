@@ -19,3 +19,9 @@ QString Intensity::name() {
     }
     return Item::name();
 }
+
+QString Intensity::info() {
+    QString info = Item::info();
+    info += "\nDimmer: " + QString::number(dimmer) + "%";
+    return info;
+}

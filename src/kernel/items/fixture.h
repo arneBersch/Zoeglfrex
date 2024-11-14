@@ -14,6 +14,7 @@ public:
     Model* model = nullptr;
     int address = 0;
     QString name() override;
+    QString info() override;
 };
 
 #endif // FIXTURE_H

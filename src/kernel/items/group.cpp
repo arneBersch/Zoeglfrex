@@ -23,3 +23,15 @@ QString Group::name() {
     }
     return Item::name();
 }
+
+QString Group::info() {
+    QString info = Item::info();
+    QString fixtureNames;
+    for (Fixture* fixture : fixtures) {
+        fixtureNames += fixture->name() + ", ";
+    }
+    fixtureNames.chop(2);
+    info += "\nFixtures: " + fixtureNames;
+    return info;
+}
+

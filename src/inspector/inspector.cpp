@@ -71,7 +71,7 @@ void Inspector::load(QList<int> keys)
                 infos->setText(item->info());
             }
             return;
-        } else if (keys[keyIndex] == Keys::Color) {
+        } else if (keys[keyIndex] == Keys::Cue) {
             table->setModel(kernel->cues);
             title->setText("Cues");
             Cue* item = kernel->cues->getItem(id);

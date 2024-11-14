@@ -19,3 +19,9 @@ QString Model::name() {
     }
     return Item::name();
 }
+
+QString Model::info() {
+    QString info = Item::info();
+    info += "\nChannels: " + channels;
+    return info;
+}

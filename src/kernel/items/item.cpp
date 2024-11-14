@@ -11,7 +11,7 @@ QString Item::name() {
 }
 
 QString Item::info() {
-    QString info = "ID: " + id + "\n";
-    info += "Label: \"" + label + "\"";
+    QString info = "ID: " + id;
+    info += "\nLabel: \"" + label + "\"";
     return info;
 }

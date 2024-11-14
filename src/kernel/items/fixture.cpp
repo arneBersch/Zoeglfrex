@@ -20,3 +20,10 @@ QString Fixture::name() {
     }
     return Item::name();
 }
+
+QString Fixture::info() {
+    QString info = Item::info();
+    info += "\nModel: " + model->name();
+    info += "\nAddress: " + QString::number(address);
+    return info;
+}

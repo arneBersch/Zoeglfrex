@@ -12,6 +12,7 @@ public:
     ~Intensity();
     float dimmer = 100;
     QString name() override;
+    QString info() override;
 };
 
 #endif // INTENSITY_H

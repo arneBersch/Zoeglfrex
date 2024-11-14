@@ -12,6 +12,7 @@ public:
     ~Model();
     QString channels = "D";
     QString name() override;
+    QString info() override;
 };
 
 #endif // MODEL_H

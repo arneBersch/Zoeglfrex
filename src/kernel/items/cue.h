@@ -16,6 +16,7 @@ public:
     float fade = 0;
     QMap<Group*, Intensity*> intensities = QMap<Group*, Intensity*>();
     QMap<Group*, Color*> colors = QMap<Group*, Color*>();
+    QString info() override;
 };
 
 #endif // CUE_H

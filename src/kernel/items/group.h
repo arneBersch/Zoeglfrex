@@ -13,6 +13,7 @@ public:
     ~Group();
     QList<Fixture*> fixtures = QList<Fixture*>();
     QString name() override;
+    QString info() override;
 };
 
 #endif // GROUP_H

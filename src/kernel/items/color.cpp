@@ -21,3 +21,11 @@ QString Color::name() {
     }
     return Item::name();
 }
+
+QString Color::info() {
+    QString info = Item::info();
+    info += "\nRed: " + QString::number(red) + "%";
+    info += "\nGreen: " + QString::number(green) + "%";
+    info += "\nBlue: " + QString::number(blue) + "%";
+    return info;
+}

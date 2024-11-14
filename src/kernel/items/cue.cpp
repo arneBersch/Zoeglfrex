@@ -11,3 +11,9 @@ Cue::Cue(const Cue* item) : Item(item->kernel) {
 }
 
 Cue::~Cue() {}
+
+QString Cue::info() {
+    QString info = Item::info();
+    info += "\nFade: " + QString::number(fade) + "s";
+    return info;
+}
