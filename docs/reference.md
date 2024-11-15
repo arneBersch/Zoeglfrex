@@ -5,13 +5,10 @@
 - Group: G
 - Intensity: I
 - Color: C
-- Transition: T
-- Row: R
 - Cue: Q
 
 ### Other keys
 - . (Period)
-- , (Comma)
 - 0
 - 1
 - 2
@@ -42,10 +39,12 @@
 ## Models
 ### Model Record
 Model Record doesn't take any parameters. Instead, it will open a popup where you can insert the Model's Channels. These channels are currently supported:
-- Dimmer
-- Red
-- Green
-- Blue
+- D (Dimmer)
+- R (Red)
+- G (Green)
+- B (Blue)
+- 0 (DMX standard value 0)
+- 1 (DMX standard value 255)
 
 So, for example, if you want to add a generic RGB Model at ID 3.1, you have to first have to execute this:
 ```
@@ -70,10 +69,10 @@ It deletes the selected Models.
 
 ## Fixtures
 ### Fixture Record
-Fixture Record takes either the Model of the new Fixture, its DMX Address or both.
-You need to insert the Address first and then you can insert Model and the Model ID:
+Fixture Record takes either the Model of the new Fixture or its DMX address:
 ```
-Fixture 1 Record
+Fixture 1 Record Model 7
+Fixture 1 Record 25
 ```
 Please note that you have to give a Model when recording a new Fixture.
 ### Fixture Label
@@ -116,8 +115,6 @@ Group Copy takes the ID you want to copy the selected Group to as a parameter.
 ### Group Delete
 Group Delete doesn't take any parameters.
 It deletes the selected Groups.
-> [!CAUTION]
-> Please note that Group Delete will also delete all Rows which are linked to the selected Group.
 
 ## Intensities
 ### Intensity Record
@@ -167,56 +164,15 @@ It deletes the selected Colors.
 > [!CAUTION]
 > Please note that Color Delete will also remove the selected Colors from all Cues.
 
-## Transitions
-### Transition Record
-Transition Record takes the fade time value of the Transition in seconds as an argument.
-### Transition Label
-Transition Label doesn't take any parameters.
-Instead, it will open a popup where you can insert the new label of the selected Transitions.
-### Transition Move
-Transition Move takes the ID you want to move the selected Transition to as a parameter.
-> [!NOTE]
-> Please note that you can currently move only one Transition as the ID where you move the Transition to will be taken after the first moved Transition.
-### Transition Copy
-Transition Copy takes the ID you want to copy the selected Transition to as a parameter.
-> [!NOTE]
-> Please note that you can currently copy only one Transition as the ID where you copy the Transition to will be taken after the first copied Transition.
-### Transition Delete
-Transition Delete doesn't take any parameters.
-It deletes the selected Transitions.
-> [!CAUTION]
-> Please note that Transition Delete will also remove all Cues linked to the selected Transitions.
-
-## Rows
-### Row Record
-Row Record takes the Group of the Row as an argument:
-```
-Row 1 Record Group 1
-```
-### Row Label
-Row Label doesn't take any parameters.
-Instead, it will open a popup where you can insert the new label of the selected Rows.
-### Row Move
-Row Move takes the ID you want to move the selected Row to as a parameter.
-> [!NOTE]
-> Please note that you can currently move only one Row as the ID where you move the Row to will be taken after the first moved Row.
-### Row Copy
-Row Copy takes the ID you want to copy the selected Row to as a parameter.
-> [!NOTE]
-> Please note that you can currently copy only one Row as the ID where you copy the Row to will be taken after the first copied Row.
-### Row Delete
-Row Delete doesn't take any parameters.
-It deletes the selected Rows.
-
 ## Cues
 ### Cue Record
-Cue Record takes either the Transition or Row values as parameters:
+Cue Record takes either the fade time or Group values as parameters:
 ```
-Cue 1 Record Transition 1
-Cue 1 Record Row 1 Intensity 1 Color 1
+Cue 1 Record 25
+Cue 1 Record Group 1 Intensity 1 Color 1
 ```
-Please note that you have to record a Transition first when adding a new Cue.
-When recording a value for a Row, you can also give only an Intensity or only a Color.
+Please note that you have to record a fade time first when adding a new Cue.
+When recording a value for a Group, you can also give only an Intensity or only a Color.
 ### Cue Label
 Cue Label doesn't take any parameters.
 Instead, it will open a popup where you can insert the new label of the selected Cues.
@@ -229,13 +185,13 @@ Cue Copy takes the ID you want to copy the selected Cue to as a parameter.
 > [!NOTE]
 > Please note that you can currently copy only one Cue as the ID where you copy the Cue to will be taken after the first copied Cue.
 ### Cue Delete
-Cue Delete takes either no parameters or a Row as an parameter.
+Cue Delete takes either no parameters or a Group as an parameter.
 When no parameter is given, it will delete the selected Cues.
-If a Row is given, it will clear the Intensity and Color of the Row in the selected Cues.
+If a Group is given, it will clear the Intensity and Color of the Group in the selected Cues.
 > [!TIP]
-> You can also delete only the Intensity or Color of a Row: 
+> You can also delete only the Intensity or Color of a Group: 
 > ```
-> Cue 1 Delete Row 1 Intensity
+> Cue 1 Delete Group 1 Intensity
 > ```
 
 ## sACN Output:
