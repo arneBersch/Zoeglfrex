@@ -1,4 +1,5 @@
 #include "cue.h"
+#include "kernel/kernel.h"
 
 Cue::Cue(Kernel *core) : Item(core) {}
 
@@ -10,7 +11,11 @@ Cue::Cue(const Cue* item) : Item(item->kernel) {
     colors = item->colors;
 }
 
-Cue::~Cue() {}
+Cue::~Cue() {
+    if (kernel->cuelistView->currentCue == this) {
+        kernel->cuelistView->currentCue = nullptr;
+    }
+}
 
 QString Cue::info() {
     QString info = Item::info();

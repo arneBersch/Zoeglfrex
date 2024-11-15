@@ -54,7 +54,7 @@ void Kernel::execute(QList<int> command, QString text) {
     }
     QList<QString> ids = keysToSelection(selection, selectionType);
     if (ids.isEmpty()) {
-        terminal->error("No fixtures selected.");
+        terminal->error("No items selected.");
         return;
     }
     if (operations.size() < 1) {
