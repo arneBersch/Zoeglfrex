@@ -149,7 +149,6 @@ template <class T> QVariant ItemList<T>::data(const QModelIndex &index, const in
 template <class T> int ItemList<T>::findRow(QString id) {
     int position = 0;
     QList<QString> idParts = id.split(".");
-    qInfo() << idParts;
     for (T* item : items) {
         QList<QString> indexIdParts = item->id.split(".");
         bool greaterId = true;
@@ -159,7 +158,7 @@ template <class T> int ItemList<T>::findRow(QString id) {
             minPartAmount = indexIdParts.length();
         }
         for (int part = 0; part < minPartAmount; part++) {
-            if (idParts[part].toInt() < indexIdParts[part].toInt()) {
+            if ((idParts[part].toInt() < indexIdParts[part].toInt()) && sameBeginning) {
                 greaterId = false;
             }
             if (idParts[part].toInt() != indexIdParts[part].toInt()) {
