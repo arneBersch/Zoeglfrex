@@ -379,7 +379,6 @@ QString Kernel::keysToId(QList<int> keys, bool removeTrailingZeros) {
 }
 
 QList<float> Kernel::keysToValue(QList<int> keys) {
-    qInfo() << "KEYS: " << keys;
     keys.append(Keys::Plus);
     QList<float> values;
     QString value;
@@ -408,7 +407,6 @@ QList<float> Kernel::keysToValue(QList<int> keys) {
             return QList<float>();
         }
     }
-    qInfo() << "VALUES: " << values;
     return values;
 }
 

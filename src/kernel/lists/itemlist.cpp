@@ -149,6 +149,7 @@ template <class T> QVariant ItemList<T>::data(const QModelIndex &index, const in
 template <class T> int ItemList<T>::findRow(QString id) {
     int position = 0;
     QList<QString> idParts = id.split(".");
+    qInfo() << idParts;
     for (T* item : items) {
         QList<QString> indexIdParts = item->id.split(".");
         bool greaterId = true;
