@@ -48,6 +48,7 @@ void Terminal::backspace()
 void Terminal::clear() {
     command.clear();
     prompt->setText(promptText(command));
+    kernel->inspector->load(command);
 }
 
 void Terminal::execute(bool clear)

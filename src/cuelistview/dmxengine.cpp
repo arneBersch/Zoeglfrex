@@ -56,17 +56,20 @@ void DmxEngine::generateDmx() {
         lastCue = kernel->cuelistView->currentCue;
     }
     for (Group* group : kernel->groups->items) {
+        float dimmer = 0.0;
         if (kernel->cuelistView->currentCue->intensities.contains(group)) {
-            float dimmer = kernel->cuelistView->currentCue->intensities.value(group)->dimmer;
-            float red = 100.0;
-            float green = 100.0;
-            float blue = 100.0;
-            if (kernel->cuelistView->currentCue->colors.contains(group)) {
-                red = kernel->cuelistView->currentCue->colors.value(group)->red;
-                green = kernel->cuelistView->currentCue->colors.value(group)->green;
-                blue = kernel->cuelistView->currentCue->colors.value(group)->blue;
-            }
-            for (Fixture *fixture : group->fixtures) {
+            dimmer = kernel->cuelistView->currentCue->intensities.value(group)->dimmer;
+        }
+        float red = 100.0;
+        float green = 100.0;
+        float blue = 100.0;
+        if (kernel->cuelistView->currentCue->colors.contains(group)) {
+            red = kernel->cuelistView->currentCue->colors.value(group)->red;
+            green = kernel->cuelistView->currentCue->colors.value(group)->green;
+            blue = kernel->cuelistView->currentCue->colors.value(group)->blue;
+        }
+        for (Fixture *fixture : group->fixtures) {
+            if (fixture->address > 0) {
                 QString channels = fixture->model->channels;
                 for (int channel = fixture->address; channel < (fixture->address + channels.size()); channel++) {
                     uint8_t raw = 0;
@@ -87,6 +90,10 @@ void DmxEngine::generateDmx() {
                         if (!channels.contains("D")) { // Create Virtual Dimmer
                             raw = (blue * 2.55 * dimmer / 100 + 0.5);
                         }
+                    } else if (channels.at(channel - fixture->address) == QChar('0')) {
+                        raw = 0;
+                    } else if (channels.at(channel - fixture->address) == QChar('1')) {
+                        raw = 255;
                     }
                     sacn->setChannel(channel, raw);
                 }

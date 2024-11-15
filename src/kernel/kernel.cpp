@@ -343,15 +343,12 @@ void Kernel::execute(QList<int> command, QString text) {
                         cues->recordCueColor(ids, groupId, colorId);
                     }
                 } else {
-                    operation.removeFirst();
                     QList<float> values = keysToValue(operation);
                     if (values.empty() || values.size() > 1) {
                         terminal->error("Invalid values given to Record Cue Fade.");
                         return;
                     }
-                    if ((values.size() >= 1) && (values[0] > 0)) {
-                        cues->recordCueFade(ids, values[0]);
-                    }
+                    cues->recordCueFade(ids, values[0]);
                 }
             }
         }
@@ -382,6 +379,7 @@ QString Kernel::keysToId(QList<int> keys, bool removeTrailingZeros) {
 }
 
 QList<float> Kernel::keysToValue(QList<int> keys) {
+    qInfo() << "KEYS: " << keys;
     keys.append(Keys::Plus);
     QList<float> values;
     QString value;
@@ -410,6 +408,7 @@ QList<float> Kernel::keysToValue(QList<int> keys) {
             return QList<float>();
         }
     }
+    qInfo() << "VALUES: " << values;
     return values;
 }
 
