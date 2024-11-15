@@ -160,52 +160,12 @@ void MainWindow::openFile() {
 
 void MainWindow::clearKernel() {
     fileName = QString(); // reset filename
-    QList<QString> commands;
-    QString modelCommand = "m";
-    for (Model* model : kernel->models->items) {
-        modelCommand += model->id;
-        modelCommand += "+";
-    }
-    modelCommand += "D";
-    commands.append(modelCommand);
-    QString fixtureCommand = "f";
-    for (Fixture* fixture : kernel->fixtures->items) {
-        fixtureCommand += fixture->id;
-        fixtureCommand += "+";
-    }
-    fixtureCommand += "D";
-    commands.append(fixtureCommand);
-    QString groupCommand = "g";
-    for (Group* group : kernel->groups->items) {
-        groupCommand += group->id;
-        groupCommand += "+";
-    }
-    groupCommand += "D";
-    commands.append(groupCommand);
-    QString intensityCommand = "i";
-    for (Intensity* intensity : kernel->intensities->items) {
-        intensityCommand += intensity->id;
-        intensityCommand += "+";
-    }
-    intensityCommand += "D";
-    commands.append(intensityCommand);
-    QString colorCommand = "c";
-    for (Color* color : kernel->colors->items) {
-        colorCommand += color->id;
-        colorCommand += "+";
-    }
-    colorCommand += "D";
-    commands.append(colorCommand);
-    QString cueCommand = "q";
-    for (Cue* cue : kernel->cues->items) {
-        cueCommand += cue->id;
-        cueCommand += "+";
-    }
-    cueCommand += "D";
-    commands.append(cueCommand);
-    for (QString command : commands) {
-        kernel->terminal->execute(command, "new file");
-    }
+    kernel->terminal->execute("m.D", "new file");
+    kernel->terminal->execute("f.D", "new file");
+    kernel->terminal->execute("g.D", "new file");
+    kernel->terminal->execute("i.D", "new file");
+    kernel->terminal->execute("c.D", "new file");
+    kernel->terminal->execute("q.D", "new file");
 }
 
 void MainWindow::newFile() {
