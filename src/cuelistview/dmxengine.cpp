@@ -55,48 +55,60 @@ void DmxEngine::generateDmx() {
         remainingFadeFrames = 40 * fade + 0.5;
         lastCue = kernel->cuelistView->currentCue;
     }
+    QMap<Fixture*, Intensity*> fixtureIntensities;
+    QMap<Fixture*, Color*> fixtureColors;
     for (Group* group : kernel->groups->items) {
-        float dimmer = 0.0;
         if (kernel->cuelistView->currentCue->intensities.contains(group)) {
-            dimmer = kernel->cuelistView->currentCue->intensities.value(group)->dimmer;
+            for (Fixture* fixture : group->fixtures) {
+                fixtureIntensities[fixture] = kernel->cuelistView->currentCue->intensities[group];
+            }
+        }
+        if (kernel->cuelistView->currentCue->colors.contains(group)) {
+            for (Fixture* fixture : group->fixtures) {
+                fixtureColors[fixture] = kernel->cuelistView->currentCue->colors[group];
+            }
+        }
+    }
+    for (Fixture* fixture : kernel->fixtures->items) {
+        float dimmer = 0.0;
+        if (fixtureIntensities.contains(fixture)) {
+            dimmer = fixtureIntensities.value(fixture)->dimmer;
         }
         float red = 100.0;
         float green = 100.0;
         float blue = 100.0;
-        if (kernel->cuelistView->currentCue->colors.contains(group)) {
-            red = kernel->cuelistView->currentCue->colors.value(group)->red;
-            green = kernel->cuelistView->currentCue->colors.value(group)->green;
-            blue = kernel->cuelistView->currentCue->colors.value(group)->blue;
+        if (fixtureColors.contains(fixture)) {
+            red = fixtureColors.value(fixture)->red;
+            green = fixtureColors.value(fixture)->green;
+            blue = fixtureColors.value(fixture)->blue;
         }
-        for (Fixture *fixture : group->fixtures) {
-            if (fixture->address > 0) {
-                QString channels = fixture->model->channels;
-                for (int channel = fixture->address; channel < (fixture->address + channels.size()); channel++) {
-                    uint8_t raw = 0;
-                    if (channels.at(channel - fixture->address) == QChar('D')) { // DIMMER
-                        raw = (dimmer * 2.55 + 0.5);
-                    } else if (channels.at(channel - fixture->address) == QChar('R')) { // RED
-                        raw = (red * 2.55 + 0.5);
-                        if (!channels.contains("D")) { // Create Virtual Dimmer
-                            raw = (red * 2.55 * dimmer / 100 + 0.5);
-                        }
-                    } else if (channels.at(channel - fixture->address) == QChar('G')) { // GREEN
-                        raw = (green * 2.55 + 0.5);
-                        if (!channels.contains("D")) { // Create Virtual Dimmer
-                            raw = (green * 2.55 * dimmer / 100 + 0.5);
-                        }
-                    } else if (channels.at(channel - fixture->address) == QChar('B')) { // BLUE
-                        raw = (blue * 2.55 + 0.5);
-                        if (!channels.contains("D")) { // Create Virtual Dimmer
-                            raw = (blue * 2.55 * dimmer / 100 + 0.5);
-                        }
-                    } else if (channels.at(channel - fixture->address) == QChar('0')) {
-                        raw = 0;
-                    } else if (channels.at(channel - fixture->address) == QChar('1')) {
-                        raw = 255;
+        if (fixture->address > 0) {
+            QString channels = fixture->model->channels;
+            for (int channel = fixture->address; channel < (fixture->address + channels.size()); channel++) {
+                uint8_t raw = 0;
+                if (channels.at(channel - fixture->address) == QChar('D')) { // DIMMER
+                    raw = (dimmer * 2.55 + 0.5);
+                } else if (channels.at(channel - fixture->address) == QChar('R')) { // RED
+                    raw = (red * 2.55 + 0.5);
+                    if (!channels.contains("D")) { // Create Virtual Dimmer
+                        raw = (red * 2.55 * dimmer / 100 + 0.5);
                     }
-                    sacn->setChannel(channel, raw);
+                } else if (channels.at(channel - fixture->address) == QChar('G')) { // GREEN
+                    raw = (green * 2.55 + 0.5);
+                    if (!channels.contains("D")) { // Create Virtual Dimmer
+                        raw = (green * 2.55 * dimmer / 100 + 0.5);
+                    }
+                } else if (channels.at(channel - fixture->address) == QChar('B')) { // BLUE
+                    raw = (blue * 2.55 + 0.5);
+                    if (!channels.contains("D")) { // Create Virtual Dimmer
+                        raw = (blue * 2.55 * dimmer / 100 + 0.5);
+                    }
+                } else if (channels.at(channel - fixture->address) == QChar('0')) {
+                    raw = 0;
+                } else if (channels.at(channel - fixture->address) == QChar('1')) {
+                    raw = 255;
                 }
+                sacn->setChannel(channel, raw);
             }
         }
     }
