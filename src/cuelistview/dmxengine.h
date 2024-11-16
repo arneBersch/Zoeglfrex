@@ -20,13 +20,17 @@ class DmxEngine : public QWidget
     Q_OBJECT
 public:
     explicit DmxEngine(Kernel *core, QWidget *parent = nullptr);
+    void generateDmx();
 private:
     Cue* lastCue;
+    QList<uint8_t> lastCueValues;
+    QList<uint8_t> currentCueValues;
     int remainingFadeFrames;
+    int totalFadeFrames;
     Kernel *kernel;
     SacnServer *sacn;
     QTimer *timer;
-    void generateDmx();
+    void sendDmx();
     void stopDmx();
     void startDmx();
     QComboBox *interfaceSelectionBox;

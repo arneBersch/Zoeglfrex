@@ -14,7 +14,7 @@ DmxEngine::DmxEngine(Kernel *core, QWidget *parent) : QWidget{parent} {
     sacn = new SacnServer();
 
     timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &DmxEngine::generateDmx);
+    connect(timer, &QTimer::timeout, this, &DmxEngine::sendDmx);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
 
@@ -36,88 +36,104 @@ DmxEngine::DmxEngine(Kernel *core, QWidget *parent) : QWidget{parent} {
     stopDmxButton->setEnabled(false);
     connect(stopDmxButton, &QPushButton::pressed, this, &DmxEngine::stopDmx);
     layout->addWidget(stopDmxButton);
+
+    for (int channel=0; channel<=512; channel++) {
+        currentCueValues.append(0);
+        lastCueValues.append(0);
+    }
 }
 
 void DmxEngine::generateDmx() {
-    QMutexLocker locker(kernel->mutex);
-    QList<uint8_t> formerChannels;
-    formerChannels.append(0); // Index 1 should equal DMX Channel 1
-    for (int channel=1; channel<=512; channel++) {
-        formerChannels.append(sacn->getChannel(channel));
-        sacn->setChannel(channel, 0); // reset DMX Data
-    }
     if (kernel->cuelistView->currentCue == nullptr) {
-        sacn->send();
-        return;
-    }
-    if (kernel->cuelistView->currentCue != lastCue) {
-        float fade = kernel->cuelistView->currentCue->fade;
-        remainingFadeFrames = 40 * fade + 0.5;
-        lastCue = kernel->cuelistView->currentCue;
-    }
-    QMap<Fixture*, Intensity*> fixtureIntensities;
-    QMap<Fixture*, Color*> fixtureColors;
-    for (Group* group : kernel->groups->items) {
-        if (kernel->cuelistView->currentCue->intensities.contains(group)) {
-            for (Fixture* fixture : group->fixtures) {
-                fixtureIntensities[fixture] = kernel->cuelistView->currentCue->intensities[group];
+        remainingFadeFrames = 0;
+        totalFadeFrames = 0;
+        for (int channel = 1; channel <= 512; channel++) {
+            currentCueValues[channel] = 0; // reset current cue values
+        }
+    } else {
+        if (kernel->cuelistView->currentCue != lastCue) {
+            float fade = kernel->cuelistView->currentCue->fade;
+            totalFadeFrames = 40 * fade + 0.5;
+            remainingFadeFrames = totalFadeFrames;
+            lastCue = kernel->cuelistView->currentCue;
+            lastCueValues = currentCueValues;
+            for (int channel = 1; channel <= 512; channel++) {
+                currentCueValues[channel] = 0; // reset current cue values
             }
         }
-        if (kernel->cuelistView->currentCue->colors.contains(group)) {
-            for (Fixture* fixture : group->fixtures) {
-                fixtureColors[fixture] = kernel->cuelistView->currentCue->colors[group];
-            }
-        }
-    }
-    for (Fixture* fixture : kernel->fixtures->items) {
-        float dimmer = 0.0;
-        if (fixtureIntensities.contains(fixture)) {
-            dimmer = fixtureIntensities.value(fixture)->dimmer;
-        }
-        float red = 100.0;
-        float green = 100.0;
-        float blue = 100.0;
-        if (fixtureColors.contains(fixture)) {
-            red = fixtureColors.value(fixture)->red;
-            green = fixtureColors.value(fixture)->green;
-            blue = fixtureColors.value(fixture)->blue;
-        }
-        if (fixture->address > 0) {
-            QString channels = fixture->model->channels;
-            for (int channel = fixture->address; channel < (fixture->address + channels.size()); channel++) {
-                uint8_t raw = 0;
-                if (channels.at(channel - fixture->address) == QChar('D')) { // DIMMER
-                    raw = (dimmer * 2.55 + 0.5);
-                } else if (channels.at(channel - fixture->address) == QChar('R')) { // RED
-                    raw = (red * 2.55 + 0.5);
-                    if (!channels.contains("D")) { // Create Virtual Dimmer
-                        raw = (red * 2.55 * dimmer / 100 + 0.5);
-                    }
-                } else if (channels.at(channel - fixture->address) == QChar('G')) { // GREEN
-                    raw = (green * 2.55 + 0.5);
-                    if (!channels.contains("D")) { // Create Virtual Dimmer
-                        raw = (green * 2.55 * dimmer / 100 + 0.5);
-                    }
-                } else if (channels.at(channel - fixture->address) == QChar('B')) { // BLUE
-                    raw = (blue * 2.55 + 0.5);
-                    if (!channels.contains("D")) { // Create Virtual Dimmer
-                        raw = (blue * 2.55 * dimmer / 100 + 0.5);
-                    }
-                } else if (channels.at(channel - fixture->address) == QChar('0')) {
-                    raw = 0;
-                } else if (channels.at(channel - fixture->address) == QChar('1')) {
-                    raw = 255;
+        QMap<Fixture*, Intensity*> fixtureIntensities;
+        QMap<Fixture*, Color*> fixtureColors;
+        for (Group* group : kernel->groups->items) {
+            if (lastCue->intensities.contains(group)) {
+                for (Fixture* fixture : group->fixtures) {
+                    fixtureIntensities[fixture] = lastCue->intensities[group];
                 }
-                sacn->setChannel(channel, raw);
+            }
+            if (lastCue->colors.contains(group)) {
+                for (Fixture* fixture : group->fixtures) {
+                    fixtureColors[fixture] = lastCue->colors[group];
+                }
+            }
+        }
+        for (Fixture* fixture : kernel->fixtures->items) {
+            float dimmer = 0.0;
+            if (fixtureIntensities.contains(fixture)) {
+                dimmer = fixtureIntensities.value(fixture)->dimmer;
+            }
+            float red = 100.0;
+            float green = 100.0;
+            float blue = 100.0;
+            if (fixtureColors.contains(fixture)) {
+                red = fixtureColors.value(fixture)->red;
+                green = fixtureColors.value(fixture)->green;
+                blue = fixtureColors.value(fixture)->blue;
+            }
+            if (fixture->address > 0) {
+                QString channels = fixture->model->channels;
+                for (int channel = fixture->address; channel < (fixture->address + channels.size()); channel++) {
+                    uint8_t raw = 0;
+                    if (channels.at(channel - fixture->address) == QChar('D')) { // DIMMER
+                        raw = (dimmer * 2.55 + 0.5);
+                    } else if (channels.at(channel - fixture->address) == QChar('R')) { // RED
+                        raw = (red * 2.55 + 0.5);
+                        if (!channels.contains("D")) { // Create Virtual Dimmer
+                            raw = (red * 2.55 * dimmer / 100 + 0.5);
+                        }
+                    } else if (channels.at(channel - fixture->address) == QChar('G')) { // GREEN
+                        raw = (green * 2.55 + 0.5);
+                        if (!channels.contains("D")) { // Create Virtual Dimmer
+                            raw = (green * 2.55 * dimmer / 100 + 0.5);
+                        }
+                    } else if (channels.at(channel - fixture->address) == QChar('B')) { // BLUE
+                        raw = (blue * 2.55 + 0.5);
+                        if (!channels.contains("D")) { // Create Virtual Dimmer
+                            raw = (blue * 2.55 * dimmer / 100 + 0.5);
+                        }
+                    } else if (channels.at(channel - fixture->address) == QChar('0')) {
+                        raw = 0;
+                    } else if (channels.at(channel - fixture->address) == QChar('1')) {
+                        raw = 255;
+                    }
+                    currentCueValues[channel] = raw;
+                }
             }
         }
     }
+}
+
+void DmxEngine::sendDmx() {
+    QMutexLocker(kernel->mutex);
     if (remainingFadeFrames > 0) {
         for (int channel = 1; channel <= 512; channel++) {
-            float delta = ((float)sacn->getChannel(channel) - (float)formerChannels[channel]) / (float)remainingFadeFrames + 0.5;
-            sacn->setChannel(channel, formerChannels[channel] + delta);
+            float delta = ((float)currentCueValues[channel] - (float)lastCueValues[channel]);
+            delta *= (((float)totalFadeFrames - (float)remainingFadeFrames) / (float)totalFadeFrames);
+            sacn->setChannel(channel, lastCueValues[channel] + delta);
         }
         remainingFadeFrames--;
+    } else {
+        for (int channel = 1; channel <= 512; channel++) {
+            sacn->setChannel(channel, currentCueValues[channel]);
+        }
     }
     sacn->send();
 }

@@ -41,6 +41,7 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
 
 void CuelistView::loadCue() {
     cueModel->loadCue(currentCue);
+    engine->generateDmx();
     if (currentCue == nullptr) {
         cueLabel->setText(QString());
         if (!kernel->cues->items.isEmpty()) {
