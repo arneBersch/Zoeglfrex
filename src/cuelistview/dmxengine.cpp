@@ -44,12 +44,11 @@ DmxEngine::DmxEngine(Kernel *core, QWidget *parent) : QWidget{parent} {
 }
 
 void DmxEngine::generateDmx() {
+    QMap<Fixture*, Intensity*> fixtureIntensities;
+    QMap<Fixture*, Color*> fixtureColors;
     if (kernel->cuelistView->currentCue == nullptr) {
         remainingFadeFrames = 0;
         totalFadeFrames = 0;
-        for (int channel = 1; channel <= 512; channel++) {
-            currentCueValues[channel] = 0; // reset current cue values
-        }
     } else {
         if (kernel->cuelistView->currentCue != lastCue) {
             float fade = kernel->cuelistView->currentCue->fade;
@@ -57,12 +56,7 @@ void DmxEngine::generateDmx() {
             remainingFadeFrames = totalFadeFrames;
             lastCue = kernel->cuelistView->currentCue;
             lastCueValues = currentCueValues;
-            for (int channel = 1; channel <= 512; channel++) {
-                currentCueValues[channel] = 0; // reset current cue values
-            }
         }
-        QMap<Fixture*, Intensity*> fixtureIntensities;
-        QMap<Fixture*, Color*> fixtureColors;
         for (Group* group : kernel->groups->items) {
             if (lastCue->intensities.contains(group)) {
                 for (Fixture* fixture : group->fixtures) {
@@ -75,47 +69,53 @@ void DmxEngine::generateDmx() {
                 }
             }
         }
-        for (Fixture* fixture : kernel->fixtures->items) {
-            float dimmer = 0.0;
-            if (fixtureIntensities.contains(fixture)) {
-                dimmer = fixtureIntensities.value(fixture)->dimmer;
-            }
-            float red = 100.0;
-            float green = 100.0;
-            float blue = 100.0;
-            if (fixtureColors.contains(fixture)) {
-                red = fixtureColors.value(fixture)->red;
-                green = fixtureColors.value(fixture)->green;
-                blue = fixtureColors.value(fixture)->blue;
-            }
-            if (fixture->address > 0) {
-                QString channels = fixture->model->channels;
-                for (int channel = fixture->address; channel < (fixture->address + channels.size()); channel++) {
-                    uint8_t raw = 0;
-                    if (channels.at(channel - fixture->address) == QChar('D')) { // DIMMER
-                        raw = (dimmer * 2.55 + 0.5);
-                    } else if (channels.at(channel - fixture->address) == QChar('R')) { // RED
-                        raw = (red * 2.55 + 0.5);
-                        if (!channels.contains("D")) { // Create Virtual Dimmer
-                            raw = (red * 2.55 * dimmer / 100 + 0.5);
-                        }
-                    } else if (channels.at(channel - fixture->address) == QChar('G')) { // GREEN
-                        raw = (green * 2.55 + 0.5);
-                        if (!channels.contains("D")) { // Create Virtual Dimmer
-                            raw = (green * 2.55 * dimmer / 100 + 0.5);
-                        }
-                    } else if (channels.at(channel - fixture->address) == QChar('B')) { // BLUE
-                        raw = (blue * 2.55 + 0.5);
-                        if (!channels.contains("D")) { // Create Virtual Dimmer
-                            raw = (blue * 2.55 * dimmer / 100 + 0.5);
-                        }
-                    } else if (channels.at(channel - fixture->address) == QChar('0')) {
-                        raw = 0;
-                    } else if (channels.at(channel - fixture->address) == QChar('1')) {
-                        raw = 255;
-                    }
-                    currentCueValues[channel] = raw;
+    }
+    for (int channel = 1; channel <= 512; channel++) {
+        currentCueValues[channel] = 0; // reset current cue values
+    }
+    for (Fixture* fixture : kernel->fixtures->items) {
+        QString channels = fixture->model->channels;
+        float dimmer = 0.0;
+        if (fixtureIntensities.contains(fixture)) {
+            dimmer = fixtureIntensities.value(fixture)->dimmer;
+        }
+        float red = 100.0;
+        float green = 100.0;
+        float blue = 100.0;
+        if (fixtureColors.contains(fixture)) {
+            red = fixtureColors.value(fixture)->red;
+            green = fixtureColors.value(fixture)->green;
+            blue = fixtureColors.value(fixture)->blue;
+        }
+        if (!channels.contains('D')) {
+            red *= (dimmer / 100);
+            green *= (dimmer / 100);
+            blue *= (dimmer / 100);
+        }
+        if (fixture->address > 0) {
+            for (int channel = fixture->address; channel < (fixture->address + channels.size()); channel++) {
+                float value = 0;
+                if (channels.at(channel - fixture->address) == QChar('D')) { // DIMMER
+                    value = dimmer;
+                } else if (channels.at(channel - fixture->address) == QChar('R')) { // RED
+                    value = red;
+                } else if (channels.at(channel - fixture->address) == QChar('G')) { // GREEN
+                    value = green;
+                } else if (channels.at(channel - fixture->address) == QChar('B')) { // BLUE
+                    value = blue;
+                } else if (channels.at(channel - fixture->address) == QChar('C')) { // CYAN
+                    value = (100 - red);
+                } else if (channels.at(channel - fixture->address) == QChar('M')) { // MAGENTA
+                    value = (100 - green);
+                } else if (channels.at(channel - fixture->address) == QChar('Y')) { // YELLOW
+                    value = (100 - blue);
+                } else if (channels.at(channel - fixture->address) == QChar('0')) {
+                    value = 0;
+                } else if (channels.at(channel - fixture->address) == QChar('1')) {
+                    value = 100;
                 }
+                uint8_t raw = (value * 2.55 + 0.5);
+                currentCueValues[channel] = raw;
             }
         }
     }

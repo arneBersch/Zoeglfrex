@@ -13,7 +13,7 @@ ModelList::ModelList(Kernel *core) : ItemList("Model", "Models") {
 }
 
 void ModelList::recordModelChannels(QList<QString> ids, QString channels) {
-    if (!channels.contains(QRegularExpression("^[01DRGB]+$"))) {
+    if (!channels.contains(QRegularExpression("^[01DRGBCMY]+$"))) {
         kernel->terminal->error("Didn't record Models because channels \"" + channels + "\" are not valid.");
         return;
     }
