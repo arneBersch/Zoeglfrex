@@ -80,6 +80,8 @@ Fixture 1 Record Model 7
 Fixture 1 Record 25
 ```
 Please note that you have to give a Model when recording a new Fixture.
+Every new Fixtures is patched to DMX address 0.
+This means that it won't output any DMX signal, but you can still insert it in Groups which is very useful if you know your Fixture rig but don't know how it's patched yet.
 ### Fixture Label
 Fixture Label doesn't take any parameters.
 Instead, it will open a popup where you can insert the new label of the selected Fixtures.
