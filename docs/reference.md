@@ -19,6 +19,11 @@
 - 7
 - 8
 - 9
+- T (Thru)
+
+> [!TIP]
+> You can also insert a period using the comma key (,).
+> This is very useful when inserting IDs using a numeric keypad.
 
 ### Operator keys
 - Record: Shift + R
@@ -28,7 +33,7 @@
 - Delete: Shift + D
 
 ### Keyboard Shortcuts
-- Execute command and clear the Terminal (if the command succeeds): Return / Enter
+- Execute command and clear the Terminal: Return / Enter
 - Execute command without clearing the Terminal: Shift + Return / Shift + Enter
 - New File: Control + N
 - Open File: Control + O
@@ -43,8 +48,8 @@ Model Record doesn't take any parameters. Instead, it will open a popup where yo
 - R (Red)
 - G (Green)
 - B (Blue)
-- 0 (DMX standard value 0)
-- 1 (DMX standard value 255)
+- 0 (DMX always DMX value 0)
+- 1 (DMX always DMX value 255)
 
 So, for example, if you want to add a generic RGB Model at ID 3.1, you have to first have to execute this:
 ```
@@ -56,11 +61,11 @@ Model Label doesn't take any parameters. Instead, it will open a popup where you
 ### Model Move
 Model Move takes the ID you want to move the selected Model to as a parameter.
 > [!NOTE]
-> Please note that you can currently move only one Model as the ID where you move the Fixtures to will be taken after the first moved Model.
+> Please note that you can currently move only one Model as the ID where you move the Model to will be taken after the first moved Model.
 ### Model Copy
 Model Copy takes the ID you want to copy the selected Model to as a parameter.
 > [!NOTE]
-> Please note that you can currently copy only one Model as the ID where you copy the Fixtures to will be taken after the first copied Model.
+> Please note that you can currently copy only one Model as the ID where you copy the Model to will be taken after the first copied Model.
 ### Model Delete
 Model Delete doesn't take any parameters.
 It deletes the selected Models.
@@ -81,11 +86,11 @@ Instead, it will open a popup where you can insert the new label of the selected
 ### Fixture Move
 Fixture Move takes the ID you want to move the selected Fixture to as a parameter.
 > [!NOTE]
-> Please note that you can currently move only one Fixture as the ID where you move the Fixtures to will be taken after the first moved Fixture.
+> Please note that you can currently move only one Fixture as the ID where you move the Fixture to will be taken after the first moved Fixture.
 ### Fixture Copy
 Fixture Copy takes the ID you want to copy the selected Fixture to as a parameter.
 > [!NOTE]
-> Please note that you can currently copy only one Fixture as the ID where you copy the Fixtures to will be taken after the first copied Fixture.
+> Please note that you can currently copy only one Fixture as the ID where you copy the Fixture to will be taken after the first copied Fixture.
 ### Fixture Delete
 Fixture Delete doesn't take any parameters.
 It deletes the selected Fixtures.
@@ -98,7 +103,10 @@ Group Record takes the Fixtures which you want to add to the Group:
 ```
 Group 1 Record Fixture 1.1, 1.2, 1.3
 ```
-You can also give no Fixture IDs which would result in an empty Group.
+You can also give no Fixture IDs which would result in an empty Group:
+```
+Group 1 Record
+```
 > [!WARNING]
 > Please note that Group Record will first overwrite the Fixture which were in the Group before Group Record was executed.
 ### Group Label
@@ -111,7 +119,7 @@ Group Move takes the ID you want to move the selected Group to as a parameter.
 ### Group Copy
 Group Copy takes the ID you want to copy the selected Group to as a parameter.
 > [!NOTE]
-> Please note that you can currently copy only one Group as the ID where you copy the Groups to will be taken after the first copied Group.
+> Please note that you can currently copy only one Group as the ID where you copy the Group to will be taken after the first copied Group.
 ### Group Delete
 Group Delete doesn't take any parameters.
 It deletes the selected Groups.
@@ -141,11 +149,11 @@ It deletes the selected Intensities.
 Color Record takes the rdd, green and blue values of the Color in percent as arguments.
 For example, you can add a new Color 3.1 with 12.3% red, 45.6% green and 78.9% blue like this:
 ```
-Color 1 Record 12.3,45.6,78.9
+Color 1 Record 12.3 + 45.6 + 78.9
 ```
 You can also leave out values if you don't want to change them, for example this command will only set the green value to 45.6 percent:
 ```
-Color 1 Record ,45.6
+Color 1 Record +45.6
 ```
 ### Color Label
 Color Label doesn't take any parameters.
@@ -187,7 +195,10 @@ Cue Copy takes the ID you want to copy the selected Cue to as a parameter.
 ### Cue Delete
 Cue Delete takes either no parameters or a Group as an parameter.
 When no parameter is given, it will delete the selected Cues.
-If a Group is given, it will clear the Intensity and Color of the Group in the selected Cues.
+If a Group is given, it will clear the Intensity and Color of the Group in the selected Cues:
+```
+Cue 1 Delete Group 2
+```
 > [!TIP]
 > You can also delete only the Intensity or Color of a Group: 
 > ```
@@ -201,3 +212,39 @@ Zöglfrex sends sACN...
 - on sACN universe 1
 - with a frequency of 40 Hz (one Sequence every 25ms)
 - using priority 100
+
+## Selecting Items
+There are some useful tricks for selecting items using IDs.
+You can use these whenever you can enter multiple IDs.
+
+### Combining IDs with +
+You can combine multiple IDs with +:
+```
+Intensity 1 + 2.1 + 1.7 Record 100
+```
+
+### IDs ending with .
+This syntax is useful when you want to select all IDs with the same beginning.
+However, please note that this command can only select already existing IDs, so you can't use it for recording items which don't exist yet!
+If they existed, this command would select Intensities 1, 1.1 or any other Intensity with an ID starting with a '1'.
+```
+Intensity 1. Delete
+```
+
+### All items with .
+You can simply select all items using a period.
+This command, for example, deletes all existing intensities:
+```
+Intensity . Delete
+```
+
+### Selecting multiple items with Thru .
+You can also select multiple IDs with Thru.
+This command would select the Intensity IDs 1.9, 1.10 and 1.11.
+```
+Intensity 1.9 Thru .11 Record 100
+```
+This command selects the Intensity IDs 1, 2, 3:
+```
+Intensity 1 Thru .3 Record 100
+```
