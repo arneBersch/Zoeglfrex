@@ -14,9 +14,6 @@ CueModel::CueModel(Kernel *core) {
 }
 
 void CueModel::loadCue(Cue *cue) {
-    if (cue == nullptr) {
-        return;
-    }
     beginResetModel();
     currentCue = cue;
     endResetModel();
