@@ -36,7 +36,6 @@ enum {
     Plus, // +
     Minus, // -
     Period, // .
-    Asterisk, // *
     Thru, // /
     Model, // M
     Fixture, // F

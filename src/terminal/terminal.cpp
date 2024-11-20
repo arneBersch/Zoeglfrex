@@ -77,8 +77,6 @@ void Terminal::execute(QString command, QString action) {
             commandKeys.append(Keys::Minus);
         } else if (command.at(index) == QChar('.')) {
             commandKeys.append(Keys::Period);
-        } else if (command.at(index) == QChar('*')) {
-            commandKeys.append(Keys::Asterisk);
         } else if (command.at(index) == QChar('/')) {
             commandKeys.append(Keys::Thru);
         } else if (command.at(index) == QChar('0')) {
@@ -181,8 +179,6 @@ QString Terminal::promptText(QList<int> keys)
             commandString += " - ";
         } else if (key == Keys::Period) {
             commandString += ".";
-        } else if (key == Keys::Asterisk) {
-            commandString += "*";
         } else if (key == Keys::Thru) {
             commandString += " Thru ";
         } else if (key == Keys::Zero) {
