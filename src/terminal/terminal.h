@@ -22,14 +22,13 @@ public:
     void backspace();
     void clear();
     void execute(bool clear=true);
-    bool execute(QString command);
+    void execute(QString command, QString action);
     void info(QString message);
     void success(QString message);
     void warning(QString message);
     void error(QString message);
 private:
     Kernel *kernel;
-    void updateInspector(int key);
     QString promptText(QList<int> keys);
     QList<int> command;
     QVBoxLayout *grid;

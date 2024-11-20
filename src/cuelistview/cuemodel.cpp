@@ -14,22 +14,15 @@ CueModel::CueModel(Kernel *core) {
 }
 
 void CueModel::loadCue(Cue *cue) {
-    beginRemoveRows(QModelIndex(), 0, (rows.length() - 1));
-    rows.clear();
-    endRemoveRows();
-    if (cue == nullptr) {
-        return;
-    }
+    beginResetModel();
     currentCue = cue;
-    beginInsertRows(QModelIndex(), 0, (kernel->rows->getIds().length() - 1));
-    rows = kernel->rows->getIds();
-    endInsertRows();
+    endResetModel();
 }
 
 int CueModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return rows.count();
+    return kernel->groups->rowCount();
 }
 
 int CueModel::columnCount(const QModelIndex &parent) const
@@ -50,20 +43,18 @@ QVariant CueModel::data(const QModelIndex &index, const int role) const
     }
     if (index.isValid() && role == Qt::DisplayRole) {
         QMutexLocker locker(kernel->mutex);
-        if (column == CueModelColumns::row) {
-            return rows[row];
+        if (column == CueModelColumns::group) {
+            return kernel->groups->items[row]->name();
         } else if (column == CueModelColumns::intensity) {
-            Row *currentRow = kernel->rows->getRow(rows[row]);
-            if (currentCue->intensities.contains(currentRow)) {
-                QString id = (currentCue->intensities[currentRow])->id;
-                return id;
+            Group *currentGroup = kernel->groups->items[row];
+            if (currentCue != nullptr && currentCue->intensities.contains(currentGroup)) {
+                return (currentCue->intensities[currentGroup])->name();
             }
             return QVariant();
         } else if (column == CueModelColumns::color) {
-            Row *currentRow = kernel->rows->getRow(rows[row]);
-            if (currentCue->colors.contains(currentRow)) {
-                QString id = (currentCue->colors[currentRow])->id;
-                return id;
+            Group *currentGroup = kernel->groups->items[row];
+            if (currentCue != nullptr && currentCue->colors.contains(currentGroup)) {
+                return (currentCue->colors[currentGroup])->name();
             }
             return QVariant();
         } else {
@@ -79,8 +70,8 @@ QVariant CueModel::headerData(int column, Qt::Orientation orientation, int role)
         return QVariant();
     }
     if (orientation == Qt::Horizontal) {
-        if (column == CueModelColumns::row) {
-            return "Row";
+        if (column == CueModelColumns::group) {
+            return "Group";
         } else if (column == CueModelColumns::intensity) {
             return "Intensity";
         } else if (column == CueModelColumns::color) {

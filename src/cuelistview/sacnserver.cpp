@@ -33,8 +33,8 @@ SacnServer::SacnServer() {
     data.append((char)0x00);
 
     // Flags and Length (Octet 16-17)
-    data.append((char)0x70);
-    data.append((char)0x6f);
+    data.append((char)0x72);
+    data.append((char)0x6e);
 
     // Vector (Octet 18-21)
     data.append((char)0x00);
@@ -48,8 +48,8 @@ SacnServer::SacnServer() {
 
     // Framing Layer
     // Flags and Length (Octet 38-39)
-    data.append((char)0x70);
-    data.append((char)0x59);
+    data.append((char)0x72);
+    data.append((char)0x58);
 
     // Vector (Octet 40-43)
     data.append((char)0x00);
@@ -83,8 +83,8 @@ SacnServer::SacnServer() {
 
     // DMP Layer
     // Flags and Length (Octet 115-116)
-    data.append((char)0x02);
-    data.append((char)0x0c);
+    data.append((char)0x72);
+    data.append((char)0x0b);
 
     // Vector (Octet 117)
     data.append((char)0x02);
@@ -108,7 +108,7 @@ SacnServer::SacnServer() {
     data.append((char)0x00);
 
     // Property Values (Octet 126-637)
-    for (int channel=0; channel<513; channel++) {
+    for (int channel=0; channel<512; channel++) {
         data.append((char)0x00);
     }
 }

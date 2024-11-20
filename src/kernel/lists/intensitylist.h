@@ -11,43 +11,17 @@
 
 #include <QtWidgets>
 
+#include "itemlist.h"
+#include "../items/intensity.h"
+
 class Kernel;
 
-struct Intensity {
-    QString id;
-    QString label;
-    float dimmer;
-};
-
-namespace IntensityListColumns {
-enum {
-    id,
-    label,
-    dimmer,
-};
-}
-
-
-class IntensityList : public QAbstractTableModel {
+template class ItemList<Intensity>;
+class IntensityList : public ItemList<Intensity> {
     Q_OBJECT
 public:
     IntensityList(Kernel *core);
-    Intensity* getIntensity(QString id);
-    int getIntensityRow(QString id);
-    QString copyIntensity(QList<QString> ids, QString targetId);
-    QString deleteIntensity(QList<QString> ids);
-    QString labelIntensity(QList<QString> ids, QString label);
-    QString moveIntensity(QList<QString> ids, QString targetId);
-    QString recordIntensityDimmer(QList<QString> ids, float dimmer);
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, const int role) const override;
-    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
-    QList<QString> getIds();
-private:
-    QList<Intensity*> intensities;
-    Kernel *kernel;
-    Intensity* recordIntensity(QString id);
+    void recordIntensityDimmer(QList<QString> ids, float dimmer);
 };
 
 #include "kernel/kernel.h"

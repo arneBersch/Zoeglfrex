@@ -11,44 +11,18 @@
 
 #include <QtWidgets>
 
+#include "itemlist.h"
+#include "../items/group.h"
+
 class Kernel;
-struct Fixture;
 
-struct Group {
-    QString id;
-    QString label;
-    QSet<Fixture*> fixtures;
-};
-
-namespace GroupListColumns {
-enum {
-    id,
-    label,
-    fixtures,
-};
-}
-
-class GroupList : public QAbstractTableModel {
+template class ItemList<Group>;
+class GroupList : public ItemList<Group> {
     Q_OBJECT
 public:
     GroupList(Kernel *core);
-    Group* getGroup(QString id);
-    int getGroupRow(QString id);
-    QString copyGroup(QList<QString> ids, QString targetId);
-    QString deleteGroup(QList<QString> ids);
     void deleteFixture(Fixture *fixture);
-    QString labelGroup(QList<QString> ids, QString label);
-    QString moveGroup(QList<QString> ids, QString targetId);
-    QString recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, const int role) const override;
-    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
-    QList<QString> getIds();
-private:
-    QList<Group*> groups;
-    Kernel *kernel;
-    Group* recordGroup(QString id);
+    void recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
 };
 
 #include "kernel/kernel.h"

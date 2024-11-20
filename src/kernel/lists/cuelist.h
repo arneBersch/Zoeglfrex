@@ -11,56 +11,24 @@
 
 #include <QtWidgets>
 
+#include "itemlist.h"
+#include "../items/cue.h"
+
 class Kernel;
-struct Intensity;
-struct Color;
-struct Row;
-struct Transition;
 
-struct Cue {
-    QString id;
-    QString label;
-    Transition* transition;
-    QMap<Row*, Intensity*> intensities;
-    QMap<Row*, Color*> colors;
-};
-
-namespace CueListColumns {
-enum {
-    id,
-    label,
-    transition,
-};
-}
-
-class CueList : public QAbstractTableModel {
+template class ItemList<Cue>;
+class CueList : public ItemList<Cue> {
     Q_OBJECT
 public:
     CueList(Kernel *core);
-    Cue* getCue(QString id);
-    int getCueRow(QString id);
-    QString copyCue(QList<QString> ids, QString targetId);
-    QString deleteCue(QList<QString> ids);
-    QString deleteCueRowIntensity(QList<QString> ids, QString rowId);
-    QString deleteCueRowColor(QList<QString> ids, QString rowId);
+    void deleteCueGroupIntensity(QList<QString> ids, QString groupId);
+    void deleteCueGroupColor(QList<QString> ids, QString groupId);
     void deleteIntensity(Intensity *intensity);
     void deleteColor(Color *color);
-    void deleteTransition(Transition *transition);
-    void deleteRow(Row *row);
-    QString labelCue(QList<QString> ids, QString label);
-    QString moveCue(QList<QString> ids, QString targetId);
-    QString recordCueTransition(QList<QString> ids, QString transitionId);
-    QString recordCueIntensity(QList<QString> ids, QString rowId, QString intensityId);
-    QString recordCueColor(QList<QString> ids, QString rowId, QString colorId);
-    QList<QString> getIds();
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, const int role) const override;
-    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
-private:
-    QList<Cue*> cues;
-    Kernel *kernel;
-    Cue* recordCue(QString id, Transition *transition);
+    void deleteGroup(Group *group);
+    void recordCueFade(QList<QString> ids, float fade);
+    void recordCueIntensity(QList<QString> ids, QString groupId, QString intensityId);
+    void recordCueColor(QList<QString> ids, QString groupId, QString colorId);
 };
 
 #include "kernel/kernel.h"

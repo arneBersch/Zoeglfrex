@@ -31,7 +31,7 @@ void Terminal::write(int key)
     command.append(key);
     prompt->setText(promptText(command));
     QMutexLocker locker(kernel->mutex);
-    updateInspector(key);
+    kernel->inspector->load(command);
 }
 
 void Terminal::backspace()
@@ -42,14 +42,13 @@ void Terminal::backspace()
     command.removeLast();
     prompt->setText(promptText(command));
     QMutexLocker locker(kernel->mutex);
-    for (int key : command) {
-        updateInspector(key);
-    }
+    kernel->inspector->load(command);
 }
 
 void Terminal::clear() {
     command.clear();
     prompt->setText(promptText(command));
+    kernel->inspector->load(command);
 }
 
 void Terminal::execute(bool clear)
@@ -57,96 +56,84 @@ void Terminal::execute(bool clear)
     if(command.isEmpty()) {
         return;
     }
-    int selectionType = command[0];
-    QString response = kernel->execute(command);
+    QList<int> selectionType;
+    selectionType.append(command[0]);
     info(">>> " + promptText(command));
-    if (!response.isEmpty()) {
-        error(response);
-    } else {
-        if (clear) {
-            this->clear();
-        }
+    kernel->execute(command);
+    if (clear) {
+        this->clear();
     }
     QMutexLocker locker(kernel->mutex);
-    updateInspector(selectionType);
+    kernel->inspector->load(selectionType);
 }
 
-bool Terminal::execute(QString command) {
+void Terminal::execute(QString command, QString action) {
     QList<int> commandKeys;
     QString text = QString();
     for (qsizetype index = 0; index < command.size(); index++) {
         if (command.at(index) == QChar('+')) {
-            commandKeys.append(keys::plus);
+            commandKeys.append(Keys::Plus);
         } else if (command.at(index) == QChar('-')) {
-            commandKeys.append(keys::minus);
+            commandKeys.append(Keys::Minus);
         } else if (command.at(index) == QChar('.')) {
-            commandKeys.append(keys::period);
-        } else if (command.at(index) == QChar(',')) {
-            commandKeys.append(keys::comma);
+            commandKeys.append(Keys::Period);
         } else if (command.at(index) == QChar('*')) {
-            commandKeys.append(keys::thru);
+            commandKeys.append(Keys::Asterisk);
+        } else if (command.at(index) == QChar('/')) {
+            commandKeys.append(Keys::Thru);
         } else if (command.at(index) == QChar('0')) {
-            commandKeys.append(keys::zero);
+            commandKeys.append(Keys::Zero);
         } else if (command.at(index) == QChar('1')) {
-            commandKeys.append(keys::one);
+            commandKeys.append(Keys::One);
         } else if (command.at(index) == QChar('2')) {
-            commandKeys.append(keys::two);
+            commandKeys.append(Keys::Two);
         } else if (command.at(index) == QChar('3')) {
-            commandKeys.append(keys::three);
+            commandKeys.append(Keys::Three);
         } else if (command.at(index) == QChar('4')) {
-            commandKeys.append(keys::four);
+            commandKeys.append(Keys::Four);
         } else if (command.at(index) == QChar('5')) {
-            commandKeys.append(keys::five);
+            commandKeys.append(Keys::Five);
         } else if (command.at(index) == QChar('6')) {
-            commandKeys.append(keys::six);
+            commandKeys.append(Keys::Six);
         } else if (command.at(index) == QChar('7')) {
-            commandKeys.append(keys::seven);
+            commandKeys.append(Keys::Seven);
         } else if (command.at(index) == QChar('8')) {
-            commandKeys.append(keys::eight);
+            commandKeys.append(Keys::Eight);
         } else if (command.at(index) == QChar('9')) {
-            commandKeys.append(keys::nine);
+            commandKeys.append(Keys::Nine);
         } else if (command.at(index) == QChar('m')) {
-            commandKeys.append(keys::model);
+            commandKeys.append(Keys::Model);
         } else if (command.at(index) == QChar('f')) {
-            commandKeys.append(keys::fixture);
+            commandKeys.append(Keys::Fixture);
         } else if (command.at(index) == QChar('g')) {
-            commandKeys.append(keys::group);
+            commandKeys.append(Keys::Group);
         } else if (command.at(index) == QChar('i')) {
-            commandKeys.append(keys::intensity);;
+            commandKeys.append(Keys::Intensity);;
         } else if (command.at(index) == QChar('c')) {
-            commandKeys.append(keys::color);
-        } else if (command.at(index) == QChar('t')) {
-            commandKeys.append(keys::transition);
-        } else if (command.at(index) == QChar('r')) {
-            commandKeys.append(keys::row);
+            commandKeys.append(Keys::Color);
         } else if (command.at(index) == QChar('q')) {
-            commandKeys.append(keys::cue);
+            commandKeys.append(Keys::Cue);
         } else if (command.at(index) == QChar('C')) {
-            commandKeys.append(keys::copyItem);
+            commandKeys.append(Keys::Copy);
         } else if (command.at(index) == QChar('D')) {
-            commandKeys.append(keys::deleteItem);
+            commandKeys.append(Keys::Delete);
         } else if (command.at(index) == QChar('L')) {
-            commandKeys.append(keys::labelItem);
+            commandKeys.append(Keys::Label);
         } else if (command.at(index) == QChar('M')) {
-            commandKeys.append(keys::moveItem);
+            commandKeys.append(Keys::Move);
         } else if (command.at(index) == QChar('R')) {
-            commandKeys.append(keys::recordItem);
+            commandKeys.append(Keys::Record);
         } else if (command.at(index) == QChar('"')) {
             text = command.mid((index + 1), (command.length() - index - 2));
         } else {
-            return false;
+            return;
         }
         if (!text.isEmpty()) {
             break;
         }
     }
-    QString response = kernel->execute(commandKeys, text);
-    info("file> " + promptText(commandKeys));
-    if (!response.isEmpty()) {
-        error(response);
-        return false;
-    }
-    return true;
+    info(action + "> " + promptText(commandKeys));
+    kernel->execute(commandKeys, text);
 }
 
 void Terminal::info(QString message)
@@ -188,61 +175,57 @@ QString Terminal::promptText(QList<int> keys)
 {
     QString commandString = "";
     for(const int key: keys) {
-        if (key == keys::plus) {
+        if (key == Keys::Plus) {
             commandString += " + ";
-        } else if (key == keys::minus) {
+        } else if (key == Keys::Minus) {
             commandString += " - ";
-        } else if (key == keys::period) {
+        } else if (key == Keys::Period) {
             commandString += ".";
-        } else if (key == keys::comma) {
-            commandString += ",";
-        } else if (key == keys::thru) {
+        } else if (key == Keys::Asterisk) {
+            commandString += "*";
+        } else if (key == Keys::Thru) {
             commandString += " Thru ";
-        } else if (key == keys::zero) {
+        } else if (key == Keys::Zero) {
             commandString += "0";
-        } else if (key == keys::one) {
+        } else if (key == Keys::One) {
             commandString += "1";
-        } else if (key == keys::two) {
+        } else if (key == Keys::Two) {
             commandString += "2";
-        } else if (key == keys::three) {
+        } else if (key == Keys::Three) {
             commandString += "3";
-        } else if (key == keys::four) {
+        } else if (key == Keys::Four) {
             commandString += "4";
-        } else if (key == keys::five) {
+        } else if (key == Keys::Five) {
             commandString += "5";
-        } else if (key == keys::six) {
+        } else if (key == Keys::Six) {
             commandString += "6";
-        } else if (key == keys::seven) {
+        } else if (key == Keys::Seven) {
             commandString += "7";
-        } else if (key == keys::eight) {
+        } else if (key == Keys::Eight) {
             commandString += "8";
-        } else if (key == keys::nine) {
+        } else if (key == Keys::Nine) {
             commandString += "9";
-        } else if (key == keys::model) {
+        } else if (key == Keys::Model) {
             commandString += " Model ";
-        } else if (key == keys::fixture) {
+        } else if (key == Keys::Fixture) {
             commandString += " Fixture ";
-        } else if (key == keys::group) {
+        } else if (key == Keys::Group) {
             commandString += " Group ";
-        } else if (key == keys::intensity) {
+        } else if (key == Keys::Intensity) {
             commandString += " Intensity ";
-        } else if (key == keys::color) {
+        } else if (key == Keys::Color) {
             commandString += " Color ";
-        } else if (key == keys::transition) {
-            commandString += " Transition ";
-        } else if (key == keys::row) {
-            commandString += " Row ";
-        } else if (key == keys::cue) {
+        } else if (key == Keys::Cue) {
             commandString += " Cue ";
-        } else if (key == keys::copyItem) {
+        } else if (key == Keys::Copy) {
             commandString += " Copy ";
-        } else if (key == keys::deleteItem) {
+        } else if (key == Keys::Delete) {
             commandString += " Delete ";
-        } else if (key == keys::labelItem) {
+        } else if (key == Keys::Label) {
             commandString += " Label ";
-        } else if (key == keys::moveItem) {
+        } else if (key == Keys::Move) {
             commandString += " Move ";
-        } else if (key == keys::recordItem) {
+        } else if (key == Keys::Record) {
             commandString += " Record ";
         } else {
             error(tr("Unknown key pressed: %1").arg(key));
@@ -256,26 +239,6 @@ QString Terminal::promptText(QList<int> keys)
         commandString.remove(commandString.size(), 1); // remove last character
     }
     return commandString;
-}
-
-void Terminal::updateInspector(int key) {
-    if (key == keys::model) {
-        kernel->inspector->loadModels();
-    } else if (key == keys::fixture) {
-        kernel->inspector->loadFixtures();
-    } else if (key == keys::group) {
-        kernel->inspector->loadGroups();
-    } else if (key == keys::intensity) {
-        kernel->inspector->loadIntensities();
-    } else if (key == keys::color) {
-        kernel->inspector->loadColors();
-    } else if (key == keys::transition) {
-        kernel->inspector->loadTransitions();
-    } else if (key == keys::row) {
-        kernel->inspector->loadRows();
-    } else if (key == keys::cue) {
-        kernel->inspector->loadCues();
-    }
 }
 
 void Terminal::scrollToLastMessage(int min, int max)

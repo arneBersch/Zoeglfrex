@@ -17,15 +17,21 @@ SOURCES += \
     cuelistview/dmxengine.cpp \
     cuelistview/sacnserver.cpp \
     inspector/inspector.cpp \
+    kernel/items/color.cpp \
+    kernel/items/cue.cpp \
+    kernel/items/fixture.cpp \
+    kernel/items/group.cpp \
+    kernel/items/intensity.cpp \
+    kernel/items/item.cpp \
+    kernel/items/model.cpp \
     kernel/kernel.cpp \
     kernel/lists/colorlist.cpp \
     kernel/lists/cuelist.cpp \
     kernel/lists/fixturelist.cpp \
     kernel/lists/grouplist.cpp \
     kernel/lists/intensitylist.cpp \
+    kernel/lists/itemlist.cpp \
     kernel/lists/modellist.cpp \
-    kernel/lists/rowlist.cpp \
-    kernel/lists/transitionlist.cpp \
     main.cpp \
     mainwindow/mainwindow.cpp \
     terminal/terminal.cpp
@@ -37,15 +43,21 @@ HEADERS += \
     cuelistview/dmxengine.h \
     cuelistview/sacnserver.h \
     inspector/inspector.h \
+    kernel/items/color.h \
+    kernel/items/cue.h \
+    kernel/items/fixture.h \
+    kernel/items/group.h \
+    kernel/items/intensity.h \
+    kernel/items/item.h \
+    kernel/items/model.h \
     kernel/kernel.h \
     kernel/lists/colorlist.h \
     kernel/lists/cuelist.h \
     kernel/lists/fixturelist.h \
     kernel/lists/grouplist.h \
     kernel/lists/intensitylist.h \
+    kernel/lists/itemlist.h \
     kernel/lists/modellist.h \
-    kernel/lists/rowlist.h \
-    kernel/lists/transitionlist.h \
     mainwindow/mainwindow.h \
     terminal/terminal.h
 

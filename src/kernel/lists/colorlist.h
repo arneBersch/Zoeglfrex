@@ -11,49 +11,19 @@
 
 #include <QtWidgets>
 
+#include "itemlist.h"
+#include "../items/color.h"
+
 class Kernel;
 
-struct Color {
-    QString id;
-    QString label;
-    float red;
-    float green;
-    float blue;
-};
-
-namespace ColorListColumns {
-enum {
-    id,
-    label,
-    red,
-    green,
-    blue,
-};
-}
-
-class ColorList : public QAbstractTableModel {
+template class ItemList<Color>;
+class ColorList : public ItemList<Color> {
     Q_OBJECT
 public:
     ColorList(Kernel *core);
-    Color* getColor(QString color);
-
-    QString copyColor(QList<QString> ids, QString targetId);
-    QString deleteColor(QList<QString> ids);
-    QString labelColor(QList<QString> ids, QString label);
-    QString moveColor(QList<QString> ids, QString targetId);
-    QString recordColorRed(QList<QString> ids, float red);
-    QString recordColorGreen(QList<QString> ids, float green);
-    QString recordColorBlue(QList<QString> ids, float blue);
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, const int role) const override;
-    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
-    QList<QString> getIds();
-private:
-    QList<Color*> colors;
-    Color* recordColor(QString id);
-    int getColorRow(QString id);
-    Kernel *kernel;
+    void recordColorRed(QList<QString> ids, float red);
+    void recordColorGreen(QList<QString> ids, float green);
+    void recordColorBlue(QList<QString> ids, float blue);
 };
 
 #include "kernel/kernel.h"

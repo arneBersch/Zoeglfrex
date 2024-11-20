@@ -11,49 +11,21 @@
 
 #include <QtWidgets>
 
+#include "itemlist.h"
+#include "../items/fixture.h"
+
 class Kernel;
-struct Model;
 
-struct Fixture {
-    QString id;
-    QString label;
-    Model* model;
-    int address;
-};
-
-namespace FixtureListColumns {
-enum {
-    id,
-    label,
-    model,
-    address,
-};
-}
-
-class FixtureList : public QAbstractTableModel {
+template class ItemList<Fixture>;
+class FixtureList : public ItemList<Fixture> {
     Q_OBJECT
 public:
     FixtureList(Kernel *core);
-    Fixture* getFixture(QString id);
-    int getFixtureRow(QString id);
-    QString copyFixture(QList<QString> ids, QString targetId);
-    QString deleteFixture(QList<QString> ids);
     void deleteModel(Model *model);
-    QString labelFixture(QList<QString> ids, QString label);
-    QString moveFixture(QList<QString> ids, QString targetId);
-    QString recordFixtureAddress(QList<QString> ids, int address);
-    QString recordFixtureModel(QList<QString> ids, QString model, int address=0);
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, const int role) const override;
-    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
-    QList<QString> getIds();
-    QSet<int> usedChannels();
+    void recordFixtureAddress(QList<QString> ids, int address);
+    void recordFixtureModel(QList<QString> ids, QString model);
+    bool channelsOkay();
 private:
-    QList<Fixture*> fixtures;
-    Kernel *kernel;
-    Fixture* recordFixture(QString id, Model* model);
-    int findFreeAddress(int channelCount);
 };
 
 #include "kernel/kernel.h"
