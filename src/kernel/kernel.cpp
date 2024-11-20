@@ -435,11 +435,36 @@ QList<QString> Kernel::keysToSelection(QList<int> keys, int itemType) {
     }
     QList<QString> ids;
     QList<int> idKeys;
+    QList<int> thruBuffer;
     for (int key : keys) {
         if (isNumber(key) || key == Keys::Period) {
             idKeys += key;
         } else if (key == Keys::Plus) {
-            if (idKeys.endsWith(Keys::Period)) {
+            if (!thruBuffer.isEmpty()) {
+                if (!idKeys.startsWith(Keys::Period)) {
+                    return QList<QString>();
+                }
+                idKeys.removeFirst();
+                if (idKeys.contains(Keys::Period)) {
+                    return QList<QString>();
+                }
+                int maxId = keysToId(idKeys).toInt();
+                QString idBeginning = keysToId(thruBuffer, false);
+                int minId = idBeginning.split('.').last().toInt();
+                if (idBeginning.contains('.')) {
+                    idBeginning = idBeginning.left(idBeginning.lastIndexOf(QChar('.'))) + ".";
+                } else {
+                    idBeginning = QString();
+                }
+                if (minId >= maxId) {
+                    return QList<QString>();
+                }
+                for (int counter = minId; counter <= maxId; counter++) {
+                    ids.append(idBeginning + QString::number(counter));
+                }
+                thruBuffer.clear();
+                idKeys.clear();
+            } else if (idKeys.endsWith(Keys::Period)) {
                 idKeys.removeLast();
                 if (idKeys.isEmpty()) {
                     ids.append(allIds);
@@ -460,6 +485,12 @@ QList<QString> Kernel::keysToSelection(QList<int> keys, int itemType) {
                 }
                 ids.append(id);
             }
+            idKeys.clear();
+        } else if (key == Keys::Thru) {
+            if (!thruBuffer.isEmpty()) {
+                return QList<QString>();
+            }
+            thruBuffer = idKeys;
             idKeys.clear();
         } else {
             return QList<QString>();
