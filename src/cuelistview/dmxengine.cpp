@@ -90,31 +90,24 @@ void DmxEngine::generateDmx() {
             const double q = (100.0 - (fixtureColors.value(fixture)->saturation * f));
             const double t = (100.0 - (fixtureColors.value(fixture)->saturation * (1.0 - f)));
             if (i == 0) {
-                red = 100.0;
                 green = t;
                 blue = p;
             } else if (i == 1) {
                 red = q;
-                green = 100.0;
                 blue = p;
             } else if (i == 2) {
                 red = p;
-                green = 100.0;
                 blue = t;
             } else if (i == 3) {
                 red = p;
                 green = q;
-                blue = 100.0;
             } else if (i == 4) {
                 red = t;
                 green = p;
-                blue = 100.0;
             } else if (i == 5) {
-                red = 100.0;
                 green = p;
                 blue = q;
             }
-            qInfo() << "Converted " << fixtureColors.value(fixture)->hue << "°, " << fixtureColors.value(fixture)->saturation << "% to R" << red << " G" << green << " B" << blue;
         }
         if (!channels.contains('D')) {
             red *= (dimmer / 100.0);
