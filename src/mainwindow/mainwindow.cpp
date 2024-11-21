@@ -229,7 +229,7 @@ void MainWindow::saveFile() {
     }
 
     for (Color* color : kernel->colors->items) {
-        fileStream << "c" << color->id << "R" << color->red << "+" << color->green << "+" << color->blue << "\n";
+        fileStream << "c" << color->id << "R" << color->hue << "+" << color->saturation << "\n";
         fileStream << "c" << color->id << "L\"" << color->label << "\"\n";
     }
 

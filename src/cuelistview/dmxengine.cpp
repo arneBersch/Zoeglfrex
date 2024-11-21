@@ -83,18 +83,47 @@ void DmxEngine::generateDmx() {
         float green = 100.0;
         float blue = 100.0;
         if (fixtureColors.contains(fixture)) {
-            red = fixtureColors.value(fixture)->red;
-            green = fixtureColors.value(fixture)->green;
-            blue = fixtureColors.value(fixture)->blue;
+            const double h = (fixtureColors.value(fixture)->hue / 60.0);
+            const int i = (int)h;
+            const double f = h - i;
+            const double p = (100.0 - fixtureColors.value(fixture)->saturation);
+            const double q = (100.0 - (fixtureColors.value(fixture)->saturation * f));
+            const double t = (100.0 - (fixtureColors.value(fixture)->saturation * (1.0 - f)));
+            if (i == 0) {
+                red = 100.0;
+                green = t;
+                blue = p;
+            } else if (i == 1) {
+                red = q;
+                green = 100.0;
+                blue = p;
+            } else if (i == 2) {
+                red = p;
+                green = 100.0;
+                blue = t;
+            } else if (i == 3) {
+                red = p;
+                green = q;
+                blue = 100.0;
+            } else if (i == 4) {
+                red = t;
+                green = p;
+                blue = 100.0;
+            } else if (i == 5) {
+                red = 100.0;
+                green = p;
+                blue = q;
+            }
+            qInfo() << "Converted " << fixtureColors.value(fixture)->hue << "°, " << fixtureColors.value(fixture)->saturation << "% to R" << red << " G" << green << " B" << blue;
         }
         if (!channels.contains('D')) {
-            red *= (dimmer / 100);
-            green *= (dimmer / 100);
-            blue *= (dimmer / 100);
+            red *= (dimmer / 100.0);
+            green *= (dimmer / 100.0);
+            blue *= (dimmer / 100.0);
         }
         if (fixture->address > 0) {
             for (int channel = fixture->address; channel < (fixture->address + channels.size()); channel++) {
-                float value = 0;
+                float value = 0.0;
                 if (channels.at(channel - fixture->address) == QChar('D')) { // DIMMER
                     value = dimmer;
                 } else if (channels.at(channel - fixture->address) == QChar('R')) { // RED
@@ -104,15 +133,15 @@ void DmxEngine::generateDmx() {
                 } else if (channels.at(channel - fixture->address) == QChar('B')) { // BLUE
                     value = blue;
                 } else if (channels.at(channel - fixture->address) == QChar('C')) { // CYAN
-                    value = (100 - red);
+                    value = (100.0 - red);
                 } else if (channels.at(channel - fixture->address) == QChar('M')) { // MAGENTA
-                    value = (100 - green);
+                    value = (100.0 - green);
                 } else if (channels.at(channel - fixture->address) == QChar('Y')) { // YELLOW
-                    value = (100 - blue);
+                    value = (100.0 - blue);
                 } else if (channels.at(channel - fixture->address) == QChar('0')) {
-                    value = 0;
+                    value = 0.0;
                 } else if (channels.at(channel - fixture->address) == QChar('1')) {
-                    value = 100;
+                    value = 100.0;
                 }
                 uint8_t raw = (value * 2.55 + 0.5);
                 currentCueValues[channel] = raw;

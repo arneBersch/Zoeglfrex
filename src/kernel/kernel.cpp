@@ -274,23 +274,18 @@ void Kernel::execute(QList<int> command, QString text) {
                     return;
                 }
                 QList<float> values = keysToValue(operation);
-                if (values.empty() || values.size() > 3) {
+                if (values.empty() || values.size() > 2) {
                     terminal->error("Invalid values given to Record Color.");
                     return;
                 }
                 if (values.size() >= 1) {
                     if (values[0] > -999) {
-                        colors->recordColorRed(ids, values[0]);
+                        colors->recordColorHue(ids, values[0]);
                     }
                 }
                 if (values.size() >= 2) {
                     if (values[1] > -999) {
-                        colors->recordColorGreen(ids, values[1]);
-                    }
-                }
-                if (values.size() >= 3) {
-                    if (values[2] > -999) {
-                        colors->recordColorBlue(ids, values[2]);
+                        colors->recordColorSaturation(ids, values[1]);
                     }
                 }
             } else if (selectionType == Keys::Cue) { // RECORD CUE
