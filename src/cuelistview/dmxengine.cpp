@@ -76,12 +76,12 @@ void DmxEngine::generateDmx() {
     for (Fixture* fixture : kernel->fixtures->items) {
         QString channels = fixture->model->channels;
         float dimmer = 0.0;
+        float red = 0.0;
+        float green = 0.0;
+        float blue = 0.0;
         if (fixtureIntensities.contains(fixture)) {
             dimmer = fixtureIntensities.value(fixture)->dimmer;
         }
-        float red = 100.0;
-        float green = 100.0;
-        float blue = 100.0;
         if (fixtureColors.contains(fixture)) {
             const double h = (fixtureColors.value(fixture)->hue / 60.0);
             const int i = (int)h;
@@ -90,23 +90,35 @@ void DmxEngine::generateDmx() {
             const double q = (100.0 - (fixtureColors.value(fixture)->saturation * f));
             const double t = (100.0 - (fixtureColors.value(fixture)->saturation * (1.0 - f)));
             if (i == 0) {
+                red = 100.0;
                 green = t;
                 blue = p;
             } else if (i == 1) {
                 red = q;
+                green = 100.0;
                 blue = p;
             } else if (i == 2) {
                 red = p;
+                green = 100.0;
                 blue = t;
             } else if (i == 3) {
                 red = p;
                 green = q;
+                blue = 100.0;
             } else if (i == 4) {
                 red = t;
                 green = p;
+                blue = 100.0;
             } else if (i == 5) {
+                red = 100.0;
                 green = p;
                 blue = q;
+            }
+        } else {
+            if (fixtureIntensities.contains(fixture)) {
+                red = 100.0;
+                green = 100.0;
+                blue = 100.0;
             }
         }
         if (!channels.contains('D')) {
