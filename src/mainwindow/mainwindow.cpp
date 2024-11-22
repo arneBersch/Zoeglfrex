@@ -138,7 +138,7 @@ void MainWindow::openFile() {
     }
     QTextStream textStream(&file);
     QString fileVersion = textStream.readLine();
-    if (fileVersion != "ZOEGLFREX_00.01.00") {
+    if (fileVersion != "ZOEGLFREX_00.02.00") {
         if (fileVersion.startsWith("ZOEGLFREX_")) {
             kernel->terminal->error("Can't open file: Zöglfrex file is not compatible with this version.");
         } else {
@@ -197,7 +197,7 @@ void MainWindow::saveFile() {
         return;
     }
     QTextStream fileStream(&file);
-    fileStream << "ZOEGLFREX_00.01.00\n";
+    fileStream << "ZOEGLFREX_00.02.00\n";
 
     for (Model* model : kernel->models->items) {
         fileStream << "m" << model->id << "R\"" << model->channels << "\"\n";

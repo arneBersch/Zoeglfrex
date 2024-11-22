@@ -31,7 +31,7 @@ private:
     void clearKernel();
     void about();
     QString fileName;
-    const QString VERSION = "Zöglfrex 0.1.0";
+    const QString VERSION = "Zöglfrex 0.2.0";
     const QString COPYRIGHT = "Copyright (c) 2024 Arne Bersch (zoeglfrex-dmx@web.de)";
 };
 #endif // MAINWINDOW_H
