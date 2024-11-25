@@ -36,18 +36,15 @@ enum {
     Plus, // +
     Minus, // -
     Period, // .
-    Thru, // /
+    Thru, // T
+    Set, // S
+    Attribute, // A
     Model, // M
     Fixture, // F
     Group, // G
     Intensity, // I
     Color, // C
     Cue, // Q
-    Copy, // SHIFT C
-    Delete, // SHIFT D
-    Label, // SHIFT L
-    Move, // SHIFT M
-    Record, // SHIFT R
 };
 }
 
@@ -68,7 +65,6 @@ public:
     QString keysToId(QList<int> keys, bool removeTrailingZeros = true);
 private:
     bool isItem(int key);
-    bool isOperator(int key);
     bool isNumber(int key);
     int keyToNumber(int key);
     QList<float> keysToValue(QList<int> keys);

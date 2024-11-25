@@ -98,11 +98,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(new QShortcut(QKeySequence(Qt::Key_I), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Intensity); }); // Intensity
     connect(new QShortcut(QKeySequence(Qt::Key_M), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Model); }); // Model
     connect(new QShortcut(QKeySequence(Qt::Key_Q), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Cue); }); // Cue
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_C), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Copy); }); // Copy
-    connect(new QShortcut(QKeySequence(Qt::SHIFT| Qt::Key_D), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Delete); }); // Delete
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_L), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Label); }); // Label
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_M), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Move); }); // Move
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_R), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Record); }); // Record
+    connect(new QShortcut(QKeySequence(Qt::Key_A), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Attribute); }); // At
+    connect(new QShortcut(QKeySequence(Qt::Key_S), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Set); }); // Set
     connect(new QShortcut(QKeySequence(Qt::Key_Return), this), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Return key)
     connect(new QShortcut(QKeySequence(Qt::Key_Enter), this), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Keypad Enter key)
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Return), this), &QShortcut::activated, this, [this]{ kernel->terminal->execute(false); }); // Enter Command (via Shift + Return key)

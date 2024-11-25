@@ -23,8 +23,6 @@ Kernel::Kernel() {
 
 void Kernel::execute(QList<int> command, QString text) {
     QMutexLocker locker(mutex);
-    QList<int> selection;
-    QList<QList<int>> operations;
     if(command.size() < 1) { // if command is empty
         terminal->error("Command is empty.");
         return;
@@ -35,14 +33,29 @@ void Kernel::execute(QList<int> command, QString text) {
         terminal->error("No Item Type specified.");
         return;
     }
+    QList<int> selection;
+    QList<int> attribute;
+    QList<int> value;
+    bool attributeReached = false;
+    bool valueReached = false;
     for (const int key : command) {
-        if (isOperator(key)) { // if a new operation is started
-            QList<int> newOperation;
-            newOperation.append(key);
-            operations.append(newOperation);
+        if (key == Keys::Set) {
+            if (valueReached) {
+                terminal->error("Can't use Set more than one time in one command.");
+                return;
+            }
+            valueReached = true;
+        } else if (key == Keys::Attribute || isItem(key)) {
+            if (valueReached) {
+                terminal->error("Can't give attribute after value.");
+                return;
+            }
+            attributeReached = true;
         } else {
-            if (operations.size() > 0) { // if the selection is finished
-                operations[operations.size() - 1].append(key);
+            if (valueReached) { // if the selection is finished
+                value.append(key);
+            } else if (attributeReached) {
+                attribute.append(key);
             } else {
                 selection.append(key);
             }
@@ -57,294 +70,288 @@ void Kernel::execute(QList<int> command, QString text) {
         terminal->error("No items selected.");
         return;
     }
-    if (operations.size() < 1) {
-        terminal->error("No operator specified.");
-        return;
-    }
-    if (!text.isNull() && operations.size() > 1) {
-        terminal->error("Passing a text to executeCommand limits the amount of operations to one.");
-        return;
-    }
-    for (QList<int> operation : operations) {
-        int operationType = operation[0];
-        operation.removeFirst();
-        if (operationType == Keys::Copy) { // COPY
-            QString targetId = keysToId(operation);
-            if (targetId.isEmpty()) {
-                terminal->error("Target ID not valid.");
-                return;
-            }
-            if (selectionType == Keys::Model) { // COPY MODEL
-                models->copyItems(ids, targetId);
-            } else if (selectionType == Keys::Fixture) { // COPY FIXTURE
-                fixtures->copyItems(ids, targetId);
-            } else if (selectionType == Keys::Group) { // COPY GROUP
-                groups->copyItems(ids, targetId);
-            } else if (selectionType == Keys::Intensity) { // COPY INTENSITY
-                intensities->copyItems(ids, targetId);
-            } else if (selectionType == Keys::Color) { // COPY COLOR
-                colors->copyItems(ids, targetId);
-            } else if (selectionType == Keys::Cue) { // COPY CUE
-                cues->copyItems(ids, targetId);
+    if (attribute.isEmpty() && !value.isEmpty() && (value.first() == selectionType)) { // COPY
+        value.removeFirst();
+        QString targetId = keysToId(value);
+        if (targetId.isEmpty()) {
+            terminal->error("Target ID not valid.");
+            return;
+        }
+        if (selectionType == Keys::Model) { // COPY MODEL
+            models->copyItems(ids, targetId);
+        } else if (selectionType == Keys::Fixture) { // COPY FIXTURE
+            fixtures->copyItems(ids, targetId);
+        } else if (selectionType == Keys::Group) { // COPY GROUP
+            groups->copyItems(ids, targetId);
+        } else if (selectionType == Keys::Intensity) { // COPY INTENSITY
+            intensities->copyItems(ids, targetId);
+        } else if (selectionType == Keys::Color) { // COPY COLOR
+            colors->copyItems(ids, targetId);
+        } else if (selectionType == Keys::Cue) { // COPY CUE
+            cues->copyItems(ids, targetId);
+        }
+    } else if ((value.size() == 1) && (value.first() == Keys::Minus) && (attribute.isEmpty() || selectionType == Keys::Cue)) { // DELETE
+        if (selectionType == Keys::Model) { // DELETE MODEL
+            models->deleteItems(ids);
+        } else if (selectionType == Keys::Fixture) { // DELETE FIXTURE
+            fixtures->deleteItems(ids);
+        } else if (selectionType == Keys::Group) { // DELETE GROUP
+            groups->deleteItems(ids);
+        } else if (selectionType == Keys::Intensity) { // DELETE INTENSITY
+            intensities->deleteItems(ids);
+        } else if (selectionType == Keys::Color) { // DELETE COLOR
+            colors->deleteItems(ids);
+        } else if (selectionType == Keys::Cue) { // DELETE CUE
+            if (attribute.isEmpty()) {
+                cues->deleteItems(ids);
             } else {
-                terminal->error("Unknown item type.");
-                return;
-            }
-        } else if (operationType == Keys::Delete) { // DELETE
-            if (!operation.isEmpty() && !(selectionType ==  Keys::Cue)) {
-                terminal->error("Delete doesn't take any parameters.");
-                return;
-            }
-            if (selectionType == Keys::Model) { // DELETE MODEL
-                models->deleteItems(ids);
-            } else if (selectionType == Keys::Fixture) { // DELETE FIXTURE
-                fixtures->deleteItems(ids);
-            } else if (selectionType == Keys::Group) { // DELETE GROUP
-                groups->deleteItems(ids);
-            } else if (selectionType == Keys::Intensity) { // DELETE INTENSITY
-                intensities->deleteItems(ids);
-            } else if (selectionType == Keys::Color) { // DELETE COLOR
-                colors->deleteItems(ids);
-            } else if (selectionType == Keys::Cue) { // DELETE CUE
-                if (operation.isEmpty()) {
-                    cues->deleteItems(ids);
+                if (attribute[0] != Keys::Attribute) {
+                    terminal->error("Cue Set - requires either no attributes or attribute 2 or 3 and a group.");
+                    return;
+                }
+                attribute.removeFirst();
+                int attributeId = 0;
+                if (attribute.isEmpty()) {
+                    terminal->error("Cue Attribute Set - requires attribute 2 or 3.");
+                    return;
+                } else if (attribute[0] == Keys::Two) {
+                    attributeId = 2;
+                } else if (attribute[0] == Keys::Three) {
+                    attributeId = 3;
                 } else {
-                    if (operation[0] != Keys::Group) {
-                        terminal->error("Delete Cue takes either no parameters or a Group.");
-                        return;
-                    }
-                    operation.removeFirst();
-                    bool intensityDelete = false;
-                    bool colorDelete = false;
-                    QList<int> groupSelection;
-                    for (int key : operation) {
-                        if (isNumber(key) || key == Keys::Period) {
-                            if (intensityDelete || colorDelete) {
-                                terminal->error("Can't delete Cue Group: No IDs are permitted after Intensity or Color.");
-                                return;
-                            }
-                            groupSelection.append(key);
-                        } else if (key == Keys::Intensity) {
-                            intensityDelete = true;
-                        } else if (key == Keys::Color) {
-                            colorDelete = true;
-                        } else {
-                            terminal->error("Can't delete Cue Group: Invalid key entered.");
-                            return;
-                        }
-                    }
-                    QString groupId = keysToId(groupSelection);
-                    if (groupId.isEmpty()) {
-                        terminal->error("Can't delete Cue Group: No valid Group ID given.");
-                        return;
-                    }
-                    if (intensityDelete || (!(intensityDelete || colorDelete))) {
-                        cues->deleteCueGroupIntensity(ids, groupId);
-                    }
-                    if (colorDelete || (!(intensityDelete || colorDelete))) {
-                        cues->deleteCueGroupColor(ids, groupId);
-                    }
+                    terminal->error("Cue Attribute Set - requires attribute 2 or 3.");
+                    return;
+                }
+                attribute.removeFirst();
+                if (attribute.isEmpty()) {
+                    terminal->error("Cue Attribute " + QString::number(attributeId) + " Set - requires Group.");
+                    return;
+                } else if (attribute[0] != Keys::Group) {
+                    terminal->error("Cue Attribute " + QString::number(attributeId) + " Set - requires Group.");
+                    return;
+                }
+                attribute.removeFirst();
+                QString groupId = keysToId(attribute);
+                if (groupId.isEmpty()) {
+                    terminal->error("Can't delete Cue Attribute " + QString::number(attributeId) + " Group: No valid Group ID given.");
+                    return;
+                }
+                if (attributeId == 2) {
+                    cues->deleteCueGroupIntensity(ids, groupId);
+                } else if (attributeId == 3) {
+                    cues->deleteCueGroupColor(ids, groupId);
                 }
             }
-        } else if (operationType == Keys::Label) { // LABEL
-            if (!operation.isEmpty()) {
-                terminal->error("Label doesn't take any parameters.");
+        }
+    } else if ((attribute.size() == 1) && (attribute[0] == Keys::One)) { // LABEL
+        if (!value.isEmpty()) {
+            terminal->error("Attribute 1 Set doesn't take any parameters.");
+            return;
+        }
+        QString label = text;
+        if (text.isNull()) {
+            bool ok = false;
+            locker.unlock();
+            label = QInputDialog::getText(terminal, QString(), "Label", QLineEdit::Normal, QString(), &ok);
+            locker.relock();
+            if (!ok) {
+                terminal->warning("Popup cancelled.");
                 return;
             }
-            QString label = text;
+        }
+        label.replace("\"", "");
+        if (selectionType == Keys::Model) { // LABEL MODEL
+            models->labelItems(ids, label);
+        } else if (selectionType == Keys::Fixture) { // LABEL FIXTURE
+            fixtures->labelItems(ids, label);
+        } else if (selectionType == Keys::Group) { // LABEL GROUP
+            groups->labelItems(ids, label);
+        } else if (selectionType == Keys::Intensity) { // LABEL INTENSITY
+            intensities->labelItems(ids, label);
+        } else if (selectionType == Keys::Color) { // LABEL COLOR
+            colors->labelItems(ids, label);
+        } else if (selectionType == Keys::Cue) { // LABEL CUE
+            cues->labelItems(ids, label);
+        }
+    } else if ((attribute.size() == 1) && (attribute[0] == Keys::Zero)) { // MOVE
+        QString targetId = keysToId(value);
+        if (targetId.isEmpty()) {
+            terminal->error("Target ID not valid.");
+            return;
+        }
+        if (selectionType == Keys::Model) { // MOVE MODEL
+            models->moveItems(ids, targetId);
+        } else if (selectionType == Keys::Fixture) { // MOVE FIXTURE
+            fixtures->moveItems(ids, targetId);
+        } else if (selectionType == Keys::Group) { // MOVE GROUP
+            groups->moveItems(ids, targetId);
+        } else if (selectionType == Keys::Intensity) { // MOVE INTENSITY
+            intensities->moveItems(ids, targetId);
+        } else if (selectionType == Keys::Color) { // MOVE COLOR
+            colors->moveItems(ids, targetId);
+        } else if (selectionType == Keys::Cue) { // MOVE CUE
+            cues->moveItems(ids, targetId);
+        }
+    } else { // RECORD
+        if (selectionType == Keys::Model) { // RECORD MODEL
+            if ((attribute.length() == 1) && attribute[0] == Keys::Two) {
+                terminal->error("Model Attribute Set only allows Attribute 0, 1 or 2.");
+                return;
+            }
+            if (!value.isEmpty()) {
+                terminal->error("Model Attribute 2 Set doesn't take a value.");
+                return;
+            }
+            QString channels = text;
             if (text.isNull()) {
                 bool ok = false;
                 locker.unlock();
-                label = QInputDialog::getText(terminal, QString(), "Label", QLineEdit::Normal, QString(), &ok);
+                channels = QInputDialog::getText(terminal, QString(), "Channels", QLineEdit::Normal, QString(), &ok);
                 locker.relock();
                 if (!ok) {
-                    terminal->error("Popup cancelled.");
+                    terminal->warning("Popup cancelled.");
                     return;
                 }
             }
-            label.replace("\"", "");
-            if (selectionType == Keys::Model) { // LABEL MODEL
-                models->labelItems(ids, label);
-            } else if (selectionType == Keys::Fixture) { // LABEL FIXTURE
-                fixtures->labelItems(ids, label);
-            } else if (selectionType == Keys::Group) { // LABEL GROUP
-                groups->labelItems(ids, label);
-            } else if (selectionType == Keys::Intensity) { // LABEL INTENSITY
-                intensities->labelItems(ids, label);
-            } else if (selectionType == Keys::Color) { // LABEL COLOR
-                colors->labelItems(ids, label);
-            } else if (selectionType == Keys::Cue) { // LABEL CUE
-                cues->labelItems(ids, label);
-            }
-        } else if (operationType == Keys::Move) { // MOVE
-            QString targetId = keysToId(operation);
-            if (targetId.isEmpty()) {
-                terminal->error("Target ID not valid.");
+            models->recordModelChannels(ids, channels);
+        } else if (selectionType == Keys::Fixture) { // RECORD FIXTURE
+            if (value.isEmpty()) {
+                terminal->error("Record Fixture Attribute 2 or 3 requires a value.");
                 return;
             }
-            if (selectionType == Keys::Model) { // MOVE MODEL
-                models->moveItems(ids, targetId);
-            } else if (selectionType == Keys::Fixture) { // MOVE FIXTURE
-                fixtures->moveItems(ids, targetId);
-            } else if (selectionType == Keys::Group) { // MOVE GROUP
-                groups->moveItems(ids, targetId);
-            } else if (selectionType == Keys::Intensity) { // MOVE INTENSITY
-                intensities->moveItems(ids, targetId);
-            } else if (selectionType == Keys::Color) { // MOVE COLOR
-                colors->moveItems(ids, targetId);
-            } else if (selectionType == Keys::Cue) { // MOVE CUE
-                cues->moveItems(ids, targetId);
+            if (attribute.length() != 1) {
+                terminal->error("Fixture Attribute Set only allows Attributes 0, 1, 2, 3");
+                return;
             }
-        } else if (operationType == Keys::Record) { // RECORD
-            if (selectionType == Keys::Model) { // RECORD MODEL
-                if (!operation.isEmpty()) {
-                    terminal->error("Record Model doesn't take any parameters.");
+            if (attribute[0] == Keys::Two) {
+                if (value[0] != Keys::Model) {
+                    terminal->error("Fixture Attribute 2 Set requires a model");
                     return;
                 }
-                QString channels = text;
-                if (text.isNull()) {
-                    bool ok = false;
-                    locker.unlock();
-                    channels = QInputDialog::getText(terminal, QString(), "Channels", QLineEdit::Normal, QString(), &ok);
-                    locker.relock();
-                    if (!ok) {
-                        terminal->error("Popup cancelled.");
-                        return;
-                    }
-                }
-                models->recordModelChannels(ids, channels);
-            } else if (selectionType == Keys::Fixture) { // RECORD FIXTURE
-                if (operation.isEmpty()) {
-                    terminal->error("Record Fixture requires arguments.");
+                value.removeFirst();
+                QString modelId = keysToId(value);
+                if (modelId.isEmpty()) {
+                    terminal->error("Can't set Model of Fixtures because Model ID is not vaild.");
                     return;
                 }
-                if (operation[0] == Keys::Model) {
-                    operation.removeFirst();
-                    QString modelId = keysToId(operation);
-                    if (modelId.isEmpty()) {
-                        terminal->error("Can't record Fixture Model because Model ID is not vaild.");
+                fixtures->recordFixtureModel(ids, modelId);
+            } else if (attribute[0] == Keys::Three) {
+                int address = 0;
+                for (int key : value) {
+                    if (!isNumber(key)) {
+                        terminal->error("Fixture Attribute 3 Set only allows numbers as a value.");
                         return;
                     }
-                    fixtures->recordFixtureModel(ids, modelId);
-                } else {
-                    int address = 0;
-                    for (int key : operation) {
-                        if (!isNumber(key)) {
-                            terminal->error("Can't record Fixture address because address only allows numbers as input.");
-                            return;
-                        }
-                        address = (address * 10) + keyToNumber(key);
-                    }
-                    fixtures->recordFixtureAddress(ids, address);
+                    address = (address * 10) + keyToNumber(key);
                 }
-            } else if (selectionType == Keys::Group) { // RECORD GROUP
-                if (operation.isEmpty()) {
-                    groups->recordGroupFixtures(ids, QList<QString>());
-                } else {
-                    if (operation[0] != Keys::Fixture) {
-                        terminal->error("Can't record Group because no Fixtures were given.");
-                        return;
-                    }
-                    operation.removeFirst();
-                    QList<QString> fixtureIds = keysToSelection(operation, Keys::Fixture);
-                    if (fixtureIds.isEmpty()) {
-                        terminal->error("Can't record Group because of invalid Fixture selection.");
-                        return;
-                    }
-                    groups->recordGroupFixtures(ids, fixtureIds);
-                }
-            } else if (selectionType == Keys::Intensity) { // RECORD INTENSITY
-                if (operation.isEmpty()) {
-                    terminal->error("Record Intensity requires arguments.");
+                fixtures->recordFixtureAddress(ids, address);
+            }
+        } else if (selectionType == Keys::Group) { // RECORD GROUP
+            if (attribute.length() != 1) {
+                terminal->error("Group Attribute Set only allows Attributes 0, 1 or 2.");
+                return;
+            }
+            if (attribute[0] != Keys::Two) {
+                terminal->error("Group Attribute Set only allows Attributes 0, 1 or 2.");
+                return;
+            }
+            if (value.isEmpty()) {
+                groups->recordGroupFixtures(ids, QList<QString>());
+            } else {
+                if (value[0] != Keys::Fixture) {
+                    terminal->error("Group Attribute 2 Set requires Fixtures.");
                     return;
                 }
-                QList<float> values = keysToValue(operation);
+                value.removeFirst();
+                QList<QString> fixtureIds = keysToSelection(value, Keys::Fixture);
+                if (fixtureIds.isEmpty()) {
+                    terminal->error("Can't record Group because of invalid Fixture selection.");
+                    return;
+                }
+                groups->recordGroupFixtures(ids, fixtureIds);
+            }
+        } else if (selectionType == Keys::Intensity) { // RECORD INTENSITY
+            if (attribute.length() != 1) {
+                terminal->error("Intensity Attribute Set only allows Attributes 0, 1 or 2.");
+                return;
+            }
+            if (attribute[0] != Keys::Two) {
+                terminal->error("Intensity Attribute Set only allows Attributes 0, 1 or 2.");
+                return;
+            }
+            QList<float> values = keysToValue(value);
+            if ((values.size() != 1) && (values[0] > -999)) {
+                terminal->error("Invalid values given to Intensity Attribute 2 Set.");
+                return;
+            }
+            intensities->recordIntensityDimmer(ids, values[0]);
+        } else if (selectionType == Keys::Color) { // RECORD COLOR
+            if (attribute.length() != 1) {
+                terminal->error("Color Attribute Set only allows Attributes 0, 1, 2 or 3.");
+                return;
+            }
+            QList<float> values = keysToValue(value);
+            if (values.size() != 1) {
+                terminal->error("Invalid values given to Color Attribute Set.");
+                return;
+            }
+            if (values[0] <= -999) {
+                terminal->error("Invalid values given to Color Attribute Set.");
+                return;
+            }
+            if (attribute[0] == Keys::Two) {
+                colors->recordColorHue(ids, values[0]);
+            } else if (attribute[0] == Keys::Three) {
+                colors->recordColorSaturation(ids, values[0]);
+            } else {
+                terminal->error("Color Attribute Set only allows Attributes 0, 1, 2 or 3.");
+                return;
+            }
+        } else if (selectionType == Keys::Cue) { // RECORD CUE
+            if (attribute.length() != 1) {
+                terminal->error("Cue Attribute Set only allows Attributes 0, 1, 2 or 3.");
+                return;
+            }
+            if ((attribute[0] == Keys::Two) || (attribute[0] == Keys::Three)) {
+                int attributeId = attribute[0];
+                attribute.removeFirst();
+                if (!attribute.isEmpty() || (attribute[0] != Keys::Group)) {
+                    terminal->error("Cue Attribute 2 or 3 requires Group.");
+                    return;
+                }
+                attribute.removeFirst();
+                QString groupId = keysToId(attribute);
+                if (groupId.isEmpty()) {
+                    terminal->error("No Group specified.");
+                    return;
+                }
+                if (attributeId == Keys::Two) {
+                    if (value.isEmpty() || value[0] != Keys::Intensity) {
+                        terminal->error("Cue Attribute 2 Group Set requies an Intensity.");
+                        return;
+                    }
+                    value.removeFirst();
+                    QString intensityId = keysToId(value);
+                    cues->recordCueIntensity(ids, groupId, intensityId);
+                } else if (attributeId == Keys::Three) {
+                    if (value.isEmpty() || value[0] != Keys::Color) {
+                        terminal->error("Cue Attribute 3 Group Set requies an Color.");
+                        return;
+                    }
+                    value.removeFirst();
+                    QString colorId = keysToId(value);
+                    cues->recordCueColor(ids, groupId, colorId);
+                }
+            } else if (attribute[0] == Keys::Four){
+                QList<float> values = keysToValue(value);
                 if (values.empty() || values.size() > 1) {
-                    terminal->error("Invalid values given to Record Intensity.");
+                    terminal->error("Invalid values given to Record Cue Fade.");
                     return;
                 }
-                if (values.size() >= 1) {
-                    if (values[0] > -999) {
-                        intensities->recordIntensityDimmer(ids, values[0]);
-                    }
-                }
-            } else if (selectionType == Keys::Color) { // RECORD COLOR
-                if (operation.isEmpty()) {
-                    terminal->error("Record Color requires arguments.");
-                    return;
-                }
-                QList<float> values = keysToValue(operation);
-                if (values.empty() || values.size() > 2) {
-                    terminal->error("Invalid values given to Record Color.");
-                    return;
-                }
-                if (values.size() >= 1) {
-                    if (values[0] > -999) {
-                        colors->recordColorHue(ids, values[0]);
-                    }
-                }
-                if (values.size() >= 2) {
-                    if (values[1] > -999) {
-                        colors->recordColorSaturation(ids, values[1]);
-                    }
-                }
-            } else if (selectionType == Keys::Cue) { // RECORD CUE
-                if (operation.isEmpty()) {
-                    terminal->error("Record Cue requires an argument.");
-                    return;
-                }
-                if (operation[0] == Keys::Group) {
-                    operation.removeFirst();
-                    operation.append(Keys::Intensity);
-                    QString intensityId;
-                    QString colorId;
-                    QString groupId;
-                    int lastItem = Keys::Group;
-                    QList<int> selection;
-                    for (int key : operation) {
-                        if (isNumber(key) || key == Keys::Period) {
-                            selection.append(key);
-                        } else if (key == Keys::Intensity || key == Keys::Color) {
-                            QString selectionId = keysToId(selection);
-                            if (selectionId.isEmpty()) {
-                                terminal->error("Invalid values given to Record Cue.");
-                                return;
-                            }
-                            selection.clear();
-                            if (lastItem == Keys::Group) {
-                                groupId = selectionId;
-                            } else if (lastItem == Keys::Intensity) {
-                                intensityId = selectionId;
-                            } else if (lastItem == Keys::Color) {
-                                colorId = selectionId;
-                            } else {
-                                terminal->error("Invalid values given to Record Cue.");
-                                return;
-                            }
-                            lastItem = key;
-                        } else {
-                            terminal->error("Invalid values given to Record Cue.");
-                            return;
-                        }
-                    }
-                    if (groupId.isEmpty()) {
-                        terminal->error("No Group specified.");
-                        return;
-                    }
-                    if (!intensityId.isEmpty()) {
-                        cues->recordCueIntensity(ids, groupId, intensityId);
-                    }
-                    if (!colorId.isEmpty()) {
-                        cues->recordCueColor(ids, groupId, colorId);
-                    }
-                } else {
-                    QList<float> values = keysToValue(operation);
-                    if (values.empty() || values.size() > 1) {
-                        terminal->error("Invalid values given to Record Cue Fade.");
-                        return;
-                    }
-                    cues->recordCueFade(ids, values[0]);
-                }
+                cues->recordCueFade(ids, values[0]);
+            } else {
+                terminal->error("Cue Attribute only allows Attributes 0, 1, 2, 3, 4 or 5.");
+                return;
             }
         }
     }
@@ -503,16 +510,6 @@ bool Kernel::isItem(int key) {
         (key == Keys::Color) ||
         (key == Keys::Cue)
     );
-}
-
-bool Kernel::isOperator(int key) {
-    return (
-        (key == Keys::Copy) ||
-        (key == Keys::Delete) ||
-        (key == Keys::Label) ||
-        (key == Keys::Move) ||
-        (key == Keys::Record)
-        );
 }
 
 bool Kernel::isNumber(int key) {
