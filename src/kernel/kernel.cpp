@@ -105,16 +105,8 @@ void Kernel::execute(QList<int> command, QString text) {
             if (attribute.isEmpty()) {
                 cues->deleteItems(ids);
             } else {
-                if (attribute[0] != Keys::Attribute) {
-                    terminal->error("Cue Set - requires either no attributes or attribute 2 or 3 and a group.");
-                    return;
-                }
-                attribute.removeFirst();
                 int attributeId = 0;
-                if (attribute.isEmpty()) {
-                    terminal->error("Cue Attribute Set - requires attribute 2 or 3.");
-                    return;
-                } else if (attribute[0] == Keys::Two) {
+                if (attribute[0] == Keys::Two) {
                     attributeId = 2;
                 } else if (attribute[0] == Keys::Three) {
                     attributeId = 3;
@@ -124,10 +116,11 @@ void Kernel::execute(QList<int> command, QString text) {
                 }
                 attribute.removeFirst();
                 if (attribute.isEmpty()) {
-                    terminal->error("Cue Attribute " + QString::number(attributeId) + " Set - requires Group.");
+                    terminal->error("Cue Attribute " + QString::number(attributeId) + " Set - requires Group ID.");
                     return;
-                } else if (attribute[0] != Keys::Group) {
-                    terminal->error("Cue Attribute " + QString::number(attributeId) + " Set - requires Group.");
+                }
+                if (attribute[0] != Keys::Group) {
+                    terminal->error("Cue Attribute " + QString::number(attributeId) + " Set - requires Group ID.");
                     return;
                 }
                 attribute.removeFirst();
