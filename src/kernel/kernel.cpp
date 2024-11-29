@@ -308,14 +308,10 @@ void Kernel::execute(QList<int> command, QString text) {
                 return;
             }
         } else if (selectionType == Keys::Cue) { // RECORD CUE
-            if (attribute.length() != 1) {
-                terminal->error("Cue Attribute Set only allows Attributes 0, 1, 2 or 3.");
-                return;
-            }
             if ((attribute[0] == Keys::Two) || (attribute[0] == Keys::Three)) {
                 int attributeId = attribute[0];
                 attribute.removeFirst();
-                if (!attribute.isEmpty() || (attribute[0] != Keys::Group)) {
+                if (attribute.isEmpty() || (attribute[0] != Keys::Group)) {
                     terminal->error("Cue Attribute 2 or 3 requires Group.");
                     return;
                 }
@@ -326,20 +322,28 @@ void Kernel::execute(QList<int> command, QString text) {
                     return;
                 }
                 if (attributeId == Keys::Two) {
-                    if (value.isEmpty() || value[0] != Keys::Intensity) {
+                    if (value.isEmpty() || (value[0] != Keys::Intensity)) {
                         terminal->error("Cue Attribute 2 Group Set requies an Intensity.");
                         return;
                     }
                     value.removeFirst();
                     QString intensityId = keysToId(value);
+                    if (intensityId.isEmpty()) {
+                        terminal->error("Cue Attribute 2 Group Set received an invalid Intensity ID.");
+                        return;
+                    }
                     cues->recordCueIntensity(ids, groupId, intensityId);
                 } else if (attributeId == Keys::Three) {
-                    if (value.isEmpty() || value[0] != Keys::Color) {
+                    if (value.isEmpty() || (value[0] != Keys::Color)) {
                         terminal->error("Cue Attribute 3 Group Set requies an Color.");
                         return;
                     }
                     value.removeFirst();
                     QString colorId = keysToId(value);
+                    if (colorId.isEmpty()) {
+                        terminal->error("Cue Attribute 3 Group Set received an invalid Color ID.");
+                        return;
+                    }
                     cues->recordCueColor(ids, groupId, colorId);
                 }
             } else if (attribute[0] == Keys::Four){
@@ -350,7 +354,7 @@ void Kernel::execute(QList<int> command, QString text) {
                 }
                 cues->recordCueFade(ids, values[0]);
             } else {
-                terminal->error("Cue Attribute only allows Attributes 0, 1, 2, 3, 4 or 5.");
+                terminal->error("Cue Attribute only allows Attributes 0, 1, 2, 3 or 4.");
                 return;
             }
         }
