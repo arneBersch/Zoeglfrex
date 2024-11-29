@@ -31,29 +31,27 @@ template <class T> QList<QString> ItemList<T>::getIds() const {
     return ids;
 }
 
-template <class T> void ItemList<T>::copyItems(QList<QString> ids, QString targetId) {
-    QList<int> itemRows;
+template <class T> void ItemList<T>::copyItems(QList<QString> ids, QString sourceId) {
+    T* sourceItem = getItem(sourceId);
+    if (sourceItem == nullptr) {
+        kernel->terminal->error("Can't copy " + singularItemName + " " + sourceId + " because it doesn't exist.");
+        return;
+    }
+    int itemCounter = 0;
     for (QString id : ids) {
-        int itemRow = getItemRow(id);
-        if (itemRow < 0) {
-            kernel->terminal->warning("Couldn't copy " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
+        if (getItem(id) != nullptr) {
+            kernel->terminal->warning("Couldn't copy " + singularItemName + " " + sourceItem->name() + " because target ID " + id + " is already used.");
         } else {
-            itemRows.append(itemRow);
-        }
-    }
-    for (int itemRow : itemRows) {
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->warning("Couldn't copy " + singularItemName + " " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
-        } else {
-            T* targetItem = new T(items[itemRow]);
-            targetItem->id = targetId;
-            int position = findRow(targetId);
+            T* item = new T(sourceItem);
+            item->id = id;
+            int position = findRow(id);
             beginInsertRows(QModelIndex(), position, position);
-            items.insert(position, targetItem);
+            items.insert(position, item);
             endInsertRows();
+            itemCounter++;
         }
     }
-    kernel->terminal->success("Copied " + QString::number(itemRows.length()) + " " + pluralItemName + " to \"" + targetId + ".");
+    kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + sourceItem->name() + " .");
 }
 
 template <class T> void ItemList<T>::deleteItems(QList<QString> ids) {

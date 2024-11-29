@@ -45,7 +45,7 @@ void Kernel::execute(QList<int> command, QString text) {
                 return;
             }
             valueReached = true;
-        } else if (key == Keys::Attribute || isItem(key)) {
+        } else if (key == Keys::Attribute) {
             if (valueReached) {
                 terminal->error("Can't give attribute after value.");
                 return;
@@ -72,23 +72,23 @@ void Kernel::execute(QList<int> command, QString text) {
     }
     if (attribute.isEmpty() && !value.isEmpty() && (value.first() == selectionType)) { // COPY
         value.removeFirst();
-        QString targetId = keysToId(value);
-        if (targetId.isEmpty()) {
+        QString sourceId = keysToId(value);
+        if (sourceId.isEmpty()) {
             terminal->error("Target ID not valid.");
             return;
         }
         if (selectionType == Keys::Model) { // COPY MODEL
-            models->copyItems(ids, targetId);
+            models->copyItems(ids, sourceId);
         } else if (selectionType == Keys::Fixture) { // COPY FIXTURE
-            fixtures->copyItems(ids, targetId);
+            fixtures->copyItems(ids, sourceId);
         } else if (selectionType == Keys::Group) { // COPY GROUP
-            groups->copyItems(ids, targetId);
+            groups->copyItems(ids, sourceId);
         } else if (selectionType == Keys::Intensity) { // COPY INTENSITY
-            intensities->copyItems(ids, targetId);
+            intensities->copyItems(ids, sourceId);
         } else if (selectionType == Keys::Color) { // COPY COLOR
-            colors->copyItems(ids, targetId);
+            colors->copyItems(ids, sourceId);
         } else if (selectionType == Keys::Cue) { // COPY CUE
-            cues->copyItems(ids, targetId);
+            cues->copyItems(ids, sourceId);
         }
     } else if ((value.size() == 1) && (value.first() == Keys::Minus) && (attribute.isEmpty() || selectionType == Keys::Cue)) { // DELETE
         if (selectionType == Keys::Model) { // DELETE MODEL
