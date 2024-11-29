@@ -31,7 +31,7 @@ QString Group::info() {
         fixtureNames += fixture->name() + ", ";
     }
     fixtureNames.chop(2);
-    info += "\nFixtures: " + fixtureNames;
+    info += "\n2 Fixtures: " + fixtureNames;
     return info;
 }
 

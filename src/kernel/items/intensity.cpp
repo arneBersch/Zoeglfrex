@@ -22,6 +22,6 @@ QString Intensity::name() {
 
 QString Intensity::info() {
     QString info = Item::info();
-    info += "\nDimmer: " + QString::number(dimmer) + "%";
+    info += "\n2 Dimmer: " + QString::number(dimmer) + "%";
     return info;
 }

@@ -22,6 +22,6 @@ QString Model::name() {
 
 QString Model::info() {
     QString info = Item::info();
-    info += "\nChannels: " + channels;
+    info += "\n2 Channels: " + channels;
     return info;
 }
