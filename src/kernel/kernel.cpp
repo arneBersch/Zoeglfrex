@@ -194,7 +194,7 @@ void Kernel::execute(QList<int> command, QString text) {
         }
     } else { // RECORD
         if (selectionType == Keys::Model) { // RECORD MODEL
-            if ((attribute.length() == 1) && attribute[0] == Keys::Two) {
+            if ((attribute.length() != 1) || attribute[0] != Keys::Two) {
                 terminal->error("Model Attribute Set only allows Attribute 0, 1 or 2.");
                 return;
             }
