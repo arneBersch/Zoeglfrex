@@ -156,12 +156,12 @@ void MainWindow::openFile() {
 
 void MainWindow::clearKernel() {
     fileName = QString(); // reset filename
-    kernel->terminal->execute("m.D", "new file");
-    kernel->terminal->execute("f.D", "new file");
-    kernel->terminal->execute("g.D", "new file");
-    kernel->terminal->execute("i.D", "new file");
-    kernel->terminal->execute("c.D", "new file");
-    kernel->terminal->execute("q.D", "new file");
+    kernel->terminal->execute("m.s-", "new file");
+    kernel->terminal->execute("f.s-", "new file");
+    kernel->terminal->execute("g.s-", "new file");
+    kernel->terminal->execute("i.s-", "new file");
+    kernel->terminal->execute("c.s-", "new file");
+    kernel->terminal->execute("q.s-", "new file");
 }
 
 void MainWindow::newFile() {
