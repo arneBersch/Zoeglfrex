@@ -416,7 +416,7 @@ QList<QString> Kernel::keysToSelection(QList<int> keys, int itemType) {
     } else if (itemType == Keys::Fixture) {
         allIds = fixtures->getIds();
     } else if (itemType == Keys::Group) {
-        allIds = colors->getIds();
+        allIds = groups->getIds();
     } else if (itemType == Keys::Intensity) {
         allIds = intensities->getIds();
     } else if (itemType == Keys::Color) {
