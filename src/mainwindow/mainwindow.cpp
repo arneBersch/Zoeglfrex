@@ -197,14 +197,14 @@ void MainWindow::saveFile() {
     fileStream << "ZOEGLFREX_00.02.00\n";
 
     for (Model* model : kernel->models->items) {
-        fileStream << "m" << model->id << "R\"" << model->channels << "\"\n";
-        fileStream << "m" << model->id << "L\"" << model->label << "\"\n";
+        fileStream << "m" << model->id << "a2s\"" << model->channels << "\"\n";
+        fileStream << "m" << model->id << "a1s\"" << model->label << "\"\n";
     }
 
     for (Fixture* fixture : kernel->fixtures->items) {
-        fileStream << "f" << fixture->id << "Rm" << fixture->model->id << "\n";
-        fileStream << "f" << fixture->id << "R" << fixture->address << "\n";
-        fileStream << "f" << fixture->id << "L\"" << fixture->label << "\"\n";
+        fileStream << "f" << fixture->id << "a2sm" << fixture->model->id << "\n";
+        fileStream << "f" << fixture->id << "a3s" << fixture->address << "\n";
+        fileStream << "f" << fixture->id << "a1s\"" << fixture->label << "\"\n";
     }
 
     for (Group* group : kernel->groups->items) {
@@ -216,29 +216,30 @@ void MainWindow::saveFile() {
                 fixtures += "+";
             }
         }
-        fileStream << "g" << group->id << "R" << fixtures << "\n";
-        fileStream << "g" << group->id << "L\"" << group->label << "\"\n";
+        fileStream << "g" << group->id << "a2s" << fixtures << "\n";
+        fileStream << "g" << group->id << "a1s\"" << group->label << "\"\n";
     }
 
     for (Intensity* intensity : kernel->intensities->items) {
-        fileStream << "i" << intensity->id << "R" << intensity->dimmer << "\n";
-        fileStream << "i" << intensity->id << "L\"" << intensity->label << "\"\n";
+        fileStream << "i" << intensity->id << "a2s" << intensity->dimmer << "\n";
+        fileStream << "i" << intensity->id << "a1s\"" << intensity->label << "\"\n";
     }
 
     for (Color* color : kernel->colors->items) {
-        fileStream << "c" << color->id << "R" << color->hue << "+" << color->saturation << "\n";
-        fileStream << "c" << color->id << "L\"" << color->label << "\"\n";
+        fileStream << "c" << color->id << "a2s" << color->hue << "\n";
+        fileStream << "c" << color->id << "a3s" << color->saturation << "\n";
+        fileStream << "c" << color->id << "a1s\"" << color->label << "\"\n";
     }
 
     for (Cue* cue : kernel->cues->items) {
-        fileStream << "q" << cue->id << "R" << cue->fade << "\n";
-        fileStream << "q" << cue->id << "L\"" << cue->label << "\"\n";
+        fileStream << "q" << cue->id << "a4s" << cue->fade << "\n";
+        fileStream << "q" << cue->id << "a1s\"" << cue->label << "\"\n";
         for (Group* group : kernel->groups->items) {
             if (cue->intensities.contains(group)) {
-                fileStream << "q" << cue->id << "Rg" << group->id << "i" << cue->intensities.value(group)->id << "\n";
+                fileStream << "q" << cue->id << "a2g" << group->id << "si" << cue->intensities.value(group)->id << "\n";
             }
             if (cue->colors.contains(group)) {
-                fileStream << "q" << cue->id << "Rg" << group->id << "c" << cue->colors.value(group)->id << "\n";
+                fileStream << "q" << cue->id << "a3g" << group->id << "sc" << cue->colors.value(group)->id << "\n";
             }
         }
     }
