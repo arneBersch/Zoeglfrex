@@ -46,6 +46,10 @@ void Kernel::execute(QList<int> command, QString text) {
             }
             valueReached = true;
         } else if (key == Keys::Attribute) {
+            if (attributeReached) {
+                terminal->error("Can't give two attributes.");
+                return;
+            }
             if (valueReached) {
                 terminal->error("Can't give attribute after value.");
                 return;
