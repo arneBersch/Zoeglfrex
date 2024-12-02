@@ -191,6 +191,9 @@ void Kernel::execute(QList<int> command, QString text) {
         }
     } else { // RECORD
         if (selectionType == Keys::Model) { // RECORD MODEL
+            if (attribute.isEmpty()) {
+                attribute.append(Keys::Two);
+            }
             if ((attribute.length() != 1) || attribute[0] != Keys::Two) {
                 terminal->error("Model Attribute Set only allows Attribute 0, 1 or 2.");
                 return;
@@ -212,11 +215,10 @@ void Kernel::execute(QList<int> command, QString text) {
             }
             models->recordModelChannels(ids, channels);
         } else if (selectionType == Keys::Fixture) { // RECORD FIXTURE
-            if (value.isEmpty()) {
-                terminal->error("Record Fixture Attribute 2 or 3 requires a value.");
-                return;
+            if (attribute.isEmpty()) {
+                attribute.append(Keys::Three);
             }
-            if (attribute.length() != 1) {
+            if (attribute.length() != 1 || ((attribute[0] != Keys::Two) && (attribute[0] != Keys::Three))) {
                 terminal->error("Fixture Attribute Set only allows Attributes 0, 1, 2, 3");
                 return;
             }
@@ -244,6 +246,9 @@ void Kernel::execute(QList<int> command, QString text) {
                 fixtures->recordFixtureAddress(ids, address);
             }
         } else if (selectionType == Keys::Group) { // RECORD GROUP
+            if (attribute.isEmpty()) {
+                attribute.append(Keys::Two);
+            }
             if (attribute.length() != 1) {
                 terminal->error("Group Attribute Set only allows Attributes 0, 1 or 2.");
                 return;
@@ -268,6 +273,9 @@ void Kernel::execute(QList<int> command, QString text) {
                 groups->recordGroupFixtures(ids, fixtureIds);
             }
         } else if (selectionType == Keys::Intensity) { // RECORD INTENSITY
+            if (attribute.isEmpty()) {
+                attribute.append(Keys::Two);
+            }
             if (attribute.length() != 1) {
                 terminal->error("Intensity Attribute Set only allows Attributes 0, 1 or 2.");
                 return;
@@ -305,6 +313,9 @@ void Kernel::execute(QList<int> command, QString text) {
                 return;
             }
         } else if (selectionType == Keys::Cue) { // RECORD CUE
+            if (attribute.isEmpty()) {
+                attribute.append(Keys::Four);
+            }
             if ((attribute[0] == Keys::Two) || (attribute[0] == Keys::Three)) {
                 int attributeId = attribute[0];
                 attribute.removeFirst();
