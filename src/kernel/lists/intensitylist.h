@@ -21,7 +21,7 @@ class IntensityList : public ItemList<Intensity> {
     Q_OBJECT
 public:
     IntensityList(Kernel *core);
-    void setAttribute(QList<QString> ids, QString attributeId, float value);
+    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text);
 };
 
 #include "kernel/kernel.h"

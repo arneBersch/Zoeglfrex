@@ -295,23 +295,10 @@ void Kernel::execute(QList<int> command, QString text) {
                 groups->recordGroupFixtures(ids, fixtureIds);
             }
         } else if (selectionType == Keys::Intensity) { // RECORD INTENSITY
-            if (attribute.isEmpty()) {
-                attribute.append(Keys::Two);
+            if (!attributeMap.contains(Keys::Attribute)) {
+                attributeMap[Keys::Attribute] = "2";
             }
-            if (attribute.length() != 1) {
-                terminal->error("Intensity Attribute Set only allows Attributes 0, 1 or 2.");
-                return;
-            }
-            if (attribute[0] != Keys::Two) {
-                terminal->error("Intensity Attribute Set only allows Attributes 0, 1 or 2.");
-                return;
-            }
-            float valueFloat = keysToValue(value);
-            if (valueFloat < 1) {
-                terminal->error("Invalid values given to Intensity Attribute 2 Set.");
-                return;
-            }
-            intensities->setAttribute(ids, keysToId(attribute), valueFloat);
+            intensities->setOtherAttribute(ids, attributeMap, value, QString());
         } else if (selectionType == Keys::Color) {
             if (!attributeMap.contains(Keys::Attribute)) {
                 attributeMap[Keys::Attribute] = "2";

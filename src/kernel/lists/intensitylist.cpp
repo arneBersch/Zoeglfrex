@@ -12,8 +12,10 @@ IntensityList::IntensityList(Kernel *core) : ItemList("Intensity", "Intensities"
     kernel = core;
 }
 
-void IntensityList::setAttribute(QList<QString> ids, QString attribute, float dimmer) {
-    if (attribute == "2") {
+void IntensityList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
+    QString attributeString = attribute.value(Keys::Attribute);
+    if (attributeString == "2") {
+        float dimmer = kernel->keysToValue(value);
         if (dimmer > 100 || dimmer < 0) {
             kernel->terminal->error("Can't set Intensity Dimmer because Dimmer only allows values from 0% to 100%.");
             return;
@@ -28,6 +30,6 @@ void IntensityList::setAttribute(QList<QString> ids, QString attribute, float di
         }
         kernel->terminal->success("Set Dimmer of " + QString::number(ids.length()) + " Intensities to " + QString::number(dimmer) + "%.");
     } else {
-        kernel->terminal->error("Can't set Intensity attribute " + attribute + ".");
+        kernel->terminal->error("Can't set Intensity attribute " + attributeString + ".");
     }
 }
