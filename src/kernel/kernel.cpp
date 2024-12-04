@@ -284,34 +284,26 @@ void Kernel::execute(QList<int> command, QString text) {
                 terminal->error("Intensity Attribute Set only allows Attributes 0, 1 or 2.");
                 return;
             }
-            QList<float> values = keysToValue(value);
-            if ((values.size() != 1) && (values[0] > -999)) {
+            float valueFloat = keysToValue(value);
+            if (valueFloat < 1) {
                 terminal->error("Invalid values given to Intensity Attribute 2 Set.");
                 return;
             }
-            intensities->recordIntensityDimmer(ids, values[0]);
+            intensities->recordIntensityDimmer(ids, valueFloat);
         } else if (selectionType == Keys::Color) { // RECORD COLOR
+            if (attribute.isEmpty()) {
+                attribute.append(Keys::Two);
+            }
             if (attribute.length() != 1) {
                 terminal->error("Color Attribute Set only allows Attributes 0, 1, 2 or 3.");
                 return;
             }
-            QList<float> values = keysToValue(value);
-            if (values.size() != 1) {
+            float valueFloat = keysToValue(value);
+            if (valueFloat < 0) {
                 terminal->error("Invalid values given to Color Attribute Set.");
                 return;
             }
-            if (values[0] <= -999) {
-                terminal->error("Invalid values given to Color Attribute Set.");
-                return;
-            }
-            if (attribute[0] == Keys::Two) {
-                colors->recordColorHue(ids, values[0]);
-            } else if (attribute[0] == Keys::Three) {
-                colors->recordColorSaturation(ids, values[0]);
-            } else {
-                terminal->error("Color Attribute Set only allows Attributes 0, 1, 2 or 3.");
-                return;
-            }
+            colors->setAttribute(ids, keysToId(attribute), valueFloat);
         } else if (selectionType == Keys::Cue) { // RECORD CUE
             if (attribute.isEmpty()) {
                 attribute.append(Keys::Four);
@@ -355,12 +347,12 @@ void Kernel::execute(QList<int> command, QString text) {
                     cues->recordCueColor(ids, groupId, colorId);
                 }
             } else if (attribute[0] == Keys::Four){
-                QList<float> values = keysToValue(value);
-                if (values.empty() || values.size() > 1) {
+                float valueFloat = keysToValue(value);
+                if (valueFloat < 0) {
                     terminal->error("Invalid values given to Record Cue Fade.");
                     return;
                 }
-                cues->recordCueFade(ids, values[0]);
+                cues->recordCueFade(ids, valueFloat);
             } else {
                 terminal->error("Cue Attribute only allows Attributes 0, 1, 2, 3 or 4.");
                 return;
@@ -392,36 +384,24 @@ QString Kernel::keysToId(QList<int> keys, bool removeTrailingZeros) {
     return id;
 }
 
-QList<float> Kernel::keysToValue(QList<int> keys) {
-    keys.append(Keys::Plus);
-    QList<float> values;
+float Kernel::keysToValue(QList<int> keys) {
     QString value;
     for (const int key : keys) {
         if (isNumber(key)) {
             value += QString::number(keyToNumber(key));
         } else if (key == Keys::Period) {
-            if (value.contains(".")) {
-                return QList<float>();
-            }
             value += ".";
-        } else if (key == Keys::Plus) {
-            if (value.isEmpty()) {
-                values.append(-999);
-            } else {
-                bool ok;
-                float newValue = value.toFloat(&ok);
-                if (!ok) {
-                    return QList<float>();
-                }
-                newValue = (floor((newValue * 100) + 0.5) / 100);
-                values.append(newValue);
-            }
-            value = QString();
         } else {
-            return QList<float>();
+            return -1;
         }
     }
-    return values;
+    bool ok;
+    float valueFloat = value.toFloat(&ok);
+    if (!ok) {
+        return -1;
+    }
+    valueFloat = (floor((valueFloat * 100) + 0.5) / 100);
+    return valueFloat;
 }
 
 QList<QString> Kernel::keysToSelection(QList<int> keys, int itemType) {

@@ -21,8 +21,7 @@ class ColorList : public ItemList<Color> {
     Q_OBJECT
 public:
     ColorList(Kernel *core);
-    void recordColorHue(QList<QString> ids, float red);
-    void recordColorSaturation(QList<QString> ids, float green);
+    void setAttribute(QList<QString> ids, QString attributeId, float value);
 };
 
 #include "kernel/kernel.h"

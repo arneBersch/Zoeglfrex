@@ -67,7 +67,7 @@ private:
     bool isItem(int key);
     bool isNumber(int key);
     int keyToNumber(int key);
-    QList<float> keysToValue(QList<int> keys);
+    float keysToValue(QList<int> keys);
     QList<QString> keysToSelection(QList<int> keys, int itemType);
 };
 
