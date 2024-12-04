@@ -321,7 +321,7 @@ void Kernel::execute(QList<int> command, QString text) {
             }
             QString itemId = keysToId(currentId);
             attributeMap[currentItemType] = itemId;
-            cues->setAttribute(ids, attributeMap, value, QString());
+            cues->setOtherAttribute(ids, attributeMap, value, QString());
         }
     }
     cuelistView->loadCue();
