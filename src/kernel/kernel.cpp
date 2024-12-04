@@ -346,7 +346,7 @@ void Kernel::execute(QList<int> command, QString text) {
                     terminal->error("Invalid values given to Record Cue Fade.");
                     return;
                 }
-                cues->setAttribute(ids, keysToId(attribute), valueFloat);
+                cues->setAttribute(ids, attribute, value);
             } else {
                 terminal->error("Cue Attribute only allows Attributes 0, 1, 2, 3 or 4.");
                 return;

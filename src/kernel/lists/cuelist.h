@@ -26,7 +26,7 @@ public:
     void deleteIntensity(Intensity *intensity);
     void deleteColor(Color *color);
     void deleteGroup(Group *group);
-    void setAttribute(QList<QString> ids, QString attributeId, float value);
+    void setAttribute(QList<QString> ids, QList<int> attribute, QList<int> value);
     void recordCueIntensity(QList<QString> ids, QString groupId, QString intensityId);
     void recordCueColor(QList<QString> ids, QString groupId, QString colorId);
 };

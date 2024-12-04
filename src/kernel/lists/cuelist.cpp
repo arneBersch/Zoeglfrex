@@ -77,9 +77,11 @@ void CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
     kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Color entries.");
 }
 
-void CueList::setAttribute(QList<QString> ids, QString attribute, float fade) {
-    if (attribute == "4") {
-        if (fade < 0 || fade > 60) {
+void CueList::setAttribute(QList<QString> ids, QList<int> attribute, QList<int> value) {
+    float floatValue = kernel->keysToValue(value);
+    QString attributeString = kernel->keysToId(attribute);
+    if (attributeString == "4") {
+        if (floatValue < 0 || floatValue > 60) {
             kernel->terminal->error("Can't set Cue Fade because Fade has to be between 0 and 60 seconds.");
             return;
         }
@@ -88,11 +90,11 @@ void CueList::setAttribute(QList<QString> ids, QString attribute, float fade) {
             if (cue == nullptr) {
                 cue = recordItem(id);
             }
-            cue->fade = fade;
+            cue->fade = floatValue;
         }
-        kernel->terminal->success("Set Fade of " + QString::number(ids.length()) + " Cues to " + QString::number(fade) + "s.");
+        kernel->terminal->success("Set Fade of " + QString::number(ids.length()) + " Cues to " + QString::number(floatValue) + "s.");
     } else {
-        kernel->terminal->error("Can't set Cue attribute " + attribute + ".");
+        kernel->terminal->error("Can't set Cue attribute " + attributeString + ".");
     }
 }
 
