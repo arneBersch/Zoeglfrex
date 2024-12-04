@@ -77,19 +77,23 @@ void CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
     kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Color entries.");
 }
 
-void CueList::recordCueFade(QList<QString> ids, float fade) {
-    if (fade < 0 || fade > 60) {
-        kernel->terminal->error("Can't record Cue because fade time has to be between 0 and 60 seconds.");
-        return;
-    }
-    for (QString id : ids) {
-        Cue* cue = getItem(id);
-        if (cue == nullptr) {
-            cue = recordItem(id);
+void CueList::setAttribute(QList<QString> ids, QString attribute, float fade) {
+    if (attribute == "4") {
+        if (fade < 0 || fade > 60) {
+            kernel->terminal->error("Can't set Cue Fade because Fade has to be between 0 and 60 seconds.");
+            return;
         }
-        cue->fade = fade;
+        for (QString id : ids) {
+            Cue* cue = getItem(id);
+            if (cue == nullptr) {
+                cue = recordItem(id);
+            }
+            cue->fade = fade;
+        }
+        kernel->terminal->success("Set Fade of " + QString::number(ids.length()) + " Cues to " + QString::number(fade) + "s.");
+    } else {
+        kernel->terminal->error("Can't set Cue attribute " + attribute + ".");
     }
-    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Cues with Fade time " + QString::number(fade) + "s.");
 }
 
 void CueList::recordCueIntensity(QList<QString> ids, QString groupId, QString intensityId) {
