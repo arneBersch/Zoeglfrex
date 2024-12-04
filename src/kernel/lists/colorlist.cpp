@@ -12,9 +12,11 @@ ColorList::ColorList(Kernel *core) : ItemList("Color", "Colors") {
     kernel = core;
 }
 
-void ColorList::setAttribute(QList<QString> ids, QString attribute, float value) {
-    if (attribute == "2") {
-        if (value >= 360 || value < 0) {
+void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
+    QString attributeString = attribute.value(Keys::Attribute);
+    if (attributeString == "2") {
+        float hue = kernel->keysToValue(value);
+        if (hue >= 360 || hue < 0) {
             kernel->terminal->error("Can't set Color Hue because Hue only allows values from 0° and smaller than 360°.");
             return;
         }
@@ -23,12 +25,13 @@ void ColorList::setAttribute(QList<QString> ids, QString attribute, float value)
             if (color == nullptr) {
                 color = recordItem(id);
             }
-            color->hue = value;
+            color->hue = hue;
             emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
-        kernel->terminal->success("Set Hue of " + QString::number(ids.length()) + " Colors to " + QString::number(value) + "°.");
-    } else if (attribute == "3") {
-        if (value > 100 || value < 0) {
+        kernel->terminal->success("Set Hue of " + QString::number(ids.length()) + " Colors to " + QString::number(hue) + "°.");
+    } else if (attributeString == "3") {
+        float saturation = kernel->keysToValue(value);
+        if (saturation > 100 || saturation < 0) {
             kernel->terminal->error("Can't set Color Saturation because Saturation only allows values from 0% to 100%.");
             return;
         }
@@ -37,11 +40,11 @@ void ColorList::setAttribute(QList<QString> ids, QString attribute, float value)
             if (color == nullptr) {
                 color = recordItem(id);
             }
-            color->saturation = value;
+            color->saturation = saturation;
             emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
-        kernel->terminal->success("Set Saturation of " + QString::number(ids.length()) + " Colors to " + QString::number(value) + "%.");
+        kernel->terminal->success("Set Saturation of " + QString::number(ids.length()) + " Colors to " + QString::number(saturation) + "%.");
     } else {
-        kernel->terminal->error("Can't set Color attribute " + attribute + ".");
+        kernel->terminal->error("Can't set Color attribute " + attributeString + ".");
     }
 }

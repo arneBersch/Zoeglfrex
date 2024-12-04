@@ -79,7 +79,6 @@ void CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
 
 void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
     QString attributeString = attribute.value(Keys::Attribute);
-    float floatValue = kernel->keysToValue(value);
     if (attributeString == "2") {
         if (value.isEmpty() || (value[0] != Keys::Intensity)) {
             kernel->terminal->error("Cue Attribute 2 Group Set requires an Intensity.");
@@ -135,7 +134,8 @@ void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
         }
         kernel->terminal->success("Set Attribute 3 of " + QString::number(cueCounter) + " Cues at Group " + group->name() + " to Color " + color->name() + ".");
     } else if (attributeString == "4") {
-        if (floatValue < 0 || floatValue > 60) {
+        float fade = kernel->keysToValue(value);
+        if (fade < 0 || fade > 60) {
             kernel->terminal->error("Can't set Cue Fade because Fade has to be between 0 and 60 seconds.");
             return;
         }
@@ -144,9 +144,9 @@ void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
             if (cue == nullptr) {
                 cue = recordItem(id);
             }
-            cue->fade = floatValue;
+            cue->fade = fade;
         }
-        kernel->terminal->success("Set Fade of " + QString::number(ids.length()) + " Cues to " + QString::number(floatValue) + "s.");
+        kernel->terminal->success("Set Fade of " + QString::number(ids.length()) + " Cues to " + QString::number(fade) + "s.");
     } else {
         kernel->terminal->error("Can't set Cue attribute " + attributeString + ".");
     }

@@ -74,7 +74,6 @@ void Kernel::execute(QList<int> command, QString text) {
         terminal->error("No items selected.");
         return;
     }
-    float valueFloat = keysToValue(value);
     if (attribute.isEmpty() && !value.isEmpty() && (value.first() == selectionType)) { // COPY
         value.removeFirst();
         QString sourceId = keysToId(value);
@@ -191,6 +190,28 @@ void Kernel::execute(QList<int> command, QString text) {
             cues->moveItems(ids, targetId);
         }
     } else { // RECORD
+        QMap<int, QString> attributeMap = QMap<int, QString>();
+        int currentItemType = Keys::Attribute;
+        QList<int> currentId;
+        for (int attributeKey : attribute) {
+            if (isItem(attributeKey)) {
+                QString itemId = keysToId(currentId);
+                if (!itemId.isEmpty()) {
+                    attributeMap[currentItemType] = itemId;
+                }
+                currentId.clear();
+                currentItemType = attributeKey;
+            } else if (isNumber(attributeKey) || (attributeKey == Keys::Period)) {
+                currentId.append(attributeKey);
+            } else {
+                terminal->error("Invalid key in Attribute.");
+                return;
+            }
+        }
+        QString itemId = keysToId(currentId);
+        if (!itemId.isEmpty()) {
+            attributeMap[currentItemType] = itemId;
+        }
         if (selectionType == Keys::Model) { // RECORD MODEL
             if (attribute.isEmpty()) {
                 attribute.append(Keys::Two);
@@ -285,42 +306,21 @@ void Kernel::execute(QList<int> command, QString text) {
                 terminal->error("Intensity Attribute Set only allows Attributes 0, 1 or 2.");
                 return;
             }
+            float valueFloat = keysToValue(value);
             if (valueFloat < 1) {
                 terminal->error("Invalid values given to Intensity Attribute 2 Set.");
                 return;
             }
             intensities->setAttribute(ids, keysToId(attribute), valueFloat);
-        } else if (selectionType == Keys::Color) { // RECORD COLOR
-            if (attribute.isEmpty()) {
-                attribute.append(Keys::Two);
+        } else if (selectionType == Keys::Color) {
+            if (!attributeMap.contains(Keys::Attribute)) {
+                attributeMap[Keys::Attribute] = "2";
             }
-            if (valueFloat < 0) {
-                terminal->error("Invalid values given to Color Attribute Set.");
-                return;
+            colors->setOtherAttribute(ids, attributeMap, value, QString());
+        } else if (selectionType == Keys::Cue) {
+            if (!attributeMap.contains(Keys::Attribute)) {
+                attributeMap[Keys::Attribute] = "4";
             }
-            colors->setAttribute(ids, keysToId(attribute), valueFloat);
-        } else if (selectionType == Keys::Cue) { // RECORD CUE
-            if (attribute.isEmpty()) {
-                attribute.append(Keys::Four);
-            }
-            QMap<int, QString> attributeMap = QMap<int, QString>();
-            int currentItemType = Keys::Attribute;
-            QList<int> currentId;
-            for (int attributeKey : attribute) {
-                if (isItem(attributeKey)) {
-                    QString itemId = keysToId(currentId);
-                    attributeMap[currentItemType] = itemId;
-                    currentId.clear();
-                    currentItemType = attributeKey;
-                } else if (isNumber(attributeKey) || (attributeKey == Keys::Period)) {
-                    currentId.append(attributeKey);
-                } else {
-                    terminal->error("Invalid key in Attribute.");
-                    return;
-                }
-            }
-            QString itemId = keysToId(currentId);
-            attributeMap[currentItemType] = itemId;
             cues->setOtherAttribute(ids, attributeMap, value, QString());
         }
     }
