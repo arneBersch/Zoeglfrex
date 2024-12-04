@@ -77,19 +77,8 @@ void CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
     kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Color entries.");
 }
 
-void CueList::setAttribute(QList<QString> ids, QList<int> attribute, QList<int> value) {
-    QString attributeString = kernel->keysToId(attribute);
-    QString groupId = QString();
-    if (attribute.contains(Keys::Group)) {
-        if (attribute[0] == Keys::Two || attribute[3] == Keys::Three) {
-            QList<int> attributeList = QList<int>();
-            attributeList.append(attribute[0]);
-            attributeString = kernel->keysToId(attributeList);
-            attributeList.removeFirst();
-            attributeList.removeFirst();
-            groupId = kernel->keysToId(attribute);
-        }
-    }
+void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
+    QString attributeString = attribute.value(Keys::Attribute);
     float floatValue = kernel->keysToValue(value);
     if (attributeString == "2") {
         if (value.isEmpty() || (value[0] != Keys::Intensity)) {
@@ -97,8 +86,9 @@ void CueList::setAttribute(QList<QString> ids, QList<int> attribute, QList<int> 
             return;
         }
         value.removeFirst();
+        QString groupId = attribute.value(Keys::Group);
         if (groupId.isEmpty()) {
-            kernel->terminal->error("No Group specified.");
+            kernel->terminal->error("Can't set Cue Attribute 2 because an invalid Group was given.");
             return;
         }
         QString intensityId = kernel->keysToId(value);
@@ -113,8 +103,9 @@ void CueList::setAttribute(QList<QString> ids, QList<int> attribute, QList<int> 
             return;
         }
         value.removeFirst();
+        QString groupId = attribute.value(Keys::Group);
         if (groupId.isEmpty()) {
-            kernel->terminal->error("No Group specified.");
+            kernel->terminal->error("Can't set Cue Attribute 3 because an invalid Group was given.");
             return;
         }
         QString colorId = kernel->keysToId(value);

@@ -303,7 +303,25 @@ void Kernel::execute(QList<int> command, QString text) {
             if (attribute.isEmpty()) {
                 attribute.append(Keys::Four);
             }
-            cues->setAttribute(ids, attribute, value);
+            QMap<int, QString> attributeMap = QMap<int, QString>();
+            int currentItemType = Keys::Attribute;
+            QList<int> currentId;
+            for (int attributeKey : attribute) {
+                if (isItem(attributeKey)) {
+                    QString itemId = keysToId(currentId);
+                    attributeMap[currentItemType] = itemId;
+                    currentId.clear();
+                    currentItemType = attributeKey;
+                } else if (isNumber(attributeKey) || (attributeKey == Keys::Period)) {
+                    currentId.append(attributeKey);
+                } else {
+                    terminal->error("Invalid key in Attribute.");
+                    return;
+                }
+            }
+            QString itemId = keysToId(currentId);
+            attributeMap[currentItemType] = itemId;
+            cues->setAttribute(ids, attributeMap, value, QString());
         }
     }
     cuelistView->loadCue();
