@@ -12,18 +12,22 @@ IntensityList::IntensityList(Kernel *core) : ItemList("Intensity", "Intensities"
     kernel = core;
 }
 
-void IntensityList::recordIntensityDimmer(QList<QString> ids, float dimmer) {
-    if (dimmer > 100 || dimmer < 0) {
-        kernel->terminal->error("Didn't record Intensities because Record Intensity Dimmer only allows values from 0% to 100%.");
-        return;
-    }
-    for (QString id : ids) {
-        Intensity* intensity = getItem(id);
-        if (intensity == nullptr) {
-            intensity = recordItem(id);
+void IntensityList::setAttribute(QList<QString> ids, QString attribute, float dimmer) {
+    if (attribute == "2") {
+        if (dimmer > 100 || dimmer < 0) {
+            kernel->terminal->error("Can't set Intensity Dimmer because Dimmer only allows values from 0% to 100%.");
+            return;
         }
-        intensity->dimmer = dimmer;
-        emit dataChanged(index(getItemRow(intensity->id), 0), index(getItemRow(intensity->id), 0), {Qt::DisplayRole, Qt::EditRole});
+        for (QString id : ids) {
+            Intensity* intensity = getItem(id);
+            if (intensity == nullptr) {
+                intensity = recordItem(id);
+            }
+            intensity->dimmer = dimmer;
+            emit dataChanged(index(getItemRow(intensity->id), 0), index(getItemRow(intensity->id), 0), {Qt::DisplayRole, Qt::EditRole});
+        }
+        kernel->terminal->success("Set Dimmer of " + QString::number(ids.length()) + " Intensities to " + QString::number(dimmer) + "%.");
+    } else {
+        kernel->terminal->error("Can't set Intensity attribute " + attribute + ".");
     }
-    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Intensities with dimmer " + QString::number(dimmer) + "%.");
 }

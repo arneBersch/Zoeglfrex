@@ -74,6 +74,7 @@ void Kernel::execute(QList<int> command, QString text) {
         terminal->error("No items selected.");
         return;
     }
+    float valueFloat = keysToValue(value);
     if (attribute.isEmpty() && !value.isEmpty() && (value.first() == selectionType)) { // COPY
         value.removeFirst();
         QString sourceId = keysToId(value);
@@ -284,21 +285,15 @@ void Kernel::execute(QList<int> command, QString text) {
                 terminal->error("Intensity Attribute Set only allows Attributes 0, 1 or 2.");
                 return;
             }
-            float valueFloat = keysToValue(value);
             if (valueFloat < 1) {
                 terminal->error("Invalid values given to Intensity Attribute 2 Set.");
                 return;
             }
-            intensities->recordIntensityDimmer(ids, valueFloat);
+            intensities->setAttribute(ids, keysToId(attribute), valueFloat);
         } else if (selectionType == Keys::Color) { // RECORD COLOR
             if (attribute.isEmpty()) {
                 attribute.append(Keys::Two);
             }
-            if (attribute.length() != 1) {
-                terminal->error("Color Attribute Set only allows Attributes 0, 1, 2 or 3.");
-                return;
-            }
-            float valueFloat = keysToValue(value);
             if (valueFloat < 0) {
                 terminal->error("Invalid values given to Color Attribute Set.");
                 return;
@@ -347,7 +342,6 @@ void Kernel::execute(QList<int> command, QString text) {
                     cues->recordCueColor(ids, groupId, colorId);
                 }
             } else if (attribute[0] == Keys::Four){
-                float valueFloat = keysToValue(value);
                 if (valueFloat < 0) {
                     terminal->error("Invalid values given to Record Cue Fade.");
                     return;
