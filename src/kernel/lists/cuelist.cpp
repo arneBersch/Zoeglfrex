@@ -78,9 +78,52 @@ void CueList::deleteCueGroupColor(QList<QString> ids, QString groupId) {
 }
 
 void CueList::setAttribute(QList<QString> ids, QList<int> attribute, QList<int> value) {
-    float floatValue = kernel->keysToValue(value);
     QString attributeString = kernel->keysToId(attribute);
-    if (attributeString == "4") {
+    QString groupId = QString();
+    if (attribute.contains(Keys::Group)) {
+        if (attribute[0] == Keys::Two || attribute[3] == Keys::Three) {
+            QList<int> attributeList = QList<int>();
+            attributeList.append(attribute[0]);
+            attributeString = kernel->keysToId(attributeList);
+            attributeList.removeFirst();
+            attributeList.removeFirst();
+            groupId = kernel->keysToId(attribute);
+        }
+    }
+    float floatValue = kernel->keysToValue(value);
+    if (attributeString == "2") {
+        if (value.isEmpty() || (value[0] != Keys::Intensity)) {
+            kernel->terminal->error("Cue Attribute 2 Group Set requies an Intensity.");
+            return;
+        }
+        value.removeFirst();
+        if (groupId.isEmpty()) {
+            kernel->terminal->error("No Group specified.");
+            return;
+        }
+        QString intensityId = kernel->keysToId(value);
+        if (intensityId.isEmpty()) {
+            kernel->terminal->error("Cue Attribute 2 Group Set received an invalid Intensity ID.");
+            return;
+        }
+            recordCueIntensity(ids, groupId, intensityId);
+    } else if (attributeString == "3") {
+        if (value.isEmpty() || (value[0] != Keys::Color)) {
+            kernel->terminal->error("Cue Attribute 3 Group Set requies an Color.");
+            return;
+        }
+        value.removeFirst();
+        if (groupId.isEmpty()) {
+            kernel->terminal->error("No Group specified.");
+            return;
+        }
+        QString colorId = kernel->keysToId(value);
+        if (colorId.isEmpty()) {
+            kernel->terminal->error("Cue Attribute 3 Group Set received an invalid Color ID.");
+            return;
+        }
+        recordCueColor(ids, groupId, colorId);
+    } else if (attributeString == "4") {
         if (floatValue < 0 || floatValue > 60) {
             kernel->terminal->error("Can't set Cue Fade because Fade has to be between 0 and 60 seconds.");
             return;
