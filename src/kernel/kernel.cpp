@@ -267,34 +267,12 @@ void Kernel::execute(QList<int> command, QString text) {
                 }
                 fixtures->recordFixtureAddress(ids, address);
             }
-        } else if (selectionType == Keys::Group) { // RECORD GROUP
-            if (attribute.isEmpty()) {
-                attribute.append(Keys::Two);
+        } else if (selectionType == Keys::Group) {
+            if (!attributeMap.contains(Keys::Attribute)) {
+                attributeMap[Keys::Attribute] = "2";
             }
-            if (attribute.length() != 1) {
-                terminal->error("Group Attribute Set only allows Attributes 0, 1 or 2.");
-                return;
-            }
-            if (attribute[0] != Keys::Two) {
-                terminal->error("Group Attribute Set only allows Attributes 0, 1 or 2.");
-                return;
-            }
-            if (value.isEmpty()) {
-                groups->recordGroupFixtures(ids, QList<QString>());
-            } else {
-                if (value[0] != Keys::Fixture) {
-                    terminal->error("Group Attribute 2 Set requires Fixtures.");
-                    return;
-                }
-                value.removeFirst();
-                QList<QString> fixtureIds = keysToSelection(value, Keys::Fixture);
-                if (fixtureIds.isEmpty()) {
-                    terminal->error("Can't record Group because of invalid Fixture selection.");
-                    return;
-                }
-                groups->recordGroupFixtures(ids, fixtureIds);
-            }
-        } else if (selectionType == Keys::Intensity) { // RECORD INTENSITY
+            groups->setOtherAttribute(ids, attributeMap, value, QString());
+        } else if (selectionType == Keys::Intensity) {
             if (!attributeMap.contains(Keys::Attribute)) {
                 attributeMap[Keys::Attribute] = "2";
             }

@@ -64,11 +64,11 @@ public:
     QMutex *mutex;
     QString keysToId(QList<int> keys, bool removeTrailingZeros = true);
     float keysToValue(QList<int> keys);
+    QList<QString> keysToSelection(QList<int> keys, int itemType);
 private:
     bool isItem(int key);
     bool isNumber(int key);
     int keyToNumber(int key);
-    QList<QString> keysToSelection(QList<int> keys, int itemType);
 };
 
 #endif // KERNEL_H
