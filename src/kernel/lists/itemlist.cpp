@@ -119,6 +119,10 @@ template <class T> void ItemList<T>::moveItems(QList<QString> ids, QString targe
     kernel->terminal->success("Moved " + QString::number(itemRows.length()) + " " + pluralItemName + " to " + targetId + ".");
 }
 
+template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
+    setOtherAttribute(ids, attribute, value, text);
+}
+
 template <class T> int ItemList<T>::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return items.size();

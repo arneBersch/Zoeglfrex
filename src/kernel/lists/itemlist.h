@@ -20,6 +20,7 @@ public:
     QVariant data(const QModelIndex &index, const int role) const override;
     Kernel *kernel;
     QList<T*> items;
+    void setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text);
 protected:
     T* recordItem(QString id);
     virtual void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text) = 0;
