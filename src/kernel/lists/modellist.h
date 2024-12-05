@@ -21,7 +21,7 @@ class ModelList : public ItemList<Model> {
     Q_OBJECT
 public:
     ModelList(Kernel *core);
-    void recordModelChannels(QList<QString> ids, QString channels);
+    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text);
 };
 
 #include "kernel/kernel.h"

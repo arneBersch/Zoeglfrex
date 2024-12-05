@@ -213,19 +213,11 @@ void Kernel::execute(QList<int> command, QString text) {
             attributeMap[currentItemType] = itemId;
         }
         if (selectionType == Keys::Model) { // RECORD MODEL
-            if (attribute.isEmpty()) {
-                attribute.append(Keys::Two);
-            }
-            if ((attribute.length() != 1) || attribute[0] != Keys::Two) {
-                terminal->error("Model Attribute Set only allows Attribute 0, 1 or 2.");
-                return;
-            }
-            if (!value.isEmpty()) {
-                terminal->error("Model Attribute 2 Set doesn't take a value.");
-                return;
+            if (!attributeMap.contains(Keys::Attribute)) {
+                attributeMap[Keys::Attribute] = "2";
             }
             QString channels = text;
-            if (text.isNull()) {
+            if ((attributeMap.value(Keys::Attribute) == "2") && text.isNull()) {
                 bool ok = false;
                 locker.unlock();
                 channels = QInputDialog::getText(terminal, QString(), "Channels", QLineEdit::Normal, QString(), &ok);
@@ -235,32 +227,32 @@ void Kernel::execute(QList<int> command, QString text) {
                     return;
                 }
             }
-            models->recordModelChannels(ids, channels);
+            models->setOtherAttribute(ids, attributeMap, value, text);
         } else if (selectionType == Keys::Fixture) { // RECORD FIXTURE
             if (!attributeMap.contains(Keys::Attribute)) {
                 attributeMap[Keys::Attribute] = "3";
             }
-            fixtures->setOtherAttribute(ids, attributeMap, value, QString());
+            fixtures->setOtherAttribute(ids, attributeMap, value, text);
         } else if (selectionType == Keys::Group) {
             if (!attributeMap.contains(Keys::Attribute)) {
                 attributeMap[Keys::Attribute] = "2";
             }
-            groups->setOtherAttribute(ids, attributeMap, value, QString());
+            groups->setOtherAttribute(ids, attributeMap, value, text);
         } else if (selectionType == Keys::Intensity) {
             if (!attributeMap.contains(Keys::Attribute)) {
                 attributeMap[Keys::Attribute] = "2";
             }
-            intensities->setOtherAttribute(ids, attributeMap, value, QString());
+            intensities->setOtherAttribute(ids, attributeMap, value, text);
         } else if (selectionType == Keys::Color) {
             if (!attributeMap.contains(Keys::Attribute)) {
                 attributeMap[Keys::Attribute] = "2";
             }
-            colors->setOtherAttribute(ids, attributeMap, value, QString());
+            colors->setOtherAttribute(ids, attributeMap, value, text);
         } else if (selectionType == Keys::Cue) {
             if (!attributeMap.contains(Keys::Attribute)) {
                 attributeMap[Keys::Attribute] = "4";
             }
-            cues->setOtherAttribute(ids, attributeMap, value, QString());
+            cues->setOtherAttribute(ids, attributeMap, value, text);
         }
     }
     cuelistView->loadCue();
