@@ -91,36 +91,37 @@ template <class T> void ItemList<T>::labelItems(QList<QString> ids, QString labe
     kernel->terminal->success("Labeled " + QString::number(itemRows.length()) + " " + pluralItemName + " as \"" + label + "\".");
 }
 
-template <class T> void ItemList<T>::moveItems(QList<QString> ids, QString targetId) {
-    QList<int> itemRows;
-    for (QString id : ids) {
-        int itemRow = getItemRow(id);
-        if (itemRow < 0) {
-            kernel->terminal->warning("Couldn't move " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
-        } else {
-            itemRows.append(itemRow);
-        }
-    }
-    for (int itemRow : itemRows) {
-        if (getItem(targetId) != nullptr) {
-            kernel->terminal->warning("Couldn't move " + singularItemName + " " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
-        } else {
-            T* item = items[itemRow];
-            beginRemoveRows(QModelIndex(), itemRow, itemRow);
-            items.removeAt(itemRow);
-            endRemoveRows();
-            item->id = targetId;
-            int row = findRow(targetId);
-            beginInsertRows(QModelIndex(), row, row);
-            items.insert(row, item);
-            endInsertRows();
-        }
-    }
-    kernel->terminal->success("Moved " + QString::number(itemRows.length()) + " " + pluralItemName + " to " + targetId + ".");
-}
-
 template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    setOtherAttribute(ids, attribute, value, text);
+    if (attribute.value(Keys::Attribute) == "0") {
+        QString targetId = kernel->keysToId(value);
+        QList<int> itemRows;
+        for (QString id : ids) {
+            int itemRow = getItemRow(id);
+            if (itemRow < 0) {
+                kernel->terminal->warning("Couldn't set ID of " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
+            } else {
+                itemRows.append(itemRow);
+            }
+        }
+        for (int itemRow : itemRows) {
+            if (getItem(targetId) != nullptr) {
+                kernel->terminal->warning("Couldn't set ID of " + singularItemName + " " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
+            } else {
+                T* item = items[itemRow];
+                beginRemoveRows(QModelIndex(), itemRow, itemRow);
+                items.removeAt(itemRow);
+                endRemoveRows();
+                item->id = targetId;
+                int row = findRow(targetId);
+                beginInsertRows(QModelIndex(), row, row);
+                items.insert(row, item);
+                endInsertRows();
+            }
+        }
+        kernel->terminal->success("Set ID of " + QString::number(itemRows.length()) + " " + pluralItemName + " to " + targetId + ".");
+    } else {
+        setOtherAttribute(ids, attribute, value, text);
+    }
 }
 
 template <class T> int ItemList<T>::rowCount(const QModelIndex &parent) const {

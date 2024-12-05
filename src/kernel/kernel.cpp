@@ -170,26 +170,7 @@ void Kernel::execute(QList<int> command, QString text) {
         } else if (selectionType == Keys::Cue) { // LABEL CUE
             cues->labelItems(ids, label);
         }
-    } else if ((attribute.size() == 1) && (attribute[0] == Keys::Zero)) { // MOVE
-        QString targetId = keysToId(value);
-        if (targetId.isEmpty()) {
-            terminal->error("Target ID not valid.");
-            return;
-        }
-        if (selectionType == Keys::Model) { // MOVE MODEL
-            models->moveItems(ids, targetId);
-        } else if (selectionType == Keys::Fixture) { // MOVE FIXTURE
-            fixtures->moveItems(ids, targetId);
-        } else if (selectionType == Keys::Group) { // MOVE GROUP
-            groups->moveItems(ids, targetId);
-        } else if (selectionType == Keys::Intensity) { // MOVE INTENSITY
-            intensities->moveItems(ids, targetId);
-        } else if (selectionType == Keys::Color) { // MOVE COLOR
-            colors->moveItems(ids, targetId);
-        } else if (selectionType == Keys::Cue) { // MOVE CUE
-            cues->moveItems(ids, targetId);
-        }
-    } else { // RECORD
+    } else {
         QMap<int, QString> attributeMap = QMap<int, QString>();
         int currentItemType = Keys::Attribute;
         QList<int> currentId;
@@ -212,7 +193,7 @@ void Kernel::execute(QList<int> command, QString text) {
         if (!itemId.isEmpty()) {
             attributeMap[currentItemType] = itemId;
         }
-        if (selectionType == Keys::Model) { // RECORD MODEL
+        if (selectionType == Keys::Model) {
             if (!attributeMap.contains(Keys::Attribute)) {
                 attributeMap[Keys::Attribute] = "2";
             }
@@ -228,7 +209,7 @@ void Kernel::execute(QList<int> command, QString text) {
                 }
             }
             models->setOtherAttribute(ids, attributeMap, value, text);
-        } else if (selectionType == Keys::Fixture) { // RECORD FIXTURE
+        } else if (selectionType == Keys::Fixture) {
             if (!attributeMap.contains(Keys::Attribute)) {
                 attributeMap[Keys::Attribute] = "3";
             }
