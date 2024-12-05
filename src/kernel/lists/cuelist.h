@@ -26,7 +26,7 @@ public:
     void deleteIntensity(Intensity *intensity);
     void deleteColor(Color *color);
     void deleteGroup(Group *group);
-    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text);
+    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
 };
 
 #include "kernel/kernel.h"

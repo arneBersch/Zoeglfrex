@@ -22,6 +22,7 @@ public:
     QList<T*> items;
 protected:
     T* recordItem(QString id);
+    virtual void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text) = 0;
 private:
     int findRow(QString id);
     QString singularItemName = "item";
