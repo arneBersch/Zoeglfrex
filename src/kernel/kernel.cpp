@@ -237,36 +237,10 @@ void Kernel::execute(QList<int> command, QString text) {
             }
             models->recordModelChannels(ids, channels);
         } else if (selectionType == Keys::Fixture) { // RECORD FIXTURE
-            if (attribute.isEmpty()) {
-                attribute.append(Keys::Three);
+            if (!attributeMap.contains(Keys::Attribute)) {
+                attributeMap[Keys::Attribute] = "3";
             }
-            if (attribute.length() != 1 || ((attribute[0] != Keys::Two) && (attribute[0] != Keys::Three))) {
-                terminal->error("Fixture Attribute Set only allows Attributes 0, 1, 2, 3");
-                return;
-            }
-            if (attribute[0] == Keys::Two) {
-                if (value[0] != Keys::Model) {
-                    terminal->error("Fixture Attribute 2 Set requires a model");
-                    return;
-                }
-                value.removeFirst();
-                QString modelId = keysToId(value);
-                if (modelId.isEmpty()) {
-                    terminal->error("Can't set Model of Fixtures because Model ID is not vaild.");
-                    return;
-                }
-                fixtures->recordFixtureModel(ids, modelId);
-            } else if (attribute[0] == Keys::Three) {
-                int address = 0;
-                for (int key : value) {
-                    if (!isNumber(key)) {
-                        terminal->error("Fixture Attribute 3 Set only allows numbers as a value.");
-                        return;
-                    }
-                    address = (address * 10) + keyToNumber(key);
-                }
-                fixtures->recordFixtureAddress(ids, address);
-            }
+            fixtures->setOtherAttribute(ids, attributeMap, value, QString());
         } else if (selectionType == Keys::Group) {
             if (!attributeMap.contains(Keys::Attribute)) {
                 attributeMap[Keys::Attribute] = "2";

@@ -23,85 +23,95 @@ void FixtureList::deleteModel(Model *model)
     deleteItems(invalidFixtures);
 }
 
-void FixtureList::recordFixtureAddress(QList<QString> ids, int address) {
-    if (address > 512) {
-        kernel->terminal->error("Can't record Fixtures because address is greate than 512.");
-        return;
-    }
-    QList<Fixture*> fixtures;
-    for (QString id : ids) {
-        Fixture *fixture = getItem(id);
-        if (fixture == nullptr) {
-            kernel->terminal->warning("Can't record Fixture " + id + " because it doesn't exist.");
-        } else {
-            fixtures.append(fixture);
+void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
+    QString attributeString = attribute.value(Keys::Attribute);
+    if (attributeString == "2") {
+        if (value.isEmpty() || value[0] != Keys::Model) {
+            kernel->terminal->error("Fixture Attribute 2 Set requires a model");
+            return;
         }
-    }
-    QMap<Fixture*, int> oldAddresses = QMap<Fixture*, int>();
-    for (Fixture* fixture : fixtures) {
-        oldAddresses[fixture] = fixture->address;
-        if (address > 0) {
-            fixture->address = address;
-            address += fixture->model->channels.length();
-        } else {
-            fixture->address = 0;
+        value.removeFirst();
+        QString modelId = kernel->keysToId(value);
+        Model *model = kernel->models->getItem(modelId);
+        if (model == nullptr) {
+            kernel->terminal->error("Can't set Model of Fixture because Model " + modelId + " doesn't exist.");
+            return;
         }
-    }
-    if (!channelsOkay()) {
-        for (Fixture* fixture : fixtures) {
-            fixture->address = oldAddresses[fixture];
-        }
-        kernel->terminal->error("Didn't record Fixture Adresses because this would have resulted in an DMX address conflict.");
-        return;
-    }
-    for (Fixture* fixture : fixtures) {
-        emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
-    }
-    kernel->terminal->success("Recorded address of " + QString::number(fixtures.length()) + " Fixtures.");
-}
-
-void FixtureList::recordFixtureModel(QList<QString> ids, QString modelId) {
-    Model *model = kernel->models->getItem(modelId);
-    if (model == nullptr) {
-        kernel->terminal->error("Can't record Fixture Model because Model " + modelId + " doesn't exist.");
-        return;
-    }
-    int fixtureCounter = 0;
-    for (QString id : ids) {
-        Fixture* fixture = getItem(id);
-        Model* oldModel = nullptr;
-        if (fixture == nullptr) {
-            fixture = recordItem(id);
-        } else {
-            oldModel = fixture->model;
-        }
-        fixture->model = model;
-        if (channelsOkay()) {
-            emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
-            fixtureCounter++;
-        } else {
-            fixture->model = oldModel; // don't change model if this would result in an address conflict
-        }
-    }
-    kernel->terminal->success("Recorded " + QString::number(fixtureCounter) + " Fixtures to Model " + model->name() + ".");
-}
-
-bool FixtureList::channelsOkay() {
-    QSet<int> channels;
-    for (Fixture* fixture : items) {
-        if (fixture->address > 0) {
-            for (int channel = fixture->address; channel < (fixture->address + fixture->model->channels.size()); channel++) {
-                if (channel > 512) {
-                    kernel->terminal->warning("Fixture " + fixture->name() + " would have channels greater than 512.");
-                    return false;
-                }
-                if (channels.contains(channel)) {
-                    kernel->terminal->warning("Channel " + QString::number(channel) + " would be used twice.");
-                    return false;
-                }
-                channels.insert(channel);
+        int fixtureCounter = 0;
+        for (QString id : ids) {
+            Fixture* fixture = getItem(id);
+            Model* oldModel = nullptr;
+            if (fixture == nullptr) {
+                fixture = recordItem(id);
+            } else {
+                oldModel = fixture->model;
+            }
+            fixture->model = model;
+            if (channelsOkay()) {
+                emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
+                fixtureCounter++;
+            } else {
+                fixture->model = oldModel; // don't change model if this would result in an address conflict
             }
         }
+        kernel->terminal->success("Set Model of " + QString::number(fixtureCounter) + " Fixtures to Model " + model->name() + ".");
+    } else if (attributeString == "3") {
+        int address = kernel->keysToValue(value);
+        if ((address < 0) || (address > 512)) {
+            kernel->terminal->error("Can't set Fixtures Address because Address has to be between 0 and 512.");
+            return;
+        }
+        QList<Fixture*> fixtures;
+        for (QString id : ids) {
+            Fixture *fixture = getItem(id);
+            if (fixture == nullptr) {
+                kernel->terminal->warning("Can't set Address of Fixture " + id + " because it doesn't exist.");
+            } else {
+                fixtures.append(fixture);
+            }
+        }
+        QMap<Fixture*, int> oldAddresses = QMap<Fixture*, int>();
+        for (Fixture* fixture : fixtures) {
+            oldAddresses[fixture] = fixture->address;
+            if (address > 0) {
+                fixture->address = address;
+                address += fixture->model->channels.length();
+            } else {
+                fixture->address = 0;
+            }
+        }
+        if (!channelsOkay()) {
+            for (Fixture* fixture : fixtures) {
+                fixture->address = oldAddresses[fixture];
+            }
+            kernel->terminal->error("Didn't record Fixture Adresses because this would have resulted in an DMX address conflict.");
+            return;
+        }
+        for (Fixture* fixture : fixtures) {
+            emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
+        }
+        kernel->terminal->success("Set address of " + QString::number(fixtures.length()) + " Fixtures.");
+    } else {
+        kernel->terminal->error("Can't set Fixture attribute " + attributeString + ".");
     }
-    return true;
 }
+
+    bool FixtureList::channelsOkay() {
+        QSet<int> channels;
+        for (Fixture* fixture : items) {
+            if (fixture->address > 0) {
+                for (int channel = fixture->address; channel < (fixture->address + fixture->model->channels.size()); channel++) {
+                    if (channel > 512) {
+                        kernel->terminal->warning("Fixture " + fixture->name() + " would have channels greater than 512.");
+                        return false;
+                    }
+                    if (channels.contains(channel)) {
+                        kernel->terminal->warning("Channel " + QString::number(channel) + " would be used twice.");
+                        return false;
+                    }
+                    channels.insert(channel);
+                }
+            }
+        }
+        return true;
+    }
