@@ -39,34 +39,6 @@ void CueList::deleteGroup(Group *group) {
     }
 }
 
-void CueList::deleteCueGroupIntensity(QList<QString> ids, Group* group) {
-    int cueCounter = 0;
-    for (QString id : ids) {
-        Cue *cue = getItem(id);
-        if (cue == nullptr) {
-            kernel->terminal->warning("Can't delete Cue Intensity Entry because Cue " + id + " doesn't exist.");
-        } else {
-            cue->intensities.remove(group);
-            cueCounter++;
-        }
-    }
-    kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Intensity entries.");
-}
-
-void CueList::deleteCueGroupColor(QList<QString> ids, Group* group) {
-    int cueCounter = 0;
-    for (QString id : ids) {
-        Cue *cue = getItem(id);
-        if (cue == nullptr) {
-            kernel->terminal->warning("Can't delete Cue Color Entry because Cue " + id + " doesn't exist.");
-        } else {
-            cue->colors.remove(group);
-            cueCounter++;
-        }
-    }
-    kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Color entries.");
-}
-
 void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
     QString attributeString = attribute.value(Keys::Attribute);
     if (attributeString == "2") {
@@ -81,7 +53,17 @@ void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
             return;
         }
         if ((value.size() == 1) && (value.first() == Keys::Minus)) {
-            deleteCueGroupIntensity(ids, group);
+            int cueCounter = 0;
+            for (QString id : ids) {
+                Cue *cue = getItem(id);
+                if (cue == nullptr) {
+                    kernel->terminal->warning("Can't delete Cue Intensity Entry because Cue " + id + " doesn't exist.");
+                } else {
+                    cue->intensities.remove(group);
+                    cueCounter++;
+                }
+            }
+            kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Intensity entries.");
         } else {
             Intensity* intensity = kernel->intensities->getItem(kernel->keysToId(value));
             if (intensity == nullptr) {
@@ -112,7 +94,17 @@ void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
             return;
         }
         if ((value.size() == 1) && (value.first() == Keys::Minus)) {
-            deleteCueGroupIntensity(ids, group);
+            int cueCounter = 0;
+            for (QString id : ids) {
+                Cue *cue = getItem(id);
+                if (cue == nullptr) {
+                    kernel->terminal->warning("Can't delete Cue Color Entry because Cue " + id + " doesn't exist.");
+                } else {
+                    cue->colors.remove(group);
+                    cueCounter++;
+                }
+            }
+            kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Color entries.");
         } else {
             Color* color = kernel->colors->getItem(kernel->keysToId(value));
             if (color == nullptr) {

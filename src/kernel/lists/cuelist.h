@@ -21,8 +21,6 @@ class CueList : public ItemList<Cue> {
     Q_OBJECT
 public:
     CueList(Kernel *core);
-    void deleteCueGroupIntensity(QList<QString> ids, Group* group);
-    void deleteCueGroupColor(QList<QString> ids, Group* group);
     void deleteIntensity(Intensity *intensity);
     void deleteColor(Color *color);
     void deleteGroup(Group *group);
