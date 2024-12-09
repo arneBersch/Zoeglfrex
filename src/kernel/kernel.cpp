@@ -94,52 +94,6 @@ void Kernel::execute(QList<int> command, QString text) {
         } else if (selectionType == Keys::Cue) { // COPY CUE
             cues->copyItems(ids, sourceId);
         }
-    } else if ((value.size() == 1) && (value.first() == Keys::Minus) && (attribute.isEmpty() || selectionType == Keys::Cue)) { // DELETE
-        if (selectionType == Keys::Model) { // DELETE MODEL
-            models->deleteItems(ids);
-        } else if (selectionType == Keys::Fixture) { // DELETE FIXTURE
-            fixtures->deleteItems(ids);
-        } else if (selectionType == Keys::Group) { // DELETE GROUP
-            groups->deleteItems(ids);
-        } else if (selectionType == Keys::Intensity) { // DELETE INTENSITY
-            intensities->deleteItems(ids);
-        } else if (selectionType == Keys::Color) { // DELETE COLOR
-            colors->deleteItems(ids);
-        } else if (selectionType == Keys::Cue) { // DELETE CUE
-            if (attribute.isEmpty()) {
-                cues->deleteItems(ids);
-            } else {
-                int attributeId = 0;
-                if (attribute[0] == Keys::Two) {
-                    attributeId = 2;
-                } else if (attribute[0] == Keys::Three) {
-                    attributeId = 3;
-                } else {
-                    terminal->error("Cue Attribute Set - requires attribute 2 or 3.");
-                    return;
-                }
-                attribute.removeFirst();
-                if (attribute.isEmpty()) {
-                    terminal->error("Cue Attribute " + QString::number(attributeId) + " Set - requires Group ID.");
-                    return;
-                }
-                if (attribute[0] != Keys::Group) {
-                    terminal->error("Cue Attribute " + QString::number(attributeId) + " Set - requires Group ID.");
-                    return;
-                }
-                attribute.removeFirst();
-                QString groupId = keysToId(attribute);
-                if (groupId.isEmpty()) {
-                    terminal->error("Can't delete Cue Attribute " + QString::number(attributeId) + " Group: No valid Group ID given.");
-                    return;
-                }
-                if (attributeId == 2) {
-                    cues->deleteCueGroupIntensity(ids, groupId);
-                } else if (attributeId == 3) {
-                    cues->deleteCueGroupColor(ids, groupId);
-                }
-            }
-        }
     } else if ((attribute.size() == 1) && (attribute[0] == Keys::One)) { // LABEL
         if (!value.isEmpty()) {
             terminal->error("Attribute 1 Set doesn't take any parameters.");
@@ -194,7 +148,7 @@ void Kernel::execute(QList<int> command, QString text) {
             attributeMap[currentItemType] = itemId;
         }
         if (selectionType == Keys::Model) {
-            if (!attributeMap.contains(Keys::Attribute)) {
+            if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
                 attributeMap[Keys::Attribute] = "2";
             }
             QString channels = text;
@@ -210,27 +164,27 @@ void Kernel::execute(QList<int> command, QString text) {
             }
             models->setOtherAttribute(ids, attributeMap, value, text);
         } else if (selectionType == Keys::Fixture) {
-            if (!attributeMap.contains(Keys::Attribute)) {
+            if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
                 attributeMap[Keys::Attribute] = "3";
             }
             fixtures->setOtherAttribute(ids, attributeMap, value, text);
         } else if (selectionType == Keys::Group) {
-            if (!attributeMap.contains(Keys::Attribute)) {
+            if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
                 attributeMap[Keys::Attribute] = "2";
             }
             groups->setOtherAttribute(ids, attributeMap, value, text);
         } else if (selectionType == Keys::Intensity) {
-            if (!attributeMap.contains(Keys::Attribute)) {
+            if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
                 attributeMap[Keys::Attribute] = "2";
             }
             intensities->setOtherAttribute(ids, attributeMap, value, text);
         } else if (selectionType == Keys::Color) {
-            if (!attributeMap.contains(Keys::Attribute)) {
+            if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
                 attributeMap[Keys::Attribute] = "2";
             }
             colors->setOtherAttribute(ids, attributeMap, value, text);
         } else if (selectionType == Keys::Cue) {
-            if (!attributeMap.contains(Keys::Attribute)) {
+            if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
                 attributeMap[Keys::Attribute] = "4";
             }
             cues->setOtherAttribute(ids, attributeMap, value, text);

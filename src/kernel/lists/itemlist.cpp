@@ -92,7 +92,9 @@ template <class T> void ItemList<T>::labelItems(QList<QString> ids, QString labe
 }
 
 template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    if (attribute.value(Keys::Attribute) == "0") {
+    if ((!attribute.contains(Keys::Attribute)) && (value.size() == 1) && (value.first() == Keys::Minus)) {
+        deleteItems(ids);
+    } else if (attribute.value(Keys::Attribute) == "0") {
         QString targetId = kernel->keysToId(value);
         QList<int> itemRows;
         for (QString id : ids) {
@@ -119,6 +121,8 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             }
         }
         kernel->terminal->success("Set ID of " + QString::number(itemRows.length()) + " " + pluralItemName + " to " + targetId + ".");
+    } else if (attribute.value(Keys::Attribute) == "1") {
+        // Label
     } else {
         setOtherAttribute(ids, attribute, value, text);
     }
