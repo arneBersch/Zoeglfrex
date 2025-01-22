@@ -74,23 +74,6 @@ template <class T> void ItemList<T>::deleteItems(QList<QString> ids) {
     kernel->terminal->success("Deleted " + QString::number(existingIds.length()) + " " + pluralItemName + ".");
 }
 
-template <class T> void ItemList<T>::labelItems(QList<QString> ids, QString label) {
-    QList<int> itemRows;
-    for (QString id : ids) {
-        int itemRow = getItemRow(id);
-        if (itemRow < 0) {
-            kernel->terminal->warning("Couldn't label " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
-        } else {
-            itemRows.append(itemRow);
-        }
-    }
-    for (int itemRow : itemRows) {
-        items[itemRow]->label = label;
-        emit dataChanged(index(itemRow, 0), index(itemRow, 0), {Qt::DisplayRole, Qt::EditRole});
-    }
-    kernel->terminal->success("Labeled " + QString::number(itemRows.length()) + " " + pluralItemName + " as \"" + label + "\".");
-}
-
 template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
     if ((!attribute.contains(Keys::Attribute)) && (value.size() == 1) && (value.first() == Keys::Minus)) {
         deleteItems(ids);
@@ -122,7 +105,20 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         }
         kernel->terminal->success("Set ID of " + QString::number(itemRows.length()) + " " + pluralItemName + " to " + targetId + ".");
     } else if (attribute.value(Keys::Attribute) == "1") {
-        // Label
+        QList<int> itemRows;
+        for (QString id : ids) {
+            int itemRow = getItemRow(id);
+            if (itemRow < 0) {
+                kernel->terminal->warning("Couldn't label " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
+            } else {
+                itemRows.append(itemRow);
+            }
+        }
+        for (int itemRow : itemRows) {
+            items[itemRow]->label = text;
+            emit dataChanged(index(itemRow, 0), index(itemRow, 0), {Qt::DisplayRole, Qt::EditRole});
+        }
+        kernel->terminal->success("Labeled " + QString::number(itemRows.length()) + " " + pluralItemName + " as \"" + text + "\".");
     } else {
         setOtherAttribute(ids, attribute, value, text);
     }

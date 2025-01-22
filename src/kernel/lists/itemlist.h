@@ -13,7 +13,6 @@ public:
     QList<QString> getIds() const;
     void copyItems(QList<QString> ids, QString sourceId);
     void deleteItems(QList<QString> ids);
-    void labelItems(QList<QString> ids, QString label);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;

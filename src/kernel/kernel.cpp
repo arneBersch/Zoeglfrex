@@ -94,37 +94,24 @@ void Kernel::execute(QList<int> command, QString text) {
         } else if (selectionType == Keys::Cue) { // COPY CUE
             cues->copyItems(ids, sourceId);
         }
-    } else if ((attribute.size() == 1) && (attribute[0] == Keys::One)) { // LABEL
-        if (!value.isEmpty()) {
-            terminal->error("Attribute 1 Set doesn't take any parameters.");
-            return;
-        }
-        QString label = text;
-        if (text.isNull()) {
-            bool ok = false;
-            locker.unlock();
-            label = QInputDialog::getText(terminal, QString(), "Label", QLineEdit::Normal, QString(), &ok);
-            locker.relock();
-            if (!ok) {
-                terminal->warning("Popup cancelled.");
+    } else {
+        if ((attribute.size() == 1) && (attribute[0] == Keys::One)) { // LABEL
+            if (!value.isEmpty()) {
+                terminal->error("Attribute 1 Set doesn't take any parameters.");
                 return;
             }
+            if (text.isNull()) {
+                bool ok = false;
+                locker.unlock();
+                text = QInputDialog::getText(terminal, QString(), "Label", QLineEdit::Normal, QString(), &ok);
+                locker.relock();
+                if (!ok) {
+                    terminal->warning("Popup cancelled.");
+                    return;
+                }
+            }
+            text.replace("\"", "");
         }
-        label.replace("\"", "");
-        if (selectionType == Keys::Model) { // LABEL MODEL
-            models->labelItems(ids, label);
-        } else if (selectionType == Keys::Fixture) { // LABEL FIXTURE
-            fixtures->labelItems(ids, label);
-        } else if (selectionType == Keys::Group) { // LABEL GROUP
-            groups->labelItems(ids, label);
-        } else if (selectionType == Keys::Intensity) { // LABEL INTENSITY
-            intensities->labelItems(ids, label);
-        } else if (selectionType == Keys::Color) { // LABEL COLOR
-            colors->labelItems(ids, label);
-        } else if (selectionType == Keys::Cue) { // LABEL CUE
-            cues->labelItems(ids, label);
-        }
-    } else {
         QMap<int, QString> attributeMap = QMap<int, QString>();
         int currentItemType = Keys::Attribute;
         QList<int> currentId;
