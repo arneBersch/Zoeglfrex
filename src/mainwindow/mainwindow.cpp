@@ -9,7 +9,7 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-    qInfo() << VERSION;
+    qInfo() << "Zöglfrex" << VERSION;
     qInfo() << COPYRIGHT;
     qInfo() << "Zöglfrex is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.";
     qInfo() << "Zöglfrex is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.";
@@ -179,7 +179,8 @@ void MainWindow::newFile() {
 
 void MainWindow::saveFile() {
     if (fileName.isEmpty()) {
-        fileName = QFileDialog::getSaveFileName();
+        QString filenameFilter = "zfr Files (*.zfr)";
+        fileName = QFileDialog::getSaveFileName(this, "Save File", QString(), filenameFilter, &filenameFilter);
         if (fileName.isEmpty()) {
             return;
         }
@@ -187,63 +188,102 @@ void MainWindow::saveFile() {
             fileName += ".zfr";
         }
     }
-    QMutexLocker locker(kernel->mutex);
+    QMutexLocker lockelockerr(kernel->mutex);
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly)) {
         kernel->terminal->error("Unable to save file.");
         return;
     }
-    QTextStream fileStream(&file);
-    fileStream << "ZOEGLFREX_00.02.00\n";
+    QXmlStreamWriter fileStream(&file);
+    fileStream.setAutoFormatting(true);
+    fileStream.writeStartDocument();
+    fileStream.writeStartElement("Workspace");
 
+    fileStream.writeStartElement("Creator");
+    fileStream.writeTextElement("Name", "Zöglfrex");
+    fileStream.writeTextElement("Version", VERSION);
+    fileStream.writeEndElement();
+
+    fileStream.writeStartElement("Models");
     for (Model* model : kernel->models->items) {
-        fileStream << "m" << model->id << "a2s\"" << model->channels << "\"\n";
-        fileStream << "m" << model->id << "a1s\"" << model->label << "\"\n";
+        fileStream.writeStartElement("Model");
+        fileStream.writeTextElement("ID", model->id);
+        fileStream.writeTextElement("Label", model->label);
+        fileStream.writeTextElement("Channels", model->channels);
+        fileStream.writeEndElement();
     }
+    fileStream.writeEndElement();
 
+    fileStream.writeStartElement("Fixtures");
     for (Fixture* fixture : kernel->fixtures->items) {
-        fileStream << "f" << fixture->id << "a2sm" << fixture->model->id << "\n";
-        fileStream << "f" << fixture->id << "a3s" << fixture->address << "\n";
-        fileStream << "f" << fixture->id << "a1s\"" << fixture->label << "\"\n";
+        fileStream.writeStartElement("Fixture");
+        fileStream.writeTextElement("ID", fixture->id);
+        fileStream.writeTextElement("Label", fixture->label);
+        fileStream.writeTextElement("Model", fixture->model->id);
+        fileStream.writeTextElement("Channels", QString::number(fixture->address));
+        fileStream.writeEndElement();
     }
+    fileStream.writeEndElement();
 
+    fileStream.writeStartElement("Groups");
     for (Group* group : kernel->groups->items) {
-        QString fixtures = QString();
-        if (!group->fixtures.isEmpty()) {
-            fixtures = "f";
-            for (Fixture *fixture : group->fixtures) {
-                fixtures += fixture->id;
-                fixtures += "+";
-            }
+        fileStream.writeStartElement("Group");
+        fileStream.writeTextElement("ID", group->id);
+        fileStream.writeTextElement("Label", group->label);
+        fileStream.writeStartElement("Fixtures");
+        for (Fixture *fixture : group->fixtures) {
+            fileStream.writeTextElement("Fixture", fixture->id);
         }
-        fileStream << "g" << group->id << "a2s" << fixtures << "\n";
-        fileStream << "g" << group->id << "a1s\"" << group->label << "\"\n";
+        fileStream.writeEndElement();
     }
+    fileStream.writeEndElement();
 
+    fileStream.writeStartElement("Intensities");
     for (Intensity* intensity : kernel->intensities->items) {
-        fileStream << "i" << intensity->id << "a2s" << intensity->dimmer << "\n";
-        fileStream << "i" << intensity->id << "a1s\"" << intensity->label << "\"\n";
+        fileStream.writeStartElement("Intensity");
+        fileStream.writeTextElement("ID", intensity->id);
+        fileStream.writeTextElement("Label", intensity->label);
+        fileStream.writeTextElement("Dimmer", QString::number(intensity->dimmer));
+        fileStream.writeEndElement();
     }
+    fileStream.writeEndElement();
 
+    fileStream.writeStartElement("Colors");
     for (Color* color : kernel->colors->items) {
-        fileStream << "c" << color->id << "a2s" << color->hue << "\n";
-        fileStream << "c" << color->id << "a3s" << color->saturation << "\n";
-        fileStream << "c" << color->id << "a1s\"" << color->label << "\"\n";
+        fileStream.writeStartElement("Color");
+        fileStream.writeTextElement("ID", color->id);
+        fileStream.writeTextElement("Label", color->label);
+        fileStream.writeTextElement("Hue", QString::number(color->hue));
+        fileStream.writeTextElement("Saturation", QString::number(color->saturation));
+        fileStream.writeEndElement();
     }
+    fileStream.writeEndElement();
 
+    fileStream.writeStartElement("Cues");
     for (Cue* cue : kernel->cues->items) {
-        fileStream << "q" << cue->id << "a4s" << cue->fade << "\n";
-        fileStream << "q" << cue->id << "a1s\"" << cue->label << "\"\n";
+        fileStream.writeStartElement("Cue");
+        fileStream.writeTextElement("ID", cue->id);
+        fileStream.writeTextElement("Label", cue->label);
+        fileStream.writeTextElement("Fade", QString::number(cue->fade));
+        fileStream.writeStartElement("Groups");
         for (Group* group : kernel->groups->items) {
+            fileStream.writeStartElement("Group");
+            fileStream.writeTextElement("ID", group->id);
             if (cue->intensities.contains(group)) {
-                fileStream << "q" << cue->id << "a2g" << group->id << "si" << cue->intensities.value(group)->id << "\n";
+                fileStream.writeTextElement("Intensity", cue->intensities.value(group)->id);
             }
             if (cue->colors.contains(group)) {
-                fileStream << "q" << cue->id << "a3g" << group->id << "sc" << cue->colors.value(group)->id << "\n";
+                fileStream.writeTextElement("Color", cue->colors.value(group)->id);
             }
+            fileStream.writeEndElement();
         }
+        fileStream.writeEndElement();
+        fileStream.writeEndElement();
     }
-    fileStream << Qt::endl;
+    fileStream.writeEndElement();
+
+    fileStream.writeEndElement();
+    fileStream.writeEndDocument();
     kernel->terminal->success("Saved file as " + fileName);
 }
 

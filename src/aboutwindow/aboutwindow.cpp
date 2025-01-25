@@ -11,7 +11,7 @@
 AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : QDialog{parent} {
     QVBoxLayout *layout = new QVBoxLayout();
 
-    QLabel *header = new QLabel(version);
+    QLabel *header = new QLabel("Zöglfrex " + version);
     header->setStyleSheet("font-size: 50px");
     layout->addWidget(header);
 
