@@ -20,7 +20,9 @@ void FixtureList::deleteModel(Model *model)
             invalidFixtures.append(fixture->id);
         }
     }
-    deleteItems(invalidFixtures);
+    QList<int> command = QList<int>();
+    command.append(Keys::Minus);
+    setAttribute(invalidFixtures, QMap<int, QString>(), command);
 }
 
 void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {

@@ -31,30 +31,26 @@ template <class T> QList<QString> ItemList<T>::getIds() const {
     return ids;
 }
 
-template <class T> void ItemList<T>::deleteItems(QList<QString> ids) {
-    QList<QString> existingIds;
-    for (QString id : ids) {
-        if (getItem(id) == nullptr) {
-            kernel->terminal->warning("Couldn't delete " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
-        } else {
-            existingIds.append(id);
-        }
-    }
-    for (QString id : existingIds) {
-        int itemRow = getItemRow(id);
-        T *item = items[itemRow];
-        beginRemoveRows(QModelIndex(), itemRow, itemRow);
-        items.removeAt(itemRow);
-        endRemoveRows();
-        delete item;
-    }
-    kernel->terminal->success("Deleted " + QString::number(existingIds.length()) + " " + pluralItemName + ".");
-}
-
 template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    if ((!attribute.contains(Keys::Attribute)) && (value.size() == 1) && (value.first() == Keys::Minus)) {
-        deleteItems(ids);
-    } else if (attribute.isEmpty() && (value.size() >= 2)) {
+    if ((!attribute.contains(Keys::Attribute)) && (value.size() == 1) && (value.first() == Keys::Minus)) { // Delete Item
+        QList<QString> existingIds;
+        for (QString id : ids) {
+            if (getItem(id) == nullptr) {
+                kernel->terminal->warning("Couldn't delete " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
+            } else {
+                existingIds.append(id);
+            }
+        }
+        for (QString id : existingIds) {
+            int itemRow = getItemRow(id);
+            T *item = items[itemRow];
+            beginRemoveRows(QModelIndex(), itemRow, itemRow);
+            items.removeAt(itemRow);
+            endRemoveRows();
+            delete item;
+        }
+        kernel->terminal->success("Deleted " + QString::number(existingIds.length()) + " " + pluralItemName + ".");
+    } else if (attribute.isEmpty() && (value.size() >= 2)) { // Copy Item
         value.removeFirst();
         T* sourceItem = getItem(kernel->keysToId(value));
         if (sourceItem == nullptr) {
@@ -76,7 +72,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             }
         }
         kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + sourceItem->name() + " .");
-    } else if (attribute.value(Keys::Attribute) == "0") {
+    } else if (attribute.value(Keys::Attribute) == "0") { // Move (set ID of) Item
         QString targetId = kernel->keysToId(value);
         QList<int> itemRows;
         for (QString id : ids) {
@@ -103,7 +99,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             }
         }
         kernel->terminal->success("Set ID of " + QString::number(itemRows.length()) + " " + pluralItemName + " to " + targetId + ".");
-    } else if (attribute.value(Keys::Attribute) == "1") {
+    } else if (attribute.value(Keys::Attribute) == "1") { // Label Item
         QList<int> itemRows;
         for (QString id : ids) {
             int itemRow = getItemRow(id);
