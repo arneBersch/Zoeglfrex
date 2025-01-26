@@ -75,10 +75,6 @@ void Kernel::execute(QList<int> command, QString text) {
         return;
     }
     if ((attribute.size() == 1) && (attribute[0] == Keys::One)) { // if label text input is required (Attribute 1 / Label)
-        if (!value.isEmpty()) {
-            terminal->error("Attribute 1 Set doesn't take any parameters.");
-            return;
-        }
         if (text.isNull()) {
             bool ok = false;
             locker.unlock();
@@ -95,9 +91,9 @@ void Kernel::execute(QList<int> command, QString text) {
     QList<int> currentId;
     for (int attributeKey : attribute) {
         if (isItem(attributeKey)) {
-            QString itemId = keysToId(currentId);
-            if (!itemId.isEmpty()) {
-                attributeMap[currentItemType] = itemId;
+            if (!currentId.isEmpty()) {
+                QString currentIdString = keysToId(currentId);
+                attributeMap[currentItemType] = currentIdString;
             }
             currentId.clear();
             currentItemType = attributeKey;
@@ -108,9 +104,9 @@ void Kernel::execute(QList<int> command, QString text) {
             return;
         }
     }
-    QString itemId = keysToId(currentId);
-    if (!itemId.isEmpty()) {
-        attributeMap[currentItemType] = itemId;
+    if (!currentId.isEmpty()) {
+        QString currentIdString = keysToId(currentId);
+        attributeMap[currentItemType] = currentIdString;
     }
     if (selectionType == Keys::Model) {
         if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
@@ -127,32 +123,32 @@ void Kernel::execute(QList<int> command, QString text) {
                 return;
             }
         }
-        models->setOtherAttribute(ids, attributeMap, value, text);
+        models->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Fixture) {
         if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
             attributeMap[Keys::Attribute] = "3";
         }
-        fixtures->setOtherAttribute(ids, attributeMap, value, text);
+        fixtures->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Group) {
         if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
             attributeMap[Keys::Attribute] = "2";
         }
-        groups->setOtherAttribute(ids, attributeMap, value, text);
+        groups->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Intensity) {
         if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
             attributeMap[Keys::Attribute] = "2";
         }
-        intensities->setOtherAttribute(ids, attributeMap, value, text);
+        intensities->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Color) {
         if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
             attributeMap[Keys::Attribute] = "2";
         }
-        colors->setOtherAttribute(ids, attributeMap, value, text);
+        colors->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Cue) {
         if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
             attributeMap[Keys::Attribute] = "4";
         }
-        cues->setOtherAttribute(ids, attributeMap, value, text);
+        cues->setAttribute(ids, attributeMap, value, text);
     }
     cuelistView->loadCue();
 }

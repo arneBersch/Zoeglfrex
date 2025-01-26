@@ -100,6 +100,10 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         }
         kernel->terminal->success("Set ID of " + QString::number(itemRows.length()) + " " + pluralItemName + " to " + targetId + ".");
     } else if (attribute.value(Keys::Attribute) == "1") { // Label Item
+        if (!value.isEmpty()) {
+            kernel->terminal->error("Attribute 1 Set doesn't take any parameters.");
+            return;
+        }
         QList<int> itemRows;
         for (QString id : ids) {
             int itemRow = getItemRow(id);
