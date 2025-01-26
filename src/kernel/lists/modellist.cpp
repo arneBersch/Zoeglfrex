@@ -40,6 +40,6 @@ void ModelList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
         }
         kernel->terminal->success("Recorded " + QString::number(modelCounter) + " Models with channels \"" + text + "\".");
     } else {
-        kernel->terminal->error("Can't set Cue Attribute " + attributeString + ".");
+        kernel->terminal->error("Can't set Model Attribute " + attributeString + ".");
     }
 }
