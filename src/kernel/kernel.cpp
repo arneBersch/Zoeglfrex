@@ -74,6 +74,17 @@ void Kernel::execute(QList<int> command, QString text) {
         terminal->error("No items selected.");
         return;
     }
+    if ((selectionType == Keys::Cue) && !valueReached && !attributeReached && (ids.size() == 1)) {
+        Cue* cue = cues->getItem(ids.first());
+        if (cue == nullptr) {
+            terminal->error("Cue " + ids.first() + " was not found.");
+            return;
+        }
+        cuelistView->currentCue = cue;
+        cuelistView->loadCue();
+        terminal->success("Loaded Cue " + cue->id);
+        return;
+    }
     if ((attribute.size() == 1) && (attribute[0] == Keys::One)) { // if label text input is required (Attribute 1 / Label)
         if (text.isNull()) {
             bool ok = false;
@@ -125,27 +136,27 @@ void Kernel::execute(QList<int> command, QString text) {
         }
         models->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Fixture) {
-        if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
+        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus)) {
             attributeMap[Keys::Attribute] = "3";
         }
         fixtures->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Group) {
-        if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
+        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus)) {
             attributeMap[Keys::Attribute] = "2";
         }
         groups->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Intensity) {
-        if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
+        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus)) {
             attributeMap[Keys::Attribute] = "2";
         }
         intensities->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Color) {
-        if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
+        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus)) {
             attributeMap[Keys::Attribute] = "2";
         }
         colors->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Cue) {
-        if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
+        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus)) {
             attributeMap[Keys::Attribute] = "4";
         }
         cues->setAttribute(ids, attributeMap, value, text);

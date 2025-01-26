@@ -14,7 +14,7 @@
 #include "cuelistview/dmxengine.h"
 #include "cuelistview/cuemodel.h"
 class Kernel;
-struct Cue;
+class Cue;
 
 class CuelistView : public QWidget {
     Q_OBJECT
