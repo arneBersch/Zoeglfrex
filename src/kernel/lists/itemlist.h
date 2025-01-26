@@ -11,7 +11,6 @@ public:
     T* getItem(QString id) const;
     int getItemRow(QString id) const;
     QList<QString> getIds() const;
-    void copyItems(QList<QString> ids, QString sourceId);
     void deleteItems(QList<QString> ids);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;

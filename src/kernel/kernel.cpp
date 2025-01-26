@@ -74,108 +74,85 @@ void Kernel::execute(QList<int> command, QString text) {
         terminal->error("No items selected.");
         return;
     }
-    if (attribute.isEmpty() && !value.isEmpty() && (value.first() == selectionType)) { // COPY
-        value.removeFirst();
-        QString sourceId = keysToId(value);
-        if (sourceId.isEmpty()) {
-            terminal->error("Target ID not valid.");
+    if ((attribute.size() == 1) && (attribute[0] == Keys::One)) { // if label text input is required (Attribute 1 / Label)
+        if (!value.isEmpty()) {
+            terminal->error("Attribute 1 Set doesn't take any parameters.");
             return;
         }
-        if (selectionType == Keys::Model) { // COPY MODEL
-            models->copyItems(ids, sourceId);
-        } else if (selectionType == Keys::Fixture) { // COPY FIXTURE
-            fixtures->copyItems(ids, sourceId);
-        } else if (selectionType == Keys::Group) { // COPY GROUP
-            groups->copyItems(ids, sourceId);
-        } else if (selectionType == Keys::Intensity) { // COPY INTENSITY
-            intensities->copyItems(ids, sourceId);
-        } else if (selectionType == Keys::Color) { // COPY COLOR
-            colors->copyItems(ids, sourceId);
-        } else if (selectionType == Keys::Cue) { // COPY CUE
-            cues->copyItems(ids, sourceId);
-        }
-    } else {
-        if ((attribute.size() == 1) && (attribute[0] == Keys::One)) { // LABEL
-            if (!value.isEmpty()) {
-                terminal->error("Attribute 1 Set doesn't take any parameters.");
-                return;
-            }
-            if (text.isNull()) {
-                bool ok = false;
-                locker.unlock();
-                text = QInputDialog::getText(terminal, QString(), "Label", QLineEdit::Normal, QString(), &ok);
-                locker.relock();
-                if (!ok) {
-                    terminal->warning("Popup cancelled.");
-                    return;
-                }
-            }
-            text.replace("\"", "");
-        }
-        QMap<int, QString> attributeMap = QMap<int, QString>();
-        int currentItemType = Keys::Attribute;
-        QList<int> currentId;
-        for (int attributeKey : attribute) {
-            if (isItem(attributeKey)) {
-                QString itemId = keysToId(currentId);
-                if (!itemId.isEmpty()) {
-                    attributeMap[currentItemType] = itemId;
-                }
-                currentId.clear();
-                currentItemType = attributeKey;
-            } else if (isNumber(attributeKey) || (attributeKey == Keys::Period)) {
-                currentId.append(attributeKey);
-            } else {
-                terminal->error("Invalid key in Attribute.");
+        if (text.isNull()) {
+            bool ok = false;
+            locker.unlock();
+            text = QInputDialog::getText(terminal, QString(), "Label", QLineEdit::Normal, QString(), &ok);
+            locker.relock();
+            if (!ok) {
+                terminal->warning("Popup cancelled.");
                 return;
             }
         }
-        QString itemId = keysToId(currentId);
-        if (!itemId.isEmpty()) {
-            attributeMap[currentItemType] = itemId;
+    }
+    QMap<int, QString> attributeMap = QMap<int, QString>();
+    int currentItemType = Keys::Attribute;
+    QList<int> currentId;
+    for (int attributeKey : attribute) {
+        if (isItem(attributeKey)) {
+            QString itemId = keysToId(currentId);
+            if (!itemId.isEmpty()) {
+                attributeMap[currentItemType] = itemId;
+            }
+            currentId.clear();
+            currentItemType = attributeKey;
+        } else if (isNumber(attributeKey) || (attributeKey == Keys::Period)) {
+            currentId.append(attributeKey);
+        } else {
+            terminal->error("Invalid key in Attribute.");
+            return;
         }
-        if (selectionType == Keys::Model) {
-            if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
-                attributeMap[Keys::Attribute] = "2";
-            }
-            QString channels = text;
-            if ((attributeMap.value(Keys::Attribute) == "2") && text.isNull()) {
-                bool ok = false;
-                locker.unlock();
-                channels = QInputDialog::getText(terminal, QString(), "Channels", QLineEdit::Normal, QString(), &ok);
-                locker.relock();
-                if (!ok) {
-                    terminal->warning("Popup cancelled.");
-                    return;
-                }
-            }
-            models->setOtherAttribute(ids, attributeMap, value, text);
-        } else if (selectionType == Keys::Fixture) {
-            if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
-                attributeMap[Keys::Attribute] = "3";
-            }
-            fixtures->setOtherAttribute(ids, attributeMap, value, text);
-        } else if (selectionType == Keys::Group) {
-            if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
-                attributeMap[Keys::Attribute] = "2";
-            }
-            groups->setOtherAttribute(ids, attributeMap, value, text);
-        } else if (selectionType == Keys::Intensity) {
-            if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
-                attributeMap[Keys::Attribute] = "2";
-            }
-            intensities->setOtherAttribute(ids, attributeMap, value, text);
-        } else if (selectionType == Keys::Color) {
-            if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
-                attributeMap[Keys::Attribute] = "2";
-            }
-            colors->setOtherAttribute(ids, attributeMap, value, text);
-        } else if (selectionType == Keys::Cue) {
-            if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
-                attributeMap[Keys::Attribute] = "4";
-            }
-            cues->setOtherAttribute(ids, attributeMap, value, text);
+    }
+    QString itemId = keysToId(currentId);
+    if (!itemId.isEmpty()) {
+        attributeMap[currentItemType] = itemId;
+    }
+    if (selectionType == Keys::Model) {
+        if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
+            attributeMap[Keys::Attribute] = "2";
         }
+        QString channels = text;
+        if ((attributeMap.value(Keys::Attribute) == "2") && text.isNull()) {
+            bool ok = false;
+            locker.unlock();
+            channels = QInputDialog::getText(terminal, QString(), "Channels", QLineEdit::Normal, QString(), &ok);
+            locker.relock();
+            if (!ok) {
+                terminal->warning("Popup cancelled.");
+                return;
+            }
+        }
+        models->setOtherAttribute(ids, attributeMap, value, text);
+    } else if (selectionType == Keys::Fixture) {
+        if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
+            attributeMap[Keys::Attribute] = "3";
+        }
+        fixtures->setOtherAttribute(ids, attributeMap, value, text);
+    } else if (selectionType == Keys::Group) {
+        if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
+            attributeMap[Keys::Attribute] = "2";
+        }
+        groups->setOtherAttribute(ids, attributeMap, value, text);
+    } else if (selectionType == Keys::Intensity) {
+        if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
+            attributeMap[Keys::Attribute] = "2";
+        }
+        intensities->setOtherAttribute(ids, attributeMap, value, text);
+    } else if (selectionType == Keys::Color) {
+        if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
+            attributeMap[Keys::Attribute] = "2";
+        }
+        colors->setOtherAttribute(ids, attributeMap, value, text);
+    } else if (selectionType == Keys::Cue) {
+        if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
+            attributeMap[Keys::Attribute] = "4";
+        }
+        cues->setOtherAttribute(ids, attributeMap, value, text);
     }
     cuelistView->loadCue();
 }

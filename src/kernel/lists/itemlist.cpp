@@ -31,29 +31,6 @@ template <class T> QList<QString> ItemList<T>::getIds() const {
     return ids;
 }
 
-template <class T> void ItemList<T>::copyItems(QList<QString> ids, QString sourceId) {
-    T* sourceItem = getItem(sourceId);
-    if (sourceItem == nullptr) {
-        kernel->terminal->error("Can't copy " + singularItemName + " " + sourceId + " because it doesn't exist.");
-        return;
-    }
-    int itemCounter = 0;
-    for (QString id : ids) {
-        if (getItem(id) != nullptr) {
-            kernel->terminal->warning("Couldn't copy " + singularItemName + " " + sourceItem->name() + " because target ID " + id + " is already used.");
-        } else {
-            T* item = new T(sourceItem);
-            item->id = id;
-            int position = findRow(id);
-            beginInsertRows(QModelIndex(), position, position);
-            items.insert(position, item);
-            endInsertRows();
-            itemCounter++;
-        }
-    }
-    kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + sourceItem->name() + " .");
-}
-
 template <class T> void ItemList<T>::deleteItems(QList<QString> ids) {
     QList<QString> existingIds;
     for (QString id : ids) {
@@ -77,6 +54,28 @@ template <class T> void ItemList<T>::deleteItems(QList<QString> ids) {
 template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
     if ((!attribute.contains(Keys::Attribute)) && (value.size() == 1) && (value.first() == Keys::Minus)) {
         deleteItems(ids);
+    } else if (attribute.isEmpty() && (value.size() >= 2)) {
+        value.removeFirst();
+        T* sourceItem = getItem(kernel->keysToId(value));
+        if (sourceItem == nullptr) {
+            kernel->terminal->error("Can't copy " + singularItemName + " " + kernel->keysToId(value) + " because it doesn't exist.");
+            return;
+        }
+        int itemCounter = 0;
+        for (QString id : ids) {
+            if (getItem(id) != nullptr) {
+                kernel->terminal->warning("Couldn't copy " + singularItemName + " " + sourceItem->name() + " because target ID " + id + " is already used.");
+            } else {
+                T* item = new T(sourceItem);
+                item->id = id;
+                int position = findRow(id);
+                beginInsertRows(QModelIndex(), position, position);
+                items.insert(position, item);
+                endInsertRows();
+                itemCounter++;
+            }
+        }
+        kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + sourceItem->name() + " .");
     } else if (attribute.value(Keys::Attribute) == "0") {
         QString targetId = kernel->keysToId(value);
         QList<int> itemRows;
