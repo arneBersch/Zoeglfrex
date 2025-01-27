@@ -13,9 +13,8 @@ CueModel::CueModel(Kernel *core) {
     kernel = core;
 }
 
-void CueModel::loadCue(Cue *cue) {
+void CueModel::loadCue() {
     beginResetModel();
-    currentCue = cue;
     endResetModel();
 }
 
@@ -41,24 +40,30 @@ QVariant CueModel::data(const QModelIndex &index, const int role) const
     if (column >= (this->columnCount()) || column < 0) {
         return QVariant();
     }
-    if (index.isValid() && role == Qt::DisplayRole) {
+    if (!index.isValid()) {
+        return QString();
+    }
+    if (role == Qt::DisplayRole) {
         QMutexLocker locker(kernel->mutex);
+        Group *group = kernel->groups->items[row];
         if (column == CueModelColumns::group) {
-            return kernel->groups->items[row]->name();
+            return group->name();
         } else if (column == CueModelColumns::intensity) {
-            Group *currentGroup = kernel->groups->items[row];
-            if (currentCue != nullptr && currentCue->intensities.contains(currentGroup)) {
-                return (currentCue->intensities[currentGroup])->name();
+            if (kernel->cuelistView->currentCue != nullptr && kernel->cuelistView->currentCue->intensities.contains(group)) {
+                return kernel->cuelistView->currentCue->intensities.value(group)->name();
             }
             return QVariant();
         } else if (column == CueModelColumns::color) {
-            Group *currentGroup = kernel->groups->items[row];
-            if (currentCue != nullptr && currentCue->colors.contains(currentGroup)) {
-                return (currentCue->colors[currentGroup])->name();
+            if (kernel->cuelistView->currentCue != nullptr && kernel->cuelistView->currentCue->colors.contains(group)) {
+                return kernel->cuelistView->currentCue->colors.value(group)->name();
             }
             return QVariant();
         } else {
             return QVariant();
+        }
+    } else if (role == Qt::BackgroundRole) {
+        if (kernel->groups->items[row] == kernel->cuelistView->currentGroup) {
+            return QColor(48, 48, 48);
         }
     }
     return QVariant();

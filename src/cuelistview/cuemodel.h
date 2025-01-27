@@ -26,14 +26,13 @@ class CueModel : public QAbstractTableModel {
     Q_OBJECT
 public:
     CueModel(Kernel *core);
-    void loadCue(Cue* cue);
+    void loadCue();
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
     QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
 private:
     Kernel *kernel;
-    Cue *currentCue = nullptr;
 };
 
 #endif // CUEMODEL_H

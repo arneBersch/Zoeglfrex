@@ -14,6 +14,7 @@ Cue::Cue(const Cue* item) : Item(item->kernel) {
 Cue::~Cue() {
     if (kernel->cuelistView->currentCue == this) {
         kernel->cuelistView->currentCue = nullptr;
+        kernel->cuelistView->loadCue();
     }
 }
 

@@ -10,6 +10,10 @@ Group::Group(const Group* item) : Item(item->kernel) {
 }
 
 Group::~Group() {
+    if (kernel->cuelistView->currentGroup == this) {
+        kernel->cuelistView->currentGroup = nullptr;
+        kernel->cuelistView->loadCue();
+    }
     kernel->cues->deleteGroup(this);
 }
 

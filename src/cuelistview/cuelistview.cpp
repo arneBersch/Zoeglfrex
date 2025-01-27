@@ -40,12 +40,12 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
 
 
 void CuelistView::loadCue() {
-    cueModel->loadCue(currentCue);
+    cueModel->loadCue();
     engine->generateDmx();
     if (currentCue == nullptr) {
         cueLabel->setText(QString());
         if (!kernel->cues->items.isEmpty()) {
-            currentCue = kernel->cues->items[0]; // select first cue
+            currentCue = kernel->cues->items.first();
             loadCue();
         }
         return;

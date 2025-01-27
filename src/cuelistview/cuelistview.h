@@ -14,6 +14,7 @@
 #include "cuelistview/dmxengine.h"
 #include "cuelistview/cuemodel.h"
 class Kernel;
+class Group;
 class Cue;
 
 class CuelistView : public QWidget {
@@ -21,6 +22,7 @@ class CuelistView : public QWidget {
 public:
     CuelistView(Kernel *core, QWidget *parent = nullptr);
     void loadCue();
+    Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;
 private:
     void nextCue();

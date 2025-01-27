@@ -67,7 +67,13 @@ void Kernel::execute(QList<int> command, QString text) {
     }
     QList<QString> ids = keysToSelection(selection, selectionType);
     if (selection.isEmpty()) {
-        if (selectionType == Keys::Cue) {
+        if (selectionType == Keys::Group) {
+            if (cuelistView->currentGroup == nullptr) {
+                terminal->error("Can't load the current Group because no Group is selected.");
+                return;
+            }
+            ids.append(cuelistView->currentGroup->id);
+        } else if (selectionType == Keys::Cue) {
             if (cuelistView->currentCue == nullptr) {
                 terminal->error("Can't load the current Cue because no Cue is selected.");
                 return;
@@ -82,15 +88,29 @@ void Kernel::execute(QList<int> command, QString text) {
         terminal->error("No items selected.");
         return;
     }
-    if ((selectionType == Keys::Cue) && !valueReached && !attributeReached && (ids.size() == 1)) {
-        Cue* cue = cues->getItem(ids.first());
-        if (cue == nullptr) {
-            cue = cues->addItem(ids.first());
-            terminal->success("Added and loaded Cue " + cue->id);
+    if (!valueReached && !attributeReached && (ids.size() == 1)) {
+        if (selectionType == Keys::Group) {
+            Group* group = groups->getItem(ids.first());
+            if (group == nullptr) {
+                group = groups->addItem(ids.first());
+                terminal->success("Added and loaded Group " + group->id);
+            } else {
+                terminal->success("Loaded Group " + group->id);
+            }
+            cuelistView->currentGroup = group;
+        } else if (selectionType == Keys::Cue) {
+            Cue* cue = cues->getItem(ids.first());
+            if (cue == nullptr) {
+                cue = cues->addItem(ids.first());
+                terminal->success("Added and loaded Cue " + cue->id);
+            } else {
+                terminal->success("Loaded Cue " + cue->id);
+            }
+            cuelistView->currentCue = cue;
         } else {
-            terminal->success("Loaded Cue " + cue->id);
+            terminal->error("No Attribute and Value were given.");
+            return;
         }
-        cuelistView->currentCue = cue;
         cuelistView->loadCue();
         return;
     }
