@@ -174,7 +174,7 @@ template <class T> int ItemList<T>::findRow(QString id) {
     return position;
 }
 
-template <class T> T* ItemList<T>::recordItem(QString id) {
+template <class T> T* ItemList<T>::addItem(QString id) {
     T* item = new T(kernel);
     item->id = id;
     int row = findRow(id);

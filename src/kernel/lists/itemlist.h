@@ -17,8 +17,8 @@ public:
     Kernel *kernel;
     QList<T*> items;
     void setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString());
+    T* addItem(QString id);
 protected:
-    T* recordItem(QString id);
     virtual void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString()) = 0;
 private:
     int findRow(QString id);

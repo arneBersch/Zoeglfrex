@@ -77,12 +77,13 @@ void Kernel::execute(QList<int> command, QString text) {
     if ((selectionType == Keys::Cue) && !valueReached && !attributeReached && (ids.size() == 1)) {
         Cue* cue = cues->getItem(ids.first());
         if (cue == nullptr) {
-            terminal->error("Cue " + ids.first() + " was not found.");
-            return;
+            cue = cues->addItem(ids.first());
+            terminal->success("Added and loaded Cue " + cue->id);
+        } else {
+            terminal->success("Loaded Cue " + cue->id);
         }
         cuelistView->currentCue = cue;
         cuelistView->loadCue();
-        terminal->success("Loaded Cue " + cue->id);
         return;
     }
     if ((attribute.size() == 1) && (attribute[0] == Keys::One)) { // if label text input is required (Attribute 1 / Label)

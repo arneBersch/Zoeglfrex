@@ -44,7 +44,7 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
             Fixture* fixture = getItem(id);
             Model* oldModel = nullptr;
             if (fixture == nullptr) {
-                fixture = recordItem(id);
+                fixture = addItem(id);
             } else {
                 oldModel = fixture->model;
             }

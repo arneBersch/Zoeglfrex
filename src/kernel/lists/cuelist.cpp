@@ -132,7 +132,7 @@ void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
         for (QString id : ids) {
             Cue* cue = getItem(id);
             if (cue == nullptr) {
-                cue = recordItem(id);
+                cue = addItem(id);
             }
             cue->fade = fade;
         }

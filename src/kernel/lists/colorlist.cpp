@@ -23,7 +23,7 @@ void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
         for (QString id : ids) {
             Color* color = getItem(id);
             if (color == nullptr) {
-                color = recordItem(id);
+                color = addItem(id);
             }
             color->hue = hue;
             emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
@@ -38,7 +38,7 @@ void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
         for (QString id : ids) {
             Color* color = getItem(id);
             if (color == nullptr) {
-                color = recordItem(id);
+                color = addItem(id);
             }
             color->saturation = saturation;
             emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});

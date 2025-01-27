@@ -46,7 +46,7 @@ void GroupList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
         for (QString id : ids) {
             Group* group = getItem(id);
             if (group == nullptr) {
-                group = recordItem(id);
+                group = addItem(id);
             }
             group->fixtures = fixtureSelection;
             emit dataChanged(index(getItemRow(group->id), 0), index(getItemRow(group->id), 0), {Qt::DisplayRole, Qt::EditRole});

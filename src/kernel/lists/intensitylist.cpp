@@ -23,7 +23,7 @@ void IntensityList::setOtherAttribute(QList<QString> ids, QMap<int, QString> att
         for (QString id : ids) {
             Intensity* intensity = getItem(id);
             if (intensity == nullptr) {
-                intensity = recordItem(id);
+                intensity = addItem(id);
             }
             intensity->dimmer = dimmer;
             emit dataChanged(index(getItemRow(intensity->id), 0), index(getItemRow(intensity->id), 0), {Qt::DisplayRole, Qt::EditRole});

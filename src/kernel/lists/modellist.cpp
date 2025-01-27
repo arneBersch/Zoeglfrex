@@ -27,7 +27,7 @@ void ModelList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
         for (QString id : ids) {
             Model* model = getItem(id);
             if (model == nullptr) {
-                model = recordItem(id);
+                model = addItem(id);
             }
             QString oldChannels = model->channels;
             model->channels = text;
