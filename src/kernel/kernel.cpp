@@ -126,6 +126,40 @@ void Kernel::execute(QList<int> command, QString text) {
                 terminal->success("Selected Group " + group->id);
             }
             cuelistView->currentGroup = group;
+        } else if (selectionType == Keys::Intensity) {
+            if (cuelistView->currentCue == nullptr) {
+                terminal->error("Can't set Intensity of selected Group in current Cue because no Cue is selected.");
+                return;
+            }
+            if (cuelistView->currentGroup == nullptr) {
+                terminal->error("Can't set Intensity of selected Group in current Cue because no Group is selected.");
+                return;
+            }
+            Intensity* intensity = intensities->getItem(ids.first());
+            if (intensity == nullptr) {
+                intensity = intensities->addItem(ids.first());
+                terminal->success("Added and selected Intensity " + intensity->id);
+            } else {
+                terminal->success("Selected Intensity " + intensity->id);
+            }
+            cuelistView->currentCue->intensities[cuelistView->currentGroup] = intensity;
+        } else if (selectionType == Keys::Color) {
+            if (cuelistView->currentCue == nullptr) {
+                terminal->error("Can't set Color of selected Group in current Cue because no Cue is selected.");
+                return;
+            }
+            if (cuelistView->currentGroup == nullptr) {
+                terminal->error("Can't set Color of selected Group in current Cue because no Group is selected.");
+                return;
+            }
+            Color* color = colors->getItem(ids.first());
+            if (color == nullptr) {
+                color = colors->addItem(ids.first());
+                terminal->success("Added and selected Color " + color->id);
+            } else {
+                terminal->success("Selected Color " + color->id);
+            }
+            cuelistView->currentCue->colors[cuelistView->currentGroup] = color;
         } else if (selectionType == Keys::Cue) {
             Cue* cue = cues->getItem(ids.first());
             if (cue == nullptr) {
