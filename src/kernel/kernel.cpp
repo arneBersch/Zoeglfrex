@@ -65,11 +65,19 @@ void Kernel::execute(QList<int> command, QString text) {
             }
         }
     }
-    if (selection.isEmpty()) {
-        terminal->error("No selection given.");
-        return;
-    }
     QList<QString> ids = keysToSelection(selection, selectionType);
+    if (selection.isEmpty()) {
+        if (selectionType == Keys::Cue) {
+            if (cuelistView->currentCue == nullptr) {
+                terminal->error("Can't load the current Cue because no Cue is selected.");
+                return;
+            }
+            ids.append(cuelistView->currentCue->id);
+        } else {
+            terminal->error("No selection given.");
+            return;
+        }
+    }
     if (ids.isEmpty()) {
         terminal->error("No items selected.");
         return;
