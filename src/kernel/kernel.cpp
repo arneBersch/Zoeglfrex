@@ -69,13 +69,41 @@ void Kernel::execute(QList<int> command, QString text) {
     if (selection.isEmpty()) {
         if (selectionType == Keys::Group) {
             if (cuelistView->currentGroup == nullptr) {
-                terminal->error("Can't load the current Group because no Group is selected.");
+                terminal->error("Can't load the Group because no Group is selected.");
                 return;
             }
             ids.append(cuelistView->currentGroup->id);
+        } else if (selectionType == Keys::Intensity) {
+            if (cuelistView->currentCue == nullptr) {
+                terminal->error("Can't load the Intensity of the selected Group in the selected Cue because no Cue is selected.");
+                return;
+            }
+            if (cuelistView->currentGroup == nullptr) {
+                terminal->error("Can't load the Intensity of the selected Group in the selected Cue because no Group is selected.");
+                return;
+            }
+            if (!cuelistView->currentCue->intensities.contains(cuelistView->currentGroup)) {
+                terminal->error("Can't load the Intensity as the selected Cue contains no Intensity for this Group.");
+                return;
+            }
+            ids.append(cuelistView->currentCue->intensities.value(cuelistView->currentGroup)->id);
+        } else if (selectionType == Keys::Color) {
+            if (cuelistView->currentCue == nullptr) {
+                terminal->error("Can't load the Color of the selected Group in the selected Cue because no Cue is selected.");
+                return;
+            }
+            if (cuelistView->currentGroup == nullptr) {
+                terminal->error("Can't load the Color of the selected Group in the selected Cue because no Group is selected.");
+                return;
+            }
+            if (!cuelistView->currentCue->colors.contains(cuelistView->currentGroup)) {
+                terminal->error("Can't load the Color as the selected Cue contains no Color for this Group.");
+                return;
+            }
+            ids.append(cuelistView->currentCue->colors.value(cuelistView->currentGroup)->id);
         } else if (selectionType == Keys::Cue) {
             if (cuelistView->currentCue == nullptr) {
-                terminal->error("Can't load the current Cue because no Cue is selected.");
+                terminal->error("Can't load the Cue because no Cue is selected.");
                 return;
             }
             ids.append(cuelistView->currentCue->id);
@@ -93,18 +121,18 @@ void Kernel::execute(QList<int> command, QString text) {
             Group* group = groups->getItem(ids.first());
             if (group == nullptr) {
                 group = groups->addItem(ids.first());
-                terminal->success("Added and loaded Group " + group->id);
+                terminal->success("Added and selected Group " + group->id);
             } else {
-                terminal->success("Loaded Group " + group->id);
+                terminal->success("Selected Group " + group->id);
             }
             cuelistView->currentGroup = group;
         } else if (selectionType == Keys::Cue) {
             Cue* cue = cues->getItem(ids.first());
             if (cue == nullptr) {
                 cue = cues->addItem(ids.first());
-                terminal->success("Added and loaded Cue " + cue->id);
+                terminal->success("Added and selected Cue " + cue->id);
             } else {
-                terminal->success("Loaded Cue " + cue->id);
+                terminal->success("Selected Cue " + cue->id);
             }
             cuelistView->currentCue = cue;
         } else {
