@@ -22,6 +22,7 @@ class CuelistView : public QWidget {
 public:
     CuelistView(Kernel *core, QWidget *parent = nullptr);
     void loadCue();
+    bool validGroupAndCue();
     Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;
 private:

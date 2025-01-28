@@ -92,3 +92,15 @@ void CuelistView::nextCue() {
         }
     }
 }
+
+bool CuelistView::validGroupAndCue() {
+    if (currentGroup == nullptr) {
+        kernel->terminal->error("No Group selected.");
+        return false;
+    }
+    if (currentCue == nullptr) {
+        kernel->terminal->error("No Cue selected.");
+        return false;
+    }
+    return true;
+}
