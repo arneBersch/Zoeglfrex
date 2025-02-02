@@ -216,7 +216,7 @@ void Kernel::execute(QList<int> command, QString text) {
         attributeMap[currentItemType] = currentIdString;
     }
     if (selectionType == Keys::Model) {
-        if (!attributeMap.contains(Keys::Attribute) && ((value.size() == 1) || (value.first() != Keys::Minus))) {
+        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus)) {
             attributeMap[Keys::Attribute] = "2";
         }
         QString channels = text;
