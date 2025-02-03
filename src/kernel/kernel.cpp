@@ -216,14 +216,13 @@ void Kernel::execute(QList<int> command, QString text) {
         attributeMap[currentItemType] = currentIdString;
     }
     if (selectionType == Keys::Model) {
-        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus)) {
+        if (!attributeMap.contains(Keys::Attribute) && value.isEmpty()) {
             attributeMap[Keys::Attribute] = "2";
         }
-        QString channels = text;
         if ((attributeMap.value(Keys::Attribute) == "2") && text.isNull()) {
             bool ok = false;
             locker.unlock();
-            channels = QInputDialog::getText(terminal, QString(), "Channels", QLineEdit::Normal, QString(), &ok);
+            text = QInputDialog::getText(terminal, QString(), "Channels", QLineEdit::Normal, QString(), &ok);
             locker.relock();
             if (!ok) {
                 terminal->warning("Popup cancelled.");

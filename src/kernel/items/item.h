@@ -10,11 +10,12 @@ class Item
 public:
     Item(Kernel* core);
     virtual ~Item();
-    Kernel *kernel;
     QString id;
     QString label = QString();
     virtual QString name();
     virtual QString info();
+protected:
+    Kernel *kernel;
 };
 
 #endif // ITEM_H
