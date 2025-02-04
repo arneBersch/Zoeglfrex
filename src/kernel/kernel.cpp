@@ -259,6 +259,33 @@ void Kernel::execute(QList<int> command, QString text) {
     cuelistView->loadCue();
 }
 
+void Kernel::reset() {
+    for (Model* model : models->items) {
+        delete model;
+    }
+    models->items.clear();
+    for (Fixture* fixture : fixtures->items) {
+        delete fixture;
+    }
+    fixtures->items.clear();
+    for (Group* group : groups->items) {
+        delete group;
+    }
+    groups->items.clear();
+    for (Intensity* intensity : intensities->items) {
+        delete intensity;
+    }
+    intensities->items.clear();
+    for (Color* color : colors->items) {
+        delete color;
+    }
+    colors->items.clear();
+    for (Cue* cue : cues->items) {
+        delete cue;
+    }
+    cues->items.clear();
+}
+
 QString Kernel::keysToId(QList<int> keys, bool removeTrailingZeros) {
     QString id;
     int number = 0;

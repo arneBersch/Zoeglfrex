@@ -52,6 +52,7 @@ class Kernel {
 public:
     Kernel();
     void execute(QList<int> command, QString text = QString());
+    void reset();
     ModelList *models;
     FixtureList *fixtures;
     GroupList *groups;

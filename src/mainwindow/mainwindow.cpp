@@ -130,7 +130,7 @@ void MainWindow::openFile() {
         return;
     }
     QXmlStreamReader fileStream(&file);
-    clearKernel();
+    kernel->reset();
     if (fileStream.readNextStartElement() && (fileStream.name().toString() == "Workspace")) {
         while (fileStream.readNextStartElement()) {
             if (fileStream.name().toString() == "Creator") {
@@ -385,16 +385,6 @@ void MainWindow::openFile() {
     kernel->terminal->success("Opened File " + newFileName);
 }
 
-void MainWindow::clearKernel() {
-    fileName = QString(); // reset filename
-    kernel->terminal->execute("m.s-", "new file");
-    kernel->terminal->execute("f.s-", "new file");
-    kernel->terminal->execute("g.s-", "new file");
-    kernel->terminal->execute("i.s-", "new file");
-    kernel->terminal->execute("c.s-", "new file");
-    kernel->terminal->execute("q.s-", "new file");
-}
-
 void MainWindow::newFile() {
     QMessageBox messageBox;
     messageBox.setText("Are you sure you want to open a new file?");
@@ -404,7 +394,8 @@ void MainWindow::newFile() {
     if (result != QMessageBox::Ok) {
         return;
     }
-    clearKernel();
+    fileName = QString();
+    kernel->reset();
     kernel->terminal->success("Opened new file.");
 }
 

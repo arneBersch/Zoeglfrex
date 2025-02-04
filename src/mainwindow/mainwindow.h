@@ -28,7 +28,6 @@ private:
     void saveFile();
     void saveFileAs();
     void closeEvent(QCloseEvent *event) override;
-    void clearKernel();
     void about();
     QString fileName;
     const QString VERSION = "0.2.0";
