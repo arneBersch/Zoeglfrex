@@ -19,39 +19,38 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     this->setWindowTitle("Zöglfrex");
 
     QMenu *fileMenu = menuBar()->addMenu("File");
-
-    QAction *newFileAction = new QAction("New File");
+    QAction *newFileAction = new QAction("New File (CTRL+N)");
     fileMenu->addAction(newFileAction);
     connect(newFileAction, &QAction::triggered, this, &MainWindow::newFile);
-
-    QAction *openFileAction = new QAction("Open File");
+    QAction *openFileAction = new QAction("Open File (CTRL+O)");
     fileMenu->addAction(openFileAction);
     connect(openFileAction, &QAction::triggered, this, &MainWindow::openFile);
-
-    QAction *saveFileAction = new QAction("Save File");
+    QAction *saveFileAction = new QAction("Save File (CTRL+S)");
     fileMenu->addAction(saveFileAction);
     connect(saveFileAction, &QAction::triggered, this, &MainWindow::saveFile);
-
-    QAction *saveFileAsAction = new QAction("Save File as");
+    QAction *saveFileAsAction = new QAction("Save File as (CTRL+SHIFT+S)");
     fileMenu->addAction(saveFileAsAction);
     connect(saveFileAsAction, &QAction::triggered, this, &MainWindow::saveFileAs);
-
     fileMenu->addSeparator();
-
-    QAction *quitAction = new QAction("Quit");
+    QAction *quitAction = new QAction("Quit (CTRL+Q)");
     fileMenu->addAction(quitAction);
     connect(quitAction, &QAction::triggered, this, &MainWindow::close);
 
-    QMenu *helpMenu = menuBar()->addMenu("Help");
+    QMenu *outputMenu = menuBar()->addMenu("Output");
+    QAction *goAction = new QAction("Go to next Cue (Space)");
+    outputMenu->addAction(goAction);
+    connect(goAction, &QAction::triggered, this, [this]{ kernel->cuelistView->nextCue(); });
+    QAction *goBackAction = new QAction("Go to previous Cue (SHIFT+Space)");
+    outputMenu->addAction(goBackAction);
+    connect(goBackAction, &QAction::triggered, this, [this]{ kernel->cuelistView->previousCue(); });
 
+    QMenu *helpMenu = menuBar()->addMenu("Help");
     QAction *aboutAction = new QAction("About Zöglfrex");
     helpMenu->addAction(aboutAction);
     connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
-
     QAction *openGuideAction = new QAction("Quick Start Guide");
     helpMenu->addAction(openGuideAction);
     connect(openGuideAction, &QAction::triggered, this, []{ QDesktopServices::openUrl(QUrl("https://github.com/arneBersch/Zoeglfrex/blob/main/docs/quick_start_guide.md")); });
-
     QAction *openReferenceAction = new QAction("Reference");
     helpMenu->addAction(openReferenceAction);
     connect(openReferenceAction, &QAction::triggered, this, []{ QDesktopServices::openUrl(QUrl("https://github.com/arneBersch/Zoeglfrex/blob/main/docs/reference.md")); });
@@ -106,6 +105,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Enter), this), &QShortcut::activated, this, [this]{ kernel->terminal->execute(false); }); // Enter Command (via Shift + Enter key)
     connect(new QShortcut(QKeySequence(Qt::Key_Backspace), this), &QShortcut::activated, this, [this]{ kernel->terminal->backspace(); }); // Backspace (Remove last keypress)
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Backspace), this), &QShortcut::activated, this, [this]{ kernel->terminal->clear(); }); // Clear Terminal
+    connect(new QShortcut(QKeySequence(Qt::Key_Space), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextCue(); }); // Go to next Cue
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Space), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousCue(); }); // Go to previous Cue
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_N), this), &QShortcut::activated, this, [this]{ this->newFile(); }); // New File
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_O), this), &QShortcut::activated, this, [this]{ this->openFile(); }); // Open File
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this), &QShortcut::activated, this, [this]{ this->saveFile(); }); // Save File

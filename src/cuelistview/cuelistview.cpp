@@ -25,15 +25,6 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
     cueView->setModel(cueModel);
     layout->addWidget(cueView);
 
-    QHBoxLayout *buttons = new QHBoxLayout();
-    QPushButton *previousCue = new QPushButton("GO BACK");
-    connect(previousCue, &QPushButton::pressed, this, &CuelistView::previousCue);
-    buttons->addWidget(previousCue);
-    QPushButton *nextCue = new QPushButton("GO");
-    connect(nextCue, &QPushButton::pressed, this, &CuelistView::nextCue);
-    buttons->addWidget(nextCue);
-    layout->addLayout(buttons);
-
     engine = new DmxEngine(kernel);
     layout->addWidget(engine);
 }

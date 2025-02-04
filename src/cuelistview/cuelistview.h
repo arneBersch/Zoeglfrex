@@ -22,12 +22,12 @@ class CuelistView : public QWidget {
 public:
     CuelistView(Kernel *core, QWidget *parent = nullptr);
     void loadCue();
+    void nextCue();
+    void previousCue();
     bool validGroupAndCue();
     Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;
 private:
-    void nextCue();
-    void previousCue();
     Kernel *kernel;
     DmxEngine *engine;
     QTableView *cueView;
