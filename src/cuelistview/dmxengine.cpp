@@ -9,13 +9,14 @@
 #include "dmxengine.h"
 #include "kernel/kernel.h"
 
-DmxEngine::DmxEngine(Kernel *core, QWidget *parent) : QWidget{parent} {
+DmxEngine::DmxEngine(Kernel *core, QWidget *parent) : QWidget(parent, Qt::Window) {
     kernel = core;
     sacn = new SacnServer();
 
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &DmxEngine::sendDmx);
 
+    setWindowTitle("DMX Output Settings");
     QHBoxLayout *layout = new QHBoxLayout(this);
 
     interfaceSelectionBox = new QComboBox();

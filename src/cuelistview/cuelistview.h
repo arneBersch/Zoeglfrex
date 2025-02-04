@@ -27,9 +27,9 @@ public:
     bool validGroupAndCue();
     Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;
+    DmxEngine *dmxEngine;
 private:
     Kernel *kernel;
-    DmxEngine *engine;
     QTableView *cueView;
     CueModel *cueModel;
     QLabel *cueLabel;

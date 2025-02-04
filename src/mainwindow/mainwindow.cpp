@@ -37,6 +37,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(quitAction, &QAction::triggered, this, &MainWindow::close);
 
     QMenu *outputMenu = menuBar()->addMenu("Output");
+    QAction *outputSettingsAction = new QAction("DMX Output Settings");
+    outputMenu->addAction(outputSettingsAction);
+    connect(outputSettingsAction, &QAction::triggered, this, [this]{ kernel->cuelistView->dmxEngine->show(); });
+    outputMenu->addSeparator();
     QAction *goAction = new QAction("Go to next Cue (Space)");
     outputMenu->addAction(goAction);
     connect(goAction, &QAction::triggered, this, [this]{ kernel->cuelistView->nextCue(); });

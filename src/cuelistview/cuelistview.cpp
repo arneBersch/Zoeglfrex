@@ -25,14 +25,13 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
     cueView->setModel(cueModel);
     layout->addWidget(cueView);
 
-    engine = new DmxEngine(kernel);
-    layout->addWidget(engine);
+    dmxEngine = new DmxEngine(kernel, this);
 }
 
 
 void CuelistView::loadCue() {
     cueModel->loadCue();
-    engine->generateDmx();
+    dmxEngine->generateDmx();
     if (currentCue == nullptr) {
         cueLabel->setText(QString());
         if (!kernel->cues->items.isEmpty()) {
