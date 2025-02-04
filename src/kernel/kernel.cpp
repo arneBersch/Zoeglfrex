@@ -284,6 +284,7 @@ void Kernel::reset() {
         delete cue;
     }
     cues->items.clear();
+    cuelistView->loadCue();
 }
 
 QString Kernel::keysToId(QList<int> keys, bool removeTrailingZeros) {

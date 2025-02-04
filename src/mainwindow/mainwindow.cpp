@@ -378,6 +378,7 @@ void MainWindow::openFile() {
         return;
     }
     fileName = newFileName;
+    kernel->cuelistView->loadCue();
     if (fileStream.hasError()) {
         kernel->terminal->error("Can't open file because a XML parsing error occured in line " + QString::number(fileStream.lineNumber()) + ": " + fileStream.errorString() + " (" + QString::number(fileStream.error()) + ")");
         return;

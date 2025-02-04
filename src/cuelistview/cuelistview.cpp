@@ -50,7 +50,7 @@ void CuelistView::loadCue() {
         }
         return;
     }
-    cueLabel->setText(currentCue->id);
+    cueLabel->setText(currentCue->name());
 }
 
 void CuelistView::previousCue() {
