@@ -24,7 +24,8 @@ private:
     QByteArray data;
     uchar sequence = 1;
     QUdpSocket *socket = nullptr;
-    QComboBox *interfaceSelectionBox;
+    QComboBox *interfaceComboBox;
+    QSpinBox *prioritySpinBox;
     QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();
     QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
     Kernel *kernel;

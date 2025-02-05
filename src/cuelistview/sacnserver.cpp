@@ -12,21 +12,32 @@ SacnServer::SacnServer(Kernel* core, QWidget* parent) : QWidget(parent, Qt::Wind
     kernel = core;
 
     setWindowTitle("DMX Output Settings");
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QGridLayout *layout = new QGridLayout(this);
 
-    interfaceSelectionBox = new QComboBox();
-    interfaceSelectionBox->addItem("None");
+    QLabel* interfaceLabel = new QLabel("Network Interface");
+    layout->addWidget(interfaceLabel, 0, 0);
+
+    interfaceComboBox = new QComboBox();
+    interfaceComboBox->addItem("None");
     for (QNetworkInterface interface : QNetworkInterface::allInterfaces()) {
         for (QNetworkAddressEntry address : interface.addressEntries()) {
             if (address.ip().protocol() == QAbstractSocket::IPv4Protocol) {
-                interfaceSelectionBox->addItem(interface.name() + " (" + address.ip().toString() + ")");
+                interfaceComboBox->addItem(interface.name() + " (" + address.ip().toString() + ")");
                 networkInterfaces.append(interface);
                 networkAddresses.append(address);
             }
         }
     }
-    connect(interfaceSelectionBox, &QComboBox::currentIndexChanged, this, &SacnServer::setNetworkInterface);
-    layout->addWidget(interfaceSelectionBox);
+    connect(interfaceComboBox, &QComboBox::currentIndexChanged, this, &SacnServer::setNetworkInterface);
+    layout->addWidget(interfaceComboBox, 0, 1);
+
+    QLabel* priorityLabel = new QLabel("Priority");
+    layout->addWidget(priorityLabel, 1, 0);
+
+    prioritySpinBox = new QSpinBox();
+    prioritySpinBox->setRange(0, 200);
+    prioritySpinBox->setValue(100);
+    layout->addWidget(prioritySpinBox, 1, 1);
 
     // Root Layer
     // Preamble Size (Octet 0-1)
@@ -148,6 +159,7 @@ void SacnServer::send() {
     } else {
         sequence++;
     }
+    data[108] = (char)prioritySpinBox->value(); // Update Priority
     data[111] = sequence; // Update Sequence number
     qint64 result = socket->writeDatagram(data.data(), data.size(), QHostAddress("239.255.0.1"), 5568);
     if (result < 0) {
@@ -156,7 +168,7 @@ void SacnServer::send() {
 }
 
 void SacnServer::setNetworkInterface() {
-    int interfaceIndex = interfaceSelectionBox->currentIndex() - 1;
+    int interfaceIndex = interfaceComboBox->currentIndex() - 1;
     if (interfaceIndex >= 0) {
         socket = new QUdpSocket();
         socket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, false); // Disable Multicast Loopback
