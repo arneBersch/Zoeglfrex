@@ -117,17 +117,13 @@ void SacnServer::setChannel(int channel, uint8_t value) {
     if (channel < 1 || channel > 512) {
         return;
     }
-    data[125 + channel] = (char) value;
-}
-
-uint8_t SacnServer::getChannel(int channel) {
-    if (channel < 1 || channel > 512) {
-        return 0;
-    }
-    return data[125 + channel];
+    data[125 + channel] = (char)value;
 }
 
 void SacnServer::send() {
+    if (socket == nullptr) {
+        return;
+    }
     if (sequence == 0xff) {
         sequence = 1;
     } else {
@@ -140,31 +136,17 @@ void SacnServer::send() {
     }
 }
 
-void SacnServer::connect(QString newAddress) {
+void SacnServer::connect(QNetworkInterface networkInterface, QNetworkAddressEntry networkAddress) {
     if (socket != nullptr) {
-        qWarning() << "Tried to connect although socket is still connected";
-        return; // socket needs to be disconnected
+        delete socket;
     }
-    for (QNetworkInterface interface : QNetworkInterface::allInterfaces()) {
-        for (QNetworkAddressEntry entry : interface.addressEntries()) {
-            if (entry.ip().toString() == newAddress) {
-                if (entry.ip().protocol() != QAbstractSocket::IPv4Protocol) {
-                    qWarning() << Q_FUNC_INFO << "Tried to connect socket to invalid IP Address (not IPv4)";
-                    return;
-                }
-                socket = new QUdpSocket(); // Create Socket
-                socket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, false); // Disable Multicast Loopback
-                socket->bind(entry.ip());
-                socket->setMulticastInterface(interface); // Select the interface
-                qDebug() << Q_FUNC_INFO << "Connected socket to" << entry.ip().toString();
-                return;
-            }
-        }
-    }
+    socket = new QUdpSocket();
+    socket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, false); // Disable Multicast Loopback
+    socket->bind(networkAddress.ip());
+    socket->setMulticastInterface(networkInterface);
 }
 
 void SacnServer::disconnect() {
     delete socket;
     socket = nullptr;
-    qDebug() << Q_FUNC_INFO << "Disconnected socket";
 }

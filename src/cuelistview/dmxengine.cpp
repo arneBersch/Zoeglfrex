@@ -15,28 +15,24 @@ DmxEngine::DmxEngine(Kernel *core, QWidget *parent) : QWidget(parent, Qt::Window
 
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &DmxEngine::sendDmx);
+    timer->start(25);
 
     setWindowTitle("DMX Output Settings");
-    QHBoxLayout *layout = new QHBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
 
     interfaceSelectionBox = new QComboBox();
+    interfaceSelectionBox->addItem("None");
     for (QNetworkInterface interface : QNetworkInterface::allInterfaces()) {
         for (QNetworkAddressEntry address : interface.addressEntries()) {
             if (address.ip().protocol() == QAbstractSocket::IPv4Protocol) {
-                interfaceSelectionBox->addItem(address.ip().toString());
+                interfaceSelectionBox->addItem(interface.name() + " (" + address.ip().toString() + ")");
+                networkInterfaces.append(interface);
+                networkAddresses.append(address);
             }
         }
     }
+    connect(interfaceSelectionBox, &QComboBox::currentIndexChanged, this, &DmxEngine::setNetworkInterface);
     layout->addWidget(interfaceSelectionBox);
-
-    startDmxButton  = new QPushButton("Start sACN Output");
-    connect(startDmxButton, &QPushButton::pressed, this, &DmxEngine::startDmx);
-    layout->addWidget(startDmxButton);
-
-    stopDmxButton  = new QPushButton("Stop sACN Output");
-    stopDmxButton->setEnabled(false);
-    connect(stopDmxButton, &QPushButton::pressed, this, &DmxEngine::stopDmx);
-    layout->addWidget(stopDmxButton);
 
     for (int channel=0; channel<=512; channel++) {
         currentCueValues.append(0);
@@ -173,26 +169,13 @@ void DmxEngine::sendDmx() {
     sacn->send();
 }
 
-void DmxEngine::startDmx() {
-    interfaceSelectionBox->setEnabled(false);
-    startDmxButton->setEnabled(false);
-    stopDmxButton->setEnabled(true);
-    sacn->connect(interfaceSelectionBox->currentText());
-    timer->start(25);
-}
-
-void DmxEngine::stopDmx() {
-    QMessageBox messageBox;
-    messageBox.setText("Are you sure you want to stop sACN Output?");
-    messageBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
-    messageBox.setDefaultButton(QMessageBox::Cancel);
-    int result  = messageBox.exec();
-    if (result != QMessageBox::Ok) {
-        return;
+void DmxEngine::setNetworkInterface() {
+    int interfaceIndex = interfaceSelectionBox->currentIndex() - 1;
+    if (interfaceIndex >= 0) {
+        sacn->connect(networkInterfaces[interfaceIndex], networkAddresses[interfaceIndex]);
+        kernel->terminal->success("Set sACN Output to " + networkInterfaces[interfaceIndex].name() + " (" + networkAddresses[interfaceIndex].ip().toString() + ")");
+    } else {
+        sacn->disconnect();
+        kernel->terminal->success("Disabled sACN output.");
     }
-    timer->stop();
-    interfaceSelectionBox->setEnabled(true);
-    startDmxButton->setEnabled(true);
-    stopDmxButton->setEnabled(false);
-    sacn->disconnect();
 }

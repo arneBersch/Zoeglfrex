@@ -22,6 +22,8 @@ public:
     explicit DmxEngine(Kernel *core, QWidget *parent = nullptr);
     void generateDmx();
 private:
+    void sendDmx();
+    void setNetworkInterface();
     Cue* lastCue;
     QList<uint8_t> lastCueValues;
     QList<uint8_t> currentCueValues;
@@ -30,12 +32,9 @@ private:
     Kernel *kernel;
     SacnServer *sacn;
     QTimer *timer;
-    void sendDmx();
-    void stopDmx();
-    void startDmx();
     QComboBox *interfaceSelectionBox;
-    QPushButton *startDmxButton;
-    QPushButton *stopDmxButton;
+    QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();
+    QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
 };
 
 #endif // DMXENGINE_H

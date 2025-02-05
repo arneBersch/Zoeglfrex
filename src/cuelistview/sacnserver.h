@@ -16,9 +16,8 @@ class SacnServer {
 public:
     SacnServer();
     void setChannel(int channel, uint8_t value);
-    uint8_t getChannel(int channel);
     void send();
-    void connect(QString address);
+    void connect(QNetworkInterface networkInterface, QNetworkAddressEntry networkAddress);
     void disconnect();
 private:
     QByteArray data;
