@@ -11,11 +11,11 @@
 
 #include <QtWidgets>
 
-#include "cuelistview/dmxengine.h"
 #include "cuelistview/cuemodel.h"
 class Kernel;
 class Group;
 class Cue;
+class DmxEngine;
 
 class CuelistView : public QWidget {
     Q_OBJECT
@@ -36,5 +36,6 @@ private:
 };
 
 #include "kernel/kernel.h"
+#include "cuelistview/dmxengine.h"
 
 #endif // CUELISTVIEW_H

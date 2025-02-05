@@ -9,30 +9,12 @@
 #include "dmxengine.h"
 #include "kernel/kernel.h"
 
-DmxEngine::DmxEngine(Kernel *core, QWidget *parent) : QWidget(parent, Qt::Window) {
+DmxEngine::DmxEngine(Kernel *core) {
     kernel = core;
-    sacn = new SacnServer();
+    sacnServer = new SacnServer(kernel);
 
-    timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &DmxEngine::sendDmx);
+    timer = new QTimer();
     timer->start(25);
-
-    setWindowTitle("DMX Output Settings");
-    QVBoxLayout *layout = new QVBoxLayout(this);
-
-    interfaceSelectionBox = new QComboBox();
-    interfaceSelectionBox->addItem("None");
-    for (QNetworkInterface interface : QNetworkInterface::allInterfaces()) {
-        for (QNetworkAddressEntry address : interface.addressEntries()) {
-            if (address.ip().protocol() == QAbstractSocket::IPv4Protocol) {
-                interfaceSelectionBox->addItem(interface.name() + " (" + address.ip().toString() + ")");
-                networkInterfaces.append(interface);
-                networkAddresses.append(address);
-            }
-        }
-    }
-    connect(interfaceSelectionBox, &QComboBox::currentIndexChanged, this, &DmxEngine::setNetworkInterface);
-    layout->addWidget(interfaceSelectionBox);
 
     for (int channel=0; channel<=512; channel++) {
         currentCueValues.append(0);
@@ -158,24 +140,13 @@ void DmxEngine::sendDmx() {
         for (int channel = 1; channel <= 512; channel++) {
             float delta = ((float)currentCueValues[channel] - (float)lastCueValues[channel]);
             delta *= (((float)totalFadeFrames - (float)remainingFadeFrames) / (float)totalFadeFrames);
-            sacn->setChannel(channel, lastCueValues[channel] + delta);
+            sacnServer->setChannel(channel, lastCueValues[channel] + delta);
         }
         remainingFadeFrames--;
     } else {
         for (int channel = 1; channel <= 512; channel++) {
-            sacn->setChannel(channel, currentCueValues[channel]);
+            sacnServer->setChannel(channel, currentCueValues[channel]);
         }
     }
-    sacn->send();
-}
-
-void DmxEngine::setNetworkInterface() {
-    int interfaceIndex = interfaceSelectionBox->currentIndex() - 1;
-    if (interfaceIndex >= 0) {
-        sacn->connect(networkInterfaces[interfaceIndex], networkAddresses[interfaceIndex]);
-        kernel->terminal->success("Set sACN Output to " + networkInterfaces[interfaceIndex].name() + " (" + networkAddresses[interfaceIndex].ip().toString() + ")");
-    } else {
-        sacn->disconnect();
-        kernel->terminal->success("Disabled sACN output.");
-    }
+    sacnServer->send();
 }

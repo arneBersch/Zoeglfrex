@@ -11,19 +11,26 @@
 
 #include <QtWidgets>
 #include <QtNetwork>
+class Kernel;
 
-class SacnServer {
+class SacnServer : public QWidget {
+    Q_OBJECT
 public:
-    SacnServer();
+    SacnServer(Kernel* core, QWidget *parent = nullptr);
     void setChannel(int channel, uint8_t value);
     void send();
-    void connect(QNetworkInterface networkInterface, QNetworkAddressEntry networkAddress);
-    void disconnect();
 private:
+    void setNetworkInterface();
     QByteArray data;
     uchar sequence = 1;
     QUdpSocket *socket = nullptr;
+    QComboBox *interfaceSelectionBox;
+    QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();
+    QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
+    Kernel *kernel;
 };
+
+#include "kernel/kernel.h"
 
 
 #endif // SACNSERVER_H

@@ -8,7 +8,26 @@
 
 #include "sacnserver.h"
 
-SacnServer::SacnServer() {
+SacnServer::SacnServer(Kernel* core, QWidget* parent) : QWidget(parent, Qt::Window) {
+    kernel = core;
+
+    setWindowTitle("DMX Output Settings");
+    QVBoxLayout *layout = new QVBoxLayout(this);
+
+    interfaceSelectionBox = new QComboBox();
+    interfaceSelectionBox->addItem("None");
+    for (QNetworkInterface interface : QNetworkInterface::allInterfaces()) {
+        for (QNetworkAddressEntry address : interface.addressEntries()) {
+            if (address.ip().protocol() == QAbstractSocket::IPv4Protocol) {
+                interfaceSelectionBox->addItem(interface.name() + " (" + address.ip().toString() + ")");
+                networkInterfaces.append(interface);
+                networkAddresses.append(address);
+            }
+        }
+    }
+    connect(interfaceSelectionBox, &QComboBox::currentIndexChanged, this, &SacnServer::setNetworkInterface);
+    layout->addWidget(interfaceSelectionBox);
+
     // Root Layer
     // Preamble Size (Octet 0-1)
     data.append((char)0x00);
@@ -136,17 +155,17 @@ void SacnServer::send() {
     }
 }
 
-void SacnServer::connect(QNetworkInterface networkInterface, QNetworkAddressEntry networkAddress) {
-    if (socket != nullptr) {
+void SacnServer::setNetworkInterface() {
+    int interfaceIndex = interfaceSelectionBox->currentIndex() - 1;
+    if (interfaceIndex >= 0) {
+        socket = new QUdpSocket();
+        socket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, false); // Disable Multicast Loopback
+        socket->bind(networkAddresses[interfaceIndex].ip());
+        socket->setMulticastInterface(networkInterfaces[interfaceIndex]);
+        kernel->terminal->success("Set sACN Output to " + networkInterfaces[interfaceIndex].name() + " (" + networkAddresses[interfaceIndex].ip().toString() + ")");
+    } else {
         delete socket;
+        socket = nullptr;
+        kernel->terminal->success("Disabled sACN output.");
     }
-    socket = new QUdpSocket();
-    socket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, false); // Disable Multicast Loopback
-    socket->bind(networkAddress.ip());
-    socket->setMulticastInterface(networkInterface);
-}
-
-void SacnServer::disconnect() {
-    delete socket;
-    socket = nullptr;
 }
