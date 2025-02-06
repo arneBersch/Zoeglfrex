@@ -26,7 +26,7 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
     layout->addWidget(cueView);
 
     dmxEngine = new DmxEngine(kernel);
-    connect(dmxEngine->timer, &QTimer::timeout, this, [this]{ dmxEngine->sendDmx(); });
+    layout->addWidget(dmxEngine);
 }
 
 

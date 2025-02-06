@@ -9,11 +9,19 @@
 #include "dmxengine.h"
 #include "kernel/kernel.h"
 
-DmxEngine::DmxEngine(Kernel *core) {
+DmxEngine::DmxEngine(Kernel *core, QWidget* parent) : QWidget(parent) {
     kernel = core;
     sacnServer = new SacnServer(kernel);
 
+    QHBoxLayout *layout = new QHBoxLayout(this);
+
+    highlightButton = new QPushButton("Highlight");
+    highlightButton->setCheckable(true);
+    connect(highlightButton,&QPushButton::clicked, this, &DmxEngine::generateDmx);
+    layout->addWidget(highlightButton);
+
     timer = new QTimer();
+    connect(timer, &QTimer::timeout, this, &DmxEngine::sendDmx);
     timer->start(25);
 
     for (int channel=0; channel<=512; channel++) {
@@ -60,6 +68,9 @@ void DmxEngine::generateDmx() {
         float blue = 0.0;
         if (fixtureIntensities.contains(fixture)) {
             dimmer = fixtureIntensities.value(fixture)->dimmer;
+        }
+        if (highlightButton->isChecked()) {
+            dimmer = 100.0;
         }
         if (fixtureColors.contains(fixture)) {
             const double h = (fixtureColors.value(fixture)->hue / 60.0);

@@ -33,5 +33,4 @@ private:
 
 #include "kernel/kernel.h"
 
-
 #endif // SACNSERVER_H

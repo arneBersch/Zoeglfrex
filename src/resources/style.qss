@@ -21,9 +21,8 @@ QPushButton, QComboBox, QTextEdit {
     padding: 10px;
 }
 
-QPushButton::Disabled, QComboBox::Disabled, QTextEdit::Disabled {
-    background-color: #151515;
-    color: #808080;
+QPushButton::checked {
+    border: 1px solid white;
 }
 
 QScrollBar {

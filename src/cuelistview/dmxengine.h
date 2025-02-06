@@ -15,19 +15,21 @@
 class Kernel;
 class Cue;
 
-class DmxEngine {
+class DmxEngine : public QWidget {
+    Q_OBJECT
 public:
-    explicit DmxEngine(Kernel *core);
+    DmxEngine(Kernel *core, QWidget *parent = nullptr);
     void generateDmx();
-    void sendDmx();
     SacnServer *sacnServer;
-    QTimer *timer;
 private:
+    void sendDmx();
+    QTimer *timer;
     Cue* lastCue;
     QList<uint8_t> lastCueValues;
     QList<uint8_t> currentCueValues;
     int remainingFadeFrames;
     int totalFadeFrames;
+    QPushButton *highlightButton;
     Kernel *kernel;
 };
 
