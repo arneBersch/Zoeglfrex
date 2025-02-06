@@ -360,26 +360,42 @@ QList<QString> Kernel::keysToSelection(QList<int> keys, int itemType) {
             idKeys += key;
         } else if (key == Keys::Plus) {
             if (!thruBuffer.isEmpty()) {
-                if (!idKeys.startsWith(Keys::Period)) {
-                    return QList<QString>();
-                }
-                idKeys.removeFirst();
-                if (idKeys.contains(Keys::Period)) {
-                    return QList<QString>();
-                }
-                int maxId = keysToId(idKeys).toInt();
-                QString idBeginning = keysToId(thruBuffer, false);
-                int minId = idBeginning.split('.').last().toInt();
-                if (idBeginning.contains('.')) {
-                    idBeginning = idBeginning.left(idBeginning.lastIndexOf(QChar('.'))) + ".";
+                if (idKeys.startsWith(Keys::Period)) {
+                    idKeys.removeFirst();
+                    if (idKeys.contains(Keys::Period)) {
+                        return QList<QString>();
+                    }
+                    int maxId = keysToId(idKeys).toInt();
+                    QString idBeginning = keysToId(thruBuffer, false);
+                    int minId = idBeginning.split('.').last().toInt();
+                    if (idBeginning.contains('.')) {
+                        idBeginning = idBeginning.left(idBeginning.lastIndexOf(QChar('.'))) + ".";
+                    } else {
+                        idBeginning = QString();
+                    }
+                    if (minId >= maxId) {
+                        return QList<QString>();
+                    }
+                    for (int counter = minId; counter <= maxId; counter++) {
+                        ids.append(idBeginning + QString::number(counter));
+                    }
                 } else {
-                    idBeginning = QString();
-                }
-                if (minId >= maxId) {
-                    return QList<QString>();
-                }
-                for (int counter = minId; counter <= maxId; counter++) {
-                    ids.append(idBeginning + QString::number(counter));
+                    QString firstId = keysToId(thruBuffer);
+                    if (firstId.isEmpty() || !allIds.contains(firstId)) {
+                        return QList<QString>();
+                    }
+                    QString lastId = keysToId(idKeys);
+                    if (lastId.isEmpty() || !allIds.contains(lastId)) {
+                        return QList<QString>();
+                    }
+                    int firstIdRow = allIds.indexOf(firstId);
+                    int lastIdRow = allIds.indexOf(lastId);
+                    if (firstIdRow >= lastIdRow) {
+                        return QList<QString>();
+                    }
+                    for (int idRow = firstIdRow; idRow <= lastIdRow; idRow++) {
+                        ids.append(allIds[idRow]);
+                    }
                 }
                 thruBuffer.clear();
                 idKeys.clear();
