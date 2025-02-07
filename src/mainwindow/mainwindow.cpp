@@ -155,6 +155,29 @@ void MainWindow::openFile() {
                         return;
                     }
                 }
+            } else if (fileStream.name().toString() == "Output") {
+                while (fileStream.readNextStartElement()) {
+                    if (fileStream.name().toString() == "Universe") {
+                        bool ok;
+                        int universe = fileStream.readElementText().toInt(&ok);
+                        if (!ok) {
+                            kernel->terminal->error("Error reading file: Invalid sACN universe given.");
+                            return;
+                        }
+                        kernel->cuelistView->dmxEngine->sacnServer->universeSpinBox->setValue(universe);
+                    } else if (fileStream.name().toString() == "Priority") {
+                        bool ok;
+                        int priority = fileStream.readElementText().toInt(&ok);
+                        if (!ok) {
+                            kernel->terminal->error("Error reading file: Invalid sACN priority given.");
+                            return;
+                        }
+                        kernel->cuelistView->dmxEngine->sacnServer->prioritySpinBox->setValue(priority);
+                    } else {
+                        kernel->terminal->error("Error reading file: Received unknown Output attribute " + fileStream.name().toString());
+                        return;
+                    }
+                }
             } else if (fileStream.name().toString() == "Models") {
                 while (fileStream.readNextStartElement()) {
                     if (fileStream.name().toString() != "Model") {
@@ -430,6 +453,11 @@ void MainWindow::saveFile() {
     fileStream.writeStartElement("Creator");
     fileStream.writeTextElement("Name", "Zöglfrex");
     fileStream.writeTextElement("Version", VERSION);
+    fileStream.writeEndElement();
+
+    fileStream.writeStartElement("Output");
+    fileStream.writeTextElement("Universe", QString::number(kernel->cuelistView->dmxEngine->sacnServer->universeSpinBox->value()));
+    fileStream.writeTextElement("Priority", QString::number(kernel->cuelistView->dmxEngine->sacnServer->prioritySpinBox->value()));
     fileStream.writeEndElement();
 
     fileStream.writeStartElement("Models");
