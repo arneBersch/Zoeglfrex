@@ -35,7 +35,8 @@ SacnServer::SacnServer(Kernel* core, QWidget* parent) : QWidget(parent, Qt::Wind
     layout->addWidget(universeLabel, 1, 0);
 
     universeSpinBox = new QSpinBox();
-    universeSpinBox->setRange(1, 63999);
+    universeSpinBox->setRange(1, SACN_MAX_UNIVERSE);
+    universeSpinBox->setValue(SACN_STANDARD_UNIVERSE);
     layout->addWidget(universeSpinBox, 1, 1);
 
     QLabel* priorityLabel = new QLabel("Priority");
@@ -43,7 +44,7 @@ SacnServer::SacnServer(Kernel* core, QWidget* parent) : QWidget(parent, Qt::Wind
 
     prioritySpinBox = new QSpinBox();
     prioritySpinBox->setRange(0, 200);
-    prioritySpinBox->setValue(100);
+    prioritySpinBox->setValue(SACN_STANDARD_PRIORITY);
     layout->addWidget(prioritySpinBox, 2, 1);
 
     // Root Layer
@@ -174,7 +175,7 @@ void SacnServer::send() {
     address += QString::number(universeSpinBox->value() / 256);
     address += ".";
     address += QString::number(universeSpinBox->value() % 256);
-    qint64 result = socket->writeDatagram(data.data(), data.size(), QHostAddress(address), 5568);
+    qint64 result = socket->writeDatagram(data.data(), data.size(), QHostAddress(address), SACN_PORT);
     if (result < 0) {
         qWarning() << Q_FUNC_INFO <<"ERROR sending sACN: " << socket->error() << " (" << socket->errorString() << ")";
     }

@@ -284,6 +284,9 @@ void Kernel::reset() {
         delete cue;
     }
     cues->items.clear();
+
+    cuelistView->dmxEngine->sacnServer->universeSpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_UNIVERSE);
+    cuelistView->dmxEngine->sacnServer->prioritySpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_PRIORITY);
     cuelistView->loadCue();
 }
 
