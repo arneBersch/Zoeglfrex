@@ -25,6 +25,7 @@ private:
     uchar sequence = 1;
     QUdpSocket *socket = nullptr;
     QComboBox *interfaceComboBox;
+    QSpinBox *universeSpinBox;
     QSpinBox *prioritySpinBox;
     QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();
     QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
