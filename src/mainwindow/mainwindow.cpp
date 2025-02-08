@@ -475,7 +475,9 @@ void MainWindow::saveFile() {
         fileStream.writeStartElement("Fixture");
         fileStream.writeAttribute("ID", fixture->id);
         fileStream.writeTextElement("Label", fixture->label);
-        fileStream.writeTextElement("Model", fixture->model->id);
+        if (fixture->model != nullptr) {
+            fileStream.writeTextElement("Model", fixture->model->id);
+        }
         fileStream.writeTextElement("Address", QString::number(fixture->address));
         fileStream.writeEndElement();
     }

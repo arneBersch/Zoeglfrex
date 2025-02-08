@@ -61,7 +61,10 @@ void DmxEngine::generateDmx() {
         currentCueValues[channel] = 0; // reset current cue values
     }
     for (Fixture* fixture : kernel->fixtures->items) {
-        QString channels = fixture->model->channels;
+        QString channels = "D";
+        if (fixture->model != nullptr) {
+            channels = fixture->model->channels;
+        }
         float dimmer = 0.0;
         float red = 0.0;
         float green = 0.0;

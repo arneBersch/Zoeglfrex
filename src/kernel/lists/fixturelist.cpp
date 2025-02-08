@@ -14,21 +14,17 @@ FixtureList::FixtureList(Kernel *core) : ItemList("Fixture", "Fixtures") {
 
 void FixtureList::deleteModel(Model *model)
 {
-    QList<QString> invalidFixtures;
     for (Fixture* fixture : items) {
         if (fixture->model == model) {
-            invalidFixtures.append(fixture->id);
+            fixture->model = nullptr;
         }
     }
-    QList<int> command = QList<int>();
-    command.append(Keys::Minus);
-    setAttribute(invalidFixtures, QMap<int, QString>(), command);
 }
 
 void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
     QString attributeString = attribute.value(Keys::Attribute);
     if (attributeString == "2") {
-        if (value.isEmpty() || value[0] != Keys::Model) {
+        if (value.isEmpty() || (value[0] != Keys::Model)) {
             kernel->terminal->error("Fixture Attribute 2 Set requires a model");
             return;
         }
@@ -36,7 +32,7 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
         QString modelId = kernel->keysToId(value);
         Model *model = kernel->models->getItem(modelId);
         if (model == nullptr) {
-            kernel->terminal->error("Can't set Model of Fixture because Model " + modelId + " doesn't exist.");
+            kernel->terminal->error("Can't set Model of Fixtures because Model " + modelId + " doesn't exist.");
             return;
         }
         int fixtureCounter = 0;
@@ -54,6 +50,7 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
                 fixtureCounter++;
             } else {
                 fixture->model = oldModel; // don't change model if this would result in an address conflict
+                kernel->terminal->warning("Can't set Model of Fixture " + id + " because this would result in an address conflict.");
             }
         }
         kernel->terminal->success("Set Model of " + QString::number(fixtureCounter) + " Fixtures to Model " + model->name() + ".");
@@ -67,17 +64,20 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
         for (QString id : ids) {
             Fixture *fixture = getItem(id);
             if (fixture == nullptr) {
-                kernel->terminal->warning("Can't set Address of Fixture " + id + " because it doesn't exist.");
-            } else {
-                fixtures.append(fixture);
+                fixture = addItem(id);
             }
+            fixtures.append(fixture);
         }
         QMap<Fixture*, int> oldAddresses = QMap<Fixture*, int>();
         for (Fixture* fixture : fixtures) {
             oldAddresses[fixture] = fixture->address;
             if (address > 0) {
                 fixture->address = address;
-                address += fixture->model->channels.length();
+                if (fixture->model == nullptr) {
+                    address += 1;
+                } else {
+                    address += fixture->model->channels.length();
+                }
             } else {
                 fixture->address = 0;
             }
@@ -102,7 +102,11 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
         QSet<int> channels;
         for (Fixture* fixture : items) {
             if (fixture->address > 0) {
-                for (int channel = fixture->address; channel < (fixture->address + fixture->model->channels.size()); channel++) {
+                int fixtureChannels = 1;
+                if (fixture->model != nullptr) {
+                    fixtureChannels = fixture->model->channels.size();
+                }
+                for (int channel = fixture->address; channel < (fixture->address + fixtureChannels); channel++) {
                     if (channel > 512) {
                         kernel->terminal->warning("Fixture " + fixture->name() + " would have channels greater than 512.");
                         return false;

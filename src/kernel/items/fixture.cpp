@@ -15,15 +15,24 @@ Fixture::~Fixture() {
 }
 
 QString Fixture::name() {
+    QString channels = "Channel";
+    if (model != nullptr) {
+        channels = model->channels;
+    }
     if (label.isEmpty()) {
-        return Item::name() + model->channels + " (" + QString::number(address) + ")";
+        return Item::name() + channels + " (" + QString::number(address) + ")";
     }
     return Item::name();
 }
 
 QString Fixture::info() {
     QString info = Item::info();
-    info += "\n2 Model: " + model->name();
+    info += "\n2 Model: ";
+    if (model == nullptr) {
+        info += "None (Dimmer)";
+    } else {
+        info += model->name();
+    }
     info += "\n3 Address: " + QString::number(address);
     return info;
 }

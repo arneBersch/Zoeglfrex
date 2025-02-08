@@ -50,7 +50,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             delete item;
         }
         kernel->terminal->success("Deleted " + QString::number(existingIds.length()) + " " + pluralItemName + ".");
-    } else if (attribute.isEmpty() && (value.size() >= 2)) { // Copy Item
+    } else if (attribute.isEmpty() && (value.size() > 1)) { // Copy Item
         value.removeFirst();
         T* sourceItem = getItem(kernel->keysToId(value));
         if (sourceItem == nullptr) {
