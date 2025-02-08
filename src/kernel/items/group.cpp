@@ -4,7 +4,6 @@
 Group::Group(Kernel* core) : Item(core) {}
 
 Group::Group(const Group* item) : Item(item->kernel) {
-    id = item->id;
     label = item->label;
     fixtures = item->fixtures;
 }

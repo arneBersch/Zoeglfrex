@@ -4,7 +4,6 @@
 Model::Model(Kernel* core) : Item(core) {}
 
 Model::Model(const Model* item) : Item(item->kernel) {
-    id = item->id;
     label = item->label;
     channels = item->channels;
 }

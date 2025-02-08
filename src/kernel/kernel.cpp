@@ -231,27 +231,27 @@ void Kernel::execute(QList<int> command, QString text) {
         }
         models->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Fixture) {
-        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus)) {
+        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
             attributeMap[Keys::Attribute] = "3";
         }
         fixtures->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Group) {
-        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus)) {
+        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
             attributeMap[Keys::Attribute] = "2";
         }
         groups->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Intensity) {
-        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus)) {
+        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
             attributeMap[Keys::Attribute] = "2";
         }
         intensities->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Color) {
-        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus)) {
+        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
             attributeMap[Keys::Attribute] = "2";
         }
         colors->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Cue) {
-        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus)) {
+        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
             attributeMap[Keys::Attribute] = "4";
         }
         cues->setAttribute(ids, attributeMap, value, text);

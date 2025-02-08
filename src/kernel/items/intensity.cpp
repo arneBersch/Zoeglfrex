@@ -4,7 +4,6 @@
 Intensity::Intensity(Kernel* core) : Item(core) {}
 
 Intensity::Intensity(const Intensity* item) : Item(item->kernel) {
-    id = item->id;
     label = item->label;
     dimmer = item->dimmer;
 }

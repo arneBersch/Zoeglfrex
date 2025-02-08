@@ -60,7 +60,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         int itemCounter = 0;
         for (QString id : ids) {
             if (getItem(id) != nullptr) {
-                kernel->terminal->warning("Couldn't copy " + singularItemName + " " + sourceItem->name() + " because target ID " + id + " is already used.");
+                kernel->terminal->warning("Couldn't copy " + singularItemName + " " + sourceItem->id + " because target ID " + id + " is already used.");
             } else {
                 T* item = new T(sourceItem);
                 item->id = id;
@@ -71,7 +71,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
                 itemCounter++;
             }
         }
-        kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + sourceItem->name() + " .");
+        kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + sourceItem->id + " .");
     } else if (attribute.value(Keys::Attribute) == "0") { // Move (set ID of) Item
         QString targetId = kernel->keysToId(value);
         QList<int> itemRows;
@@ -85,7 +85,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         }
         for (int itemRow : itemRows) {
             if (getItem(targetId) != nullptr) {
-                kernel->terminal->warning("Couldn't set ID of " + singularItemName + " " + items[itemRow]->name() + " because target ID " + targetId + " is already used.");
+                kernel->terminal->warning("Couldn't set ID of " + singularItemName + " " + items[itemRow]->id + " because target ID " + targetId + " is already used.");
             } else {
                 T* item = items[itemRow];
                 beginRemoveRows(QModelIndex(), itemRow, itemRow);

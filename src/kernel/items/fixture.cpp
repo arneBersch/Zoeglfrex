@@ -4,10 +4,9 @@
 Fixture::Fixture(Kernel* core) : Item(core) {}
 
 Fixture::Fixture(const Fixture* item) : Item(item->kernel) {
-    id = item->id;
     label = item->label;
     model = item->model;
-    address = 0;
+    address = 0; // using the same address as the other Fixture could result in an address conflict
 }
 
 Fixture::~Fixture() {
