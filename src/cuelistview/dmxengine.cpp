@@ -69,9 +69,6 @@ void DmxEngine::generateDmx() {
         if (fixtureIntensities.contains(fixture)) {
             dimmer = fixtureIntensities.value(fixture)->dimmer;
         }
-        if (highlightButton->isChecked()) {
-            dimmer = 100.0;
-        }
         if (fixtureColors.contains(fixture)) {
             const double h = (fixtureColors.value(fixture)->hue / 60.0);
             const int i = (int)h;
@@ -110,6 +107,12 @@ void DmxEngine::generateDmx() {
                 green = 100.0;
                 blue = 100.0;
             }
+        }
+        if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) { // Highlight
+            dimmer = 100.0;
+            red = 100.0;
+            green = 100.0;
+            blue = 100.0;
         }
         if (!channels.contains('D')) {
             red *= (dimmer / 100.0);
