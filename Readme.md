@@ -19,10 +19,10 @@ For documentation, you can find the complete [Zöglfrex reference](docs/referenc
 ## Known Limitations
 - only one DMX Universe
 - DMX Output only via sACN (ANSI E1.31)
-- only Dimmer and RGB channels supported
+- only Dimmer, RGB and CMY channels supported
 - only one Cue can be played back simultanously
 - no effects possible
-- only English UI, no other languages supported yet
+- only English UI, no other languages are supported yet
 
 ## How to contribute
 Please DO NOT post feature requests.
