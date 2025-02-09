@@ -16,6 +16,7 @@
 #include "kernel/lists/grouplist.h"
 #include "kernel/lists/intensitylist.h"
 #include "kernel/lists/colorlist.h"
+#include "kernel/lists/rawlist.h"
 #include "kernel/lists/cuelist.h"
 #include "terminal/terminal.h"
 #include "inspector/inspector.h"
@@ -44,6 +45,7 @@ enum {
     Group, // G
     Intensity, // I
     Color, // C
+    Raw, // R
     Cue, // Q
 };
 }
@@ -58,6 +60,7 @@ public:
     GroupList *groups;
     IntensityList *intensities;
     ColorList *colors;
+    RawList *raws;
     CueList *cues;
     Terminal *terminal;
     Inspector *inspector;

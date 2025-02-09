@@ -109,6 +109,8 @@ void Terminal::execute(QString command, QString action) {
             commandKeys.append(Keys::Intensity);;
         } else if (command.at(index) == QChar('c')) {
             commandKeys.append(Keys::Color);
+        } else if (command.at(index) == QChar('r')) {
+            commandKeys.append(Keys::Raw);
         } else if (command.at(index) == QChar('q')) {
             commandKeys.append(Keys::Cue);
         } else if (command.at(index) == QChar('a')) {
@@ -205,6 +207,8 @@ QString Terminal::promptText(QList<int> keys)
             commandString += " Intensity ";
         } else if (key == Keys::Color) {
             commandString += " Color ";
+        } else if (key == Keys::Raw) {
+            commandString += " Raw ";
         } else if (key == Keys::Cue) {
             commandString += " Cue ";
         } else if (key == Keys::Set) {

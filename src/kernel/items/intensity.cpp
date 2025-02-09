@@ -9,7 +9,13 @@ Intensity::Intensity(const Intensity* item) : Item(item->kernel) {
 }
 
 Intensity::~Intensity() {
-    kernel->cues->deleteIntensity(this);
+    for (Cue *cue : kernel->cues->items) {
+        for (Group *group : cue->intensities.keys()) {
+            if (cue->intensities.value(group) == this) {
+                cue->intensities.remove(group);
+            }
+        }
+    }
 }
 
 QString Intensity::name() {

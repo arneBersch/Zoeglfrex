@@ -12,33 +12,6 @@ CueList::CueList(Kernel *core) : ItemList("Cue", "Cues") {
     kernel = core;
 }
 
-void CueList::deleteIntensity(Intensity* intensity) {
-    for (Cue *cue : items) {
-        for (Group *group : cue->intensities.keys()) {
-            if (cue->intensities.value(group) == intensity) {
-                cue->intensities.remove(group);
-            }
-        }
-    }
-}
-
-void CueList::deleteColor(Color* color) {
-    for (Cue *cue : items) {
-        for (Group *group : cue->colors.keys()) {
-            if (cue->colors.value(group) == color) {
-                cue->colors.remove(group);
-            }
-        }
-    }
-}
-
-void CueList::deleteGroup(Group *group) {
-    for (Cue *cue : items) {
-        cue->intensities.remove(group);
-        cue->colors.remove(group);
-    }
-}
-
 void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
     QString attributeString = attribute.value(Keys::Attribute);
     if (attributeString == "2") {

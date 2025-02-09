@@ -24,6 +24,7 @@ SOURCES += \
     kernel/items/intensity.cpp \
     kernel/items/item.cpp \
     kernel/items/model.cpp \
+    kernel/items/raw.cpp \
     kernel/kernel.cpp \
     kernel/lists/colorlist.cpp \
     kernel/lists/cuelist.cpp \
@@ -32,6 +33,7 @@ SOURCES += \
     kernel/lists/intensitylist.cpp \
     kernel/lists/itemlist.cpp \
     kernel/lists/modellist.cpp \
+    kernel/lists/rawlist.cpp \
     main.cpp \
     mainwindow/mainwindow.cpp \
     terminal/terminal.cpp
@@ -50,6 +52,7 @@ HEADERS += \
     kernel/items/intensity.h \
     kernel/items/item.h \
     kernel/items/model.h \
+    kernel/items/raw.h \
     kernel/kernel.h \
     kernel/lists/colorlist.h \
     kernel/lists/cuelist.h \
@@ -58,6 +61,7 @@ HEADERS += \
     kernel/lists/intensitylist.h \
     kernel/lists/itemlist.h \
     kernel/lists/modellist.h \
+    kernel/lists/rawlist.h \
     mainwindow/mainwindow.h \
     terminal/terminal.h
 

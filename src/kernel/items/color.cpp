@@ -10,7 +10,13 @@ Color::Color(const Color* item) : Item(item->kernel) {
 }
 
 Color::~Color() {
-    kernel->cues->deleteColor(this);
+    for (Cue *cue : kernel->cues->items) {
+        for (Group *group : cue->colors.keys()) {
+            if (cue->colors.value(group) == this) {
+                cue->colors.remove(group);
+            }
+        }
+    }
 }
 
 QString Color::name() {

@@ -14,6 +14,7 @@ Kernel::Kernel() {
     groups = new GroupList(this);
     intensities = new IntensityList(this);
     colors = new ColorList(this);
+    raws = new RawList(this);
     cues = new CueList(this);
     terminal = new Terminal(this);
     inspector = new Inspector(this);
@@ -23,11 +24,11 @@ Kernel::Kernel() {
 
 void Kernel::execute(QList<int> command, QString text) {
     QMutexLocker locker(mutex);
-    if(command.size() < 1) { // if command is empty
+    if(command.isEmpty()) {
         terminal->error("Command is empty.");
         return;
     }
-    int selectionType = command[0];
+    int selectionType = command.first();
     command.removeFirst();
     if (!isItem(selectionType)) {
         terminal->error("No Item Type specified.");
@@ -250,6 +251,11 @@ void Kernel::execute(QList<int> command, QString text) {
             attributeMap[Keys::Attribute] = "2";
         }
         colors->setAttribute(ids, attributeMap, value, text);
+    } else if (selectionType == Keys::Raw) {
+        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
+            attributeMap[Keys::Attribute] = "3";
+        }
+        raws->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Cue) {
         if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
             attributeMap[Keys::Attribute] = "4";
@@ -280,13 +286,17 @@ void Kernel::reset() {
         delete color;
     }
     colors->items.clear();
+    for (Raw* raw : raws->items) {
+        delete raw;
+    }
+    raws->items.clear();
     for (Cue* cue : cues->items) {
         delete cue;
     }
     cues->items.clear();
 
-    cuelistView->dmxEngine->sacnServer->universeSpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_UNIVERSE);
-    cuelistView->dmxEngine->sacnServer->prioritySpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_PRIORITY);
+    cuelistView->dmxEngine->sacnServer->universeSpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_UNIVERSE); // reset sACN universe
+    cuelistView->dmxEngine->sacnServer->prioritySpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
     cuelistView->loadCue();
 }
 
@@ -344,6 +354,8 @@ QList<QString> Kernel::keysToSelection(QList<int> keys, int itemType) {
         allIds = intensities->getIds();
     } else if (itemType == Keys::Color) {
         allIds = colors->getIds();
+    } else if (itemType == Keys::Raw) {
+        allIds = raws->getIds();
     } else if (itemType == Keys::Cue) {
         allIds = cues->getIds();
     } else {
@@ -444,6 +456,7 @@ bool Kernel::isItem(int key) {
         (key == Keys::Group) ||
         (key == Keys::Intensity) ||
         (key == Keys::Color) ||
+        (key == Keys::Raw) ||
         (key == Keys::Cue)
     );
 }

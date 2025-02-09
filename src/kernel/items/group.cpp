@@ -13,7 +13,10 @@ Group::~Group() {
         kernel->cuelistView->currentGroup = nullptr;
         kernel->cuelistView->loadCue();
     }
-    kernel->cues->deleteGroup(this);
+    for (Cue *cue : kernel->cues->items) {
+        cue->intensities.remove(this);
+        cue->colors.remove(this);
+    }
 }
 
 QString Group::name() {
