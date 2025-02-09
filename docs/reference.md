@@ -19,201 +19,158 @@
 - 7
 - 8
 - 9
-- T (Thru)
+- Attribute: A
+- Set: S
+- Thru: T
 
 > [!TIP]
 > You can also insert a period using the comma key (,).
 > This is very useful when inserting IDs using a numeric keypad.
 
-### Operator keys
-- Record: Shift + R
-- Label: Shift + L
-- Move: Shift + M
-- Copy: Shift + C
-- Delete: Shift + D
-
 ### Keyboard Shortcuts
-- Execute command and clear the Terminal: Return / Enter
-- Execute command without clearing the Terminal: Shift + Return / Shift + Enter
-- New File: Control + N
-- Open File: Control + O
-- Save File: Control + S
-- Save File as: Control + Shift + S
-- Quit Zöglfrex: Control + Q
+- Execute command and clear the Terminal: Return/Enter
+- Execute command without clearing the Terminal: Shift + Return/Enter
+- Undo the last keypress in the command input: Backspae
+- Clear command input: Shift + Backspace
+- New File: Ctrl + N
+- Open File: Ctrl + O
+- Save File: Ctrl + S
+- Save File as: Ctrl + Shift + S
+- Quit Zöglfrex: Ctrl + Q
+
+## Item commands
+These commands can be executed with all types of Items (Models, Fixtures, Groups, Intensities, Colors, Cues).
+
+### Item Attribute 0 Set (Move / Set ID)
+This command changes Attribute 0 (the ID) of the selected Item.
+Please note that this command only makes sense for one selected Item as two Items with the same type and the same ID are not allowed.
+
+So, for example for setting the ID of Model 1 to 2, you would need the following command:
+```
+Model 1 Attribute 0 Set 2
+```
+
+### Item Attribute 1 Set (Label)
+This command changed Attribute 1 (the Label) of the selected Items, for example:
+```
+Model 1 + 2 Attribute 1 Set
+```
+This command will open a popup window where you can insert the Label text for those Models.
+
+### Item Set Item
+This command can be used for copying Items, for example:
+```
+Model 2 + 3 Set Model 1
+```
+This command will copy the Attributes of Model 1 to Model 2 and 3.
+
+> [!NOTE]
+> Please note that when copying Fixtures, the ID of the Fixture won't be copied as this would result in a DMX address conflict.
+
+### Item Set - (Delete)
+This command deletes Items, for example:
+```
+Model 1 + 2 Set -
+```
+This command will remove Model 1 and 2.
+
+> [!CAUTION]
+> Please note that deleting Items can affect other Items to:
+> - When deleting a Model, the Model Attribute of all Fixtures which used this Model are set to None (Dimmer).
+> - When deleting a Fixture, the Fixture is removed from all Groups.
+> - When deleting a Group, the Group will be removed from all Cues.
+> - When deleting an Intensity or Color, it will be removed from all Cues
 
 ## Models
-### Model Record
-Model Record doesn't take any parameters. Instead, it will open a popup where you can insert the Model's Channels. These channels are currently supported:
+### Model Attribute 2 Set (channels)
+Model Attribute 2 Set doesn't take a value. Instead, it will open a popup where you can insert the Model's channels. These channels are currently supported:
 - D (Dimmer)
 - R (Red)
 - G (Green)
 - B (Blue)
+- C (Cyan)
+- M (Magenta)
+- Y (Yellow)
 - 0 (DMX always DMX value 0)
 - 1 (DMX always DMX value 255)
 
-So, for example, if you want to add a generic RGB Model at ID 3.1, you have to first have to execute this:
-```
-Model 1 Record
-```
-And after this, you need to type RGB into the popup.
-### Model Label
-Model Label doesn't take any parameters. Instead, it will open a popup where you can insert the new label of the selected Models.
-### Model Move
-Model Move takes the ID you want to move the selected Model to as a parameter.
-> [!NOTE]
-> Please note that you can currently move only one Model as the ID where you move the Model to will be taken after the first moved Model.
-### Model Copy
-Model Copy takes the ID you want to copy the selected Model to as a parameter.
-> [!NOTE]
-> Please note that you can currently copy only one Model as the ID where you copy the Model to will be taken after the first copied Model.
-### Model Delete
-Model Delete doesn't take any parameters.
-It deletes the selected Models.
-> [!CAUTION]
-> Please note that Model Delete will also delete all Fixtures which are linked with the selected Models.
+So, for example, if you want to add a generic RGB Model, you have to first need to type 'RGB' into the popup.
 
 ## Fixtures
-### Fixture Record
-Fixture Record takes either the Model of the new Fixture or its DMX address:
+### Fixture Attribute 2 Set
+Fixture Attribute 2 Set sets the Model of the selected Fixtures:
 ```
-Fixture 1 Record Model 7
-Fixture 1 Record 25
+Fixture 1 + 2 Attribute 2 Set Model 3
 ```
-Please note that you have to give a Model when recording a new Fixture.
-Every new Fixtures is patched to DMX address 0.
-This means that it won't output any DMX signal, but you can still insert it in Groups which is very useful if you know your Fixture rig but don't know how it's patched yet.
-### Fixture Label
-Fixture Label doesn't take any parameters.
-Instead, it will open a popup where you can insert the new label of the selected Fixtures.
-### Fixture Move
-Fixture Move takes the ID you want to move the selected Fixture to as a parameter.
-> [!NOTE]
-> Please note that you can currently move only one Fixture as the ID where you move the Fixture to will be taken after the first moved Fixture.
-### Fixture Copy
-Fixture Copy takes the ID you want to copy the selected Fixture to as a parameter.
-> [!NOTE]
-> Please note that you can currently copy only one Fixture as the ID where you copy the Fixture to will be taken after the first copied Fixture.
-### Fixture Delete
-Fixture Delete doesn't take any parameters.
-It deletes the selected Fixtures.
-> [!CAUTION]
-> Please note that Fixture Delete will also remove the Fixture from every Group.
+Every new Fixture's Model is set to None.
+This means that the Fixture is a simple Dimmer.
+You can also remove the Model from a Fixture, setting the Model Attribute to None again:
+```
+Fixture 1 Attribute 2 Set -
+```
+
+
+## Fixture Attribute 3 Set
+Fixture Attribute 3 Set sets the DMX address of the selected Fixtures.
+
+Every new Fixture is patched to address 0.
+This means that it won't output any DMX signal but can still be used for programming.
+This is great if you know your Fixture rig but not how it's patched.
 
 ## Groups
-### Group Record
-Group Record takes the Fixtures which you want to add to the Group:
+### Group Attribute 2 Set
+Group Attribute 2 Set takes the Fixtures which you want to add to the Group:
 ```
-Group 1 Record Fixture 1.1, 1.2, 1.3
+Group 1 Attribute 2 Set Fixture 1.1 + 1.2 + 1.3
 ```
 You can also give no Fixture IDs which would result in an empty Group:
 ```
-Group 1 Record
+Group 1 Attribute 2 Set
 ```
 > [!WARNING]
-> Please note that Group Record will first overwrite the Fixture which were in the Group before Group Record was executed.
-### Group Label
-Group Label doesn't take any parameters.
-Instead, it will open a popup where you can insert the new label of the selected Groups.
-### Group Move
-Group Move takes the ID you want to move the selected Group to as a parameter.
-> [!NOTE]
-> Please note that you can currently move only one Group as the ID where you move the Group to will be taken after the first moved Group.
-### Group Copy
-Group Copy takes the ID you want to copy the selected Group to as a parameter.
-> [!NOTE]
-> Please note that you can currently copy only one Group as the ID where you copy the Group to will be taken after the first copied Group.
-### Group Delete
-Group Delete doesn't take any parameters.
-It deletes the selected Groups.
+> Please note that Group Attribute 2 Set will first overwrite the Fixtures Attribute.
 
 ## Intensities
-### Intensity Record
-Intensity Record takes the Dimmer value of the Intensity in percent as an argument.
-### Intensity Label
-Intensity Label doesn't take any parameters.
-Instead, it will open a popup where you can insert the new label of the selected Intensities.
-### Intensity Move
-Intensity Move takes the ID you want to move the selected Intensity to as a parameter.
-> [!NOTE]
-> Please note that you can currently move only one Intensity as the ID where you move the Intensity to will be taken after the first moved Intensity.
-### Intensity Copy
-Intensity Copy takes the ID you want to copy the selected Intensity to as a parameter.
-> [!NOTE]
-> Please note that you can currently copy only one Intensity as the ID where you copy the Intensity to will be taken after the first copied Intensity.
-### Intensity Delete
-Intensity Delete doesn't take any parameters.
-It deletes the selected Intensities.
-> [!CAUTION]
-> Please note that Intensity Delete will also remove the selected Intensities from all Cues.
+### Intensity Attribute 2 Set
+Intensity Attribute 2 Set sets the Dimmer attribute to the selected Intensities:
+```
+Intensity 1 + 2 Attribute 2 Set 75
+```
+Please note that the value is given in percent.
 
 ## Colors
-### Color Record
-Color Record takes the rdd, green and blue values of the Color in percent as arguments.
-For example, you can add a new Color 3.1 with 12.3% red, 45.6% green and 78.9% blue like this:
-```
-Color 1 Record 12.3 + 45.6 + 78.9
-```
-You can also leave out values if you don't want to change them, for example this command will only set the green value to 45.6 percent:
-```
-Color 1 Record +45.6
-```
-### Color Label
-Color Label doesn't take any parameters.
-Instead, it will open a popup where you can insert the new label of the selected Colors.
-### Color Move
-Color Move takes the ID you want to move the selected Color to as a parameter.
-> [!NOTE]
-> Please note that you can currently move only one Color as the ID where you move the Color to will be taken after the first moved Color.
-### Color Copy
-Color Copy takes the ID you want to copy the selected Color to as a parameter.
-> [!NOTE]
-> Please note that you can currently copy only one Color as the ID where you copy the Color to will be taken after the first copied Color.
-### Color Delete
-Color Delete doesn't take any parameters.
-It deletes the selected Colors.
-> [!CAUTION]
-> Please note that Color Delete will also remove the selected Colors from all Cues.
+### Color Attribute 2 Set
+Color Attribute 2 Set sets the Hue attribute of the selected Colors.
+The value is given in degree.
+
+### Color Attribute 3 Set
+Color Attribute 3 Set sets the Saturation of the selected Colors.
+The value is given in percent.
 
 ## Cues
-### Cue Record
-Cue Record takes either the fade time or Group values as parameters:
+### Cue Attribute 2 Set
+Cue Attribute 2 Set sets the Intensity of the selected Groups in the selected Cues:
 ```
-Cue 1 Record 25
-Cue 1 Record Group 1 Intensity 1 Color 1
+Cue 1 + 2 Attribute 2 Group 4 Set Intensity 3
 ```
-Please note that you have to record a fade time first when adding a new Cue.
-When recording a value for a Group, you can also give only an Intensity or only a Color.
-### Cue Label
-Cue Label doesn't take any parameters.
-Instead, it will open a popup where you can insert the new label of the selected Cues.
-### Cue Move
-Cue Move takes the ID you want to move the selected Cue to as a parameter.
-> [!NOTE]
-> Please note that you can currently move only one Cue as the ID where you move the Cue to will be taken after the first moved Cue.
-### Cue Copy
-Cue Copy takes the ID you want to copy the selected Cue to as a parameter.
-> [!NOTE]
-> Please note that you can currently copy only one Cue as the ID where you copy the Cue to will be taken after the first copied Cue.
-### Cue Delete
-Cue Delete takes either no parameters or a Group as an parameter.
-When no parameter is given, it will delete the selected Cues.
-If a Group is given, it will clear the Intensity and Color of the Group in the selected Cues:
+You can remove the Intensity like this:
 ```
-Cue 1 Delete Group 2
+Cue 1 + 2 Attribute 2 Group 4 Set -
 ```
-> [!TIP]
-> You can also delete only the Intensity or Color of a Group: 
-> ```
-> Cue 1 Delete Group 1 Intensity
-> ```
 
-## sACN Output:
-Zöglfrex sends sACN...
-- on port 5568
-- on IP 239.255.0.1
-- on sACN universe 1
-- with a frequency of 40 Hz (one Sequence every 25ms)
-- using priority 100
+### Cue Attribute 3 Set
+Cue Attribute 3 Set sets the Color of the selected Groups in the selected Cues:
+```
+Cue 1 + 2 Attribute 3 Group 4 Set Color 3
+```
+You can remove the Color like this:
+```
+Cue 1 + 2 Attribute 3 Group 4 Set -
+```
+
+### Cue Attribute 4 Set
+Cue Attribute 4 Set sets the Transition time of the selected Cues.
+The value is given in percent.
 
 ## Selecting Items
 There are some useful tricks for selecting items using IDs.
@@ -222,31 +179,38 @@ You can use these whenever you can enter multiple IDs.
 ### Combining IDs with +
 You can combine multiple IDs with +:
 ```
-Intensity 1 + 2.1 + 1.7 Record 100
+Intensity 1 + 2.1 + 1.7 Set -
 ```
 
 ### IDs ending with .
 This syntax is useful when you want to select all IDs with the same beginning.
-However, please note that this command can only select already existing IDs, so you can't use it for recording items which don't exist yet!
+However, please note that this command can only select already existing IDs, so you can't use it for Items which don't exist yet!
 If they existed, this command would select Intensities 1, 1.1 or any other Intensity with an ID starting with a '1'.
 ```
-Intensity 1. Delete
+Intensity 1. Set -
 ```
 
 ### All items with .
 You can simply select all items using a period.
 This command, for example, deletes all existing intensities:
 ```
-Intensity . Delete
+Intensity . Set -
 ```
 
 ### Selecting multiple items with Thru .
 You can also select multiple IDs with Thru.
 This command would select the Intensity IDs 1.9, 1.10 and 1.11.
 ```
-Intensity 1.9 Thru .11 Record 100
+Intensity 1.9 Thru .11 Set -
 ```
-This command selects the Intensity IDs 1, 2, 3:
+This command deleted the Intensity IDs 1, 2, 3:
 ```
-Intensity 1 Thru .3 Record 100
+Intensity 1 Thru .3 Set -
 ```
+
+### Selecting multiple Items with Thru
+You can also select all Items in a range like this:
+```
+Intensity 1.1 Thru 2.3 Set -
+```
+This command deletes all Intensities starting with Intensity 1.1 and ending with Intensity 2.3.
