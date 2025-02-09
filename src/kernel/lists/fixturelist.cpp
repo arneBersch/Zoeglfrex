@@ -24,36 +24,46 @@ void FixtureList::deleteModel(Model *model)
 void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
     QString attributeString = attribute.value(Keys::Attribute);
     if (attributeString == "2") {
-        if (value.isEmpty() || (value[0] != Keys::Model)) {
-            kernel->terminal->error("Fixture Attribute 2 Set requires a model");
+        if ((value.size() == 1) && (value.first() == Keys::Minus)) {
+            for (QString id : ids) {
+                Fixture* fixture = getItem(id);
+                if (fixture == nullptr) {
+                    fixture = addItem(id);
+                }
+                fixture->model = nullptr;
+            }
+            kernel->terminal->success("Set Model of " + QString::number(ids.size()) + " Fixtures to None (Dimmer).");
+        } else if ((value.size() >= 2) && (value.first() == Keys::Model)) {
+            value.removeFirst();
+            QString modelId = kernel->keysToId(value);
+            Model *model = kernel->models->getItem(modelId);
+            if (model == nullptr) {
+                kernel->terminal->error("Can't set Model of Fixtures because Model " + modelId + " doesn't exist.");
+                return;
+            }
+            int fixtureCounter = 0;
+            for (QString id : ids) {
+                Fixture* fixture = getItem(id);
+                Model* oldModel = nullptr;
+                if (fixture == nullptr) {
+                    fixture = addItem(id);
+                } else {
+                    oldModel = fixture->model;
+                }
+                fixture->model = model;
+                if (channelsOkay()) {
+                    emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
+                    fixtureCounter++;
+                } else {
+                    fixture->model = oldModel; // don't change model if this would result in an address conflict
+                    kernel->terminal->warning("Can't set Model of Fixture " + id + " because this would result in an address conflict.");
+                }
+            }
+            kernel->terminal->success("Set Model of " + QString::number(fixtureCounter) + " Fixtures to Model " + model->name() + ".");
+        } else {
+            kernel->terminal->error("Can' set Fixture Attribute 2 because an invalid value was given.");
             return;
         }
-        value.removeFirst();
-        QString modelId = kernel->keysToId(value);
-        Model *model = kernel->models->getItem(modelId);
-        if (model == nullptr) {
-            kernel->terminal->error("Can't set Model of Fixtures because Model " + modelId + " doesn't exist.");
-            return;
-        }
-        int fixtureCounter = 0;
-        for (QString id : ids) {
-            Fixture* fixture = getItem(id);
-            Model* oldModel = nullptr;
-            if (fixture == nullptr) {
-                fixture = addItem(id);
-            } else {
-                oldModel = fixture->model;
-            }
-            fixture->model = model;
-            if (channelsOkay()) {
-                emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
-                fixtureCounter++;
-            } else {
-                fixture->model = oldModel; // don't change model if this would result in an address conflict
-                kernel->terminal->warning("Can't set Model of Fixture " + id + " because this would result in an address conflict.");
-            }
-        }
-        kernel->terminal->success("Set Model of " + QString::number(fixtureCounter) + " Fixtures to Model " + model->name() + ".");
     } else if (attributeString == "3") {
         int address = kernel->keysToValue(value);
         if ((address < 0) || (address > 512)) {
