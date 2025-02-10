@@ -3,5 +3,5 @@ Type=Application
 Name=Zöglfrex
 Comment=Open Source DMX Stage Lighting software
 Icon=icon
-Exec=zoeglfrex
+Exec=Zoeglfrex
 Categories=AudioVideo;
