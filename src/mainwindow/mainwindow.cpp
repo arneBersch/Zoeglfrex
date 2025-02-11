@@ -333,6 +333,42 @@ void MainWindow::openFile() {
                         }
                     }
                 }
+            } else if (fileStream.name().toString() == "Raws") {
+                while (fileStream.readNextStartElement()) {
+                    if (fileStream.name().toString() != "Raw") {
+                        kernel->terminal->error("Error reading file: Expected Raw data.");
+                        return;
+                    }
+                    if (!fileStream.attributes().hasAttribute("ID")) {
+                        kernel->terminal->error("Error reading file: No Raw ID was given.");
+                        return;
+                    }
+                    Raw* raw = kernel->raws->addItem(fileStream.attributes().value("ID").toString());
+                    while (fileStream.readNextStartElement()) {
+                        if (fileStream.name().toString() == "Label") {
+                            raw->label = fileStream.readElementText();
+                        } else if (fileStream.name().toString() == "Channel") {
+                            bool ok;
+                            int channel = fileStream.readElementText().toInt(&ok);
+                            if (!ok) {
+                                kernel->terminal->error("Error reading file: Channel of Raw " + raw->id + " isn't valid.");
+                                return;
+                            }
+                            raw->channel = channel;
+                        } else if (fileStream.name().toString() == "Value") {
+                            bool ok;
+                            uint8_t value = fileStream.readElementText().toUInt(&ok);
+                            if (!ok) {
+                                kernel->terminal->error("Error reading file: Value of Raw " + raw->id + " isn't valid.");
+                                return;
+                            }
+                            raw->value = value;
+                        } else {
+                            kernel->terminal->error("Error reading file: Unknown Raw Attribute \"" + fileStream.name().toString() + "\".");
+                            return;
+                        }
+                    }
+                }
             } else if (fileStream.name().toString() == "Cues") {
                 while (fileStream.readNextStartElement()) {
                     if (fileStream.name().toString() != "Cue") {
@@ -515,6 +551,17 @@ void MainWindow::saveFile() {
         fileStream.writeTextElement("Label", color->label);
         fileStream.writeTextElement("Hue", QString::number(color->hue));
         fileStream.writeTextElement("Saturation", QString::number(color->saturation));
+        fileStream.writeEndElement();
+    }
+    fileStream.writeEndElement();
+
+    fileStream.writeStartElement("Raws");
+    for (Raw* raw : kernel->raws->items) {
+        fileStream.writeStartElement("Raw");
+        fileStream.writeAttribute("ID", raw->id);
+        fileStream.writeTextElement("Label", raw->label);
+        fileStream.writeTextElement("Channel", QString::number(raw->channel));
+        fileStream.writeTextElement("Value", QString::number(raw->value));
         fileStream.writeEndElement();
     }
     fileStream.writeEndElement();

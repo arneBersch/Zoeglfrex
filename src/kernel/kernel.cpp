@@ -290,10 +290,11 @@ void Kernel::reset() {
         delete raw;
     }
     raws->items.clear();
-    for (Cue* cue : cues->items) {
+    QList<Cue*> cueItems = cues->items;
+    cues->items.clear();
+    for (Cue* cue : cueItems) {
         delete cue;
     }
-    cues->items.clear();
 
     cuelistView->dmxEngine->sacnServer->universeSpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_UNIVERSE); // reset sACN universe
     cuelistView->dmxEngine->sacnServer->prioritySpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
