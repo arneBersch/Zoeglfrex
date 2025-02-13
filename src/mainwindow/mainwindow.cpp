@@ -421,6 +421,20 @@ void MainWindow::openFile() {
                                             return;
                                         }
                                         cue->colors[group] = color;
+                                    } else if (fileStream.name().toString() == "Raws") {
+                                        cue->raws[group] = QList<Raw*>();
+                                        while (fileStream.readNextStartElement()) {
+                                            if (fileStream.name().toString() != "Raw") {
+                                                kernel->terminal->error("Error reading file: Expected Raw for Group " + group->id + " in Cue " + cue->id);
+                                                return;
+                                            }
+                                            Raw* raw = kernel->raws->getItem(fileStream.readElementText());
+                                            if (raw == nullptr) {
+                                                kernel->terminal->error("Error reading file: Raw for Group " + group->id + " in Cue " + cue->id + " was not found.");
+                                                return;
+                                            }
+                                            cue->raws[group].append(raw);
+                                        }
                                     } else {
                                         kernel->terminal->error("Error reading file: Expected data for Group " + group->id + " in Cue " + cue->id);
                                         return;
@@ -581,6 +595,13 @@ void MainWindow::saveFile() {
             }
             if (cue->colors.contains(group)) {
                 fileStream.writeTextElement("Color", cue->colors.value(group)->id);
+            }
+            if (cue->raws.contains(group)) {
+                fileStream.writeStartElement("Raws");
+                for (Raw* raw : cue->raws.value(group)) {
+                    fileStream.writeTextElement("Raw", raw->id);
+                }
+                fileStream.writeEndElement();
             }
             fileStream.writeEndElement();
         }
