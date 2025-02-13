@@ -19,6 +19,7 @@ enum {
     group,
     intensity,
     color,
+    raws,
 };
 }
 

@@ -10,7 +10,16 @@ Raw::Raw(const Raw* item) : Item(item->kernel) {
 }
 
 Raw::~Raw() {
-    //
+    for (Cue *cue : kernel->cues->items) {
+        for (Group *group : cue->raws.keys()) {
+            if (cue->raws.contains(group)) {
+                cue->raws[group].removeAll(this);
+                if (cue->raws[group].isEmpty()) {
+                    cue->raws.remove(group);
+                }
+            }
+        }
+    }
 }
 
 QString Raw::name() {

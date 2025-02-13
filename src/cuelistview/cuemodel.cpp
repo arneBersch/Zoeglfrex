@@ -27,7 +27,7 @@ int CueModel::rowCount(const QModelIndex &parent) const
 int CueModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 3;
+    return 4;
 }
 
 QVariant CueModel::data(const QModelIndex &index, const int role) const
@@ -49,15 +49,25 @@ QVariant CueModel::data(const QModelIndex &index, const int role) const
         if (column == CueModelColumns::group) {
             return group->name();
         } else if (column == CueModelColumns::intensity) {
-            if (kernel->cuelistView->currentCue != nullptr && kernel->cuelistView->currentCue->intensities.contains(group)) {
+            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->intensities.contains(group)) {
                 return kernel->cuelistView->currentCue->intensities.value(group)->name();
             }
             return QVariant();
         } else if (column == CueModelColumns::color) {
-            if (kernel->cuelistView->currentCue != nullptr && kernel->cuelistView->currentCue->colors.contains(group)) {
+            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->colors.contains(group)) {
                 return kernel->cuelistView->currentCue->colors.value(group)->name();
             }
             return QVariant();
+        } else if (column == CueModelColumns::raws) {
+            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->raws.contains(group)) {
+                QString raws;
+                for (Raw* raw : kernel->cuelistView->currentCue->raws.value(group)) {
+                    raws += raw->name();
+                    raws += ", ";
+                }
+                raws.chop(2);
+                return raws;
+            }
         } else {
             return QVariant();
         }
@@ -78,9 +88,11 @@ QVariant CueModel::headerData(int column, Qt::Orientation orientation, int role)
         if (column == CueModelColumns::group) {
             return "Group";
         } else if (column == CueModelColumns::intensity) {
-            return "Intensity";
+            return "2 Intensity";
         } else if (column == CueModelColumns::color) {
-            return "Color";
+            return "3 Color";
+        } else if (column == CueModelColumns::raws) {
+            return "4 Raws";
         } else {
             return QVariant();
         }

@@ -22,6 +22,7 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
     cueView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     cueView->setFocusPolicy(Qt::NoFocus);
     cueView->verticalHeader()->hide();
+    cueView->horizontalHeader()->setStretchLastSection(true);
     cueView->setModel(cueModel);
     layout->addWidget(cueView);
 
