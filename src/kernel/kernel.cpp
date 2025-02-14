@@ -371,10 +371,11 @@ QList<QString> Kernel::keysToSelection(QList<int> keys, int itemType) {
     QList<QString> ids;
     QList<int> idKeys;
     QList<int> thruBuffer;
+    bool idAdding = true;
     for (int key : keys) {
         if (isNumber(key) || key == Keys::Period) {
             idKeys += key;
-        } else if (key == Keys::Plus) {
+        } else if ((key == Keys::Plus) || (key == Keys::Minus)) {
             if (!thruBuffer.isEmpty()) {
                 if (idKeys.startsWith(Keys::Period)) {
                     idKeys.removeFirst();
@@ -393,7 +394,12 @@ QList<QString> Kernel::keysToSelection(QList<int> keys, int itemType) {
                         return QList<QString>();
                     }
                     for (int counter = minId; counter <= maxId; counter++) {
-                        ids.append(idBeginning + QString::number(counter));
+                        QString id = idBeginning + QString::number(counter);
+                        if (idAdding) {
+                            ids.append(id);
+                        } else {
+                            ids.removeAll(id);
+                        }
                     }
                 } else {
                     QString firstId = keysToId(thruBuffer);
@@ -410,7 +416,11 @@ QList<QString> Kernel::keysToSelection(QList<int> keys, int itemType) {
                         return QList<QString>();
                     }
                     for (int idRow = firstIdRow; idRow <= lastIdRow; idRow++) {
-                        ids.append(allIds[idRow]);
+                        if (idAdding) {
+                            ids.append(allIds[idRow]);
+                        } else {
+                            ids.removeAll(allIds[idRow]);
+                        }
                     }
                 }
                 thruBuffer.clear();
@@ -418,14 +428,22 @@ QList<QString> Kernel::keysToSelection(QList<int> keys, int itemType) {
             } else if (idKeys.endsWith(Keys::Period)) {
                 idKeys.removeLast();
                 if (idKeys.isEmpty()) {
-                    ids.append(allIds);
+                    if (idAdding) {
+                        ids.append(allIds);
+                    } else {
+                        for (QString id : allIds) {
+                            ids.removeAll(id);
+                        }
+                    }
                 } else {
                     QString idStart = keysToId(idKeys, false);
                     for (QString id : allIds) {
-                        if (id.startsWith(idStart + ".")) {
-                            ids.append(id);
-                        } else if (idStart == id) {
-                            ids.append(idStart);
+                        if ((id.startsWith(idStart + ".")) || (idStart == id)) {
+                            if (idAdding) {
+                                ids.append(id);
+                            } else {
+                                ids.removeAll(id);
+                            }
                         }
                     }
                 }
@@ -434,9 +452,14 @@ QList<QString> Kernel::keysToSelection(QList<int> keys, int itemType) {
                 if (id.isEmpty()) {
                     return QList<QString>();
                 }
-                ids.append(id);
+                if (idAdding) {
+                    ids.append(id);
+                } else {
+                    ids.removeAll(id);
+                }
             }
             idKeys.clear();
+            idAdding = (key == Keys::Plus);
         } else if (key == Keys::Thru) {
             if (!thruBuffer.isEmpty()) {
                 return QList<QString>();
