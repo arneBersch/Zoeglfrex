@@ -33,6 +33,7 @@ DmxEngine::DmxEngine(Kernel *core, QWidget* parent) : QWidget(parent) {
 void DmxEngine::generateDmx() {
     QMap<Fixture*, Intensity*> fixtureIntensities;
     QMap<Fixture*, Color*> fixtureColors;
+    QMap<Fixture*, QList<Raw*>> fixtureRaws;
     if (kernel->cuelistView->currentCue == nullptr) {
         remainingFadeFrames = 0;
         totalFadeFrames = 0;
@@ -53,6 +54,16 @@ void DmxEngine::generateDmx() {
             if (lastCue->colors.contains(group)) {
                 for (Fixture* fixture : group->fixtures) {
                     fixtureColors[fixture] = lastCue->colors[group];
+                }
+            }
+            if (lastCue->raws.contains(group)) {
+                for (Fixture* fixture : group->fixtures) {
+                    if (!fixtureRaws.contains(fixture)) {
+                        fixtureRaws[fixture] = QList<Raw*>();
+                    }
+                    for (Raw* raw : lastCue->raws[group]) {
+                        fixtureRaws[fixture].append(raw);
+                    }
                 }
             }
         }
@@ -146,6 +157,14 @@ void DmxEngine::generateDmx() {
                 }
                 uint8_t raw = (value * 2.55 + 0.5);
                 currentCueValues[channel] = raw;
+            }
+            if (fixtureRaws.contains(fixture)) {
+                for (Raw* raw : fixtureRaws[fixture]) {
+                    int channel = fixture->address + raw->channel - 1;
+                    if ((channel <= 512) && (raw->channel <= channels.size())) {
+                        currentCueValues[channel] = raw->value;
+                    }
+                }
             }
         }
     }
