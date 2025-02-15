@@ -20,6 +20,7 @@ Inspector::Inspector(Kernel *core, QWidget *parent) : QWidget{parent}
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->setFocusPolicy(Qt::NoFocus);
     infos = new QLabel();
+    infos->setWordWrap(true);
     layout->addWidget(infos);
 }
 
@@ -67,6 +68,14 @@ void Inspector::load(QList<int> keys)
             table->setModel(kernel->colors);
             title->setText("Colors");
             Color* item = kernel->colors->getItem(id);
+            if (item != nullptr) {
+                infos->setText(item->info());
+            }
+            return;
+        } else if (keys[keyIndex] == Keys::Raw) {
+            table->setModel(kernel->raws);
+            title->setText("Raws");
+            Raw* item = kernel->raws->getItem(id);
             if (item != nullptr) {
                 infos->setText(item->info());
             }

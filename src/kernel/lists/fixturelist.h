@@ -22,8 +22,7 @@ class FixtureList : public ItemList<Fixture> {
 public:
     FixtureList(Kernel *core);
     void deleteModel(Model *model);
-    void recordFixtureAddress(QList<QString> ids, int address);
-    void recordFixtureModel(QList<QString> ids, QString model);
+    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
     bool channelsOkay();
 private:
 };

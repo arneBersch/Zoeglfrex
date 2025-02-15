@@ -12,50 +12,39 @@ ColorList::ColorList(Kernel *core) : ItemList("Color", "Colors") {
     kernel = core;
 }
 
-void ColorList::recordColorRed(QList<QString> ids, float red) {
-    if (red > 100 || red < 0) {
-        kernel->terminal->error("Didn't record Color because Record Color Red only allows values from 0% to 100%.");
-        return;
-    }
-    for (QString id : ids) {
-        Color* color = getItem(id);
-        if (color == nullptr) {
-            color = recordItem(id);
+void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
+    QString attributeString = attribute.value(Keys::Attribute);
+    if (attributeString == "2") {
+        float hue = kernel->keysToValue(value);
+        if (hue >= 360 || hue < 0) {
+            kernel->terminal->error("Can't set Color Hue because Hue only allows values from 0° and smaller than 360°.");
+            return;
         }
-        color->red = red;
-        emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
-    }
-    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Colors with Red value " + QString::number(red) + "%.");
-}
-
-void ColorList::recordColorGreen(QList<QString> ids, float green) {
-    if (green > 100 || green < 0) {
-        kernel->terminal->error("Didn't record Color because Record Color Green only allows values from 0% to 100%.");
-        return;
-    }
-    for (QString id : ids) {
-        Color* color = getItem(id);
-        if (color == nullptr) {
-            color = recordItem(id);
+        for (QString id : ids) {
+            Color* color = getItem(id);
+            if (color == nullptr) {
+                color = addItem(id);
+            }
+            color->hue = hue;
+            emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
-        color->green = green;
-        emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
-    }
-    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Colors with Green value " + QString::number(green) + "%.");
-}
-
-void ColorList::recordColorBlue(QList<QString> ids, float blue) {
-    if (blue > 100 || blue < 0) {
-        kernel->terminal->error("Didn't record Color because Record Color Blue only allows values from 0% to 100%.");
-        return;
-    }
-    for (QString id : ids) {
-        Color* color = getItem(id);
-        if (color == nullptr) {
-            color = recordItem(id);
+        kernel->terminal->success("Set Hue of " + QString::number(ids.length()) + " Colors to " + QString::number(hue) + "°.");
+    } else if (attributeString == "3") {
+        float saturation = kernel->keysToValue(value);
+        if (saturation > 100 || saturation < 0) {
+            kernel->terminal->error("Can't set Color Saturation because Saturation only allows values from 0% to 100%.");
+            return;
         }
-        color->blue = blue;
-        emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
+        for (QString id : ids) {
+            Color* color = getItem(id);
+            if (color == nullptr) {
+                color = addItem(id);
+            }
+            color->saturation = saturation;
+            emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
+        }
+        kernel->terminal->success("Set Saturation of " + QString::number(ids.length()) + " Colors to " + QString::number(saturation) + "%.");
+    } else {
+        kernel->terminal->error("Can't set Color attribute " + attributeString + ".");
     }
-    kernel->terminal->success("Recorded " + QString::number(ids.length()) + " Colors with Blue value " + QString::number(blue) + "%.");
 }

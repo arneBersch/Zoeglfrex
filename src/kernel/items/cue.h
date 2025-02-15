@@ -7,6 +7,7 @@
 #include "group.h"
 #include "intensity.h"
 #include "color.h"
+#include "raw.h"
 
 class Cue : public Item {
 public:
@@ -16,6 +17,7 @@ public:
     float fade = 0;
     QMap<Group*, Intensity*> intensities = QMap<Group*, Intensity*>();
     QMap<Group*, Color*> colors = QMap<Group*, Color*>();
+    QMap<Group*, QList<Raw*>> raws = QMap<Group*, QList<Raw*>>();
     QString info() override;
 };
 

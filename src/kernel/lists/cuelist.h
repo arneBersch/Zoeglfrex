@@ -21,14 +21,7 @@ class CueList : public ItemList<Cue> {
     Q_OBJECT
 public:
     CueList(Kernel *core);
-    void deleteCueGroupIntensity(QList<QString> ids, QString groupId);
-    void deleteCueGroupColor(QList<QString> ids, QString groupId);
-    void deleteIntensity(Intensity *intensity);
-    void deleteColor(Color *color);
-    void deleteGroup(Group *group);
-    void recordCueFade(QList<QString> ids, float fade);
-    void recordCueIntensity(QList<QString> ids, QString groupId, QString intensityId);
-    void recordCueColor(QList<QString> ids, QString groupId, QString colorId);
+    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
 };
 
 #include "kernel/kernel.h"

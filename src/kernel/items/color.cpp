@@ -4,28 +4,31 @@
 Color::Color(Kernel* core) : Item(core) {}
 
 Color::Color(const Color* item) : Item(item->kernel) {
-    id = item->id;
     label = item->label;
-    red = item->red;
-    green = item->green;
-    blue = item->blue;
+    hue = item->hue;
+    saturation = item->saturation;
 }
 
 Color::~Color() {
-    kernel->cues->deleteColor(this);
+    for (Cue *cue : kernel->cues->items) {
+        for (Group *group : cue->colors.keys()) {
+            if (cue->colors.value(group) == this) {
+                cue->colors.remove(group);
+            }
+        }
+    }
 }
 
 QString Color::name() {
     if (label.isEmpty()) {
-        return Item::name() + QString::number(red) + "%, " + QString::number(green) + "%, " + QString::number(blue) + "%";
+        return Item::name() + QString::number(hue) + "°, " + QString::number(saturation) + "%";
     }
     return Item::name();
 }
 
 QString Color::info() {
     QString info = Item::info();
-    info += "\nRed: " + QString::number(red) + "%";
-    info += "\nGreen: " + QString::number(green) + "%";
-    info += "\nBlue: " + QString::number(blue) + "%";
+    info += "\n2 Hue: " + QString::number(hue) + "°";
+    info += "\n3 Saturation: " + QString::number(saturation) + "%";
     return info;
 }

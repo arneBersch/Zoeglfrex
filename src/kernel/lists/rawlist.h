@@ -6,24 +6,24 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef INTENSITYLIST_H
-#define INTENSITYLIST_H
+#ifndef RAWLIST_H
+#define RAWLIST_H
 
 #include <QtWidgets>
 
 #include "itemlist.h"
-#include "../items/intensity.h"
+#include "../items/raw.h"
 
 class Kernel;
 
-template class ItemList<Intensity>;
-class IntensityList : public ItemList<Intensity> {
+template class ItemList<Raw>;
+class RawList : public ItemList<Raw> {
     Q_OBJECT
 public:
-    IntensityList(Kernel *core);
+    RawList(Kernel *core);
     void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
 };
 
 #include "kernel/kernel.h"
 
-#endif // INTENSITYLIST_H
+#endif // RAWLIST_H

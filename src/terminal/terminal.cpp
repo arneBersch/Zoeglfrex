@@ -77,9 +77,7 @@ void Terminal::execute(QString command, QString action) {
             commandKeys.append(Keys::Minus);
         } else if (command.at(index) == QChar('.')) {
             commandKeys.append(Keys::Period);
-        } else if (command.at(index) == QChar('*')) {
-            commandKeys.append(Keys::Asterisk);
-        } else if (command.at(index) == QChar('/')) {
+        } else if (command.at(index) == QChar('T')) {
             commandKeys.append(Keys::Thru);
         } else if (command.at(index) == QChar('0')) {
             commandKeys.append(Keys::Zero);
@@ -111,18 +109,14 @@ void Terminal::execute(QString command, QString action) {
             commandKeys.append(Keys::Intensity);;
         } else if (command.at(index) == QChar('c')) {
             commandKeys.append(Keys::Color);
+        } else if (command.at(index) == QChar('r')) {
+            commandKeys.append(Keys::Raw);
         } else if (command.at(index) == QChar('q')) {
             commandKeys.append(Keys::Cue);
-        } else if (command.at(index) == QChar('C')) {
-            commandKeys.append(Keys::Copy);
-        } else if (command.at(index) == QChar('D')) {
-            commandKeys.append(Keys::Delete);
-        } else if (command.at(index) == QChar('L')) {
-            commandKeys.append(Keys::Label);
-        } else if (command.at(index) == QChar('M')) {
-            commandKeys.append(Keys::Move);
-        } else if (command.at(index) == QChar('R')) {
-            commandKeys.append(Keys::Record);
+        } else if (command.at(index) == QChar('a')) {
+            commandKeys.append(Keys::Attribute);
+        } else if (command.at(index) == QChar('s')) {
+            commandKeys.append(Keys::Set);
         } else if (command.at(index) == QChar('"')) {
             text = command.mid((index + 1), (command.length() - index - 2));
         } else {
@@ -181,8 +175,6 @@ QString Terminal::promptText(QList<int> keys)
             commandString += " - ";
         } else if (key == Keys::Period) {
             commandString += ".";
-        } else if (key == Keys::Asterisk) {
-            commandString += "*";
         } else if (key == Keys::Thru) {
             commandString += " Thru ";
         } else if (key == Keys::Zero) {
@@ -215,20 +207,16 @@ QString Terminal::promptText(QList<int> keys)
             commandString += " Intensity ";
         } else if (key == Keys::Color) {
             commandString += " Color ";
+        } else if (key == Keys::Raw) {
+            commandString += " Raw ";
         } else if (key == Keys::Cue) {
             commandString += " Cue ";
-        } else if (key == Keys::Copy) {
-            commandString += " Copy ";
-        } else if (key == Keys::Delete) {
-            commandString += " Delete ";
-        } else if (key == Keys::Label) {
-            commandString += " Label ";
-        } else if (key == Keys::Move) {
-            commandString += " Move ";
-        } else if (key == Keys::Record) {
-            commandString += " Record ";
+        } else if (key == Keys::Set) {
+            commandString += " Set ";
+        } else if (key == Keys::Attribute) {
+            commandString += " Attribute ";
         } else {
-            error(tr("Unknown key pressed: %1").arg(key));
+            error("Unknown key pressed: " + QString::number(key));
         }
     }
     commandString.replace("  ", " "); // Remove double whitespaces

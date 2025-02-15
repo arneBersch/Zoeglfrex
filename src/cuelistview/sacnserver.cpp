@@ -8,7 +8,45 @@
 
 #include "sacnserver.h"
 
-SacnServer::SacnServer() {
+SacnServer::SacnServer(Kernel* core, QWidget* parent) : QWidget(parent, Qt::Window) {
+    kernel = core;
+
+    setWindowTitle("DMX Output Settings");
+    QGridLayout *layout = new QGridLayout(this);
+
+    QLabel* interfaceLabel = new QLabel("Network Interface");
+    layout->addWidget(interfaceLabel, 0, 0);
+
+    interfaceComboBox = new QComboBox();
+    interfaceComboBox->addItem("None");
+    for (QNetworkInterface interface : QNetworkInterface::allInterfaces()) {
+        for (QNetworkAddressEntry address : interface.addressEntries()) {
+            if (address.ip().protocol() == QAbstractSocket::IPv4Protocol) {
+                interfaceComboBox->addItem(interface.name() + " (" + address.ip().toString() + ")");
+                networkInterfaces.append(interface);
+                networkAddresses.append(address);
+            }
+        }
+    }
+    connect(interfaceComboBox, &QComboBox::currentIndexChanged, this, &SacnServer::setNetworkInterface);
+    layout->addWidget(interfaceComboBox, 0, 1);
+
+    QLabel* universeLabel = new QLabel("Universe");
+    layout->addWidget(universeLabel, 1, 0);
+
+    universeSpinBox = new QSpinBox();
+    universeSpinBox->setRange(1, SACN_MAX_UNIVERSE);
+    universeSpinBox->setValue(SACN_STANDARD_UNIVERSE);
+    layout->addWidget(universeSpinBox, 1, 1);
+
+    QLabel* priorityLabel = new QLabel("Priority");
+    layout->addWidget(priorityLabel, 2, 0);
+
+    prioritySpinBox = new QSpinBox();
+    prioritySpinBox->setRange(0, 200);
+    prioritySpinBox->setValue(SACN_STANDARD_PRIORITY);
+    layout->addWidget(prioritySpinBox, 2, 1);
+
     // Root Layer
     // Preamble Size (Octet 0-1)
     data.append((char)0x00);
@@ -117,54 +155,43 @@ void SacnServer::setChannel(int channel, uint8_t value) {
     if (channel < 1 || channel > 512) {
         return;
     }
-    data[125 + channel] = (char) value;
-}
-
-uint8_t SacnServer::getChannel(int channel) {
-    if (channel < 1 || channel > 512) {
-        return 0;
-    }
-    return data[125 + channel];
+    data[125 + channel] = (char)value;
 }
 
 void SacnServer::send() {
+    if (socket == nullptr) {
+        return;
+    }
     if (sequence == 0xff) {
         sequence = 1;
     } else {
         sequence++;
     }
+    data[108] = (char)prioritySpinBox->value(); // Update Priority
     data[111] = sequence; // Update Sequence number
-    qint64 result = socket->writeDatagram(data.data(), data.size(), QHostAddress("239.255.0.1"), 5568);
+    data[113] = (char)(universeSpinBox->value() / 256); // Update Universe number
+    data[114] = (char)(universeSpinBox->value() % 256); // Update Universe number
+    QString address = "239.255.";
+    address += QString::number(universeSpinBox->value() / 256);
+    address += ".";
+    address += QString::number(universeSpinBox->value() % 256);
+    qint64 result = socket->writeDatagram(data.data(), data.size(), QHostAddress(address), SACN_PORT);
     if (result < 0) {
         qWarning() << Q_FUNC_INFO <<"ERROR sending sACN: " << socket->error() << " (" << socket->errorString() << ")";
     }
 }
 
-void SacnServer::connect(QString newAddress) {
-    if (socket != nullptr) {
-        qWarning() << "Tried to connect although socket is still connected";
-        return; // socket needs to be disconnected
+void SacnServer::setNetworkInterface() {
+    int interfaceIndex = interfaceComboBox->currentIndex() - 1;
+    if (interfaceIndex >= 0) {
+        socket = new QUdpSocket();
+        socket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, false); // Disable Multicast Loopback
+        socket->bind(networkAddresses[interfaceIndex].ip());
+        socket->setMulticastInterface(networkInterfaces[interfaceIndex]);
+        kernel->terminal->success("Set sACN Output to " + networkInterfaces[interfaceIndex].name() + " (" + networkAddresses[interfaceIndex].ip().toString() + ")");
+    } else {
+        delete socket;
+        socket = nullptr;
+        kernel->terminal->success("Disabled sACN output.");
     }
-    for (QNetworkInterface interface : QNetworkInterface::allInterfaces()) {
-        for (QNetworkAddressEntry entry : interface.addressEntries()) {
-            if (entry.ip().toString() == newAddress) {
-                if (entry.ip().protocol() != QAbstractSocket::IPv4Protocol) {
-                    qWarning() << Q_FUNC_INFO << "Tried to connect socket to invalid IP Address (not IPv4)";
-                    return;
-                }
-                socket = new QUdpSocket(); // Create Socket
-                socket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, false); // Disable Multicast Loopback
-                socket->bind(entry.ip());
-                socket->setMulticastInterface(interface); // Select the interface
-                qDebug() << Q_FUNC_INFO << "Connected socket to" << entry.ip().toString();
-                return;
-            }
-        }
-    }
-}
-
-void SacnServer::disconnect() {
-    delete socket;
-    socket = nullptr;
-    qDebug() << Q_FUNC_INFO << "Disconnected socket";
 }

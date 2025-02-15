@@ -4,13 +4,20 @@
 Group::Group(Kernel* core) : Item(core) {}
 
 Group::Group(const Group* item) : Item(item->kernel) {
-    id = item->id;
     label = item->label;
     fixtures = item->fixtures;
 }
 
 Group::~Group() {
-    kernel->cues->deleteGroup(this);
+    if (kernel->cuelistView->currentGroup == this) {
+        kernel->cuelistView->currentGroup = nullptr;
+        kernel->cuelistView->loadCue();
+    }
+    for (Cue *cue : kernel->cues->items) {
+        cue->intensities.remove(this);
+        cue->colors.remove(this);
+        cue->raws.remove(this);
+    }
 }
 
 QString Group::name() {
@@ -31,7 +38,7 @@ QString Group::info() {
         fixtureNames += fixture->name() + ", ";
     }
     fixtureNames.chop(2);
-    info += "\nFixtures: " + fixtureNames;
+    info += "\n2 Fixtures: " + fixtureNames;
     return info;
 }
 

@@ -4,13 +4,18 @@
 Intensity::Intensity(Kernel* core) : Item(core) {}
 
 Intensity::Intensity(const Intensity* item) : Item(item->kernel) {
-    id = item->id;
     label = item->label;
     dimmer = item->dimmer;
 }
 
 Intensity::~Intensity() {
-    kernel->cues->deleteIntensity(this);
+    for (Cue *cue : kernel->cues->items) {
+        for (Group *group : cue->intensities.keys()) {
+            if (cue->intensities.value(group) == this) {
+                cue->intensities.remove(group);
+            }
+        }
+    }
 }
 
 QString Intensity::name() {
@@ -22,6 +27,6 @@ QString Intensity::name() {
 
 QString Intensity::info() {
     QString info = Item::info();
-    info += "\nDimmer: " + QString::number(dimmer) + "%";
+    info += "\n2 Dimmer: " + QString::number(dimmer) + "%";
     return info;
 }

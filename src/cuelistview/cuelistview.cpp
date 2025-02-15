@@ -22,35 +22,27 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
     cueView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     cueView->setFocusPolicy(Qt::NoFocus);
     cueView->verticalHeader()->hide();
+    cueView->horizontalHeader()->setStretchLastSection(true);
     cueView->setModel(cueModel);
     layout->addWidget(cueView);
 
-    QHBoxLayout *buttons = new QHBoxLayout();
-    QPushButton *previousCue = new QPushButton("GO BACK");
-    connect(previousCue, &QPushButton::pressed, this, &CuelistView::previousCue);
-    buttons->addWidget(previousCue);
-    QPushButton *nextCue = new QPushButton("GO");
-    connect(nextCue, &QPushButton::pressed, this, &CuelistView::nextCue);
-    buttons->addWidget(nextCue);
-    layout->addLayout(buttons);
-
-    engine = new DmxEngine(kernel);
-    layout->addWidget(engine);
+    dmxEngine = new DmxEngine(kernel);
+    layout->addWidget(dmxEngine);
 }
 
 
 void CuelistView::loadCue() {
-    cueModel->loadCue(currentCue);
-    engine->generateDmx();
+    cueModel->loadCue();
+    dmxEngine->generateDmx();
     if (currentCue == nullptr) {
         cueLabel->setText(QString());
         if (!kernel->cues->items.isEmpty()) {
-            currentCue = kernel->cues->items[0]; // select first cue
+            currentCue = kernel->cues->items.first();
             loadCue();
         }
         return;
     }
-    cueLabel->setText(currentCue->id);
+    cueLabel->setText(currentCue->name());
 }
 
 void CuelistView::previousCue() {
@@ -91,4 +83,16 @@ void CuelistView::nextCue() {
             nextCue = true;
         }
     }
+}
+
+bool CuelistView::validGroupAndCue() {
+    if (currentGroup == nullptr) {
+        kernel->terminal->error("No Group selected.");
+        return false;
+    }
+    if (currentCue == nullptr) {
+        kernel->terminal->error("No Cue selected.");
+        return false;
+    }
+    return true;
 }

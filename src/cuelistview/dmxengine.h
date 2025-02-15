@@ -13,29 +13,24 @@
 
 #include "sacnserver.h"
 class Kernel;
-struct Cue;
+class Cue;
 
-class DmxEngine : public QWidget
-{
+class DmxEngine : public QWidget {
     Q_OBJECT
 public:
-    explicit DmxEngine(Kernel *core, QWidget *parent = nullptr);
+    DmxEngine(Kernel *core, QWidget *parent = nullptr);
     void generateDmx();
+    SacnServer *sacnServer;
 private:
+    void sendDmx();
+    QTimer *timer;
     Cue* lastCue;
     QList<uint8_t> lastCueValues;
     QList<uint8_t> currentCueValues;
     int remainingFadeFrames;
     int totalFadeFrames;
+    QPushButton *highlightButton;
     Kernel *kernel;
-    SacnServer *sacn;
-    QTimer *timer;
-    void sendDmx();
-    void stopDmx();
-    void startDmx();
-    QComboBox *interfaceSelectionBox;
-    QPushButton *startDmxButton;
-    QPushButton *stopDmxButton;
 };
 
 #endif // DMXENGINE_H

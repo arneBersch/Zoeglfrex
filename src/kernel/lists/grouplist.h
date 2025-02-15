@@ -22,7 +22,7 @@ class GroupList : public ItemList<Group> {
 public:
     GroupList(Kernel *core);
     void deleteFixture(Fixture *fixture);
-    void recordGroupFixtures(QList<QString> ids, QList<QString> fixtureIds);
+    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
 };
 
 #include "kernel/kernel.h"

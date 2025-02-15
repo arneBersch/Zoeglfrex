@@ -16,6 +16,7 @@
 #include "kernel/lists/grouplist.h"
 #include "kernel/lists/intensitylist.h"
 #include "kernel/lists/colorlist.h"
+#include "kernel/lists/rawlist.h"
 #include "kernel/lists/cuelist.h"
 #include "terminal/terminal.h"
 #include "inspector/inspector.h"
@@ -36,19 +37,16 @@ enum {
     Plus, // +
     Minus, // -
     Period, // .
-    Asterisk, // *
-    Thru, // /
+    Thru, // T
+    Set, // S
+    Attribute, // A
     Model, // M
     Fixture, // F
     Group, // G
     Intensity, // I
     Color, // C
+    Raw, // R
     Cue, // Q
-    Copy, // SHIFT C
-    Delete, // SHIFT D
-    Label, // SHIFT L
-    Move, // SHIFT M
-    Record, // SHIFT R
 };
 }
 
@@ -56,24 +54,25 @@ class Kernel {
 public:
     Kernel();
     void execute(QList<int> command, QString text = QString());
+    void reset();
     ModelList *models;
     FixtureList *fixtures;
     GroupList *groups;
     IntensityList *intensities;
     ColorList *colors;
+    RawList *raws;
     CueList *cues;
     Terminal *terminal;
     Inspector *inspector;
     CuelistView *cuelistView;
     QMutex *mutex;
     QString keysToId(QList<int> keys, bool removeTrailingZeros = true);
+    float keysToValue(QList<int> keys);
+    QList<QString> keysToSelection(QList<int> keys, int itemType);
 private:
     bool isItem(int key);
-    bool isOperator(int key);
     bool isNumber(int key);
     int keyToNumber(int key);
-    QList<float> keysToValue(QList<int> keys);
-    QList<QString> keysToSelection(QList<int> keys, int itemType);
 };
 
 #endif // KERNEL_H

@@ -21,9 +21,7 @@ class ColorList : public ItemList<Color> {
     Q_OBJECT
 public:
     ColorList(Kernel *core);
-    void recordColorRed(QList<QString> ids, float red);
-    void recordColorGreen(QList<QString> ids, float green);
-    void recordColorBlue(QList<QString> ids, float blue);
+    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
 };
 
 #include "kernel/kernel.h"

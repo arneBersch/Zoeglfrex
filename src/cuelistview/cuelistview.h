@@ -11,27 +11,31 @@
 
 #include <QtWidgets>
 
-#include "cuelistview/dmxengine.h"
 #include "cuelistview/cuemodel.h"
 class Kernel;
-struct Cue;
+class Group;
+class Cue;
+class DmxEngine;
 
 class CuelistView : public QWidget {
     Q_OBJECT
 public:
     CuelistView(Kernel *core, QWidget *parent = nullptr);
     void loadCue();
-    Cue* currentCue = nullptr;
-private:
     void nextCue();
     void previousCue();
+    bool validGroupAndCue();
+    Group* currentGroup = nullptr;
+    Cue* currentCue = nullptr;
+    DmxEngine *dmxEngine;
+private:
     Kernel *kernel;
-    DmxEngine *engine;
     QTableView *cueView;
     CueModel *cueModel;
     QLabel *cueLabel;
 };
 
 #include "kernel/kernel.h"
+#include "cuelistview/dmxengine.h"
 
 #endif // CUELISTVIEW_H
