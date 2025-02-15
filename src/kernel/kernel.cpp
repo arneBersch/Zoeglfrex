@@ -189,7 +189,15 @@ void Kernel::execute(QList<int> command, QString text) {
         return;
     }
     if (selection.isEmpty()) {
-        if (selectionType == Keys::Group) {
+        if (selectionType == Keys::Fixture) {
+            if (cuelistView->currentGroup == nullptr) {
+                terminal->error("Can't load the Fixtures of the current because no Group is selected.");
+                return;
+            }
+            for (Fixture* fixture : fixtures->items) {
+                ids.append(fixture->id);
+            }
+        } else if (selectionType == Keys::Group) {
             if (cuelistView->currentGroup == nullptr) {
                 terminal->error("Can't load the Group because no Group is selected.");
                 return;
@@ -213,6 +221,17 @@ void Kernel::execute(QList<int> command, QString text) {
                 return;
             }
             ids.append(cuelistView->currentCue->colors.value(cuelistView->currentGroup)->id);
+        } else if (selectionType == Keys::Raw) {
+            if (!cuelistView->validGroupAndCue()) {
+                return;
+            }
+            if (!cuelistView->currentCue->raws.contains(cuelistView->currentGroup) || cuelistView->currentCue->raws[cuelistView->currentGroup].isEmpty()) {
+                terminal->error("Can't load the Raws as the selected Cue contains no Raws for this Group.");
+                return;
+            }
+            for (Raw* raw :  cuelistView->currentCue->raws[cuelistView->currentGroup]) {
+                ids.append(raw->id);
+            }
         } else if (selectionType == Keys::Cue) {
             if (cuelistView->currentCue == nullptr) {
                 terminal->error("Can't load the Cue because no Cue is selected.");
@@ -304,7 +323,7 @@ void Kernel::execute(QList<int> command, QString text) {
         raws->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Cue) {
         if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
-            attributeMap[Keys::Attribute] = "4";
+            attributeMap[Keys::Attribute] = "5";
         }
         cues->setAttribute(ids, attributeMap, value, text);
     }
