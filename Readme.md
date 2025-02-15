@@ -8,7 +8,7 @@ See the [Releases page](https://github.com/arneBersch/Zoeglfrex/releases/) to do
 ## Features
 - command line interface
 - sACN (ANSI E1.31) DMX output
-- included hardware abstraction layer
+- included hardware abstraction
 - multi level IDs like 1.2.3.4.5
 
 As Zöglfrex is still a very young software, only the most basic functions are implemented yet.
@@ -19,9 +19,8 @@ For documentation, you can find the complete [Zöglfrex reference](docs/referenc
 ## Known Limitations
 - only one DMX Universe
 - DMX Output only via sACN (ANSI E1.31)
-- only Dimmer, RGB and CMY channels supported
 - only one Cue can be played back simultanously
-- no effects possible
+- no Effects possible
 - only English UI, no other languages are supported yet
 
 ## How to contribute
