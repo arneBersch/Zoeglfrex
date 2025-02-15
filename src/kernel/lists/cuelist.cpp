@@ -115,7 +115,7 @@ void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
             }
             kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Raw entries.");
         } else {
-            if (value.first() != Keys::Raw) {
+            if ((value.isEmpty()) || (value.first() != Keys::Raw)) {
                 kernel->terminal->error("Cue Attribute 4 Group Set requires no value or at least one Raw.");
                 return;
             }

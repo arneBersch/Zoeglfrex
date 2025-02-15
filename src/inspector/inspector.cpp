@@ -20,6 +20,7 @@ Inspector::Inspector(Kernel *core, QWidget *parent) : QWidget{parent}
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->setFocusPolicy(Qt::NoFocus);
     infos = new QLabel();
+    infos->setWordWrap(true);
     layout->addWidget(infos);
 }
 
