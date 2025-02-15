@@ -268,6 +268,10 @@ Color 2
 Raw 1 + 2
 ```
 
+## Activate DMX
+In order to activate DMX Output, you have to select your sACN network Interface in the DMX Output Settings.
+After that, you're ready to go.
+
 ## Final words
 This are the most important concepts and commands of Zöglfrex.
 For more information, I recommend the Zöglfrex reference.
