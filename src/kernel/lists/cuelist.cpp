@@ -102,7 +102,7 @@ void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
             kernel->terminal->error("Can't set Cue Attribute 4 because an invalid Group was given.");
             return;
         }
-        if (value.isEmpty()) {
+        if ((value.size() == 1) && (value.first() == Keys::Minus)) {
             int cueCounter = 0;
             for (QString id : ids) {
                 Cue *cue = getItem(id);
