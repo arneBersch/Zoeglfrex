@@ -6,7 +6,7 @@ In this guide, we will build a simple project in order to show you how to use it
 ## The User Interface
 On the right side of the Zöglfrex window, you can see the **Inspector**.
 This is where we can see all our items.
-However, because there are no items recorded yet, it should be empty.
+However, because there are no items added yet, it should be empty.
 
 The left column of the window consists of the **Cuelist View** and the **Terminal**.
 In the Cuelist View, we can step through our Cues using the GO and GO BACK buttons.
@@ -91,7 +91,7 @@ Please note that Zöglfrex ignores .0 at the end of IDs.
 This means that we could also select our dimmer Model by typing `Model 1.0.0.0.0` or `Model 1.0.0`.
 
 But now let's patch our dimmers.
-In order to do this, it is much faster to select all our new Fixtures and record all of them at once:
+In order to do this, it is much faster to select all our new Fixtures and update all of them at once:
 ```
 Fixture 1.1 Thru .12 Attribute 2 Set Model 1
 ```
@@ -108,7 +108,13 @@ We can now also add the RGB fixtures and label them:
 Fixture 2.1 Thru .8 Attribute 2 Set Model 2
 Fixture 2. Set 13
 ```
-In the Inspector, you should now see 12 dimmers and 8 RGBs.
+
+And we'll also add the Moving Heads:
+```
+Fixture 3.1 Thru .4 Attribute 2 Set Model 2
+Fixture 3. Set 37
+```
+In the Inspector, you should now see 12 dimmers, 8 RGBs and 4 Moving Heads.
 
 ### Creating Groups
 In Zöglfrex, **Groups** are used to control multiple Fixtures at once.
@@ -120,7 +126,7 @@ Group 1 Set Fixture 1.
 You can see that the automatically genrated name for our Group is quite complex.
 However, we can also give it a custom name:
 ```
-Group 1 Label
+Group 1 Attribute 1 Set
 ```
 This command will open a text input box where you can insert the new Label of these fixtures.
 You could call this group "all dimmers".
@@ -136,20 +142,29 @@ Group 1.3 Attribute 1 Set
 Now, we also have to create groups for all of the RGBs.
 ```
 Group 2 Set Fixture 2.
+Group 2 Attribute 1 Set
 ```
 ...and one for the odd ones...
 ```
 Group 2.1 Set Fixture 2.1 + 2.3 + 2.5 + 2.7
+Group 2.1 Attribute 1 Set
 ```
 ...and one for the even ones.
 ```
 Group 2.2 Set Fixture 2.2 + 2.4 + 2.5 + 2.8
+Group 2.2 Attribute 1 Set
+```
+
+And, last but not least, a Group for the Moving Heads:
+```
+Group 3 Set Fixture 3.
+Group 3 Attribute 1 Set
 ```
 Note that as soon as you insert "Model", "Fixture" or "Group" in the Terminal, the Inspector will show a list of all the Models, Fixtures or Groups.
 Especially in situations when your setup is very complex, this can help you finding the right ID.
 
 ## Adding Values
-Now that we have finished setting up our rig, we have to add some values that we can record to our Cue.
+Now that we have finished setting up our rig, we have to add some values that we can add to our Cue.
 
 ### Adding Intensities
 An **Intensity** only holds one value, the dimmer which is given in percent:
@@ -162,16 +177,26 @@ Intensity 2 Set 60
 ```
 
 ### Adding Colors
-Now that we have added some Intensities, we also havd to record **Colors** for our RGBs:
+Now that we have added some Intensities, we also have to add **Colors** for our RGBs:
 ```
-Color 1 Record 0
-Color 2 Record 120
-Color 3 Record 240
+Color 1 Set 0
+Color 2 Set 120
+Color 3 Set 240
 ```
 The three values represent the Hue of the Colors and are given in degree.
 We'll call these Colors "Red", "Green" and "Blue".
 
-## Recording Cues
+### Adding Raws
+We can manually set Channels which are not supported (yet) using Raws:
+```
+Raw 1 Attribute 2 Set 1
+Raw 1 Set 157
+Raw 2 Attribute 2 Set 2
+Raw 2 Set 128
+```
+You can call these Items "Standard Pan" and "Standard Tilt".
+
+## Adding Cues
 ### Adding Cues
 So let's finally generate some DMX output!
 Therefore, we need to add some **Cues** first.
@@ -203,8 +228,11 @@ Cu1 1.1 Attribute 2 Group 2.2 Set Intensity 1
 Cu1 1.1 Attribute 3 Group 2.2 Set Color 2
 Cue 2 Attribute 2 Group 1.2 Set Intensity 1
 Cue 2 Attribute 2 Group 1.3 Set Intensity 2
-Cue 2 Attrbiture 2 Group 2 Set Intensity 2
+Cue 2 Attribute 2 Group 2 Set Intensity 2
 Cue 2 Attribute 3 Group 2 Set Color 3
+Cue 2 Attribute 2 Group 3 Set Intensity 1
+Cue 2 Attribute 3 Group 3 Set Color 2
+Cue 2 Attribute 4 Group 3 Set Raw 1 + 2
 ```
 But there's also a much simpler way:
 ```
@@ -234,6 +262,10 @@ Intensity 2
 Group 2
 Intensity 2
 Color 3
+Group 3
+Intensity 1
+Color 2
+Raw 1 + 2
 ```
 
 ## Final words
