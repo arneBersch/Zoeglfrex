@@ -10,10 +10,18 @@
 
 AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : QDialog{parent} {
     QVBoxLayout *layout = new QVBoxLayout();
+    QHBoxLayout *headerLayout = new QHBoxLayout();
+    layout->addLayout(headerLayout);
 
-    QLabel *header = new QLabel("Zöglfrex " + version);
-    header->setStyleSheet("font-size: 50px");
-    layout->addWidget(header);
+    QLabel *icon = new QLabel();
+    QPixmap iconPixmap = QPixmap();
+    iconPixmap.load(":/resources/icon.png");
+    icon->setPixmap(iconPixmap.scaled(200, 200));
+    headerLayout->addWidget(icon);
+
+    QLabel *headerLabel = new QLabel("Zöglfrex " + version);
+    headerLabel->setStyleSheet("font-size: 50px");
+    headerLayout->addWidget(headerLabel);
 
     QLabel *copyrightNotice = new QLabel(copyright);
     layout->addWidget(copyrightNotice);
