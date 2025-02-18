@@ -28,12 +28,12 @@ QString Fixture::name() {
 
 QString Fixture::info() {
     QString info = Item::info();
-    info += "\n2 Model: ";
+    info += "\n" + kernel->fixtures->MODELATTRIBUTEID + " Model: ";
     if (model == nullptr) {
         info += "None (Dimmer)";
     } else {
         info += model->name();
     }
-    info += "\n3 Address: " + QString::number(address);
+    info += "\n" + kernel->fixtures->ADDRESSATTRIBUTEID + " Address: " + QString::number(address);
     return info;
 }

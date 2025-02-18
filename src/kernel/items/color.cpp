@@ -28,7 +28,7 @@ QString Color::name() {
 
 QString Color::info() {
     QString info = Item::info();
-    info += "\n2 Hue: " + QString::number(hue) + "°";
-    info += "\n3 Saturation: " + QString::number(saturation) + "%";
+    info += "\n" + kernel->colors->HUEATTRIBUTEID + " Hue: " + QString::number(hue) + "°";
+    info += "\n" + kernel->colors->SATURATIONATTRIBUTEID + " Saturation: " + QString::number(saturation) + "%";
     return info;
 }

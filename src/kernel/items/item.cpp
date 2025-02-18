@@ -1,4 +1,5 @@
 #include "item.h"
+#include "kernel/kernel.h"
 
 Item::Item(Kernel* core) {
     kernel = core;
@@ -11,7 +12,7 @@ QString Item::name() {
 }
 
 QString Item::info() {
-    QString info = "0 ID: " + id;
-    info += "\n1 Label: \"" + label + "\"";
+    QString info = kernel->models->IDATTRIBUTEID + " ID: " + id;
+    info += "\n" + kernel->models->LABELATTRIBUTEID + " Label: \"" + label + "\"";
     return info;
 }

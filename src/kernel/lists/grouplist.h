@@ -21,6 +21,7 @@ class GroupList : public ItemList<Group> {
     Q_OBJECT
 public:
     GroupList(Kernel *core);
+    const QString FIXTURESATTRIBUTEID = "2";
 private:
     void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
 };

@@ -18,6 +18,8 @@ public:
     QList<T*> items;
     void setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString());
     T* addItem(QString id);
+    const QString IDATTRIBUTEID = "0";
+    const QString LABELATTRIBUTEID = "1";
 protected:
     virtual void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString()) = 0;
 private:

@@ -19,6 +19,6 @@ Cue::~Cue() {
 
 QString Cue::info() {
     QString info = Item::info();
-    info += "\n5 Fade: " + QString::number(fade) + "s";
+    info += "\n" + kernel->cues->FADEATTRIBUTEID + " Fade: " + QString::number(fade) + "s";
     return info;
 }

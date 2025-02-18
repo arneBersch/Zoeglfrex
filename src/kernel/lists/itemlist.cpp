@@ -72,7 +72,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             }
         }
         kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + sourceItem->id + " .");
-    } else if (attribute.value(Keys::Attribute) == "0") { // Move (set ID of) Item
+    } else if (attribute.value(Keys::Attribute) == IDATTRIBUTEID) {
         QString targetId = kernel->keysToId(value);
         QList<int> itemRows;
         for (QString id : ids) {
@@ -99,9 +99,9 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             }
         }
         kernel->terminal->success("Set ID of " + QString::number(itemRows.length()) + " " + pluralItemName + " to " + targetId + ".");
-    } else if (attribute.value(Keys::Attribute) == "1") { // Label Item
+    } else if (attribute.value(Keys::Attribute) == LABELATTRIBUTEID) {
         if (!value.isEmpty()) {
-            kernel->terminal->error("Attribute 1 Set doesn't take any parameters.");
+            kernel->terminal->error("Attribute Label Set doesn't take any parameters.");
             return;
         }
         QList<int> itemRows;

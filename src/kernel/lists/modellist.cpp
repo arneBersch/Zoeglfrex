@@ -14,9 +14,9 @@ ModelList::ModelList(Kernel *core) : ItemList("Model", "Models") {
 
 void ModelList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
     QString attributeString = attribute.value(Keys::Attribute);
-    if (attributeString == "2") {
+    if (attributeString == CHANNELSATTRIBUTEID) {
         if (!value.isEmpty()) {
-            kernel->terminal->error("Model Attribute 2 Set doesn't take a value.");
+            kernel->terminal->error("Model Channel Set doesn't take a value.");
             return;
         }
         if (!text.contains(QRegularExpression("^[01DRGBCMY]+$"))) {

@@ -27,6 +27,6 @@ QString Intensity::name() {
 
 QString Intensity::info() {
     QString info = Item::info();
-    info += "\n2 Dimmer: " + QString::number(dimmer) + "%";
+    info += "\n" + kernel->intensities->DIMMERATTRIBUTEID + " Dimmer: " + QString::number(dimmer) + "%";
     return info;
 }

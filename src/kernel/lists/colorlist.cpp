@@ -14,7 +14,7 @@ ColorList::ColorList(Kernel *core) : ItemList("Color", "Colors") {
 
 void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
     QString attributeString = attribute.value(Keys::Attribute);
-    if (attributeString == "2") {
+    if (attributeString == HUEATTRIBUTEID) {
         float hue = kernel->keysToValue(value);
         if (hue >= 360 || hue < 0) {
             kernel->terminal->error("Can't set Color Hue because Hue only allows values from 0° and smaller than 360°.");
@@ -29,7 +29,7 @@ void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
             emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set Hue of " + QString::number(ids.length()) + " Colors to " + QString::number(hue) + "°.");
-    } else if (attributeString == "3") {
+    } else if (attributeString == SATURATIONATTRIBUTEID) {
         float saturation = kernel->keysToValue(value);
         if (saturation > 100 || saturation < 0) {
             kernel->terminal->error("Can't set Color Saturation because Saturation only allows values from 0% to 100%.");

@@ -22,6 +22,8 @@ class FixtureList : public ItemList<Fixture> {
 public:
     FixtureList(Kernel *core);
     bool channelsOkay();
+    const QString MODELATTRIBUTEID = "2";
+    const QString ADDRESSATTRIBUTEID = "3";
 private:
     void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
 private:

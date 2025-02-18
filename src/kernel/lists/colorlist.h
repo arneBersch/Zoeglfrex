@@ -21,6 +21,8 @@ class ColorList : public ItemList<Color> {
     Q_OBJECT
 public:
     ColorList(Kernel *core);
+    const QString HUEATTRIBUTEID = "2";
+    const QString SATURATIONATTRIBUTEID = "3";
 private:
     void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
 };

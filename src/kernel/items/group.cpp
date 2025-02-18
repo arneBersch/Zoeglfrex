@@ -38,7 +38,7 @@ QString Group::info() {
         fixtureNames += fixture->name() + ", ";
     }
     fixtureNames.chop(2);
-    info += "\n2 Fixtures: " + fixtureNames;
+    info += "\n" + kernel->groups->FIXTURESATTRIBUTEID + " Fixtures: " + fixtureNames;
     return info;
 }
 

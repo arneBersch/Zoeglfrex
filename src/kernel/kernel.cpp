@@ -283,9 +283,9 @@ void Kernel::execute(QList<int> command, QString text) {
     }
     if (selectionType == Keys::Model) {
         if (!attributeMap.contains(Keys::Attribute) && value.isEmpty()) {
-            attributeMap[Keys::Attribute] = "2";
+            attributeMap[Keys::Attribute] = models->CHANNELSATTRIBUTEID;
         }
-        if ((attributeMap.value(Keys::Attribute) == "2") && text.isNull()) {
+        if ((attributeMap.value(Keys::Attribute) == models->CHANNELSATTRIBUTEID) && text.isNull()) {
             bool ok = false;
             locker.unlock();
             text = QInputDialog::getText(terminal, QString(), "Channels", QLineEdit::Normal, QString(), &ok);
@@ -298,32 +298,32 @@ void Kernel::execute(QList<int> command, QString text) {
         models->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Fixture) {
         if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
-            attributeMap[Keys::Attribute] = "3";
+            attributeMap[Keys::Attribute] = fixtures->ADDRESSATTRIBUTEID;
         }
         fixtures->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Group) {
         if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
-            attributeMap[Keys::Attribute] = "2";
+            attributeMap[Keys::Attribute] = groups->FIXTURESATTRIBUTEID;
         }
         groups->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Intensity) {
         if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
-            attributeMap[Keys::Attribute] = "2";
+            attributeMap[Keys::Attribute] = intensities->DIMMERATTRIBUTEID;
         }
         intensities->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Color) {
         if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
-            attributeMap[Keys::Attribute] = "2";
+            attributeMap[Keys::Attribute] = colors->HUEATTRIBUTEID;
         }
         colors->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Raw) {
         if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
-            attributeMap[Keys::Attribute] = "3";
+            attributeMap[Keys::Attribute] = raws->VALUEATTRIBUTEID;
         }
         raws->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Cue) {
         if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
-            attributeMap[Keys::Attribute] = "5";
+            attributeMap[Keys::Attribute] = cues->FADEATTRIBUTEID;
         }
         cues->setAttribute(ids, attributeMap, value, text);
     }

@@ -14,7 +14,7 @@ FixtureList::FixtureList(Kernel *core) : ItemList("Fixture", "Fixtures") {
 
 void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
     QString attributeString = attribute.value(Keys::Attribute);
-    if (attributeString == "2") {
+    if (attributeString == MODELATTRIBUTEID) {
         if ((value.size() == 1) && (value.first() == Keys::Minus)) {
             for (QString id : ids) {
                 Fixture* fixture = getItem(id);
@@ -52,10 +52,10 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
             }
             kernel->terminal->success("Set Model of " + QString::number(fixtureCounter) + " Fixtures to Model " + model->name() + ".");
         } else {
-            kernel->terminal->error("Can' set Fixture Attribute 2 because an invalid value was given.");
+            kernel->terminal->error("Can' set Fixture Model Attribute because an invalid value was given.");
             return;
         }
-    } else if (attributeString == "3") {
+    } else if (attributeString == ADDRESSATTRIBUTEID) {
         int address = kernel->keysToValue(value);
         if ((address < 0) || (address > 512)) {
             kernel->terminal->error("Can't set Fixtures Address because Address has to be between 0 and 512.");

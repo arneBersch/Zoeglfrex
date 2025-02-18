@@ -88,11 +88,11 @@ QVariant CueModel::headerData(int column, Qt::Orientation orientation, int role)
         if (column == CueModelColumns::group) {
             return "Group";
         } else if (column == CueModelColumns::intensity) {
-            return "2 Intensity";
+            return kernel->cues->INTENSITIESATTRIBUTEID + " Intensity";
         } else if (column == CueModelColumns::color) {
-            return "3 Color";
+            return kernel->cues->COLORSATTRIBUTEID + " Color";
         } else if (column == CueModelColumns::raws) {
-            return "4 Raws";
+            return kernel->cues->RAWSATTRIBUTEID + " Raws";
         } else {
             return QVariant();
         }

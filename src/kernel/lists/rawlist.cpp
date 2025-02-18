@@ -14,7 +14,7 @@ RawList::RawList(Kernel *core) : ItemList("Raw", "Raws") {
 
 void RawList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
     QString attributeString = attribute.value(Keys::Attribute);
-    if (attributeString == "2") {
+    if (attributeString == CHANNELATTRIBUTEID) {
         int channel = kernel->keysToValue(value);
         if ((channel > 512) || (channel < 1)) {
             kernel->terminal->error("Can't set Raw Channel because Channel only allows values from 1 to 512.");
@@ -29,7 +29,7 @@ void RawList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
             emit dataChanged(index(getItemRow(raw->id), 0), index(getItemRow(raw->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set Channel of " + QString::number(ids.length()) + " Raws to " + QString::number(channel) + "°.");
-    } else if (attributeString == "3") {
+    } else if (attributeString == VALUEATTRIBUTEID) {
         int channelValue = kernel->keysToValue(value);
         if ((channelValue > 255) || (channelValue < 0)) {
             kernel->terminal->error("Can't set Raw Value because Value only allows values from 0 to 255.");

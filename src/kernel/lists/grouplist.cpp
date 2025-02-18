@@ -14,11 +14,11 @@ GroupList::GroupList(Kernel *core) : ItemList("Group", "Groups") {
 
 void GroupList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
     QString attributeString = attribute.value(Keys::Attribute);
-    if (attributeString == "2") {
+    if (attributeString == FIXTURESATTRIBUTEID) {
         QList<Fixture*> fixtureSelection;
         if (!value.isEmpty()) {
             if (value[0] != Keys::Fixture) {
-                kernel->terminal->error("Group Attribute 2 Set requires Fixtures.");
+                kernel->terminal->error("Group Fixture Attribute Set requires Fixtures.");
                 return;
             }
             value.removeFirst();

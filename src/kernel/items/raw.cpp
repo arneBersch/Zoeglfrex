@@ -31,7 +31,7 @@ QString Raw::name() {
 
 QString Raw::info() {
     QString info = Item::info();
-    info += "\n2 Channel: " + QString::number(channel);
-    info += "\n3 Value: " + QString::number(value);
+    info += "\n" + kernel->raws->CHANNELATTRIBUTEID + " Channel: " + QString::number(channel);
+    info += "\n" + kernel->raws->VALUEATTRIBUTEID + " Value: " + QString::number(value);
     return info;
 }

@@ -25,6 +25,6 @@ QString Model::name() {
 
 QString Model::info() {
     QString info = Item::info();
-    info += "\n2 Channels: " + channels;
+    info += "\n" + kernel->models->CHANNELSATTRIBUTEID + " Channels: " + channels;
     return info;
 }
