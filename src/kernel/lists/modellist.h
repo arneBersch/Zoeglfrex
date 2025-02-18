@@ -21,6 +21,7 @@ class ModelList : public ItemList<Model> {
     Q_OBJECT
 public:
     ModelList(Kernel *core);
+private:
     void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
 };
 

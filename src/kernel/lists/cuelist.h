@@ -21,6 +21,7 @@ class CueList : public ItemList<Cue> {
     Q_OBJECT
 public:
     CueList(Kernel *core);
+private:
     void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
 };
 

@@ -12,15 +12,6 @@ FixtureList::FixtureList(Kernel *core) : ItemList("Fixture", "Fixtures") {
     kernel = core;
 }
 
-void FixtureList::deleteModel(Model *model)
-{
-    for (Fixture* fixture : items) {
-        if (fixture->model == model) {
-            fixture->model = nullptr;
-        }
-    }
-}
-
 void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
     QString attributeString = attribute.value(Keys::Attribute);
     if (attributeString == "2") {

@@ -10,7 +10,9 @@ Fixture::Fixture(const Fixture* item) : Item(item->kernel) {
 }
 
 Fixture::~Fixture() {
-    kernel->groups->deleteFixture(this);
+    for (Group* group : kernel->groups->items) {
+        group->fixtures.removeAll(this);
+    }
 }
 
 QString Fixture::name() {

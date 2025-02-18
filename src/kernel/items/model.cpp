@@ -9,7 +9,11 @@ Model::Model(const Model* item) : Item(item->kernel) {
 }
 
 Model::~Model() {
-    kernel->fixtures->deleteModel(this);
+    for (Fixture* fixture : kernel->fixtures->items) {
+        if (fixture->model == this) {
+            fixture->model = nullptr;
+        }
+    }
 }
 
 QString Model::name() {
