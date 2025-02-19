@@ -46,18 +46,11 @@ void Kernel::execute(QList<int> command, QString text) {
                 return;
             }
             valueReached = true;
-        } else if (key == Keys::Attribute) {
-            if (attributeReached) {
-                terminal->error("Can't give two attributes.");
-                return;
-            }
-            if (valueReached) {
-                terminal->error("Can't give attribute after value.");
-                return;
-            }
+        } else if ((isItem(key) || (key == Keys::Attribute)) && !valueReached) {
+            attribute.append(key);
             attributeReached = true;
         } else {
-            if (valueReached) { // if the selection is finished
+            if (valueReached) {
                 value.append(key);
             } else if (attributeReached) {
                 attribute.append(key);
@@ -263,7 +256,7 @@ void Kernel::execute(QList<int> command, QString text) {
     int currentItemType = Keys::Attribute;
     QList<int> currentId;
     for (int attributeKey : attribute) {
-        if (isItem(attributeKey)) {
+        if (isItem(attributeKey) || (attributeKey == Keys::Attribute)) {
             if (!currentId.isEmpty()) {
                 QString currentIdString = keysToId(currentId);
                 attributeMap[currentItemType] = currentIdString;
@@ -281,8 +274,9 @@ void Kernel::execute(QList<int> command, QString text) {
         QString currentIdString = keysToId(currentId);
         attributeMap[currentItemType] = currentIdString;
     }
+    bool standardAttribute = (!attributeMap.contains(Keys::Attribute) && !(attributeMap.isEmpty() && !value.isEmpty() && ((value.first() == Keys::Minus) || (value.first() == selectionType))));
     if (selectionType == Keys::Model) {
-        if (!attributeMap.contains(Keys::Attribute) && value.isEmpty()) {
+        if (standardAttribute) {
             attributeMap[Keys::Attribute] = models->CHANNELSATTRIBUTEID;
         }
         if ((attributeMap.value(Keys::Attribute) == models->CHANNELSATTRIBUTEID) && text.isNull()) {
@@ -297,32 +291,32 @@ void Kernel::execute(QList<int> command, QString text) {
         }
         models->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Fixture) {
-        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
+        if (standardAttribute) {
             attributeMap[Keys::Attribute] = fixtures->ADDRESSATTRIBUTEID;
         }
         fixtures->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Group) {
-        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
+        if (standardAttribute) {
             attributeMap[Keys::Attribute] = groups->FIXTURESATTRIBUTEID;
         }
         groups->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Intensity) {
-        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
+        if (standardAttribute) {
             attributeMap[Keys::Attribute] = intensities->DIMMERATTRIBUTEID;
         }
         intensities->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Color) {
-        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
+        if (standardAttribute) {
             attributeMap[Keys::Attribute] = colors->HUEATTRIBUTEID;
         }
         colors->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Raw) {
-        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
+        if (standardAttribute) {
             attributeMap[Keys::Attribute] = raws->VALUEATTRIBUTEID;
         }
         raws->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Cue) {
-        if (!attributeMap.contains(Keys::Attribute) && !value.isEmpty() && (value.first() != Keys::Minus) && (value.first() != selectionType)) {
+        if (standardAttribute) {
             attributeMap[Keys::Attribute] = cues->FADEATTRIBUTEID;
         }
         cues->setAttribute(ids, attributeMap, value, text);

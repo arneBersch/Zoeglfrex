@@ -54,7 +54,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         value.removeFirst();
         T* sourceItem = getItem(kernel->keysToId(value));
         if (sourceItem == nullptr) {
-            kernel->terminal->error("Can't copy " + pluralItemName + " because " + singularItemName + " " + sourceItem->id + " doesn't exist.");
+            kernel->terminal->error("Can't copy " + pluralItemName + " because " + singularItemName + " " + kernel->keysToId(value) + " doesn't exist.");
             return;
         }
         int itemCounter = 0;
