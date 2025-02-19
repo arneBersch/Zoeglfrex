@@ -17,7 +17,7 @@ void RawList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
     if (attributeString == CHANNELATTRIBUTEID) {
         int channel = kernel->keysToValue(value);
         if ((channel > 512) || (channel < 1)) {
-            kernel->terminal->error("Can't set Raw Channel because Channel only allows values from 1 to 512.");
+            kernel->terminal->error("Can't set Channel because Channel only allows values from 1 to 512.");
             return;
         }
         for (QString id : ids) {
@@ -45,6 +45,6 @@ void RawList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
         }
         kernel->terminal->success("Set Value of " + QString::number(ids.length()) + " Raws to " + QString::number(channelValue) + ".");
     } else {
-        kernel->terminal->error("Can't set Raw attribute " + attributeString + ".");
+        kernel->terminal->error("Can't set Raw Attribute " + attributeString + ".");
     }
 }

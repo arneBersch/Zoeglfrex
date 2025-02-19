@@ -36,7 +36,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         QList<QString> existingIds;
         for (QString id : ids) {
             if (getItem(id) == nullptr) {
-                kernel->terminal->warning("Couldn't delete " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
+                kernel->terminal->warning("Couldn't delete " + singularItemName + " " + id + " because it doesn't exist.");
             } else {
                 existingIds.append(id);
             }
@@ -54,13 +54,13 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         value.removeFirst();
         T* sourceItem = getItem(kernel->keysToId(value));
         if (sourceItem == nullptr) {
-            kernel->terminal->error("Can't copy " + singularItemName + " " + kernel->keysToId(value) + " because it doesn't exist.");
+            kernel->terminal->error("Can't copy " + pluralItemName + " because " + singularItemName + " " + sourceItem->id + " doesn't exist.");
             return;
         }
         int itemCounter = 0;
         for (QString id : ids) {
             if (getItem(id) != nullptr) {
-                kernel->terminal->warning("Couldn't copy " + singularItemName + " " + sourceItem->id + " because target ID " + id + " is already used.");
+                kernel->terminal->warning("Couldn't copy " + singularItemName + " " + id + " because target ID " + id + " is already used.");
             } else {
                 T* item = new T(sourceItem);
                 item->id = id;
@@ -71,21 +71,21 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
                 itemCounter++;
             }
         }
-        kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + sourceItem->id + " .");
+        kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + singularItemName + " " + sourceItem->id + " .");
     } else if (attribute.value(Keys::Attribute) == IDATTRIBUTEID) {
         QString targetId = kernel->keysToId(value);
         QList<int> itemRows;
         for (QString id : ids) {
             int itemRow = getItemRow(id);
             if (itemRow < 0) {
-                kernel->terminal->warning("Couldn't set ID of " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
+                kernel->terminal->warning("Couldn't set " + singularItemName + " ID because " + singularItemName + " " + id + " doesn't exist.");
             } else {
                 itemRows.append(itemRow);
             }
         }
         for (int itemRow : itemRows) {
             if (getItem(targetId) != nullptr) {
-                kernel->terminal->warning("Couldn't set ID of " + singularItemName + " " + items[itemRow]->id + " because target ID " + targetId + " is already used.");
+                kernel->terminal->warning("Couldn't set ID of " + singularItemName + " " + items[itemRow]->id + " because " + singularItemName + " ID " + targetId + " is already used.");
             } else {
                 T* item = items[itemRow];
                 beginRemoveRows(QModelIndex(), itemRow, itemRow);
@@ -101,14 +101,14 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         kernel->terminal->success("Set ID of " + QString::number(itemRows.length()) + " " + pluralItemName + " to " + targetId + ".");
     } else if (attribute.value(Keys::Attribute) == LABELATTRIBUTEID) {
         if (!value.isEmpty()) {
-            kernel->terminal->error("Attribute Label Set doesn't take any parameters.");
+            kernel->terminal->error("Label doesn't take any parameters.");
             return;
         }
         QList<int> itemRows;
         for (QString id : ids) {
             int itemRow = getItemRow(id);
             if (itemRow < 0) {
-                kernel->terminal->warning("Couldn't label " + pluralItemName + " because " + singularItemName + " with ID " + id + " doesn't exist.");
+                kernel->terminal->warning("Couldn't label " + singularItemName + " " + id + " because it doesn't exist.");
             } else {
                 itemRows.append(itemRow);
             }

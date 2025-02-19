@@ -16,11 +16,11 @@ void ModelList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
     QString attributeString = attribute.value(Keys::Attribute);
     if (attributeString == CHANNELSATTRIBUTEID) {
         if (!value.isEmpty()) {
-            kernel->terminal->error("Model Channel Set doesn't take a value.");
+            kernel->terminal->error("Model Channels doesn't take a value.");
             return;
         }
         if (!text.contains(QRegularExpression("^[01DRGBCMY]+$"))) {
-            kernel->terminal->error("Didn't record Models because channels \"" + text + "\" are not valid.");
+            kernel->terminal->error("Didn't set Model Channels because Channels \"" + text + "\" are not valid.");
             return;
         }
         int modelCounter = 0;
@@ -38,7 +38,7 @@ void ModelList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
                 model->channels = oldChannels; // do not change channels if this would result in DMX address conflicts
             }
         }
-        kernel->terminal->success("Recorded " + QString::number(modelCounter) + " Models with channels \"" + text + "\".");
+        kernel->terminal->success("Set Channels of " + QString::number(modelCounter) + " Models to \"" + text + "\".");
     } else {
         kernel->terminal->error("Can't set Model Attribute " + attributeString + ".");
     }

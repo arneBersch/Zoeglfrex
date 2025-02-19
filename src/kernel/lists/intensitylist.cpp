@@ -30,6 +30,6 @@ void IntensityList::setOtherAttribute(QList<QString> ids, QMap<int, QString> att
         }
         kernel->terminal->success("Set Dimmer of " + QString::number(ids.length()) + " Intensities to " + QString::number(dimmer) + "%.");
     } else {
-        kernel->terminal->error("Can't set Intensity attribute " + attributeString + ".");
+        kernel->terminal->error("Can't set Intensity Attribute " + attributeString + ".");
     }
 }

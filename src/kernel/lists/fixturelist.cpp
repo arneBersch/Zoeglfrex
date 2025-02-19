@@ -46,19 +46,19 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
                     emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
                     fixtureCounter++;
                 } else {
-                    fixture->model = oldModel; // don't change model if this would result in an address conflict
+                    fixture->model = oldModel; // don't change Model if this would result in an address conflict
                     kernel->terminal->warning("Can't set Model of Fixture " + id + " because this would result in an address conflict.");
                 }
             }
             kernel->terminal->success("Set Model of " + QString::number(fixtureCounter) + " Fixtures to Model " + model->name() + ".");
         } else {
-            kernel->terminal->error("Can' set Fixture Model Attribute because an invalid value was given.");
+            kernel->terminal->error("Can' set Fixture Model because an invalid value was given.");
             return;
         }
     } else if (attributeString == ADDRESSATTRIBUTEID) {
         int address = kernel->keysToValue(value);
         if ((address < 0) || (address > 512)) {
-            kernel->terminal->error("Can't set Fixtures Address because Address has to be between 0 and 512.");
+            kernel->terminal->error("Can't set Fixture Address because Address has to be between 0 and 512.");
             return;
         }
         QList<Fixture*> fixtures;
@@ -87,15 +87,15 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
             for (Fixture* fixture : fixtures) {
                 fixture->address = oldAddresses[fixture];
             }
-            kernel->terminal->error("Didn't record Fixture Adresses because this would have resulted in an DMX address conflict.");
+            kernel->terminal->error("Didn't set Fixture Adresses because this would have resulted in a DMX address conflict.");
             return;
         }
         for (Fixture* fixture : fixtures) {
             emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
-        kernel->terminal->success("Set address of " + QString::number(fixtures.length()) + " Fixtures.");
+        kernel->terminal->success("Set Address of " + QString::number(fixtures.length()) + " Fixtures.");
     } else {
-        kernel->terminal->error("Can't set Fixture attribute " + attributeString + ".");
+        kernel->terminal->error("Can't set Fixture Attribute " + attributeString + ".");
     }
 }
 

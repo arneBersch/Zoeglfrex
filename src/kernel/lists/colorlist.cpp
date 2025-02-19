@@ -17,7 +17,7 @@ void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
     if (attributeString == HUEATTRIBUTEID) {
         float hue = kernel->keysToValue(value);
         if (hue >= 360 || hue < 0) {
-            kernel->terminal->error("Can't set Color Hue because Hue only allows values from 0° and smaller than 360°.");
+            kernel->terminal->error("Can't set Hue because Hue only allows values from 0° and smaller than 360°.");
             return;
         }
         for (QString id : ids) {
@@ -32,7 +32,7 @@ void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
     } else if (attributeString == SATURATIONATTRIBUTEID) {
         float saturation = kernel->keysToValue(value);
         if (saturation > 100 || saturation < 0) {
-            kernel->terminal->error("Can't set Color Saturation because Saturation only allows values from 0% to 100%.");
+            kernel->terminal->error("Can't set Saturation because Saturation only allows values from 0% to 100%.");
             return;
         }
         for (QString id : ids) {
@@ -45,6 +45,6 @@ void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
         }
         kernel->terminal->success("Set Saturation of " + QString::number(ids.length()) + " Colors to " + QString::number(saturation) + "%.");
     } else {
-        kernel->terminal->error("Can't set Color attribute " + attributeString + ".");
+        kernel->terminal->error("Can't set Color Attribute " + attributeString + ".");
     }
 }
