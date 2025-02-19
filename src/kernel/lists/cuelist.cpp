@@ -12,15 +12,15 @@ CueList::CueList(Kernel *core) : ItemList("Cue", "Cues") {
     kernel = core;
 }
 
-void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    QString attributeString = attribute.value(Keys::Attribute);
+void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+    QString attributeString = attributes.value(Keys::Attribute);
     if (attributeString == INTENSITIESATTRIBUTEID) {
         if (value.isEmpty() || (value.first() != Keys::Intensity)) {
             kernel->terminal->error("Can't set Cue Intensities because no Intensity was given.");
             return;
         }
         value.removeFirst();
-        Group* group = kernel->groups->getItem(attribute.value(Keys::Group));
+        Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
             kernel->terminal->error("Can't set Cue Intensities because an invalid Group was given.");
             return;
@@ -61,7 +61,7 @@ void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
             return;
         }
         value.removeFirst();
-        Group* group = kernel->groups->getItem(attribute.value(Keys::Group));
+        Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
             kernel->terminal->error("Can't set Cue Colors because an invalid Group was given.");
             return;
@@ -97,7 +97,7 @@ void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
             kernel->terminal->success("Set Colors of " + QString::number(cueCounter) + " Cues at Group " + group->name() + " to Color " + color->name() + ".");
         }
     } else if (attributeString == RAWSATTRIBUTEID) {
-        Group* group = kernel->groups->getItem(attribute.value(Keys::Group));
+        Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
             kernel->terminal->error("Can't set Cue Raws because an invalid Group was given.");
             return;

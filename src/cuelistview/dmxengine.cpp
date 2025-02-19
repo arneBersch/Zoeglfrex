@@ -82,6 +82,9 @@ void DmxEngine::generateDmx() {
         float blue = 0.0;
         if (fixtureIntensities.contains(fixture)) {
             dimmer = fixtureIntensities.value(fixture)->dimmer;
+            if (fixtureIntensities.value(fixture)->fixtureDimmers.contains(fixture)) {
+                dimmer = fixtureIntensities.value(fixture)->fixtureDimmers.value(fixture);
+            }
         }
         if (fixtureColors.contains(fixture)) {
             const double h = (fixtureColors.value(fixture)->hue / 60.0);

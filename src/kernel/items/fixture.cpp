@@ -13,6 +13,9 @@ Fixture::~Fixture() {
     for (Group* group : kernel->groups->items) {
         group->fixtures.removeAll(this);
     }
+    for (Intensity* intensity : kernel->intensities->items) {
+        intensity->fixtureDimmers.remove(this);
+    }
 }
 
 QString Fixture::name() {

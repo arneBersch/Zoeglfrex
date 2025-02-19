@@ -12,8 +12,8 @@ GroupList::GroupList(Kernel *core) : ItemList("Group", "Groups") {
     kernel = core;
 }
 
-void GroupList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    QString attributeString = attribute.value(Keys::Attribute);
+void GroupList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+    QString attributeString = attributes.value(Keys::Attribute);
     if (attributeString == FIXTURESATTRIBUTEID) {
         QList<Fixture*> fixtureSelection;
         if (!value.isEmpty()) {

@@ -12,23 +12,57 @@ IntensityList::IntensityList(Kernel *core) : ItemList("Intensity", "Intensities"
     kernel = core;
 }
 
-void IntensityList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    QString attributeString = attribute.value(Keys::Attribute);
+void IntensityList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+    QString attributeString = attributes.value(Keys::Attribute);
     if (attributeString == DIMMERATTRIBUTEID) {
-        float dimmer = kernel->keysToValue(value);
-        if (dimmer > 100 || dimmer < 0) {
-            kernel->terminal->error("Can't set Intensity Dimmer because Dimmer only allows values from 0% to 100%.");
-            return;
-        }
-        for (QString id : ids) {
-            Intensity* intensity = getItem(id);
-            if (intensity == nullptr) {
-                intensity = addItem(id);
+        if ((value.size() == 1) && (value.first() == Keys::Minus) && (attributes.contains(Keys::Fixture))) {
+            Fixture* fixture = kernel->fixtures->getItem(attributes.value(Keys::Fixture));
+            if (fixture == nullptr) {
+                kernel->terminal->error("Can't remove Intensity Dimmer of Fixture " + attributes.value(Keys::Fixture) + " because Fixture doesn't exist.");
+                return;
             }
-            intensity->dimmer = dimmer;
-            emit dataChanged(index(getItemRow(intensity->id), 0), index(getItemRow(intensity->id), 0), {Qt::DisplayRole, Qt::EditRole});
+            for (QString id : ids) {
+                Intensity* intensity = getItem(id);
+                if (intensity == nullptr) {
+                    intensity = addItem(id);
+                }
+                intensity->fixtureDimmers.remove(fixture);
+                emit dataChanged(index(getItemRow(intensity->id), 0), index(getItemRow(intensity->id), 0), {Qt::DisplayRole, Qt::EditRole});
+            }
+            kernel->terminal->success("Removed Dimmer of Fixture " + fixture->name() + " in " + QString::number(ids.length()) + " Intensities.");
+        } else {
+            float dimmer = kernel->keysToValue(value);
+            if (dimmer > 100 || dimmer < 0) {
+                kernel->terminal->error("Can't set Intensity Dimmer because Dimmer only allows values from 0% to 100%.");
+                return;
+            }
+            if (attributes.contains(Keys::Fixture)) {
+                Fixture* fixture = kernel->fixtures->getItem(attributes.value(Keys::Fixture));
+                if (fixture == nullptr) {
+                    kernel->terminal->error("Can't set Intensity Dimmer of Fixture " + attributes.value(Keys::Fixture) + " because Fixture doesn't exist.");
+                    return;
+                }
+                for (QString id : ids) {
+                    Intensity* intensity = getItem(id);
+                    if (intensity == nullptr) {
+                        intensity = addItem(id);
+                    }
+                    intensity->fixtureDimmers[fixture] = dimmer;
+                    emit dataChanged(index(getItemRow(intensity->id), 0), index(getItemRow(intensity->id), 0), {Qt::DisplayRole, Qt::EditRole});
+                }
+                kernel->terminal->success("Set Dimmer of Fixture " + fixture->name() + " of " + QString::number(ids.length()) + " Intensities to " + QString::number(dimmer) + "%.");
+            } else {
+                for (QString id : ids) {
+                    Intensity* intensity = getItem(id);
+                    if (intensity == nullptr) {
+                        intensity = addItem(id);
+                    }
+                    intensity->dimmer = dimmer;
+                    emit dataChanged(index(getItemRow(intensity->id), 0), index(getItemRow(intensity->id), 0), {Qt::DisplayRole, Qt::EditRole});
+                }
+                kernel->terminal->success("Set Dimmer of " + QString::number(ids.length()) + " Intensities to " + QString::number(dimmer) + "%.");
+            }
         }
-        kernel->terminal->success("Set Dimmer of " + QString::number(ids.length()) + " Intensities to " + QString::number(dimmer) + "%.");
     } else {
         kernel->terminal->error("Can't set Intensity Attribute " + attributeString + ".");
     }

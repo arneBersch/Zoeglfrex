@@ -12,8 +12,8 @@ ColorList::ColorList(Kernel *core) : ItemList("Color", "Colors") {
     kernel = core;
 }
 
-void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    QString attributeString = attribute.value(Keys::Attribute);
+void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+    QString attributeString = attributes.value(Keys::Attribute);
     if (attributeString == HUEATTRIBUTEID) {
         float hue = kernel->keysToValue(value);
         if (hue >= 360 || hue < 0) {

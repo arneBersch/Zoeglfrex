@@ -12,8 +12,8 @@ RawList::RawList(Kernel *core) : ItemList("Raw", "Raws") {
     kernel = core;
 }
 
-void RawList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    QString attributeString = attribute.value(Keys::Attribute);
+void RawList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+    QString attributeString = attributes.value(Keys::Attribute);
     if (attributeString == CHANNELATTRIBUTEID) {
         int channel = kernel->keysToValue(value);
         if ((channel > 512) || (channel < 1)) {

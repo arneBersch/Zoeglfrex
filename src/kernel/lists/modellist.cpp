@@ -12,8 +12,8 @@ ModelList::ModelList(Kernel *core) : ItemList("Model", "Models") {
     kernel = core;
 }
 
-void ModelList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    QString attributeString = attribute.value(Keys::Attribute);
+void ModelList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+    QString attributeString = attributes.value(Keys::Attribute);
     if (attributeString == CHANNELSATTRIBUTEID) {
         if (!value.isEmpty()) {
             kernel->terminal->error("Model Channels doesn't take a value.");

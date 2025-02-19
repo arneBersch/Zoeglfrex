@@ -31,8 +31,8 @@ template <class T> QList<QString> ItemList<T>::getIds() const {
     return ids;
 }
 
-template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    if ((!attribute.contains(Keys::Attribute)) && (value.size() == 1) && (value.first() == Keys::Minus)) { // Delete Item
+template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+    if ((!attributes.contains(Keys::Attribute)) && (value.size() == 1) && (value.first() == Keys::Minus)) { // Delete Item
         QList<QString> existingIds;
         for (QString id : ids) {
             if (getItem(id) == nullptr) {
@@ -50,7 +50,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             delete item;
         }
         kernel->terminal->success("Deleted " + QString::number(existingIds.length()) + " " + pluralItemName + ".");
-    } else if (attribute.isEmpty() && (value.size() > 1)) { // Copy Item
+    } else if (attributes.isEmpty() && (value.size() > 1)) { // Copy Item
         value.removeFirst();
         T* sourceItem = getItem(kernel->keysToId(value));
         if (sourceItem == nullptr) {
@@ -72,7 +72,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             }
         }
         kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + singularItemName + " " + sourceItem->id + " .");
-    } else if (attribute.value(Keys::Attribute) == IDATTRIBUTEID) {
+    } else if (attributes.value(Keys::Attribute) == IDATTRIBUTEID) {
         QString targetId = kernel->keysToId(value);
         QList<int> itemRows;
         for (QString id : ids) {
@@ -99,7 +99,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             }
         }
         kernel->terminal->success("Set ID of " + QString::number(itemRows.length()) + " " + pluralItemName + " to " + targetId + ".");
-    } else if (attribute.value(Keys::Attribute) == LABELATTRIBUTEID) {
+    } else if (attributes.value(Keys::Attribute) == LABELATTRIBUTEID) {
         if (!value.isEmpty()) {
             kernel->terminal->error("Label doesn't take any parameters.");
             return;
@@ -119,7 +119,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         }
         kernel->terminal->success("Labeled " + QString::number(itemRows.length()) + " " + pluralItemName + " as \"" + text + "\".");
     } else {
-        setOtherAttribute(ids, attribute, value, text);
+        setOtherAttribute(ids, attributes, value, text);
     }
 }
 

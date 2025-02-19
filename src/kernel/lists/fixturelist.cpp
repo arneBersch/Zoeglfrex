@@ -12,8 +12,8 @@ FixtureList::FixtureList(Kernel *core) : ItemList("Fixture", "Fixtures") {
     kernel = core;
 }
 
-void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    QString attributeString = attribute.value(Keys::Attribute);
+void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+    QString attributeString = attributes.value(Keys::Attribute);
     if (attributeString == MODELATTRIBUTEID) {
         if ((value.size() == 1) && (value.first() == Keys::Minus)) {
             for (QString id : ids) {
