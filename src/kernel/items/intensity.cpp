@@ -36,5 +36,13 @@ QString Intensity::name() {
 QString Intensity::info() {
     QString info = Item::info();
     info += "\n" + kernel->intensities->DIMMERATTRIBUTEID + " Dimmer: " + QString::number(dimmer) + "%";
+    QString fixtureDimmerValues;
+    for (Fixture* fixture : kernel->fixtures->items) {
+        if (fixtureDimmer.contains(fixture)) {
+            fixtureDimmerValues += fixture->id + " @ " + QString::number(fixtureDimmer.value(fixture)) + "%; ";
+        }
+    }
+    fixtureDimmerValues.chop(2);
+    info += "\n    Fixture Exceptions: " + fixtureDimmerValues;
     return info;
 }

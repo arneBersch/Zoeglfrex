@@ -26,7 +26,7 @@ void IntensityList::setOtherAttribute(QList<QString> ids, QMap<int, QString> att
                 if (intensity == nullptr) {
                     intensity = addItem(id);
                 }
-                intensity->fixtureDimmers.remove(fixture);
+                intensity->fixtureDimmer.remove(fixture);
                 emit dataChanged(index(getItemRow(intensity->id), 0), index(getItemRow(intensity->id), 0), {Qt::DisplayRole, Qt::EditRole});
             }
             kernel->terminal->success("Removed Dimmer of Fixture " + fixture->name() + " in " + QString::number(ids.length()) + " Intensities.");
@@ -47,7 +47,7 @@ void IntensityList::setOtherAttribute(QList<QString> ids, QMap<int, QString> att
                     if (intensity == nullptr) {
                         intensity = addItem(id);
                     }
-                    intensity->fixtureDimmers[fixture] = dimmer;
+                    intensity->fixtureDimmer[fixture] = dimmer;
                     emit dataChanged(index(getItemRow(intensity->id), 0), index(getItemRow(intensity->id), 0), {Qt::DisplayRole, Qt::EditRole});
                 }
                 kernel->terminal->success("Set Dimmer of Fixture " + fixture->name() + " of " + QString::number(ids.length()) + " Intensities to " + QString::number(dimmer) + "%.");

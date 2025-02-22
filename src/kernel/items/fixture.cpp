@@ -22,7 +22,7 @@ Fixture::~Fixture() {
         group->fixtures.removeAll(this);
     }
     for (Intensity* intensity : kernel->intensities->items) {
-        intensity->fixtureDimmers.remove(this);
+        intensity->fixtureDimmer.remove(this);
     }
 }
 

@@ -27,6 +27,31 @@ Cue::~Cue() {
 
 QString Cue::info() {
     QString info = Item::info();
+    QString intensityValues;
+    QString colorValues;
+    QString rawValues;
+    for (Group* group : kernel->groups->items) {
+        if (intensities.contains(group)) {
+            intensityValues += group->id + " @ " + intensities.value(group)->id + "; ";
+        }
+        if (colors.contains(group)) {
+            colorValues += group->id + " @ " + colors.value(group)->id + "; ";
+        }
+        if (raws.contains(group)) {
+            rawValues += group->id + " @ ";
+            for (Raw* raw : raws.value(group)) {
+                rawValues += raw->id + ", ";
+            }
+            rawValues.chop(2);
+            rawValues += "; ";
+        }
+    }
+    intensityValues.chop(2);
+    colorValues.chop(2);
+    rawValues.chop(2);
+    info += "\n" + kernel->cues->INTENSITIESATTRIBUTEID + " Intensities: " + intensityValues;
+    info += "\n" + kernel->cues->COLORSATTRIBUTEID + " Colors: " + colorValues;
+    info += "\n" + kernel->cues->RAWSATTRIBUTEID + " Raws: " + rawValues;
     info += "\n" + kernel->cues->FADEATTRIBUTEID + " Fade: " + QString::number(fade) + "s";
     return info;
 }

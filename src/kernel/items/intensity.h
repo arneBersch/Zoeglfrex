@@ -20,7 +20,7 @@ public:
     Intensity(const Intensity* item);
     ~Intensity();
     float dimmer = 100;
-    QMap<Fixture*, float> fixtureDimmers;
+    QMap<Fixture*, float> fixtureDimmer;
     QString name() override;
     QString info() override;
 };

@@ -43,7 +43,7 @@ QString Group::info() {
     QString info = Item::info();
     QString fixtureNames;
     for (Fixture* fixture : fixtures) {
-        fixtureNames += fixture->name() + ", ";
+        fixtureNames += fixture->id + ", ";
     }
     fixtureNames.chop(2);
     info += "\n" + kernel->groups->FIXTURESATTRIBUTEID + " Fixtures: " + fixtureNames;
