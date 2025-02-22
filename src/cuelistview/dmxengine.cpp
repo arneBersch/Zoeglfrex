@@ -20,6 +20,11 @@ DmxEngine::DmxEngine(Kernel *core, QWidget* parent) : QWidget(parent) {
     connect(highlightButton,&QPushButton::clicked, this, &DmxEngine::generateDmx);
     layout->addWidget(highlightButton);
 
+    fadeProgress = new QProgressBar();
+    fadeProgress->setRange(0, 1);
+    fadeProgress->setValue(1);
+    layout->addWidget(fadeProgress);
+
     timer = new QTimer();
     connect(timer, &QTimer::timeout, this, &DmxEngine::sendDmx);
     timer->start(25);
@@ -188,4 +193,6 @@ void DmxEngine::sendDmx() {
         }
     }
     sacnServer->send();
+    fadeProgress->setValue(totalFadeFrames + 1 - remainingFadeFrames);
+    fadeProgress->setRange(0, totalFadeFrames + 1);
 }

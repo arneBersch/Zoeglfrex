@@ -27,9 +27,10 @@ private:
     Cue* lastCue;
     QList<uint8_t> lastCueValues;
     QList<uint8_t> currentCueValues;
-    int remainingFadeFrames;
-    int totalFadeFrames;
+    int remainingFadeFrames = 0;
+    int totalFadeFrames = 0;
     QPushButton *highlightButton;
+    QProgressBar* fadeProgress;
     Kernel *kernel;
 };
 
