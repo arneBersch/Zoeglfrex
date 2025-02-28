@@ -240,18 +240,6 @@ void Kernel::execute(QList<int> command, QString text) {
         terminal->error("No items selected.");
         return;
     }
-    if ((attribute.size() == 1) && (attribute[0] == Keys::One)) { // if label text input is required (Attribute 1 / Label)
-        if (text.isNull()) {
-            bool ok = false;
-            locker.unlock();
-            text = QInputDialog::getText(terminal, QString(), "Label", QLineEdit::Normal, QString(), &ok);
-            locker.relock();
-            if (!ok) {
-                terminal->warning("Popup cancelled.");
-                return;
-            }
-        }
-    }
     QMap<int, QString> attributeMap = QMap<int, QString>();
     int currentItemType = Keys::Attribute;
     QList<int> currentId;
@@ -273,6 +261,16 @@ void Kernel::execute(QList<int> command, QString text) {
     if (!currentId.isEmpty()) {
         QString currentIdString = keysToId(currentId);
         attributeMap[currentItemType] = currentIdString;
+    }
+    if ((attributeMap.value(Keys::Attribute) == models->LABELATTRIBUTEID) && text.isNull()) {
+        bool ok = false;
+        locker.unlock();
+        text = QInputDialog::getText(terminal, QString(), "Label", QLineEdit::Normal, QString(), &ok);
+        locker.relock();
+        if (!ok) {
+            terminal->warning("Popup cancelled.");
+            return;
+        }
     }
     bool standardAttribute = (!attributeMap.contains(Keys::Attribute) && !(attributeMap.isEmpty() && !value.isEmpty() && ((value.first() == Keys::Minus) || (value.first() == selectionType))));
     if (selectionType == Keys::Model) {
