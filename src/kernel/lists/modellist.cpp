@@ -19,7 +19,7 @@ void ModelList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
             kernel->terminal->error("Model Channels doesn't take a value.");
             return;
         }
-        if (!text.contains(QRegularExpression("^[01DRGBCMY]+$"))) {
+        if (!text.contains(QRegularExpression(CHANNELSREGEX))) {
             kernel->terminal->error("Didn't set Model Channels because Channels \"" + text + "\" are not valid.");
             return;
         }

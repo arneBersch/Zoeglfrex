@@ -141,26 +141,35 @@ void DmxEngine::generateDmx() {
             green *= (dimmer / 100.0);
             blue *= (dimmer / 100.0);
         }
+        float white = std::min(std::min(red, green), blue);
+        if (channels.contains('W')) { // RGB to RGBW
+            red -= white;
+            green -= white;
+            blue -= white;
+        }
         if (fixture->address > 0) {
             for (int channel = fixture->address; channel < (fixture->address + channels.size()); channel++) {
                 float value = 0.0;
+                QChar channelType = channels.at(channel - fixture->address);
                 if (channels.at(channel - fixture->address) == QChar('D')) { // DIMMER
                     value = dimmer;
                 } else if (channels.at(channel - fixture->address) == QChar('R')) { // RED
                     value = red;
                 } else if (channels.at(channel - fixture->address) == QChar('G')) { // GREEN
                     value = green;
-                } else if (channels.at(channel - fixture->address) == QChar('B')) { // BLUE
+                } else if (channelType == QChar('B')) { // BLUE
                     value = blue;
-                } else if (channels.at(channel - fixture->address) == QChar('C')) { // CYAN
+                } else if (channelType == QChar('W')) { // WHITE
+                    value = white;
+                } else if (channelType == QChar('C')) { // CYAN
                     value = (100.0 - red);
-                } else if (channels.at(channel - fixture->address) == QChar('M')) { // MAGENTA
+                } else if (channelType == QChar('M')) { // MAGENTA
                     value = (100.0 - green);
-                } else if (channels.at(channel - fixture->address) == QChar('Y')) { // YELLOW
+                } else if (channelType == QChar('Y')) { // YELLOW
                     value = (100.0 - blue);
-                } else if (channels.at(channel - fixture->address) == QChar('0')) {
+                } else if (channelType == QChar('0')) {
                     value = 0.0;
-                } else if (channels.at(channel - fixture->address) == QChar('1')) {
+                } else if (channelType == QChar('1')) {
                     value = 100.0;
                 }
                 uint8_t raw = (value * 2.55 + 0.5);

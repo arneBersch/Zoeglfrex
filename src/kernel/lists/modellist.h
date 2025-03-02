@@ -22,6 +22,7 @@ class ModelList : public ItemList<Model> {
 public:
     ModelList(Kernel *core);
     const QString CHANNELSATTRIBUTEID = "2";
+    const QString CHANNELSREGEX = "^[01DRGBWCMY]+$";
 private:
     void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
 };
