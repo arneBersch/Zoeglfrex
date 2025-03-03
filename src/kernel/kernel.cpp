@@ -85,22 +85,18 @@ void Kernel::execute(QList<int> command, QString text) {
         return;
     }
     QList<QString> ids = keysToSelection(selection, selectionType);
+    QMap<int, QString> attributeMap = QMap<int, QString>();
     if (!valueReached && !attributeReached) {
         if (selectionType == Keys::Fixture) {
             if (cuelistView->currentGroup == nullptr) {
                 terminal->error("Can't update Fixtures of Group because no Group is currently selected.");
                 return;
             }
-            cuelistView->currentGroup->fixtures.clear();
-            for (QString id : ids) {
-                Fixture* fixture = fixtures->getItem(id);
-                if (fixture == nullptr) {
-                    terminal->warning("Can't add Fixture " + id + " to Group because it doesn't exist.");
-                } else {
-                    cuelistView->currentGroup->fixtures.append(fixture);
-                }
-            }
-            terminal->success("Updated Fixtures of Group " + cuelistView->currentGroup->id);
+            attributeMap[Keys::Attribute] = groups->FIXTURESATTRIBUTEID;
+            QList<QString> groupIds;
+            groupIds.append(cuelistView->currentGroup->id);
+            command.insert(0, selectionType);
+            groups->setAttribute(groupIds, attributeMap, command);
         } else if (selectionType == Keys::Group) {
             if (ids.size() != 1) {
                 terminal->error("Can't select Group because Group only allows one Group ID.");
@@ -115,52 +111,35 @@ void Kernel::execute(QList<int> command, QString text) {
             }
             cuelistView->currentGroup = group;
         } else if (selectionType == Keys::Intensity) {
-            if (ids.size() != 1) {
-                terminal->error("Can't select Intensity because Intensity only allows one Intensity ID.");
-                return;
-            }
             if (!cuelistView->validGroupAndCue()) {
                 return;
             }
-            Intensity* intensity = intensities->getItem(ids.first());
-            if (intensity == nullptr) {
-                intensity = intensities->addItem(ids.first());
-                terminal->success("Added and selected Intensity " + intensity->id);
-            } else {
-                terminal->success("Selected Intensity " + intensity->id);
-            }
-            cuelistView->currentCue->intensities[cuelistView->currentGroup] = intensity;
+            attributeMap[Keys::Attribute] = cues->INTENSITIESATTRIBUTEID;
+            attributeMap[Keys::Group] = cuelistView->currentGroup->id;
+            QList<QString> cueIds;
+            cueIds.append(cuelistView->currentCue->id);
+            command.insert(0, selectionType);
+            cues->setAttribute(cueIds, attributeMap, command);
         } else if (selectionType == Keys::Color) {
-            if (ids.size() != 1) {
-                terminal->error("Can't select Color because Color only allows one Color ID.");
-                return;
-            }
             if (!cuelistView->validGroupAndCue()) {
                 return;
             }
-            Color* color = colors->getItem(ids.first());
-            if (color == nullptr) {
-                color = colors->addItem(ids.first());
-                terminal->success("Added and selected Color " + color->id);
-            } else {
-                terminal->success("Selected Color " + color->id);
-            }
-            cuelistView->currentCue->colors[cuelistView->currentGroup] = color;
+            attributeMap[Keys::Attribute] = cues->COLORSATTRIBUTEID;
+            attributeMap[Keys::Group] = cuelistView->currentGroup->id;
+            QList<QString> cueIds;
+            cueIds.append(cuelistView->currentCue->id);
+            command.insert(0, selectionType);
+            cues->setAttribute(cueIds, attributeMap, command);
         } else if (selectionType == Keys::Raw) {
             if (!cuelistView->validGroupAndCue()) {
                 return;
             }
-            QList<Raw*> rawItems;
-            for (QString id : ids) {
-                Raw* raw = raws->getItem(id);
-                if (raw == nullptr) {
-                    terminal->warning("Can't add Raw " + id + " to current Group in current Cue because it doesn't exist.");
-                } else {
-                    rawItems.append(raw);
-                }
-            }
-            cuelistView->currentCue->raws[cuelistView->currentGroup] = rawItems;
-            terminal->success("Updated Raws.");
+            attributeMap[Keys::Attribute] = cues->RAWSATTRIBUTEID;
+            attributeMap[Keys::Group] = cuelistView->currentGroup->id;
+            QList<QString> cueIds;
+            cueIds.append(cuelistView->currentCue->id);
+            command.insert(0, selectionType);
+            cues->setAttribute(cueIds, attributeMap, command);
         } else if (selectionType == Keys::Cue) {
             if (ids.size() != 1) {
                 terminal->error("Can't select Cue because Cue only allows one Cue ID.");
@@ -240,7 +219,6 @@ void Kernel::execute(QList<int> command, QString text) {
         terminal->error("No items selected.");
         return;
     }
-    QMap<int, QString> attributeMap = QMap<int, QString>();
     int currentItemType = Keys::Attribute;
     QList<int> currentId;
     for (int attributeKey : attribute) {
