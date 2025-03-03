@@ -13,6 +13,11 @@ Item::Item(Kernel* core) {
     kernel = core;
 }
 
+Item::Item(const Item* item) {
+    kernel = item->kernel;
+    floatAttributes = item->floatAttributes;
+}
+
 Item::~Item() {}
 
 QString Item::name() {

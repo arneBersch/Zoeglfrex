@@ -11,6 +11,8 @@
 
 #include <QtWidgets>
 
+#include "kernel/items/item.h"
+
 class Kernel;
 
 template <class T> class ItemList : public QAbstractTableModel {
@@ -30,6 +32,7 @@ public:
     const QString LABELATTRIBUTEID = "1";
 protected:
     virtual void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString()) = 0;
+    QMap<QString, FloatAttribute> floatAttributes;
 private:
     int findRow(QString id);
     QString singularItemName = "item";

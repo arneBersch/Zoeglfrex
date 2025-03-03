@@ -11,7 +11,7 @@
 
 Color::Color(Kernel* core) : Item(core) {}
 
-Color::Color(const Color* item) : Item(item->kernel) {
+Color::Color(const Color* item) : Item(item) {
     label = item->label;
     hue = item->hue;
     saturation = item->saturation;

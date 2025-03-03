@@ -11,7 +11,7 @@
 
 Model::Model(Kernel* core) : Item(core) {}
 
-Model::Model(const Model* item) : Item(item->kernel) {
+Model::Model(const Model* item) : Item(item) {
     label = item->label;
     channels = item->channels;
 }

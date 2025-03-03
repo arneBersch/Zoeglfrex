@@ -11,7 +11,7 @@
 
 Intensity::Intensity(Kernel* core) : Item(core) {}
 
-Intensity::Intensity(const Intensity* item) : Item(item->kernel) {
+Intensity::Intensity(const Intensity* item) : Item(item) {
     label = item->label;
     dimmer = item->dimmer;
 }

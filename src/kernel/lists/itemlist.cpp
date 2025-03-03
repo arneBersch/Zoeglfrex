@@ -126,6 +126,21 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             emit dataChanged(index(itemRow, 0), index(itemRow, 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Labeled " + QString::number(itemRows.length()) + " " + pluralItemName + " as \"" + text + "\".");
+    } else if (floatAttributes.contains(attributes.value(Keys::Attribute))) {
+        FloatAttribute floatAttribute = floatAttributes.value(attributes.value(Keys::Attribute));
+        float newValue = kernel->keysToValue(value);
+        if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
+            kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because " + floatAttribute.name + " has to be between " + QString::number(floatAttribute.min) + " and " + QString::number(floatAttribute.max) + ".");
+            return;
+        }
+        for (QString id : ids) {
+            T* item = getItem(id);
+            if (item == nullptr) {
+                item = addItem(id);
+            }
+            item->floatAttributes[attributes.value(Keys::Attribute)].value = newValue;
+        }
+        kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + ".");
     } else {
         setOtherAttribute(ids, attributes, value, text);
     }
@@ -185,6 +200,7 @@ template <class T> int ItemList<T>::findRow(QString id) {
 template <class T> T* ItemList<T>::addItem(QString id) {
     T* item = new T(kernel);
     item->id = id;
+    item->floatAttributes = floatAttributes;
     int row = findRow(id);
     beginInsertRows(QModelIndex(), row, row);
     items.insert(row, item);

@@ -10,6 +10,7 @@
 
 CueList::CueList(Kernel *core) : ItemList("Cue", "Cues") {
     kernel = core;
+    floatAttributes[FADEATTRIBUTEID] ={"Fade", 0, 0, 60};
 }
 
 void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
@@ -146,20 +147,6 @@ void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
             }
             kernel->terminal->success("Set Raws of " + QString::number(cueCounter) + " Cues at Group " + group->name() + " to " + QString::number(raws.length()) + " Raws.");
         }
-    } else if (attributeString == FADEATTRIBUTEID) {
-        float fade = kernel->keysToValue(value);
-        if (fade < 0 || fade > 60) {
-            kernel->terminal->error("Can't set Cue Fade because Fade has to be between 0 and 60 seconds.");
-            return;
-        }
-        for (QString id : ids) {
-            Cue* cue = getItem(id);
-            if (cue == nullptr) {
-                cue = addItem(id);
-            }
-            cue->fade = fade;
-        }
-        kernel->terminal->success("Set Fade of " + QString::number(ids.length()) + " Cues to " + QString::number(fade) + "s.");
     } else {
         kernel->terminal->error("Can't set Cue Attribute " + attributeString + ".");
     }

@@ -11,7 +11,7 @@
 
 Raw::Raw(Kernel* core) : Item(core) {}
 
-Raw::Raw(const Raw* item) : Item(item->kernel) {
+Raw::Raw(const Raw* item) : Item(item) {
     label = item->label;
     channel = item->channel;
     value = item->value;

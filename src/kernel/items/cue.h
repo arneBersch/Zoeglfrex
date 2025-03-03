@@ -22,7 +22,6 @@ public:
     Cue(Kernel *core);
     Cue(const Cue* item);
     ~Cue();
-    float fade = 0;
     QMap<Group*, Intensity*> intensities = QMap<Group*, Intensity*>();
     QMap<Group*, Color*> colors = QMap<Group*, Color*>();
     QMap<Group*, QList<Raw*>> raws = QMap<Group*, QList<Raw*>>();

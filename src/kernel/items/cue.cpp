@@ -11,9 +11,8 @@
 
 Cue::Cue(Kernel *core) : Item(core) {}
 
-Cue::Cue(const Cue* item) : Item(item->kernel) {
+Cue::Cue(const Cue* item) : Item(item) {
     label = item->label;
-    fade = item->fade;
     intensities = item->intensities;
     colors = item->colors;
 }
@@ -52,6 +51,6 @@ QString Cue::info() {
     info += "\n" + kernel->cues->INTENSITIESATTRIBUTEID + " Intensities: " + intensityValues;
     info += "\n" + kernel->cues->COLORSATTRIBUTEID + " Colors: " + colorValues;
     info += "\n" + kernel->cues->RAWSATTRIBUTEID + " Raws: " + rawValues;
-    info += "\n" + kernel->cues->FADEATTRIBUTEID + " Fade: " + QString::number(fade) + "s";
+    info += "\n" + kernel->cues->FADEATTRIBUTEID + " Fade: " + QString::number(floatAttributes.value(kernel->cues->FADEATTRIBUTEID).value) + "s";
     return info;
 }
