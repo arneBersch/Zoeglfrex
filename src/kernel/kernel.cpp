@@ -59,31 +59,6 @@ void Kernel::execute(QList<int> command, QString text) {
             }
         }
     }
-    if ((selection.size() == 1) && (selection.first() == Keys::Minus)) {
-        if (selectionType == Keys::Intensity) {
-            if (!cuelistView->validGroupAndCue()) {
-                return;
-            }
-            if (!cuelistView->currentCue->intensities.contains(cuelistView->currentGroup)) {
-                terminal->error("Can't remove the Intensity of the current Group in the current Cue because there is nothing to remove.");
-                return;
-            }
-            cuelistView->currentCue->intensities.remove(cuelistView->currentGroup);
-            terminal->success("Deleted Intensity of Group " + cuelistView->currentCue->id + " in Cue " + cuelistView->currentGroup->id);
-        } else if (selectionType == Keys::Color){
-            if (!cuelistView->validGroupAndCue()) {
-                return;
-            }
-            if (!cuelistView->currentCue->colors.contains(cuelistView->currentGroup)) {
-                terminal->error("Can't remove the Color of the current Group in the current Cue because there is nothing to remove.");
-                return;
-            }
-            cuelistView->currentCue->colors.remove(cuelistView->currentGroup);
-            terminal->success("Deleted Color of Group " + cuelistView->currentCue->id + " in Cue " + cuelistView->currentGroup->id);
-        }
-        cuelistView->loadCue();
-        return;
-    }
     QList<QString> ids = keysToSelection(selection, selectionType);
     QMap<int, QString> attributeMap = QMap<int, QString>();
     if (!valueReached && !attributeReached) {
