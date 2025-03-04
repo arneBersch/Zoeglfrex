@@ -95,9 +95,10 @@ void DmxEngine::generateDmx() {
             const double h = (fixtureColors.value(fixture)->hue / 60.0);
             const int i = (int)h;
             const double f = h - i;
-            const double p = (100.0 - fixtureColors.value(fixture)->saturation);
-            const double q = (100.0 - (fixtureColors.value(fixture)->saturation * f));
-            const double t = (100.0 - (fixtureColors.value(fixture)->saturation * (1.0 - f)));
+            float saturation = fixtureColors.value(fixture)->floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID);
+            const double p = (100.0 - saturation);
+            const double q = (100.0 - (saturation * f));
+            const double t = (100.0 - (saturation * (1.0 - f)));
             if (i == 0) {
                 red = 100.0;
                 green = t;

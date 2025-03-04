@@ -18,8 +18,7 @@ public:
     Color(Kernel* core);
     Color(const Color* item);
     ~Color();
-    float hue = 0.0;
-    float saturation = 100.0;
+    float hue = 0;
     QString name() override;
     QString info() override;
 };

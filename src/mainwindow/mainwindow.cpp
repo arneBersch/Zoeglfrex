@@ -326,7 +326,7 @@ void MainWindow::openFile() {
                                 kernel->terminal->error("Error reading file: Saturation of Color " + color->id + " isn't valid.");
                                 return;
                             }
-                            color->saturation = saturation;
+                            color->floatAttributes[kernel->colors->SATURATIONATTRIBUTEID] = saturation;
                         } else {
                             kernel->terminal->error("Error reading file: Unknown Color Attribute \"" + fileStream.name().toString() + "\".");
                             return;
@@ -564,7 +564,7 @@ void MainWindow::saveFile() {
         fileStream.writeAttribute("ID", color->id);
         fileStream.writeTextElement("Label", color->label);
         fileStream.writeTextElement("Hue", QString::number(color->hue));
-        fileStream.writeTextElement("Saturation", QString::number(color->saturation));
+        fileStream.writeTextElement("Saturation", QString::number(color->floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID)));
         fileStream.writeEndElement();
     }
     fileStream.writeEndElement();

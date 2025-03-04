@@ -10,6 +10,7 @@
 
 ColorList::ColorList(Kernel *core) : ItemList("Color", "Colors") {
     kernel = core;
+    floatAttributes[SATURATIONATTRIBUTEID] ={"Saturation", 100, 0, 100, "%"};
 }
 
 void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
@@ -29,21 +30,6 @@ void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
             emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set Hue of " + QString::number(ids.length()) + " Colors to " + QString::number(hue) + "°.");
-    } else if (attributeString == SATURATIONATTRIBUTEID) {
-        float saturation = kernel->keysToValue(value);
-        if (saturation > 100 || saturation < 0) {
-            kernel->terminal->error("Can't set Saturation because Saturation only allows values from 0% to 100%.");
-            return;
-        }
-        for (QString id : ids) {
-            Color* color = getItem(id);
-            if (color == nullptr) {
-                color = addItem(id);
-            }
-            color->saturation = saturation;
-            emit dataChanged(index(getItemRow(color->id), 0), index(getItemRow(color->id), 0), {Qt::DisplayRole, Qt::EditRole});
-        }
-        kernel->terminal->success("Set Saturation of " + QString::number(ids.length()) + " Colors to " + QString::number(saturation) + "%.");
     } else {
         kernel->terminal->error("Can't set Color Attribute " + attributeString + ".");
     }
