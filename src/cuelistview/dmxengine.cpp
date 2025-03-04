@@ -44,7 +44,7 @@ void DmxEngine::generateDmx() {
         totalFadeFrames = 0;
     } else {
         if (kernel->cuelistView->currentCue != lastCue) {
-            float fade = kernel->cuelistView->currentCue->floatAttributes[kernel->cues->FADEATTRIBUTEID].value;
+            float fade = kernel->cuelistView->currentCue->floatAttributes[kernel->cues->FADEATTRIBUTEID];
             totalFadeFrames = 40 * fade + 0.5;
             remainingFadeFrames = totalFadeFrames;
             lastCue = kernel->cuelistView->currentCue;

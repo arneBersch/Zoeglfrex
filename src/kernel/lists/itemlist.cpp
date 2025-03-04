@@ -138,7 +138,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             if (item == nullptr) {
                 item = addItem(id);
             }
-            item->floatAttributes[attributes.value(Keys::Attribute)].value = newValue;
+            item->floatAttributes[attributes.value(Keys::Attribute)] = newValue;
         }
         kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + ".");
     } else {
@@ -200,7 +200,9 @@ template <class T> int ItemList<T>::findRow(QString id) {
 template <class T> T* ItemList<T>::addItem(QString id) {
     T* item = new T(kernel);
     item->id = id;
-    item->floatAttributes = floatAttributes;
+    for (QString attribute : floatAttributes.keys()) {
+        item->floatAttributes[attribute] = floatAttributes.value(attribute).value;
+    }
     int row = findRow(id);
     beginInsertRows(QModelIndex(), row, row);
     items.insert(row, item);

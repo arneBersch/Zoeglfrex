@@ -13,13 +13,6 @@
 
 class Kernel;
 
-struct FloatAttribute {
-    QString name = QString();
-    float value = 0;
-    float min = 0;
-    float max = 100;
-};
-
 class Item {
 public:
     Item(Kernel* core);
@@ -29,7 +22,7 @@ public:
     QString label = QString();
     virtual QString name();
     virtual QString info();
-    QMap<QString, FloatAttribute> floatAttributes = QMap<QString, FloatAttribute>();
+    QMap<QString, float> floatAttributes;
 protected:
     Kernel *kernel;
 };

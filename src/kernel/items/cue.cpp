@@ -51,6 +51,6 @@ QString Cue::info() {
     info += "\n" + kernel->cues->INTENSITIESATTRIBUTEID + " Intensities: " + intensityValues;
     info += "\n" + kernel->cues->COLORSATTRIBUTEID + " Colors: " + colorValues;
     info += "\n" + kernel->cues->RAWSATTRIBUTEID + " Raws: " + rawValues;
-    info += "\n" + kernel->cues->FADEATTRIBUTEID + " Fade: " + QString::number(floatAttributes.value(kernel->cues->FADEATTRIBUTEID).value) + "s";
+    info += "\n" + kernel->cues->FADEATTRIBUTEID + " Fade: " + QString::number(floatAttributes.value(kernel->cues->FADEATTRIBUTEID)) + "s";
     return info;
 }

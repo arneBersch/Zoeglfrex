@@ -11,7 +11,12 @@
 
 #include <QtWidgets>
 
-#include "kernel/items/item.h"
+struct FloatAttribute {
+    QString name = QString();
+    float value = 0;
+    float min = 0;
+    float max = 100;
+};
 
 class Kernel;
 

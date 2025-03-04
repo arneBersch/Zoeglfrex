@@ -390,7 +390,7 @@ void MainWindow::openFile() {
                                 kernel->terminal->error("Error reading file: Fade of Cue " + cue->id + " isn't valid.");
                                 return;
                             }
-                            cue->floatAttributes[kernel->cues->FADEATTRIBUTEID].value = fade;
+                            cue->floatAttributes[kernel->cues->FADEATTRIBUTEID] = fade;
                         } else if (fileStream.name().toString() == "Groups") {
                             while (fileStream.readNextStartElement()) {
                                 if (fileStream.name().toString() != "Group") {
@@ -585,7 +585,7 @@ void MainWindow::saveFile() {
         fileStream.writeStartElement("Cue");
         fileStream.writeAttribute("ID", cue->id);
         fileStream.writeTextElement("Label", cue->label);
-        fileStream.writeTextElement("Fade", QString::number(cue->floatAttributes.value(kernel->cues->FADEATTRIBUTEID).value));
+        fileStream.writeTextElement("Fade", QString::number(cue->floatAttributes.value(kernel->cues->FADEATTRIBUTEID)));
         fileStream.writeStartElement("Groups");
         for (Group* group : kernel->groups->items) {
             fileStream.writeStartElement("Group");
