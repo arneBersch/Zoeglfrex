@@ -16,6 +16,7 @@ struct FloatAttribute {
     float value = 0;
     float min = 0;
     float max = 100;
+    QString unit = QString();
 };
 
 class Kernel;

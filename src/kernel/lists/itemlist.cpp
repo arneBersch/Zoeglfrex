@@ -130,7 +130,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         FloatAttribute floatAttribute = floatAttributes.value(attributes.value(Keys::Attribute));
         float newValue = kernel->keysToValue(value);
         if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
-            kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because " + floatAttribute.name + " has to be between " + QString::number(floatAttribute.min) + " and " + QString::number(floatAttribute.max) + ".");
+            kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because " + floatAttribute.name + " has to be between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
             return;
         }
         for (QString id : ids) {
@@ -140,7 +140,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             }
             item->floatAttributes[attributes.value(Keys::Attribute)] = newValue;
         }
-        kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + ".");
+        kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + floatAttribute.unit + ".");
     } else {
         setOtherAttribute(ids, attributes, value, text);
     }

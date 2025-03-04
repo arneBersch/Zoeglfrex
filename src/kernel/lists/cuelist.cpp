@@ -10,7 +10,7 @@
 
 CueList::CueList(Kernel *core) : ItemList("Cue", "Cues") {
     kernel = core;
-    floatAttributes[FADEATTRIBUTEID] ={"Fade", 0, 0, 60};
+    floatAttributes[FADEATTRIBUTEID] ={"Fade", 0, 0, 60, "s"};
 }
 
 void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
