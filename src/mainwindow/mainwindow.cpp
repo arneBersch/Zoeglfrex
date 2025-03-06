@@ -354,7 +354,7 @@ void MainWindow::openFile() {
                                 kernel->terminal->error("Error reading file: Channel of Raw " + raw->id + " isn't valid.");
                                 return;
                             }
-                            raw->channel = channel;
+                            raw->intAttributes[kernel->raws->CHANNELATTRIBUTEID] = channel;
                         } else if (fileStream.name().toString() == "Value") {
                             bool ok;
                             uint8_t value = fileStream.readElementText().toUInt(&ok);
@@ -362,7 +362,7 @@ void MainWindow::openFile() {
                                 kernel->terminal->error("Error reading file: Value of Raw " + raw->id + " isn't valid.");
                                 return;
                             }
-                            raw->value = value;
+                            raw->intAttributes[kernel->raws->VALUEATTRIBUTEID] = value;
                         } else {
                             kernel->terminal->error("Error reading file: Unknown Raw Attribute \"" + fileStream.name().toString() + "\".");
                             return;
@@ -574,8 +574,8 @@ void MainWindow::saveFile() {
         fileStream.writeStartElement("Raw");
         fileStream.writeAttribute("ID", raw->id);
         fileStream.writeTextElement("Label", raw->label);
-        fileStream.writeTextElement("Channel", QString::number(raw->channel));
-        fileStream.writeTextElement("Value", QString::number(raw->value));
+        fileStream.writeTextElement("Channel", QString::number(raw->intAttributes.value(kernel->raws->CHANNELATTRIBUTEID)));
+        fileStream.writeTextElement("Value", QString::number(raw->intAttributes.value(kernel->raws->VALUEATTRIBUTEID)));
         fileStream.writeEndElement();
     }
     fileStream.writeEndElement();

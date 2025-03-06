@@ -13,8 +13,6 @@ Raw::Raw(Kernel* core) : Item(core) {}
 
 Raw::Raw(const Raw* item) : Item(item) {
     label = item->label;
-    channel = item->channel;
-    value = item->value;
 }
 
 Raw::~Raw() {
@@ -32,14 +30,14 @@ Raw::~Raw() {
 
 QString Raw::name() {
     if (label.isEmpty()) {
-        return Item::name() + QString::number(channel) + " @ " + QString::number(value);
+        return Item::name() + QString::number(intAttributes.value(kernel->raws->CHANNELATTRIBUTEID)) + " @ " + QString::number(intAttributes.value(kernel->raws->VALUEATTRIBUTEID));
     }
     return Item::name();
 }
 
 QString Raw::info() {
     QString info = Item::info();
-    info += "\n" + kernel->raws->CHANNELATTRIBUTEID + " Channel: " + QString::number(channel);
-    info += "\n" + kernel->raws->VALUEATTRIBUTEID + " Value: " + QString::number(value);
+    info += "\n" + kernel->raws->CHANNELATTRIBUTEID + " Channel: " + QString::number(intAttributes.value(kernel->raws->CHANNELATTRIBUTEID));
+    info += "\n" + kernel->raws->VALUEATTRIBUTEID + " Value: " + QString::number(intAttributes.value(kernel->raws->VALUEATTRIBUTEID));
     return info;
 }

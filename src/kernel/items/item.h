@@ -22,6 +22,7 @@ public:
     QString label = QString();
     virtual QString name();
     virtual QString info();
+    QMap<QString, int> intAttributes;
     QMap<QString, float> floatAttributes;
 protected:
     Kernel *kernel;

@@ -18,8 +18,6 @@ public:
     Raw(Kernel* core);
     Raw(const Raw* item);
     ~Raw();
-    int channel = 1;
-    uint8_t value = 0;
     QString name() override;
     QString info() override;
 };

@@ -11,6 +11,14 @@
 
 #include <QtWidgets>
 
+struct IntAttribute {
+    QString name = QString();
+    int value = 0;
+    int min = 0;
+    int max = 100;
+    QString unit = QString();
+};
+
 struct FloatAttribute {
     QString name = QString();
     float value = 0;
@@ -38,6 +46,7 @@ public:
     const QString LABELATTRIBUTEID = "1";
 protected:
     virtual void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString()) = 0;
+    QMap<QString, IntAttribute> intAttributes;
     QMap<QString, FloatAttribute> floatAttributes;
 private:
     int findRow(QString id);

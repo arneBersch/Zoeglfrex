@@ -178,9 +178,9 @@ void DmxEngine::generateDmx() {
             }
             if (fixtureRaws.contains(fixture)) {
                 for (Raw* raw : fixtureRaws[fixture]) {
-                    int channel = fixture->address + raw->channel - 1;
-                    if ((channel <= 512) && (raw->channel <= channels.size())) {
-                        currentCueValues[channel] = raw->value;
+                    int channel = fixture->address + raw->intAttributes.value(kernel->raws->CHANNELATTRIBUTEID) - 1;
+                    if ((channel <= 512) && (raw->intAttributes.value(kernel->raws->CHANNELATTRIBUTEID) <= channels.size())) {
+                        currentCueValues[channel] = raw->intAttributes.value(kernel->raws->VALUEATTRIBUTEID);
                     }
                 }
             }

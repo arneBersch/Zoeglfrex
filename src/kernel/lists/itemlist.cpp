@@ -126,6 +126,22 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             emit dataChanged(index(itemRow, 0), index(itemRow, 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Labeled " + QString::number(itemRows.length()) + " " + pluralItemName + " as \"" + text + "\".");
+    } else if (intAttributes.contains(attributes.value(Keys::Attribute))) {
+        IntAttribute intAttribute = intAttributes.value(attributes.value(Keys::Attribute));
+        int newValue = kernel->keysToValue(value);
+        if ((newValue < intAttribute.min) || (newValue > intAttribute.max)) {
+            kernel->terminal->error("Can't set " + singularItemName + " " + intAttribute.name + " because " + intAttribute.name + " has to be between " + QString::number(intAttribute.min) + intAttribute.unit + " and " + QString::number(intAttribute.max) + intAttribute.unit + ".");
+            return;
+        }
+        for (QString id : ids) {
+            T* item = getItem(id);
+            if (item == nullptr) {
+                item = addItem(id);
+            }
+            item->intAttributes[attributes.value(Keys::Attribute)] = newValue;
+            emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+        }
+        kernel->terminal->success("Set " + intAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + intAttribute.unit + ".");
     } else if (floatAttributes.contains(attributes.value(Keys::Attribute))) {
         FloatAttribute floatAttribute = floatAttributes.value(attributes.value(Keys::Attribute));
         float newValue = kernel->keysToValue(value);
@@ -139,6 +155,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
                 item = addItem(id);
             }
             item->floatAttributes[attributes.value(Keys::Attribute)] = newValue;
+            emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + floatAttribute.unit + ".");
     } else {
@@ -200,6 +217,9 @@ template <class T> int ItemList<T>::findRow(QString id) {
 template <class T> T* ItemList<T>::addItem(QString id) {
     T* item = new T(kernel);
     item->id = id;
+    for (QString attribute : intAttributes.keys()) {
+        item->intAttributes[attribute] = intAttributes.value(attribute).value;
+    }
     for (QString attribute : floatAttributes.keys()) {
         item->floatAttributes[attribute] = floatAttributes.value(attribute).value;
     }

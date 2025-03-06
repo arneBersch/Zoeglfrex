@@ -10,41 +10,10 @@
 
 RawList::RawList(Kernel *core) : ItemList("Raw", "Raws") {
     kernel = core;
+    intAttributes[CHANNELATTRIBUTEID] ={"Channel", 1, 1, 512};
+    intAttributes[VALUEATTRIBUTEID] ={"Value", 0, 0, 255};
 }
 
 void RawList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
-    QString attributeString = attributes.value(Keys::Attribute);
-    if (attributeString == CHANNELATTRIBUTEID) {
-        int channel = kernel->keysToValue(value);
-        if ((channel > 512) || (channel < 1)) {
-            kernel->terminal->error("Can't set Channel because Channel only allows values from 1 to 512.");
-            return;
-        }
-        for (QString id : ids) {
-            Raw* raw = getItem(id);
-            if (raw == nullptr) {
-                raw = addItem(id);
-            }
-            raw->channel = channel;
-            emit dataChanged(index(getItemRow(raw->id), 0), index(getItemRow(raw->id), 0), {Qt::DisplayRole, Qt::EditRole});
-        }
-        kernel->terminal->success("Set Channel of " + QString::number(ids.length()) + " Raws to " + QString::number(channel) + "°.");
-    } else if (attributeString == VALUEATTRIBUTEID) {
-        int channelValue = kernel->keysToValue(value);
-        if ((channelValue > 255) || (channelValue < 0)) {
-            kernel->terminal->error("Can't set Raw Value because Value only allows values from 0 to 255.");
-            return;
-        }
-        for (QString id : ids) {
-            Raw* raw = getItem(id);
-            if (raw == nullptr) {
-                raw = addItem(id);
-            }
-            raw->value = channelValue;
-            emit dataChanged(index(getItemRow(raw->id), 0), index(getItemRow(raw->id), 0), {Qt::DisplayRole, Qt::EditRole});
-        }
-        kernel->terminal->success("Set Value of " + QString::number(ids.length()) + " Raws to " + QString::number(channelValue) + ".");
-    } else {
-        kernel->terminal->error("Can't set Raw Attribute " + attributeString + ".");
-    }
+    kernel->terminal->error("Can't set Raw Attribute " + attributes.value(Keys::Attribute) + ".");
 }
