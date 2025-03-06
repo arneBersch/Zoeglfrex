@@ -58,7 +58,7 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
     } else if (attributeString == ADDRESSATTRIBUTEID) {
         int address = kernel->keysToValue(value);
         if ((address < 0) || (address > 512)) {
-            kernel->terminal->error("Can't set Fixture Address because Address has to be between 0 and 512.");
+            kernel->terminal->error("Can't set Fixture Address because Address has to be a valid number between 0 and 512.");
             return;
         }
         QList<Fixture*> fixtures;

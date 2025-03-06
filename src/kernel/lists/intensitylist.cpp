@@ -32,8 +32,8 @@ void IntensityList::setOtherAttribute(QList<QString> ids, QMap<int, QString> att
             kernel->terminal->success("Removed Dimmer of Fixture " + fixture->name() + " in " + QString::number(ids.length()) + " Intensities.");
         } else {
             float dimmer = kernel->keysToValue(value);
-            if (dimmer > 100 || dimmer < 0) {
-                kernel->terminal->error("Can't set Intensity Dimmer because Dimmer only allows values from 0% to 100%.");
+            if ((dimmer > 100) || (dimmer < 0)) {
+                kernel->terminal->error("Can't set Intensity Dimmer because Dimmer only allows valid values from 0% to 100%.");
                 return;
             }
             if (attributes.contains(Keys::Fixture)) {

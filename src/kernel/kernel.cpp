@@ -225,7 +225,7 @@ void Kernel::execute(QList<int> command, QString text) {
             return;
         }
     }
-    bool standardAttribute = (!attributeMap.contains(Keys::Attribute) && !(attributeMap.isEmpty() && !value.isEmpty() && ((value.first() == Keys::Minus) || (value.first() == selectionType))));
+    bool standardAttribute = (!attributeMap.contains(Keys::Attribute) && !(attributeMap.isEmpty() && !value.isEmpty() && (((value.size() == 1) && (value.first() == Keys::Minus)) || (value.first() == selectionType))));
     if (selectionType == Keys::Model) {
         if (standardAttribute) {
             attributeMap[Keys::Attribute] = models->CHANNELSATTRIBUTEID;
@@ -349,7 +349,6 @@ float Kernel::keysToValue(QList<int> keys) {
     if (!ok) {
         return -1;
     }
-    valueFloat = (floor((valueFloat * 100) + 0.5) / 100);
     return valueFloat;
 }
 

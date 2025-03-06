@@ -129,9 +129,20 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         kernel->terminal->success("Labeled " + QString::number(itemRows.length()) + " " + pluralItemName + " as \"" + text + "\".");
     } else if (intAttributes.contains(attributes.value(Keys::Attribute))) {
         IntAttribute intAttribute = intAttributes.value(attributes.value(Keys::Attribute));
+        bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
+        if (negativeValue) {
+            value.removeFirst();
+        }
         int newValue = kernel->keysToValue(value);
+        if (newValue < 0) {
+            kernel->terminal->error("Can't set " + singularItemName + " " + intAttribute.name + " because no valid number was given.");
+            return;
+        }
+        if (negativeValue) {
+            newValue *= -1;
+        }
         if ((newValue < intAttribute.min) || (newValue > intAttribute.max)) {
-            kernel->terminal->error("Can't set " + singularItemName + " " + intAttribute.name + " because " + intAttribute.name + " has to be between " + QString::number(intAttribute.min) + intAttribute.unit + " and " + QString::number(intAttribute.max) + intAttribute.unit + ".");
+            kernel->terminal->error("Can't set " + singularItemName + " " + intAttribute.name + " because " + intAttribute.name + " has to be a number between " + QString::number(intAttribute.min) + intAttribute.unit + " and " + QString::number(intAttribute.max) + intAttribute.unit + ".");
             return;
         }
         for (QString id : ids) {
@@ -145,9 +156,20 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         kernel->terminal->success("Set " + intAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + intAttribute.unit + ".");
     } else if (floatAttributes.contains(attributes.value(Keys::Attribute))) {
         FloatAttribute floatAttribute = floatAttributes.value(attributes.value(Keys::Attribute));
-        float newValue = kernel->keysToValue(value);
+        bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
+        if (negativeValue) {
+            value.removeFirst();
+        }
+        int newValue = kernel->keysToValue(value);
+        if (newValue < 0) {
+            kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because no valid number was given.");
+            return;
+        }
+        if (negativeValue) {
+            newValue *= -1;
+        }
         if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
-            kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because " + floatAttribute.name + " has to be between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
+            kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because " + floatAttribute.name + " has to be a number between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
             return;
         }
         for (QString id : ids) {
@@ -161,7 +183,24 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + floatAttribute.unit + ".");
     } else if (angleAttributes.contains(attributes.value(Keys::Attribute))) {
         AngleAttribute angleAttribute = angleAttributes.value(attributes.value(Keys::Attribute));
+        bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
+        if (negativeValue) {
+            value.removeFirst();
+        }
         float newValue = kernel->keysToValue(value);
+        if (newValue < 0) {
+            kernel->terminal->error("Can't set " + singularItemName + " " + angleAttribute.name + " because no valid number was given.");
+            return;
+        }
+        if (negativeValue) {
+            newValue *= -1;
+        }
+        while (newValue < 0) {
+            newValue += 360;
+        }
+        while (newValue >= 360) {
+            newValue -= 360;
+        }
         if (newValue >= 360 || newValue < 0) {
             kernel->terminal->error("Can't set " + singularItemName + " " + angleAttribute.name + " because " + angleAttribute.name + " only allows values from 0° and smaller than 360°.");
             return;
