@@ -8,7 +8,7 @@
 
 #include "modellist.h"
 
-ModelList::ModelList(Kernel *core) : ItemList("Model", "Models") {
+ModelList::ModelList(Kernel *core) : ItemList(Keys::Model, "Model", "Models") {
     kernel = core;
 }
 

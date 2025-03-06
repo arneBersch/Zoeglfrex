@@ -9,7 +9,8 @@
 #include "itemlist.h"
 #include "kernel/kernel.h"
 
-template <class T> ItemList<T>::ItemList(QString singular, QString plural) {
+template <class T> ItemList<T>::ItemList(int key, QString singular, QString plural) {
+    itemKey = key;
     singularItemName = singular;
     pluralItemName = plural;
 }
@@ -58,7 +59,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             delete item;
         }
         kernel->terminal->success("Deleted " + QString::number(existingIds.length()) + " " + pluralItemName + ".");
-    } else if (attributes.isEmpty() && (value.size() > 1)) { // Copy Item
+    } else if (attributes.isEmpty() && (value.size() > 1) && (value.first() == itemKey)) { // Copy Item
         value.removeFirst();
         T* sourceItem = getItem(kernel->keysToId(value));
         if (sourceItem == nullptr) {

@@ -8,7 +8,7 @@
 
 #include "colorlist.h"
 
-ColorList::ColorList(Kernel *core) : ItemList("Color", "Colors") {
+ColorList::ColorList(Kernel *core) : ItemList(Keys::Color, "Color", "Colors") {
     kernel = core;
     floatAttributes[SATURATIONATTRIBUTEID] ={"Saturation", 100, 0, 100, "%"};
 }

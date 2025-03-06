@@ -8,7 +8,7 @@
 
 #include "fixturelist.h"
 
-FixtureList::FixtureList(Kernel *core) : ItemList("Fixture", "Fixtures") {
+FixtureList::FixtureList(Kernel *core) : ItemList(Keys::Fixture, "Fixture", "Fixtures") {
     kernel = core;
 }
 

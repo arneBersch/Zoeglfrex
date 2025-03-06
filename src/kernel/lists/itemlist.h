@@ -31,7 +31,7 @@ class Kernel;
 
 template <class T> class ItemList : public QAbstractTableModel {
 public:
-    ItemList(QString singularName, QString pluralName);
+    ItemList(int key, QString singularName, QString pluralName);
     T* getItem(QString id) const;
     int getItemRow(QString id) const;
     QList<QString> getIds() const;
@@ -50,6 +50,7 @@ protected:
     QMap<QString, FloatAttribute> floatAttributes;
 private:
     int findRow(QString id);
+    int itemKey;
     QString singularItemName = "item";
     QString pluralItemName = "items";
 };

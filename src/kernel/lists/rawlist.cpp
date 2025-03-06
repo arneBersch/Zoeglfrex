@@ -8,7 +8,7 @@
 
 #include "rawlist.h"
 
-RawList::RawList(Kernel *core) : ItemList("Raw", "Raws") {
+RawList::RawList(Kernel *core) : ItemList(Keys::Raw, "Raw", "Raws") {
     kernel = core;
     intAttributes[CHANNELATTRIBUTEID] ={"Channel", 1, 1, 512};
     intAttributes[VALUEATTRIBUTEID] ={"Value", 0, 0, 255};
