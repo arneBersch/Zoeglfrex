@@ -318,7 +318,7 @@ void MainWindow::openFile() {
                                 kernel->terminal->error("Error reading file: Hue of Color " + color->id + " isn't valid.");
                                 return;
                             }
-                            color->hue = hue;
+                            color->angleAttributes[kernel->colors->HUEATTRIBUTEID] = hue;
                         } else if (fileStream.name().toString() == "Saturation") {
                             bool ok;
                             float saturation = fileStream.readElementText().toFloat(&ok);
@@ -563,7 +563,7 @@ void MainWindow::saveFile() {
         fileStream.writeStartElement("Color");
         fileStream.writeAttribute("ID", color->id);
         fileStream.writeTextElement("Label", color->label);
-        fileStream.writeTextElement("Hue", QString::number(color->hue));
+        fileStream.writeTextElement("Hue", QString::number(color->angleAttributes.value(kernel->colors->HUEATTRIBUTEID)));
         fileStream.writeTextElement("Saturation", QString::number(color->floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID)));
         fileStream.writeEndElement();
     }

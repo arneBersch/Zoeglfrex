@@ -27,6 +27,11 @@ struct FloatAttribute {
     QString unit = QString();
 };
 
+struct AngleAttribute {
+    QString name = QString();
+    float value = 0;
+};
+
 class Kernel;
 
 template <class T> class ItemList : public QAbstractTableModel {
@@ -48,6 +53,7 @@ protected:
     virtual void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString()) = 0;
     QMap<QString, IntAttribute> intAttributes;
     QMap<QString, FloatAttribute> floatAttributes;
+    QMap<QString, AngleAttribute> angleAttributes;
 private:
     int findRow(QString id);
     int itemKey;

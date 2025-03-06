@@ -13,7 +13,6 @@ Color::Color(Kernel* core) : Item(core) {}
 
 Color::Color(const Color* item) : Item(item) {
     label = item->label;
-    hue = item->hue;
 }
 
 Color::~Color() {
@@ -28,14 +27,14 @@ Color::~Color() {
 
 QString Color::name() {
     if (label.isEmpty()) {
-        return Item::name() + QString::number(hue) + "°, " + QString::number(floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID)) + "%";
+        return Item::name() + QString::number(angleAttributes.value(kernel->colors->HUEATTRIBUTEID)) + "°, " + QString::number(floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID)) + "%";
     }
     return Item::name();
 }
 
 QString Color::info() {
     QString info = Item::info();
-    info += "\n" + kernel->colors->HUEATTRIBUTEID + " Hue: " + QString::number(hue) + "°";
+    info += "\n" + kernel->colors->HUEATTRIBUTEID + " Hue: " + QString::number(angleAttributes.value(kernel->colors->HUEATTRIBUTEID)) + "°";
     info += "\n" + kernel->colors->SATURATIONATTRIBUTEID + " Saturation: " + QString::number(floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID)) + "%";
     return info;
 }

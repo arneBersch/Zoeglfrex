@@ -92,7 +92,7 @@ void DmxEngine::generateDmx() {
             }
         }
         if (fixtureColors.contains(fixture)) {
-            const double h = (fixtureColors.value(fixture)->hue / 60.0);
+            const double h = (fixtureColors.value(fixture)->angleAttributes.value(kernel->colors->HUEATTRIBUTEID) / 60.0);
             const int i = (int)h;
             const double f = h - i;
             float saturation = fixtureColors.value(fixture)->floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID);

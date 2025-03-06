@@ -18,7 +18,6 @@ public:
     Color(Kernel* core);
     Color(const Color* item);
     ~Color();
-    float hue = 0;
     QString name() override;
     QString info() override;
 };

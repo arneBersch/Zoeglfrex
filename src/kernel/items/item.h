@@ -24,6 +24,7 @@ public:
     virtual QString info();
     QMap<QString, int> intAttributes;
     QMap<QString, float> floatAttributes;
+    QMap<QString, float> angleAttributes;
 protected:
     Kernel *kernel;
 };

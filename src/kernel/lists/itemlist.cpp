@@ -159,6 +159,22 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+    } else if (angleAttributes.contains(attributes.value(Keys::Attribute))) {
+        AngleAttribute angleAttribute = angleAttributes.value(attributes.value(Keys::Attribute));
+        float newValue = kernel->keysToValue(value);
+        if (newValue >= 360 || newValue < 0) {
+            kernel->terminal->error("Can't set " + singularItemName + " " + angleAttribute.name + " because " + angleAttribute.name + " only allows values from 0° and smaller than 360°.");
+            return;
+        }
+        for (QString id : ids) {
+            T* item = getItem(id);
+            if (item == nullptr) {
+                item = addItem(id);
+            }
+            item->angleAttributes[attributes.value(Keys::Attribute)] = newValue;
+            emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+        }
+        kernel->terminal->success("Set " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + "°.");
     } else {
         setOtherAttribute(ids, attributes, value, text);
     }
@@ -223,6 +239,9 @@ template <class T> T* ItemList<T>::addItem(QString id) {
     }
     for (QString attribute : floatAttributes.keys()) {
         item->floatAttributes[attribute] = floatAttributes.value(attribute).value;
+    }
+    for (QString attribute : angleAttributes.keys()) {
+        item->angleAttributes[attribute] = angleAttributes.value(attribute).value;
     }
     int row = findRow(id);
     beginInsertRows(QModelIndex(), row, row);
