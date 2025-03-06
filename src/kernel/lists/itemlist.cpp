@@ -192,18 +192,11 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             kernel->terminal->error("Can't set " + singularItemName + " " + angleAttribute.name + " because no valid number was given.");
             return;
         }
-        if (negativeValue) {
-            newValue *= -1;
-        }
-        while (newValue < 0) {
-            newValue += 360;
-        }
         while (newValue >= 360) {
             newValue -= 360;
         }
-        if (newValue >= 360 || newValue < 0) {
-            kernel->terminal->error("Can't set " + singularItemName + " " + angleAttribute.name + " because " + angleAttribute.name + " only allows values from 0° and smaller than 360°.");
-            return;
+        if (negativeValue && (newValue > 0)) {
+            newValue = 360 - newValue;
         }
         for (QString id : ids) {
             T* item = getItem(id);
