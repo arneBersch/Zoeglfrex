@@ -96,6 +96,9 @@ void DmxEngine::generateDmx() {
             const int i = (int)h;
             const double f = h - i;
             float saturation = fixtureColors.value(fixture)->floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID);
+            if (fixtureColors.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).contains(fixture)) {
+                saturation = fixtureColors.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture);
+            }
             const double p = (100.0 - saturation);
             const double q = (100.0 - (saturation * f));
             const double t = (100.0 - (saturation * (1.0 - f)));

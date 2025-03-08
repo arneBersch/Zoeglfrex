@@ -11,6 +11,7 @@
 ColorList::ColorList(Kernel *core) : ItemList(Keys::Color, "Color", "Colors") {
     kernel = core;
     floatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
+    fixtureSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
     angleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
 }
 

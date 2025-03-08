@@ -34,5 +34,13 @@ QString Color::info() {
     QString info = Item::info();
     info += "\n" + kernel->colors->HUEATTRIBUTEID + " Hue: " + QString::number(angleAttributes.value(kernel->colors->HUEATTRIBUTEID)) + "°";
     info += "\n" + kernel->colors->SATURATIONATTRIBUTEID + " Saturation: " + QString::number(floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID)) + "%";
+    QString fixtureSaturationValues;
+    for (Fixture* fixture : kernel->fixtures->items) {
+        if (fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).contains(fixture)) {
+            fixtureSaturationValues += fixture->id + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture)) + "%; ";
+        }
+    }
+    fixtureSaturationValues.chop(2);
+    info += "\n    Fixture Exceptions: " + fixtureSaturationValues;
     return info;
 }
