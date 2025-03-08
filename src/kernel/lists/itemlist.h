@@ -53,6 +53,7 @@ protected:
     virtual void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString()) = 0;
     QMap<QString, IntAttribute> intAttributes;
     QMap<QString, FloatAttribute> floatAttributes;
+    QMap<QString, FloatAttribute> fixtureSpecificFloatAttributes;
     QMap<QString, AngleAttribute> angleAttributes;
 private:
     int findRow(QString id);

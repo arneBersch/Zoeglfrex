@@ -12,6 +12,7 @@
 #include <QtWidgets>
 
 class Kernel;
+class Fixture;
 
 class Item {
 public:
@@ -24,6 +25,7 @@ public:
     virtual QString info();
     QMap<QString, int> intAttributes;
     QMap<QString, float> floatAttributes;
+    QMap<QString, QMap<Fixture*, float>> fixtureSpecificFloatAttributes;
     QMap<QString, float> angleAttributes;
 protected:
     Kernel *kernel;

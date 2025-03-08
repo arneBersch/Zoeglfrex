@@ -290,7 +290,7 @@ void MainWindow::openFile() {
                                 kernel->terminal->error("Error reading file: Dimmer of Intensity " + intensity->id + " isn't valid.");
                                 return;
                             }
-                            intensity->dimmer = dimmer;
+                            intensity->floatAttributes[kernel->intensities->DIMMERATTRIBUTEID] = dimmer;
                         } else {
                             kernel->terminal->error("Error reading file: Unknown Intensity Attribute \"" + fileStream.name().toString() + "\".");
                             return;
@@ -553,7 +553,7 @@ void MainWindow::saveFile() {
         fileStream.writeStartElement("Intensity");
         fileStream.writeAttribute("ID", intensity->id);
         fileStream.writeTextElement("Label", intensity->label);
-        fileStream.writeTextElement("Dimmer", QString::number(intensity->dimmer));
+        fileStream.writeTextElement("Dimmer", QString::number(intensity->floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID)));
         fileStream.writeEndElement();
     }
     fileStream.writeEndElement();

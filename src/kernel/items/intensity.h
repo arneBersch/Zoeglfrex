@@ -19,8 +19,6 @@ public:
     Intensity(Kernel* core);
     Intensity(const Intensity* item);
     ~Intensity();
-    float dimmer = 100;
-    QMap<Fixture*, float> fixtureDimmer;
     QString name() override;
     QString info() override;
 };

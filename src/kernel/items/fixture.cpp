@@ -12,7 +12,6 @@
 Fixture::Fixture(Kernel* core) : Item(core) {}
 
 Fixture::Fixture(const Fixture* item) : Item(item) {
-    label = item->label;
     model = item->model;
     address = 0; // using the same address as the other Fixture could result in an address conflict
 }
@@ -21,8 +20,40 @@ Fixture::~Fixture() {
     for (Group* group : kernel->groups->items) {
         group->fixtures.removeAll(this);
     }
+    for (Model* model : kernel->models->items) {
+        for (QString attribute : model->fixtureSpecificFloatAttributes.keys()) {
+            model->fixtureSpecificFloatAttributes[attribute].remove(this);
+        }
+    }
+    for (Fixture* fixture : kernel->fixtures->items) {
+        for (QString attribute : fixture->fixtureSpecificFloatAttributes.keys()) {
+            fixture->fixtureSpecificFloatAttributes[attribute].remove(this);
+        }
+    }
+    for (Group* group : kernel->groups->items) {
+        for (QString attribute : group->fixtureSpecificFloatAttributes.keys()) {
+            group->fixtureSpecificFloatAttributes[attribute].remove(this);
+        }
+    }
     for (Intensity* intensity : kernel->intensities->items) {
-        intensity->fixtureDimmer.remove(this);
+        for (QString attribute : intensity->fixtureSpecificFloatAttributes.keys()) {
+            intensity->fixtureSpecificFloatAttributes[attribute].remove(this);
+        }
+    }
+    for (Color* color : kernel->colors->items) {
+        for (QString attribute : color->fixtureSpecificFloatAttributes.keys()) {
+            color->fixtureSpecificFloatAttributes[attribute].remove(this);
+        }
+    }
+    for (Raw* raw : kernel->raws->items) {
+        for (QString attribute : raw->fixtureSpecificFloatAttributes.keys()) {
+            raw->fixtureSpecificFloatAttributes[attribute].remove(this);
+        }
+    }
+    for (Cue* cue : kernel->cues->items) {
+        for (QString attribute : cue->fixtureSpecificFloatAttributes.keys()) {
+            cue->fixtureSpecificFloatAttributes[attribute].remove(this);
+        }
     }
 }
 

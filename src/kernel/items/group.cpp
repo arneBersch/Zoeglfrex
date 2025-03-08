@@ -12,7 +12,6 @@
 Group::Group(Kernel* core) : Item(core) {}
 
 Group::Group(const Group* item) : Item(item) {
-    label = item->label;
     fixtures = item->fixtures;
 }
 

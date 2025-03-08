@@ -11,9 +11,7 @@
 
 Color::Color(Kernel* core) : Item(core) {}
 
-Color::Color(const Color* item) : Item(item) {
-    label = item->label;
-}
+Color::Color(const Color* item) : Item(item) {}
 
 Color::~Color() {
     for (Cue *cue : kernel->cues->items) {

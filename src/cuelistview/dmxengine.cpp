@@ -86,9 +86,9 @@ void DmxEngine::generateDmx() {
         float green = 0.0;
         float blue = 0.0;
         if (fixtureIntensities.contains(fixture)) {
-            dimmer = fixtureIntensities.value(fixture)->dimmer;
-            if (fixtureIntensities.value(fixture)->fixtureDimmer.contains(fixture)) {
-                dimmer = fixtureIntensities.value(fixture)->fixtureDimmer.value(fixture);
+            dimmer = fixtureIntensities.value(fixture)->floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID);
+            if (fixtureIntensities.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture)) {
+                dimmer = fixtureIntensities.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture);
             }
         }
         if (fixtureColors.contains(fixture)) {

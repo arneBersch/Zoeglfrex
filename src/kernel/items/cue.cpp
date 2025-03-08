@@ -12,7 +12,6 @@
 Cue::Cue(Kernel *core) : Item(core) {}
 
 Cue::Cue(const Cue* item) : Item(item) {
-    label = item->label;
     intensities = item->intensities;
     colors = item->colors;
 }

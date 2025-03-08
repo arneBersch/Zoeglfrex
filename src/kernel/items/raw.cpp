@@ -11,9 +11,7 @@
 
 Raw::Raw(Kernel* core) : Item(core) {}
 
-Raw::Raw(const Raw* item) : Item(item) {
-    label = item->label;
-}
+Raw::Raw(const Raw* item) : Item(item) {}
 
 Raw::~Raw() {
     for (Cue *cue : kernel->cues->items) {

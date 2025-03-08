@@ -18,6 +18,7 @@ Item::Item(const Item* item) {
     intAttributes = item->intAttributes;
     floatAttributes = item->floatAttributes;
     angleAttributes = item->angleAttributes;
+    label = item->label;
 }
 
 Item::~Item() {}

@@ -11,10 +11,7 @@
 
 Intensity::Intensity(Kernel* core) : Item(core) {}
 
-Intensity::Intensity(const Intensity* item) : Item(item) {
-    label = item->label;
-    dimmer = item->dimmer;
-}
+Intensity::Intensity(const Intensity* item) : Item(item) {}
 
 Intensity::~Intensity() {
     for (Cue *cue : kernel->cues->items) {
@@ -28,18 +25,18 @@ Intensity::~Intensity() {
 
 QString Intensity::name() {
     if (label.isEmpty()) {
-        return Item::name() + QString::number(dimmer) + "%";
+        return Item::name() + QString::number(floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID)) + "%";
     }
     return Item::name();
 }
 
 QString Intensity::info() {
     QString info = Item::info();
-    info += "\n" + kernel->intensities->DIMMERATTRIBUTEID + " Dimmer: " + QString::number(dimmer) + "%";
+    info += "\n" + kernel->intensities->DIMMERATTRIBUTEID + " Dimmer: " + QString::number(floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID)) + "%";
     QString fixtureDimmerValues;
     for (Fixture* fixture : kernel->fixtures->items) {
-        if (fixtureDimmer.contains(fixture)) {
-            fixtureDimmerValues += fixture->id + " @ " + QString::number(fixtureDimmer.value(fixture)) + "%; ";
+        if (fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture)) {
+            fixtureDimmerValues += fixture->id + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture)) + "%; ";
         }
     }
     fixtureDimmerValues.chop(2);

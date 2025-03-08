@@ -127,6 +127,50 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             emit dataChanged(index(itemRow, 0), index(itemRow, 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Labeled " + QString::number(itemRows.length()) + " " + pluralItemName + " as \"" + text + "\".");
+    } else if (fixtureSpecificFloatAttributes.contains(attributes.value(Keys::Attribute)) && attributes.contains(Keys::Fixture)) {
+        FloatAttribute floatAttribute = fixtureSpecificFloatAttributes.value(attributes.value(Keys::Attribute));
+        Fixture* fixture = kernel->fixtures->getItem(attributes.value(Keys::Fixture));
+        if (fixture == nullptr) {
+            kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Fixture " + attributes.value(Keys::Fixture) + " because Fixture doesn't exist.");
+            return;
+        }
+        if ((value.size() == 1) && (value.first() == Keys::Minus)) {
+            for (QString id : ids) {
+                T* item = getItem(id);
+                if (item == nullptr) {
+                    item = addItem(id);
+                }
+                item->fixtureSpecificFloatAttributes[attributes.value(Keys::Attribute)].remove(fixture);
+                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+            }
+            kernel->terminal->success("Removed " + floatAttribute.name + " of Fixture " + fixture->id + " in " + QString::number(ids.length()) + " " + pluralItemName + ".");
+        } else {
+            bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
+            if (negativeValue) {
+                value.removeFirst();
+            }
+            int newValue = kernel->keysToValue(value);
+            if (newValue < 0) {
+                kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Fixture " + fixture->id+ " because no valid number was given.");
+                return;
+            }
+            if (negativeValue) {
+                newValue *= -1;
+            }
+            if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
+                kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Fixture " + fixture->id + " because " + floatAttribute.name + " has to be a number between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
+                return;
+            }
+            for (QString id : ids) {
+                T* item = getItem(id);
+                if (item == nullptr) {
+                    item = addItem(id);
+                }
+                item->fixtureSpecificFloatAttributes[attributes.value(Keys::Attribute)][fixture] = newValue;
+                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+            }
+            kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Fixutre " + fixture->id + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+        }
     } else if (intAttributes.contains(attributes.value(Keys::Attribute))) {
         IntAttribute intAttribute = intAttributes.value(attributes.value(Keys::Attribute));
         bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
@@ -271,6 +315,9 @@ template <class T> T* ItemList<T>::addItem(QString id) {
     }
     for (QString attribute : floatAttributes.keys()) {
         item->floatAttributes[attribute] = floatAttributes.value(attribute).value;
+    }
+    for (QString attribute : fixtureSpecificFloatAttributes.keys()) {
+        item->fixtureSpecificFloatAttributes[attribute] = QMap<Fixture*, float>();
     }
     for (QString attribute : angleAttributes.keys()) {
         item->angleAttributes[attribute] = angleAttributes.value(attribute).value;
