@@ -23,6 +23,7 @@ public:
     QString label = QString();
     virtual QString name();
     virtual QString info();
+    QMap<QString, QList<Fixture*>> fixtureListAttributes;
     QMap<QString, int> intAttributes;
     QMap<QString, float> floatAttributes;
     QMap<QString, QMap<Fixture*, float>> fixtureSpecificFloatAttributes;

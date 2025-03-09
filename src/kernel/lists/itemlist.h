@@ -11,6 +11,13 @@
 
 #include <QtWidgets>
 
+class Fixture;
+
+struct FixtureListAttribute {
+    QString name = QString();
+    QList<Fixture*> value = QList<Fixture*>();
+};
+
 struct IntAttribute {
     QString name = QString();
     int value = 0;
@@ -51,6 +58,7 @@ public:
     const QString LABELATTRIBUTEID = "1";
 protected:
     virtual void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString()) = 0;
+    QMap<QString, FixtureListAttribute> fixtureListAttributes;
     QMap<QString, IntAttribute> intAttributes;
     QMap<QString, FloatAttribute> floatAttributes;
     QMap<QString, FloatAttribute> fixtureSpecificFloatAttributes;

@@ -11,9 +11,7 @@
 
 Group::Group(Kernel* core) : Item(core) {}
 
-Group::Group(const Group* item) : Item(item) {
-    fixtures = item->fixtures;
-}
+Group::Group(const Group* item) : Item(item) {}
 
 Group::~Group() {
     if (kernel->cuelistView->currentGroup == this) {
@@ -30,7 +28,7 @@ Group::~Group() {
 QString Group::name() {
     if (label.isEmpty()) {
         QString response = Item::name();
-        for (Fixture* fixture : fixtures) {
+        for (Fixture* fixture : fixtureListAttributes.value(kernel->groups->FIXTURESATTRIBUTEID)) {
             response += fixture->name() + "; ";
         }
         return response;
@@ -41,7 +39,7 @@ QString Group::name() {
 QString Group::info() {
     QString info = Item::info();
     QString fixtureNames;
-    for (Fixture* fixture : fixtures) {
+    for (Fixture* fixture : fixtureListAttributes.value(kernel->groups->FIXTURESATTRIBUTEID)) {
         fixtureNames += fixture->id + ", ";
     }
     fixtureNames.chop(2);

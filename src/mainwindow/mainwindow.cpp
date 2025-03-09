@@ -261,7 +261,7 @@ void MainWindow::openFile() {
                                     kernel->terminal->error("Error reading file: Fixture of Group " + group->id + " was not found.");
                                     return;
                                 }
-                                group->fixtures.append(fixture);
+                                group->fixtureListAttributes[kernel->groups->FIXTURESATTRIBUTEID].append(fixture);
                             }
                         } else {
                             kernel->terminal->error("Error reading file: Unknown Group Attribute \"" + fileStream.name().toString() + "\".");
@@ -540,7 +540,7 @@ void MainWindow::saveFile() {
         fileStream.writeAttribute("ID", group->id);
         fileStream.writeTextElement("Label", group->label);
         fileStream.writeStartElement("Fixtures");
-        for (Fixture *fixture : group->fixtures) {
+        for (Fixture *fixture : group->fixtureListAttributes.value(kernel->groups->FIXTURESATTRIBUTEID)) {
             fileStream.writeTextElement("Fixture", fixture->id);
         }
         fileStream.writeEndElement();

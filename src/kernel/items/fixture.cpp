@@ -17,42 +17,60 @@ Fixture::Fixture(const Fixture* item) : Item(item) {
 }
 
 Fixture::~Fixture() {
-    for (Group* group : kernel->groups->items) {
-        group->fixtures.removeAll(this);
-    }
-    for (Model* model : kernel->models->items) {
-        for (QString attribute : model->fixtureSpecificFloatAttributes.keys()) {
-            model->fixtureSpecificFloatAttributes[attribute].remove(this);
+    for (Model* currentModel : kernel->models->items) {
+        for (QString fixtureListAttribute : currentModel->fixtureListAttributes.keys()) {
+            currentModel->fixtureListAttributes[fixtureListAttribute].removeAll(this);
+        }
+        for (QString fixtureSpecificFloatAttribute : currentModel->fixtureSpecificFloatAttributes.keys()) {
+            currentModel->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }
     }
     for (Fixture* fixture : kernel->fixtures->items) {
-        for (QString attribute : fixture->fixtureSpecificFloatAttributes.keys()) {
-            fixture->fixtureSpecificFloatAttributes[attribute].remove(this);
+        for (QString fixtureListAttribute : fixture->fixtureListAttributes.keys()) {
+            fixture->fixtureListAttributes[fixtureListAttribute].removeAll(this);
+        }
+        for (QString fixtureSpecificFloatAttribute : fixture->fixtureSpecificFloatAttributes.keys()) {
+            fixture->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }
     }
     for (Group* group : kernel->groups->items) {
-        for (QString attribute : group->fixtureSpecificFloatAttributes.keys()) {
-            group->fixtureSpecificFloatAttributes[attribute].remove(this);
+        for (QString fixtureListAttribute : group->fixtureListAttributes.keys()) {
+            group->fixtureListAttributes[fixtureListAttribute].removeAll(this);
+        }
+        for (QString fixtureSpecificFloatAttribute : group->fixtureSpecificFloatAttributes.keys()) {
+            group->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }
     }
     for (Intensity* intensity : kernel->intensities->items) {
-        for (QString attribute : intensity->fixtureSpecificFloatAttributes.keys()) {
-            intensity->fixtureSpecificFloatAttributes[attribute].remove(this);
+        for (QString fixtureListAttribute : intensity->fixtureListAttributes.keys()) {
+            intensity->fixtureListAttributes[fixtureListAttribute].removeAll(this);
+        }
+        for (QString fixtureSpecificFloatAttribute : intensity->fixtureSpecificFloatAttributes.keys()) {
+            intensity->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }
     }
     for (Color* color : kernel->colors->items) {
-        for (QString attribute : color->fixtureSpecificFloatAttributes.keys()) {
-            color->fixtureSpecificFloatAttributes[attribute].remove(this);
+        for (QString fixtureListAttribute : color->fixtureListAttributes.keys()) {
+            color->fixtureListAttributes[fixtureListAttribute].removeAll(this);
+        }
+        for (QString fixtureSpecificFloatAttribute : color->fixtureSpecificFloatAttributes.keys()) {
+            color->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }
     }
     for (Raw* raw : kernel->raws->items) {
-        for (QString attribute : raw->fixtureSpecificFloatAttributes.keys()) {
-            raw->fixtureSpecificFloatAttributes[attribute].remove(this);
+        for (QString fixtureListAttribute : raw->fixtureListAttributes.keys()) {
+            raw->fixtureListAttributes[fixtureListAttribute].removeAll(this);
+        }
+        for (QString fixtureSpecificFloatAttribute : raw->fixtureSpecificFloatAttributes.keys()) {
+            raw->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }
     }
     for (Cue* cue : kernel->cues->items) {
-        for (QString attribute : cue->fixtureSpecificFloatAttributes.keys()) {
-            cue->fixtureSpecificFloatAttributes[attribute].remove(this);
+        for (QString fixtureListAttribute : cue->fixtureListAttributes.keys()) {
+            cue->fixtureListAttributes[fixtureListAttribute].removeAll(this);
+        }
+        for (QString fixtureSpecificFloatAttribute : cue->fixtureSpecificFloatAttributes.keys()) {
+            cue->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }
     }
 }

@@ -19,7 +19,6 @@ public:
     Group(Kernel* core);
     Group(const Group* item);
     ~Group();
-    QList<Fixture*> fixtures = QList<Fixture*>();
     QString name() override;
     QString info() override;
 };

@@ -15,6 +15,7 @@ Item::Item(Kernel* core) {
 
 Item::Item(const Item* item) {
     kernel = item->kernel;
+    fixtureListAttributes = item->fixtureListAttributes;
     intAttributes = item->intAttributes;
     floatAttributes = item->floatAttributes;
     angleAttributes = item->angleAttributes;
