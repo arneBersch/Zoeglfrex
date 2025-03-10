@@ -13,7 +13,6 @@ Fixture::Fixture(Kernel* core) : Item(core) {}
 
 Fixture::Fixture(const Fixture* item) : Item(item) {
     model = item->model;
-    address = 0; // using the same address as the other Fixture could result in an address conflict
 }
 
 Fixture::~Fixture() {
@@ -81,7 +80,7 @@ QString Fixture::name() {
         channels = model->channels;
     }
     if (label.isEmpty()) {
-        return Item::name() + channels + " (" + QString::number(address) + ")";
+        return Item::name() + channels + " (" + QString::number(intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID)) + ")";
     }
     return Item::name();
 }
@@ -94,6 +93,6 @@ QString Fixture::info() {
     } else {
         info += model->name();
     }
-    info += "\n" + kernel->fixtures->ADDRESSATTRIBUTEID + " Address: " + QString::number(address);
+    info += "\n" + kernel->fixtures->ADDRESSATTRIBUTEID + " Address: " + QString::number(intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID));
     return info;
 }

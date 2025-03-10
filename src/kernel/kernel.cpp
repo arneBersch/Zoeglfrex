@@ -272,6 +272,7 @@ void Kernel::execute(QList<int> command, QString text) {
         }
         cues->setAttribute(ids, attributeMap, value, text);
     }
+    patchOkay();
     cuelistView->loadCue();
 }
 
@@ -538,12 +539,13 @@ int Kernel::keyToNumber(int key) {
 bool Kernel::patchOkay() {
     QSet<int> channels;
     for (Fixture* fixture : fixtures->items) {
-        if (fixture->address > 0) {
+        int address = fixture->intAttributes.value(fixtures->ADDRESSATTRIBUTEID);
+        if (address > 0) {
             int fixtureChannels = 1;
             if (fixture->model != nullptr) {
                 fixtureChannels = fixture->model->channels.size();
             }
-            for (int channel = fixture->address; channel < (fixture->address + fixtureChannels); channel++) {
+            for (int channel = address; channel < (address + fixtureChannels); channel++) {
                 if (channel > 512) {
                     terminal->warning("Patch Conflict detected: Fixture " + fixture->name() + " would have channels greater than 512.");
                     return false;

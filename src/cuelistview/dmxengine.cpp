@@ -151,15 +151,16 @@ void DmxEngine::generateDmx() {
             green -= white;
             blue -= white;
         }
-        if (fixture->address > 0) {
-            for (int channel = fixture->address; channel < (fixture->address + channels.size()); channel++) {
+        int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
+        if (address > 0) {
+            for (int channel = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID); channel < (address + channels.size()); channel++) {
                 float value = 0.0;
-                QChar channelType = channels.at(channel - fixture->address);
-                if (channels.at(channel - fixture->address) == QChar('D')) { // DIMMER
+                QChar channelType = channels.at(channel - address);
+                if (channelType == QChar('D')) { // DIMMER
                     value = dimmer;
-                } else if (channels.at(channel - fixture->address) == QChar('R')) { // RED
+                } else if (channelType == QChar('R')) { // RED
                     value = red;
-                } else if (channels.at(channel - fixture->address) == QChar('G')) { // GREEN
+                } else if (channelType == QChar('G')) { // GREEN
                     value = green;
                 } else if (channelType == QChar('B')) { // BLUE
                     value = blue;
@@ -177,11 +178,13 @@ void DmxEngine::generateDmx() {
                     value = 100.0;
                 }
                 uint8_t raw = (value * 2.55 + 0.5);
-                currentCueValues[channel] = raw;
+                if (channel <= 512) {
+                    currentCueValues[channel] = raw;
+                }
             }
             if (fixtureRaws.contains(fixture)) {
                 for (Raw* raw : fixtureRaws[fixture]) {
-                    int channel = fixture->address + raw->intAttributes.value(kernel->raws->CHANNELATTRIBUTEID) - 1;
+                    int channel = address + raw->intAttributes.value(kernel->raws->CHANNELATTRIBUTEID) - 1;
                     if ((channel <= 512) && (raw->intAttributes.value(kernel->raws->CHANNELATTRIBUTEID) <= channels.size())) {
                         currentCueValues[channel] = raw->intAttributes.value(kernel->raws->VALUEATTRIBUTEID);
                     }

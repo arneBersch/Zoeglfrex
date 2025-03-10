@@ -20,7 +20,6 @@ public:
     Fixture(const Fixture* item);
     ~Fixture();
     Model* model = nullptr;
-    int address = 0;
     QString name() override;
     QString info() override;
 };

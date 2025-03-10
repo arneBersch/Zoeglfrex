@@ -229,7 +229,7 @@ void MainWindow::openFile() {
                                 kernel->terminal->error("Error reading file: Fixture Address of Fixture " + fixture->id + " is not valid.");
                                 return;
                             }
-                            fixture->address = address;
+                            fixture->intAttributes[kernel->fixtures->ADDRESSATTRIBUTEID] = address;
                         } else {
                             kernel->terminal->error("Error reading file: Unknown Fixture Attribute \"" + fileStream.name().toString() + "\".");
                             return;
@@ -529,7 +529,7 @@ void MainWindow::saveFile() {
         if (fixture->model != nullptr) {
             fileStream.writeTextElement("Model", fixture->model->id);
         }
-        fileStream.writeTextElement("Address", QString::number(fixture->address));
+        fileStream.writeTextElement("Address", QString::number(fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID)));
         fileStream.writeEndElement();
     }
     fileStream.writeEndElement();
