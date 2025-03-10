@@ -13,6 +13,12 @@
 
 class Fixture;
 
+struct StringAttribute {
+    QString name = QString();
+    QString value = QString();
+    QString regex = QString();
+};
+
 struct IntAttribute {
     QString name = QString();
     int value = 0;
@@ -53,6 +59,7 @@ public:
     const QString LABELATTRIBUTEID = "1";
 protected:
     virtual void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString()) = 0;
+    QMap<QString, StringAttribute> stringAttributes;
     QMap<QString, IntAttribute> intAttributes;
     QMap<QString, FloatAttribute> floatAttributes;
     QMap<QString, FloatAttribute> fixtureSpecificFloatAttributes;

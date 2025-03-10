@@ -28,7 +28,7 @@ Group::~Group() {
 }
 
 QString Group::name() {
-    if (label.isEmpty()) {
+    if (stringAttributes.value(kernel->groups->LABELATTRIBUTEID).isEmpty()) {
         QString response = Item::name();
         for (Fixture* fixture : fixtures) {
             response += fixture->name() + "; ";

@@ -15,6 +15,5 @@ IntensityList::IntensityList(Kernel *core) : ItemList(Keys::Intensity, "Intensit
 }
 
 void IntensityList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
-    QString attributeString = attributes.value(Keys::Attribute);
-    kernel->terminal->error("Can't set Intensity Attribute " + attributeString + ".");
+    kernel->terminal->error("Can't set Intensity Attribute " + attributes.value(Keys::Attribute) + ".");
 }

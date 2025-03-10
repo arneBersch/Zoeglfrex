@@ -27,7 +27,7 @@ Raw::~Raw() {
 }
 
 QString Raw::name() {
-    if (label.isEmpty()) {
+    if (stringAttributes.value(kernel->raws->LABELATTRIBUTEID).isEmpty()) {
         return Item::name() + QString::number(intAttributes.value(kernel->raws->CHANNELATTRIBUTEID)) + " @ " + QString::number(intAttributes.value(kernel->raws->VALUEATTRIBUTEID));
     }
     return Item::name();

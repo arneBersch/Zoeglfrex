@@ -13,6 +13,7 @@ template <class T> ItemList<T>::ItemList(int key, QString singular, QString plur
     itemKey = key;
     singularItemName = singular;
     pluralItemName = plural;
+    stringAttributes[LABELATTRIBUTEID] = {"Label", QString(), QString()};
 }
 
 template <class T> T* ItemList<T>::getItem(QString id) const {
@@ -41,6 +42,7 @@ template <class T> QList<QString> ItemList<T>::getIds() const {
 }
 
 template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+    QString attribute = attributes.value(Keys::Attribute);
     if ((!attributes.contains(Keys::Attribute)) && (value.size() == 1) && (value.first() == Keys::Minus)) { // Delete Item
         QList<QString> existingIds;
         for (QString id : ids) {
@@ -81,7 +83,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             }
         }
         kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + singularItemName + " " + sourceItem->id + " .");
-    } else if (attributes.value(Keys::Attribute) == IDATTRIBUTEID) {
+    } else if (attribute == IDATTRIBUTEID) {
         QString targetId = kernel->keysToId(value);
         QList<int> itemRows;
         for (QString id : ids) {
@@ -108,27 +110,27 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             }
         }
         kernel->terminal->success("Set ID of " + QString::number(itemRows.length()) + " " + pluralItemName + " to " + targetId + ".");
-    } else if (attributes.value(Keys::Attribute) == LABELATTRIBUTEID) {
+    } else if (stringAttributes.contains(attribute)){
+        StringAttribute stringAttribute = stringAttributes.value(attribute);
         if (!value.isEmpty()) {
-            kernel->terminal->error("Label doesn't take any parameters.");
+            kernel->terminal->error(singularItemName + " " + stringAttribute.name + " doesn't take a value.");
             return;
         }
-        QList<int> itemRows;
+        if (!stringAttribute.regex.isEmpty() && !text.contains(QRegularExpression(stringAttribute.regex))) {
+            kernel->terminal->error("Didn't set " + singularItemName + " " + stringAttribute.name + " because " + stringAttribute.name + " \"" + text + "\" are not valid.");
+            return;
+        }
         for (QString id : ids) {
-            int itemRow = getItemRow(id);
-            if (itemRow < 0) {
-                kernel->terminal->warning("Couldn't label " + singularItemName + " " + id + " because it doesn't exist.");
-            } else {
-                itemRows.append(itemRow);
+            T* item = getItem(id);
+            if (item == nullptr) {
+                item = addItem(id);
             }
+            item->stringAttributes[attribute] = text;
+            emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
-        for (int itemRow : itemRows) {
-            items[itemRow]->label = text;
-            emit dataChanged(index(itemRow, 0), index(itemRow, 0), {Qt::DisplayRole, Qt::EditRole});
-        }
-        kernel->terminal->success("Labeled " + QString::number(itemRows.length()) + " " + pluralItemName + " as \"" + text + "\".");
-    } else if (fixtureSpecificFloatAttributes.contains(attributes.value(Keys::Attribute)) && attributes.contains(Keys::Fixture)) {
-        FloatAttribute floatAttribute = fixtureSpecificFloatAttributes.value(attributes.value(Keys::Attribute));
+        kernel->terminal->success("Set " + stringAttribute.name + " of " + QString::number(ids.size()) + " " + pluralItemName + " to \"" + text + "\".");
+    } else if (fixtureSpecificFloatAttributes.contains(attribute) && attributes.contains(Keys::Fixture)) {
+        FloatAttribute floatAttribute = fixtureSpecificFloatAttributes.value(attribute);
         Fixture* fixture = kernel->fixtures->getItem(attributes.value(Keys::Fixture));
         if (fixture == nullptr) {
             kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Fixture " + attributes.value(Keys::Fixture) + " because Fixture doesn't exist.");
@@ -140,7 +142,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
                 if (item == nullptr) {
                     item = addItem(id);
                 }
-                item->fixtureSpecificFloatAttributes[attributes.value(Keys::Attribute)].remove(fixture);
+                item->fixtureSpecificFloatAttributes[attribute].remove(fixture);
                 emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
             }
             kernel->terminal->success("Removed " + floatAttribute.name + " of Fixture " + fixture->id + " in " + QString::number(ids.length()) + " " + pluralItemName + ".");
@@ -166,13 +168,13 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
                 if (item == nullptr) {
                     item = addItem(id);
                 }
-                item->fixtureSpecificFloatAttributes[attributes.value(Keys::Attribute)][fixture] = newValue;
+                item->fixtureSpecificFloatAttributes[attribute][fixture] = newValue;
                 emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
             }
             kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Fixutre " + fixture->id + " to " + QString::number(newValue) + floatAttribute.unit + ".");
         }
-    } else if (intAttributes.contains(attributes.value(Keys::Attribute))) {
-        IntAttribute intAttribute = intAttributes.value(attributes.value(Keys::Attribute));
+    } else if (intAttributes.contains(attribute)) {
+        IntAttribute intAttribute = intAttributes.value(attribute);
         bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
         if (negativeValue) {
             value.removeFirst();
@@ -194,12 +196,12 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             if (item == nullptr) {
                 item = addItem(id);
             }
-            item->intAttributes[attributes.value(Keys::Attribute)] = newValue;
+            item->intAttributes[attribute] = newValue;
             emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set " + intAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + intAttribute.unit + ".");
-    } else if (floatAttributes.contains(attributes.value(Keys::Attribute))) {
-        FloatAttribute floatAttribute = floatAttributes.value(attributes.value(Keys::Attribute));
+    } else if (floatAttributes.contains(attribute)) {
+        FloatAttribute floatAttribute = floatAttributes.value(attribute);
         bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
         if (negativeValue) {
             value.removeFirst();
@@ -221,12 +223,12 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             if (item == nullptr) {
                 item = addItem(id);
             }
-            item->floatAttributes[attributes.value(Keys::Attribute)] = newValue;
+            item->floatAttributes[attribute] = newValue;
             emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + floatAttribute.unit + ".");
-    } else if (angleAttributes.contains(attributes.value(Keys::Attribute))) {
-        AngleAttribute angleAttribute = angleAttributes.value(attributes.value(Keys::Attribute));
+    } else if (angleAttributes.contains(attribute)) {
+        AngleAttribute angleAttribute = angleAttributes.value(attribute);
         bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
         if (negativeValue) {
             value.removeFirst();
@@ -247,7 +249,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             if (item == nullptr) {
                 item = addItem(id);
             }
-            item->angleAttributes[attributes.value(Keys::Attribute)] = newValue;
+            item->angleAttributes[attribute] = newValue;
             emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + "°.");
@@ -310,6 +312,9 @@ template <class T> int ItemList<T>::findRow(QString id) {
 template <class T> T* ItemList<T>::addItem(QString id) {
     T* item = new T(kernel);
     item->id = id;
+    for (QString attribute : stringAttributes.keys()) {
+        item->stringAttributes[attribute] = stringAttributes.value(attribute).value;
+    }
     for (QString attribute : intAttributes.keys()) {
         item->intAttributes[attribute] = intAttributes.value(attribute).value;
     }

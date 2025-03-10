@@ -22,9 +22,9 @@ public:
     Item(const Item* item);
     virtual ~Item();
     QString id;
-    QString label = QString();
     virtual QString name();
     virtual QString info();
+    QMap<QString, QString> stringAttributes;
     QMap<QString, int> intAttributes;
     QMap<QString, float> floatAttributes;
     QMap<QString, QMap<Fixture*, float>> fixtureSpecificFloatAttributes;

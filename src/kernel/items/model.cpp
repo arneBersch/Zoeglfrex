@@ -11,9 +11,7 @@
 
 Model::Model(Kernel* core) : Item(core) {}
 
-Model::Model(const Model* item) : Item(item) {
-    channels = item->channels;
-}
+Model::Model(const Model* item) : Item(item) {}
 
 Model::~Model() {
     for (Fixture* fixture : kernel->fixtures->items) {
@@ -24,14 +22,14 @@ Model::~Model() {
 }
 
 QString Model::name() {
-    if (label.isEmpty()) {
-        return Item::name() + channels;
+    if (stringAttributes.value(kernel->models->LABELATTRIBUTEID).isEmpty()) {
+        return Item::name() + stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
     }
     return Item::name();
 }
 
 QString Model::info() {
     QString info = Item::info();
-    info += "\n" + kernel->models->CHANNELSATTRIBUTEID + " Channels: " + channels;
+    info += "\n" + kernel->models->CHANNELSATTRIBUTEID + " Channels: " + stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
     return info;
 }

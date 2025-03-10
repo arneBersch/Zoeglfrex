@@ -24,7 +24,7 @@ Color::~Color() {
 }
 
 QString Color::name() {
-    if (label.isEmpty()) {
+    if (stringAttributes.value(kernel->colors->LABELATTRIBUTEID).isEmpty()) {
         return Item::name() + QString::number(angleAttributes.value(kernel->colors->HUEATTRIBUTEID)) + "°, " + QString::number(floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID)) + "%";
     }
     return Item::name();

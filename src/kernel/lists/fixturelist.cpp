@@ -14,8 +14,8 @@ FixtureList::FixtureList(Kernel *core) : ItemList(Keys::Fixture, "Fixture", "Fix
 }
 
 void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
-    QString attributeString = attributes.value(Keys::Attribute);
-    if (attributeString == MODELATTRIBUTEID) {
+    QString attribute = attributes.value(Keys::Attribute);
+    if (attribute == MODELATTRIBUTEID) {
         if ((value.size() == 1) && (value.first() == Keys::Minus)) {
             for (QString id : ids) {
                 Fixture* fixture = getItem(id);
@@ -57,6 +57,6 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
             return;
         }
     } else {
-        kernel->terminal->error("Can't set Fixture Attribute " + attributeString + ".");
+        kernel->terminal->error("Can't set Fixture Attribute " + attribute + ".");
     }
 }

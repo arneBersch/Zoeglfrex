@@ -15,20 +15,20 @@ Item::Item(Kernel* core) {
 
 Item::Item(const Item* item) {
     kernel = item->kernel;
+    stringAttributes = item->stringAttributes;
     intAttributes = item->intAttributes;
     floatAttributes = item->floatAttributes;
     angleAttributes = item->angleAttributes;
-    label = item->label;
 }
 
 Item::~Item() {}
 
 QString Item::name() {
-    return id + " " + label;
+    return id + " " + stringAttributes.value(kernel->models->LABELATTRIBUTEID);
 }
 
 QString Item::info() {
     QString info = kernel->models->IDATTRIBUTEID + " ID: " + id;
-    info += "\n" + kernel->models->LABELATTRIBUTEID + " Label: \"" + label + "\"";
+    info += "\n" + kernel->models->LABELATTRIBUTEID + " Label: \"" + stringAttributes.value(kernel->models->LABELATTRIBUTEID) + "\"";
     return info;
 }

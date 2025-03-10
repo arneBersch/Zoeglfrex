@@ -59,7 +59,7 @@ QString Fixture::name() {
     if (model != nullptr) {
         channels = model->channels;
     }
-    if (label.isEmpty()) {
+    if (stringAttributes.value(kernel->fixtures->LABELATTRIBUTEID).isEmpty()) {
         return Item::name() + channels + " (" + QString::number(intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID)) + ")";
     }
     return Item::name();

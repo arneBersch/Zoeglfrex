@@ -192,7 +192,7 @@ void MainWindow::openFile() {
                     Model* model = kernel->models->addItem(fileStream.attributes().value("ID").toString());
                     while (fileStream.readNextStartElement()) {
                         if (fileStream.name().toString() == "Label") {
-                            model->label = fileStream.readElementText();
+                            model->stringAttributes[kernel->models->LABELATTRIBUTEID] = fileStream.readElementText();
                         } else if (fileStream.name().toString() == "Channels") {
                             model->channels = fileStream.readElementText();
                         } else {
@@ -214,7 +214,7 @@ void MainWindow::openFile() {
                     Fixture* fixture = kernel->fixtures->addItem(fileStream.attributes().value("ID").toString());
                     while (fileStream.readNextStartElement()) {
                         if (fileStream.name().toString() == "Label") {
-                            fixture->label = fileStream.readElementText();
+                            fixture->stringAttributes[kernel->fixtures->LABELATTRIBUTEID] = fileStream.readElementText();
                         } else if (fileStream.name().toString() == "Model") {
                             Model* model = kernel->models->getItem(fileStream.readElementText());
                             if (model == nullptr) {
@@ -249,7 +249,7 @@ void MainWindow::openFile() {
                     Group* group = kernel->groups->addItem(fileStream.attributes().value("ID").toString());
                     while (fileStream.readNextStartElement()) {
                         if (fileStream.name().toString() == "Label") {
-                            group->label = fileStream.readElementText();
+                            group->stringAttributes[kernel->groups->LABELATTRIBUTEID] = fileStream.readElementText();
                         } else if (fileStream.name().toString() == "Fixtures") {
                             while (fileStream.readNextStartElement()) {
                                 if (fileStream.name().toString() != "Fixture") {
@@ -282,7 +282,7 @@ void MainWindow::openFile() {
                     Intensity* intensity = kernel->intensities->addItem(fileStream.attributes().value("ID").toString());
                     while (fileStream.readNextStartElement()) {
                         if (fileStream.name().toString() == "Label") {
-                            intensity->label = fileStream.readElementText();
+                            intensity->stringAttributes[kernel->intensities->LABELATTRIBUTEID] = fileStream.readElementText();
                         } else if (fileStream.name().toString() == "Dimmer") {
                             bool ok;
                             float dimmer = fileStream.readElementText().toFloat(&ok);
@@ -310,7 +310,7 @@ void MainWindow::openFile() {
                     Color* color = kernel->colors->addItem(fileStream.attributes().value("ID").toString());
                     while (fileStream.readNextStartElement()) {
                         if (fileStream.name().toString() == "Label") {
-                            color->label = fileStream.readElementText();
+                            color->stringAttributes[kernel->colors->LABELATTRIBUTEID] = fileStream.readElementText();
                         } else if (fileStream.name().toString() == "Hue") {
                             bool ok;
                             float hue = fileStream.readElementText().toFloat(&ok);
@@ -346,7 +346,7 @@ void MainWindow::openFile() {
                     Raw* raw = kernel->raws->addItem(fileStream.attributes().value("ID").toString());
                     while (fileStream.readNextStartElement()) {
                         if (fileStream.name().toString() == "Label") {
-                            raw->label = fileStream.readElementText();
+                            raw->stringAttributes[kernel->raws->LABELATTRIBUTEID] = fileStream.readElementText();
                         } else if (fileStream.name().toString() == "Channel") {
                             bool ok;
                             int channel = fileStream.readElementText().toInt(&ok);
@@ -382,7 +382,7 @@ void MainWindow::openFile() {
                     Cue* cue = kernel->cues->addItem(fileStream.attributes().value("ID").toString());
                     while (fileStream.readNextStartElement()) {
                         if (fileStream.name().toString() == "Label") {
-                            cue->label = fileStream.readElementText();
+                            cue->stringAttributes[kernel->cues->LABELATTRIBUTEID] = fileStream.readElementText();
                         } else if (fileStream.name().toString() == "Fade") {
                             bool ok;
                             float fade = fileStream.readElementText().toFloat(&ok);
@@ -515,7 +515,7 @@ void MainWindow::saveFile() {
     for (Model* model : kernel->models->items) {
         fileStream.writeStartElement("Model");
         fileStream.writeAttribute("ID", model->id);
-        fileStream.writeTextElement("Label", model->label);
+        fileStream.writeTextElement("Label", model->stringAttributes.value(kernel->models->LABELATTRIBUTEID));
         fileStream.writeTextElement("Channels", model->channels);
         fileStream.writeEndElement();
     }
@@ -525,7 +525,7 @@ void MainWindow::saveFile() {
     for (Fixture* fixture : kernel->fixtures->items) {
         fileStream.writeStartElement("Fixture");
         fileStream.writeAttribute("ID", fixture->id);
-        fileStream.writeTextElement("Label", fixture->label);
+        fileStream.writeTextElement("Label", fixture->stringAttributes.value(kernel->fixtures->LABELATTRIBUTEID));
         if (fixture->model != nullptr) {
             fileStream.writeTextElement("Model", fixture->model->id);
         }
@@ -538,7 +538,7 @@ void MainWindow::saveFile() {
     for (Group* group : kernel->groups->items) {
         fileStream.writeStartElement("Group");
         fileStream.writeAttribute("ID", group->id);
-        fileStream.writeTextElement("Label", group->label);
+        fileStream.writeTextElement("Label", group->stringAttributes.value(kernel->groups->LABELATTRIBUTEID));
         fileStream.writeStartElement("Fixtures");
         for (Fixture *fixture : group->fixtures) {
             fileStream.writeTextElement("Fixture", fixture->id);
@@ -552,7 +552,7 @@ void MainWindow::saveFile() {
     for (Intensity* intensity : kernel->intensities->items) {
         fileStream.writeStartElement("Intensity");
         fileStream.writeAttribute("ID", intensity->id);
-        fileStream.writeTextElement("Label", intensity->label);
+        fileStream.writeTextElement("Label", intensity->stringAttributes.value(kernel->intensities->LABELATTRIBUTEID));
         fileStream.writeTextElement("Dimmer", QString::number(intensity->floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID)));
         fileStream.writeEndElement();
     }
@@ -562,7 +562,7 @@ void MainWindow::saveFile() {
     for (Color* color : kernel->colors->items) {
         fileStream.writeStartElement("Color");
         fileStream.writeAttribute("ID", color->id);
-        fileStream.writeTextElement("Label", color->label);
+        fileStream.writeTextElement("Label", color->stringAttributes.value(kernel->colors->LABELATTRIBUTEID));
         fileStream.writeTextElement("Hue", QString::number(color->angleAttributes.value(kernel->colors->HUEATTRIBUTEID)));
         fileStream.writeTextElement("Saturation", QString::number(color->floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID)));
         fileStream.writeEndElement();
@@ -573,7 +573,7 @@ void MainWindow::saveFile() {
     for (Raw* raw : kernel->raws->items) {
         fileStream.writeStartElement("Raw");
         fileStream.writeAttribute("ID", raw->id);
-        fileStream.writeTextElement("Label", raw->label);
+        fileStream.writeTextElement("Label", raw->stringAttributes.value(kernel->raws->LABELATTRIBUTEID));
         fileStream.writeTextElement("Channel", QString::number(raw->intAttributes.value(kernel->raws->CHANNELATTRIBUTEID)));
         fileStream.writeTextElement("Value", QString::number(raw->intAttributes.value(kernel->raws->VALUEATTRIBUTEID)));
         fileStream.writeEndElement();
@@ -584,7 +584,7 @@ void MainWindow::saveFile() {
     for (Cue* cue : kernel->cues->items) {
         fileStream.writeStartElement("Cue");
         fileStream.writeAttribute("ID", cue->id);
-        fileStream.writeTextElement("Label", cue->label);
+        fileStream.writeTextElement("Label", cue->stringAttributes.value(kernel->cues->LABELATTRIBUTEID));
         fileStream.writeTextElement("Fade", QString::number(cue->floatAttributes.value(kernel->cues->FADEATTRIBUTEID)));
         fileStream.writeStartElement("Groups");
         for (Group* group : kernel->groups->items) {
