@@ -14,10 +14,66 @@ Intensity::Intensity(Kernel* core) : Item(core) {}
 Intensity::Intensity(const Intensity* item) : Item(item) {}
 
 Intensity::~Intensity() {
+    for (Model *model : kernel->models->items) {
+        for (QString groupSpecificIntensityAttribute : model->groupSpecificIntensityAttributes.keys()) {
+            for (Group *group : model->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).keys()) {
+                if (model->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).value(group) == this) {
+                    model->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(group);
+                }
+            }
+        }
+    }
+    for (Fixture *fixture : kernel->fixtures->items) {
+        for (QString groupSpecificIntensityAttribute : fixture->groupSpecificIntensityAttributes.keys()) {
+            for (Group *group : fixture->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).keys()) {
+                if (fixture->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).value(group) == this) {
+                    fixture->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(group);
+                }
+            }
+        }
+    }
+    for (Group *currentGroup: kernel->groups->items) {
+        for (QString groupSpecificIntensityAttribute : currentGroup->groupSpecificIntensityAttributes.keys()) {
+            for (Group *group : currentGroup->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).keys()) {
+                if (currentGroup->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).value(group) == this) {
+                    currentGroup->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(group);
+                }
+            }
+        }
+    }
+    for (Intensity *intensity : kernel->intensities->items) {
+        for (QString groupSpecificIntensityAttribute : intensity->groupSpecificIntensityAttributes.keys()) {
+            for (Group *group : intensity->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).keys()) {
+                if (intensity->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).value(group) == this) {
+                    intensity->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(group);
+                }
+            }
+        }
+    }
+    for (Color *color : kernel->colors->items) {
+        for (QString groupSpecificIntensityAttribute : color->groupSpecificIntensityAttributes.keys()) {
+            for (Group *group : color->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).keys()) {
+                if (color->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).value(group) == this) {
+                    color->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(group);
+                }
+            }
+        }
+    }
+    for (Raw *raw : kernel->raws->items) {
+        for (QString groupSpecificIntensityAttribute : raw->groupSpecificIntensityAttributes.keys()) {
+            for (Group *group : raw->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).keys()) {
+                if (raw->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).value(group) == this) {
+                    raw->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(group);
+                }
+            }
+        }
+    }
     for (Cue *cue : kernel->cues->items) {
-        for (Group *group : cue->intensities.keys()) {
-            if (cue->intensities.value(group) == this) {
-                cue->intensities.remove(group);
+        for (QString groupSpecificIntensityAttribute : cue->groupSpecificIntensityAttributes.keys()) {
+            for (Group *group : cue->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).keys()) {
+                if (cue->groupSpecificIntensityAttributes.value(groupSpecificIntensityAttribute).value(group) == this) {
+                    cue->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(group);
+                }
             }
         }
     }

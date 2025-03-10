@@ -49,8 +49,8 @@ QVariant CueModel::data(const QModelIndex &index, const int role) const
         if (column == CueModelColumns::group) {
             return group->name();
         } else if (column == CueModelColumns::intensity) {
-            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->intensities.contains(group)) {
-                return kernel->cuelistView->currentCue->intensities.value(group)->name();
+            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->groupSpecificIntensityAttributes.value(kernel->cues->INTENSITIESATTRIBUTEID).contains(group)) {
+                return kernel->cuelistView->currentCue->groupSpecificIntensityAttributes.value(kernel->cues->INTENSITIESATTRIBUTEID).value(group)->name();
             }
             return QVariant();
         } else if (column == CueModelColumns::color) {

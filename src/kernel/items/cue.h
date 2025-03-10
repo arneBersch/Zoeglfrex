@@ -13,7 +13,6 @@
 
 #include "item.h"
 #include "group.h"
-#include "intensity.h"
 #include "color.h"
 #include "raw.h"
 
@@ -22,7 +21,6 @@ public:
     Cue(Kernel *core);
     Cue(const Cue* item);
     ~Cue();
-    QMap<Group*, Intensity*> intensities = QMap<Group*, Intensity*>();
     QMap<Group*, Color*> colors = QMap<Group*, Color*>();
     QMap<Group*, QList<Raw*>> raws = QMap<Group*, QList<Raw*>>();
     QString info() override;

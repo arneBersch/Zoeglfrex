@@ -413,7 +413,7 @@ void MainWindow::openFile() {
                                             kernel->terminal->error("Error reading file: Intensity for Group " + group->id + " in Cue " + cue->id + " was not found.");
                                             return;
                                         }
-                                        cue->intensities[group] = intensity;
+                                        cue->groupSpecificIntensityAttributes[kernel->cues->INTENSITIESATTRIBUTEID][group] = intensity;
                                     } else if (fileStream.name().toString() == "Color") {
                                         Color* color = kernel->colors->getItem(fileStream.readElementText());
                                         if (color == nullptr) {
@@ -590,8 +590,8 @@ void MainWindow::saveFile() {
         for (Group* group : kernel->groups->items) {
             fileStream.writeStartElement("Group");
             fileStream.writeAttribute("ID", group->id);
-            if (cue->intensities.contains(group)) {
-                fileStream.writeTextElement("Intensity", cue->intensities.value(group)->id);
+            if (cue->groupSpecificIntensityAttributes.value(kernel->cues->INTENSITIESATTRIBUTEID).contains(group)) {
+                fileStream.writeTextElement("Intensity", cue->groupSpecificIntensityAttributes.value(kernel->cues->INTENSITIESATTRIBUTEID).value(group)->id);
             }
             if (cue->colors.contains(group)) {
                 fileStream.writeTextElement("Color", cue->colors.value(group)->id);

@@ -12,7 +12,6 @@
 Cue::Cue(Kernel *core) : Item(core) {}
 
 Cue::Cue(const Cue* item) : Item(item) {
-    intensities = item->intensities;
     colors = item->colors;
 }
 
@@ -29,8 +28,8 @@ QString Cue::info() {
     QString colorValues;
     QString rawValues;
     for (Group* group : kernel->groups->items) {
-        if (intensities.contains(group)) {
-            intensityValues += group->id + " @ " + intensities.value(group)->id + "; ";
+        if (groupSpecificIntensityAttributes.value(kernel->cues->INTENSITIESATTRIBUTEID).contains(group)) {
+            intensityValues += group->id + " @ " + groupSpecificIntensityAttributes.value(kernel->cues->INTENSITIESATTRIBUTEID).value(group)->id + "; ";
         }
         if (colors.contains(group)) {
             colorValues += group->id + " @ " + colors.value(group)->id + "; ";

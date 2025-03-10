@@ -18,8 +18,40 @@ Group::~Group() {
         kernel->cuelistView->currentGroup = nullptr;
         kernel->cuelistView->loadCue();
     }
+    for (Model* model : kernel->models->items) {
+        for (QString groupSpecificIntensityAttribute : model->groupSpecificIntensityAttributes.keys()) {
+            model->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(this);
+        }
+    }
+    for (Fixture* fixture : kernel->fixtures->items) {
+        for (QString groupSpecificIntensityAttribute : fixture->groupSpecificIntensityAttributes.keys()) {
+            fixture->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(this);
+        }
+    }
+    for (Group* group : kernel->groups->items) {
+        for (QString groupSpecificIntensityAttribute : group->groupSpecificIntensityAttributes.keys()) {
+            group->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(this);
+        }
+    }
+    for (Intensity* intensity : kernel->intensities->items) {
+        for (QString groupSpecificIntensityAttribute : intensity->groupSpecificIntensityAttributes.keys()) {
+            intensity->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(this);
+        }
+    }
+    for (Color* color : kernel->colors->items) {
+        for (QString groupSpecificIntensityAttribute : color->groupSpecificIntensityAttributes.keys()) {
+            color->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(this);
+        }
+    }
+    for (Raw* raw : kernel->raws->items) {
+        for (QString groupSpecificIntensityAttribute : raw->groupSpecificIntensityAttributes.keys()) {
+            raw->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(this);
+        }
+    }
     for (Cue *cue : kernel->cues->items) {
-        cue->intensities.remove(this);
+        for (QString groupSpecificIntensityAttribute : cue->groupSpecificIntensityAttributes.keys()) {
+            cue->groupSpecificIntensityAttributes[groupSpecificIntensityAttribute].remove(this);
+        }
         cue->colors.remove(this);
         cue->raws.remove(this);
     }

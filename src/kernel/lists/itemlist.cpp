@@ -158,6 +158,48 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set Fixtures of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(fixtureSelection.length()) + " Fixtures.");
+    } else if (groupSpecificIntensityAttributes.contains(attributes.value(Keys::Attribute))) {
+        GroupSpecificIntensityAttribute groupSpecificIntensityAttribute = groupSpecificIntensityAttributes.value(attributes.value(Keys::Attribute));
+        if (value.isEmpty() || (value.first() != Keys::Intensity)) {
+            kernel->terminal->error("Can't set " + singularItemName + " " + groupSpecificIntensityAttribute.name + " because no Intensity was given.");
+            return;
+        }
+        value.removeFirst();
+        Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
+        if (group == nullptr) {
+            kernel->terminal->error("Can't set " + singularItemName + " " + groupSpecificIntensityAttribute.name + " because an invalid Group was given.");
+            return;
+        }
+        if ((value.size() == 1) && (value.first() == Keys::Minus)) {
+            int itemCounter = 0;
+            for (QString id : ids) {
+                T *item = getItem(id);
+                if (item == nullptr) {
+                    kernel->terminal->warning("Can't set " + singularItemName + " " + groupSpecificIntensityAttribute.name + " at " + singularItemName + " " + id + " because it doesn't exist.");
+                } else {
+                    item->groupSpecificIntensityAttributes[attributes.value(Keys::Attribute)].remove(group);
+                    itemCounter++;
+                }
+            }
+            kernel->terminal->success("Deleted " + QString::number(itemCounter) + + " " + singularItemName + groupSpecificIntensityAttribute.name + " entries.");
+        } else {
+            Intensity* intensity = kernel->intensities->getItem(kernel->keysToId(value));
+            if (intensity == nullptr) {
+                kernel->terminal->error("Can't set " + singularItemName + " " + groupSpecificIntensityAttribute.name + " because Intensity " + kernel->keysToId(value) + " doesn't exist.");
+                return;
+            }
+            int itemCounter = 0;
+            for (QString id : ids) {
+                T* item = getItem(id);
+                if (item == nullptr) {
+                    kernel->terminal->warning("Can't set " + singularItemName + " " + groupSpecificIntensityAttribute.name + " of " + singularItemName + " " + id + " because it doesn't exist.");
+                } else {
+                    item->groupSpecificIntensityAttributes[attributes.value(Keys::Attribute)][group] = intensity;
+                    itemCounter++;
+                }
+            }
+            kernel->terminal->success("Set " + groupSpecificIntensityAttribute.name + " Attribute of " + QString::number(itemCounter) + " " + pluralItemName + " at Group " + group->name() + " to Intensity " + intensity->name() + ".");
+        }
     } else if (fixtureSpecificFloatAttributes.contains(attributes.value(Keys::Attribute)) && attributes.contains(Keys::Fixture)) {
         FloatAttribute floatAttribute = fixtureSpecificFloatAttributes.value(attributes.value(Keys::Attribute));
         Fixture* fixture = kernel->fixtures->getItem(attributes.value(Keys::Fixture));
@@ -341,6 +383,9 @@ template <class T> int ItemList<T>::findRow(QString id) {
 template <class T> T* ItemList<T>::addItem(QString id) {
     T* item = new T(kernel);
     item->id = id;
+    for (QString attribute : groupSpecificIntensityAttributes.keys()) {
+        item->groupSpecificIntensityAttributes[attribute] = groupSpecificIntensityAttributes.value(attribute).value;
+    }
     for (QString attribute : fixtureListAttributes.keys()) {
         item->fixtureListAttributes[attribute] = fixtureListAttributes.value(attribute).value;
     }

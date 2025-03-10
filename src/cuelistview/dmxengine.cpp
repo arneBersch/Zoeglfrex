@@ -51,9 +51,9 @@ void DmxEngine::generateDmx() {
             lastCueValues = currentCueValues;
         }
         for (Group* group : kernel->groups->items) {
-            if (lastCue->intensities.contains(group)) {
+            if (lastCue->groupSpecificIntensityAttributes.value(kernel->cues->INTENSITIESATTRIBUTEID).contains(group)) {
                 for (Fixture* fixture : group->fixtureListAttributes.value(kernel->groups->FIXTURESATTRIBUTEID)) {
-                    fixtureIntensities[fixture] = lastCue->intensities[group];
+                    fixtureIntensities[fixture] = lastCue->groupSpecificIntensityAttributes.value(kernel->cues->INTENSITIESATTRIBUTEID).value(group);
                 }
             }
             if (lastCue->colors.contains(group)) {
