@@ -52,17 +52,17 @@ void DmxEngine::generateDmx() {
         }
         for (Group* group : kernel->groups->items) {
             if (lastCue->groupSpecificIntensityAttributes.value(kernel->cues->INTENSITIESATTRIBUTEID).contains(group)) {
-                for (Fixture* fixture : group->fixtureListAttributes.value(kernel->groups->FIXTURESATTRIBUTEID)) {
+                for (Fixture* fixture : group->fixtures) {
                     fixtureIntensities[fixture] = lastCue->groupSpecificIntensityAttributes.value(kernel->cues->INTENSITIESATTRIBUTEID).value(group);
                 }
             }
             if (lastCue->colors.contains(group)) {
-                for (Fixture* fixture : group->fixtureListAttributes.value(kernel->groups->FIXTURESATTRIBUTEID)) {
+                for (Fixture* fixture : group->fixtures) {
                     fixtureColors[fixture] = lastCue->colors[group];
                 }
             }
             if (lastCue->raws.contains(group)) {
-                for (Fixture* fixture : group->fixtureListAttributes.value(kernel->groups->FIXTURESATTRIBUTEID)) {
+                for (Fixture* fixture : group->fixtures) {
                     if (!fixtureRaws.contains(fixture)) {
                         fixtureRaws[fixture] = QList<Raw*>();
                     }
@@ -134,7 +134,7 @@ void DmxEngine::generateDmx() {
                 blue = 100.0;
             }
         }
-        if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (kernel->cuelistView->currentGroup->fixtureListAttributes.value(kernel->groups->FIXTURESATTRIBUTEID).contains(fixture))) { // Highlight
+        if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) { // Highlight
             dimmer = 100.0;
             red = 100.0;
             green = 100.0;

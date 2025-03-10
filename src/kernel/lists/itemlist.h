@@ -15,11 +15,6 @@ class Fixture;
 class Group;
 class Intensity;
 
-struct FixtureListAttribute {
-    QString name = "Fixture";
-    QList<Fixture*> value = QList<Fixture*>();
-};
-
 struct GroupSpecificIntensityAttribute {
     QString name = "Group Intensities";
     QMap<Group*, Intensity*> value = QMap<Group*, Intensity*>();
@@ -65,7 +60,6 @@ public:
     const QString LABELATTRIBUTEID = "1";
 protected:
     virtual void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString()) = 0;
-    QMap<QString, FixtureListAttribute> fixtureListAttributes;
     QMap<QString, GroupSpecificIntensityAttribute> groupSpecificIntensityAttributes;
     QMap<QString, IntAttribute> intAttributes;
     QMap<QString, FloatAttribute> floatAttributes;

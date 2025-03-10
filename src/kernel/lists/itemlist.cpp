@@ -127,37 +127,6 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             emit dataChanged(index(itemRow, 0), index(itemRow, 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Labeled " + QString::number(itemRows.length()) + " " + pluralItemName + " as \"" + text + "\".");
-    } else if (fixtureListAttributes.contains(attributes.value(Keys::Attribute))) {
-        QList<Fixture*> fixtureSelection;
-        if (!value.isEmpty()) {
-            if (value.first() != Keys::Fixture) {
-                kernel->terminal->error("Seting " + singularItemName + " Fixtures requires Fixtures.");
-                return;
-            }
-            value.removeFirst();
-            QList<QString> fixtureIds = kernel->keysToSelection(value, Keys::Fixture);
-            if (fixtureIds.isEmpty()) {
-                kernel->terminal->error("Can't set " + singularItemName + " Fixtures because of an invalid Fixture selection.");
-                return;
-            }
-            for (QString fixtureId : fixtureIds) {
-                Fixture* fixture = kernel->fixtures->getItem(fixtureId);
-                if (fixture == nullptr) {
-                    kernel->terminal->warning("Can't add Fixture " + fixtureId + " to " + singularItemName + " because it doesn't exist.");
-                } else {
-                    fixtureSelection.append(fixture);
-                }
-            }
-        }
-        for (QString id : ids) {
-            T* item = getItem(id);
-            if (item == nullptr) {
-                item = addItem(id);
-            }
-            item->fixtureListAttributes[attributes.value(Keys::Attribute)] = fixtureSelection;
-            emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
-        }
-        kernel->terminal->success("Set Fixtures of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(fixtureSelection.length()) + " Fixtures.");
     } else if (groupSpecificIntensityAttributes.contains(attributes.value(Keys::Attribute))) {
         GroupSpecificIntensityAttribute groupSpecificIntensityAttribute = groupSpecificIntensityAttributes.value(attributes.value(Keys::Attribute));
         if (value.isEmpty() || (value.first() != Keys::Intensity)) {
@@ -385,9 +354,6 @@ template <class T> T* ItemList<T>::addItem(QString id) {
     item->id = id;
     for (QString attribute : groupSpecificIntensityAttributes.keys()) {
         item->groupSpecificIntensityAttributes[attribute] = groupSpecificIntensityAttributes.value(attribute).value;
-    }
-    for (QString attribute : fixtureListAttributes.keys()) {
-        item->fixtureListAttributes[attribute] = fixtureListAttributes.value(attribute).value;
     }
     for (QString attribute : intAttributes.keys()) {
         item->intAttributes[attribute] = intAttributes.value(attribute).value;

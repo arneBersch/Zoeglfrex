@@ -26,7 +26,6 @@ public:
     virtual QString name();
     virtual QString info();
     QMap<QString, QMap<Group*, Intensity*>> groupSpecificIntensityAttributes;
-    QMap<QString, QList<Fixture*>> fixtureListAttributes;
     QMap<QString, int> intAttributes;
     QMap<QString, float> floatAttributes;
     QMap<QString, QMap<Fixture*, float>> fixtureSpecificFloatAttributes;
