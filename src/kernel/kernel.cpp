@@ -154,11 +154,11 @@ void Kernel::execute(QList<int> command, QString text) {
             if (!cuelistView->validGroupAndCue()) {
                 return;
             }
-            if (!cuelistView->currentCue->groupSpecificIntensityAttributes.value(cues->INTENSITIESATTRIBUTEID).contains(cuelistView->currentGroup)) {
+            if (!cuelistView->currentCue->intensities.contains(cuelistView->currentGroup)) {
                 terminal->error("Can't load the Intensity as the selected Cue contains no Intensity for this Group.");
                 return;
             }
-            ids.append(cuelistView->currentCue->groupSpecificIntensityAttributes.value(cues->INTENSITIESATTRIBUTEID).value(cuelistView->currentGroup)->id);
+            ids.append(cuelistView->currentCue->intensities.value(cuelistView->currentGroup)->id);
         } else if (selectionType == Keys::Color) {
             if (!cuelistView->validGroupAndCue()) {
                 return;

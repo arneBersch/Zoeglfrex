@@ -15,7 +15,6 @@ Item::Item(Kernel* core) {
 
 Item::Item(const Item* item) {
     kernel = item->kernel;
-    groupSpecificIntensityAttributes = item->groupSpecificIntensityAttributes;
     intAttributes = item->intAttributes;
     floatAttributes = item->floatAttributes;
     angleAttributes = item->angleAttributes;

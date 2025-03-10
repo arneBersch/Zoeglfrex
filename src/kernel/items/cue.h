@@ -21,8 +21,9 @@ public:
     Cue(Kernel *core);
     Cue(const Cue* item);
     ~Cue();
-    QMap<Group*, Color*> colors = QMap<Group*, Color*>();
-    QMap<Group*, QList<Raw*>> raws = QMap<Group*, QList<Raw*>>();
+    QMap<Group*, Intensity*> intensities;
+    QMap<Group*, Color*> colors;
+    QMap<Group*, QList<Raw*>> raws;
     QString info() override;
 };
 
