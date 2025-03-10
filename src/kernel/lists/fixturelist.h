@@ -21,7 +21,6 @@ class FixtureList : public ItemList<Fixture> {
     Q_OBJECT
 public:
     FixtureList(Kernel *core);
-    bool channelsOkay();
     const QString MODELATTRIBUTEID = "2";
     const QString ADDRESSATTRIBUTEID = "3";
 private:

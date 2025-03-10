@@ -42,7 +42,7 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
                     oldModel = fixture->model;
                 }
                 fixture->model = model;
-                if (channelsOkay()) {
+                if (kernel->patchOkay()) {
                     emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
                     fixtureCounter++;
                 } else {
@@ -83,7 +83,7 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
                 fixture->address = 0;
             }
         }
-        if (!channelsOkay()) {
+        if (!kernel->patchOkay()) {
             for (Fixture* fixture : fixtures) {
                 fixture->address = oldAddresses[fixture];
             }
@@ -98,27 +98,3 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
         kernel->terminal->error("Can't set Fixture Attribute " + attributeString + ".");
     }
 }
-
-    bool FixtureList::channelsOkay() {
-        QSet<int> channels;
-        for (Fixture* fixture : items) {
-            if (fixture->address > 0) {
-                int fixtureChannels = 1;
-                if (fixture->model != nullptr) {
-                    fixtureChannels = fixture->model->channels.size();
-                }
-                for (int channel = fixture->address; channel < (fixture->address + fixtureChannels); channel++) {
-                    if (channel > 512) {
-                        kernel->terminal->warning("Fixture " + fixture->name() + " would have channels greater than 512.");
-                        return false;
-                    }
-                    if (channels.contains(channel)) {
-                        kernel->terminal->warning("Channel " + QString::number(channel) + " would be used twice.");
-                        return false;
-                    }
-                    channels.insert(channel);
-                }
-            }
-        }
-        return true;
-    }

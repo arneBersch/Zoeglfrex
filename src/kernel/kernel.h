@@ -69,6 +69,7 @@ public:
     QString keysToId(QList<int> keys, bool removeTrailingZeros = true);
     float keysToValue(QList<int> keys);
     QList<QString> keysToSelection(QList<int> keys, int itemType);
+    bool patchOkay();
 private:
     bool isItem(int key);
     bool isNumber(int key);

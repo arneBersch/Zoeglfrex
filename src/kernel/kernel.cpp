@@ -534,3 +534,27 @@ int Kernel::keyToNumber(int key) {
         return false;
     }
 }
+
+bool Kernel::patchOkay() {
+    QSet<int> channels;
+    for (Fixture* fixture : fixtures->items) {
+        if (fixture->address > 0) {
+            int fixtureChannels = 1;
+            if (fixture->model != nullptr) {
+                fixtureChannels = fixture->model->channels.size();
+            }
+            for (int channel = fixture->address; channel < (fixture->address + fixtureChannels); channel++) {
+                if (channel > 512) {
+                    terminal->warning("Patch Conflict detected: Fixture " + fixture->name() + " would have channels greater than 512.");
+                    return false;
+                }
+                if (channels.contains(channel)) {
+                    terminal->warning("Patch Conflict detected: Channel " + QString::number(channel) + " would be used twice.");
+                    return false;
+                }
+                channels.insert(channel);
+            }
+        }
+    }
+    return true;
+}

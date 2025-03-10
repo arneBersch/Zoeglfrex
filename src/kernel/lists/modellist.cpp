@@ -31,7 +31,7 @@ void ModelList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
             }
             QString oldChannels = model->channels;
             model->channels = text;
-            if (kernel->fixtures->channelsOkay()) {
+            if (kernel->patchOkay()) {
                 emit dataChanged(index(getItemRow(model->id), 0), index(getItemRow(model->id), 0), {Qt::DisplayRole, Qt::EditRole});
                 modelCounter++;
             } else {
