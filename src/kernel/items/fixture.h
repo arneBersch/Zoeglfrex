@@ -22,6 +22,7 @@ public:
     Model* model = nullptr;
     QString name() override;
     QString info() override;
+    void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
 };
 
 #endif // FIXTURE_H

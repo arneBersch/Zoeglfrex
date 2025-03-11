@@ -18,7 +18,6 @@ public:
     Model(Kernel* core);
     Model(const Model* item);
     ~Model();
-    QString channels = "D";
     QString name() override;
     QString info() override;
 };

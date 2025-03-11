@@ -25,7 +25,6 @@ public:
     const QString ADDRESSATTRIBUTEID = "3";
 private:
     void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
-private:
 };
 
 #include "kernel/kernel.h"

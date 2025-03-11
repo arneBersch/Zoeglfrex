@@ -194,7 +194,7 @@ void MainWindow::openFile() {
                         if (fileStream.name().toString() == "Label") {
                             model->stringAttributes[kernel->models->LABELATTRIBUTEID] = fileStream.readElementText();
                         } else if (fileStream.name().toString() == "Channels") {
-                            model->channels = fileStream.readElementText();
+                            model->stringAttributes[kernel->models->CHANNELSATTRIBUTEID] = fileStream.readElementText();
                         } else {
                             kernel->terminal->error("Error reading file: Unknown Model Attribute \"" + fileStream.name().toString() + "\".");
                             return;
@@ -511,104 +511,13 @@ void MainWindow::saveFile() {
     fileStream.writeTextElement("Priority", QString::number(kernel->cuelistView->dmxEngine->sacnServer->prioritySpinBox->value()));
     fileStream.writeEndElement();
 
-    fileStream.writeStartElement("Models");
-    for (Model* model : kernel->models->items) {
-        fileStream.writeStartElement("Model");
-        fileStream.writeAttribute("ID", model->id);
-        fileStream.writeTextElement("Label", model->stringAttributes.value(kernel->models->LABELATTRIBUTEID));
-        fileStream.writeTextElement("Channels", model->channels);
-        fileStream.writeEndElement();
-    }
-    fileStream.writeEndElement();
-
-    fileStream.writeStartElement("Fixtures");
-    for (Fixture* fixture : kernel->fixtures->items) {
-        fileStream.writeStartElement("Fixture");
-        fileStream.writeAttribute("ID", fixture->id);
-        fileStream.writeTextElement("Label", fixture->stringAttributes.value(kernel->fixtures->LABELATTRIBUTEID));
-        if (fixture->model != nullptr) {
-            fileStream.writeTextElement("Model", fixture->model->id);
-        }
-        fileStream.writeTextElement("Address", QString::number(fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID)));
-        fileStream.writeEndElement();
-    }
-    fileStream.writeEndElement();
-
-    fileStream.writeStartElement("Groups");
-    for (Group* group : kernel->groups->items) {
-        fileStream.writeStartElement("Group");
-        fileStream.writeAttribute("ID", group->id);
-        fileStream.writeTextElement("Label", group->stringAttributes.value(kernel->groups->LABELATTRIBUTEID));
-        fileStream.writeStartElement("Fixtures");
-        for (Fixture *fixture : group->fixtures) {
-            fileStream.writeTextElement("Fixture", fixture->id);
-        }
-        fileStream.writeEndElement();
-        fileStream.writeEndElement();
-    }
-    fileStream.writeEndElement();
-
-    fileStream.writeStartElement("Intensities");
-    for (Intensity* intensity : kernel->intensities->items) {
-        fileStream.writeStartElement("Intensity");
-        fileStream.writeAttribute("ID", intensity->id);
-        fileStream.writeTextElement("Label", intensity->stringAttributes.value(kernel->intensities->LABELATTRIBUTEID));
-        fileStream.writeTextElement("Dimmer", QString::number(intensity->floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID)));
-        fileStream.writeEndElement();
-    }
-    fileStream.writeEndElement();
-
-    fileStream.writeStartElement("Colors");
-    for (Color* color : kernel->colors->items) {
-        fileStream.writeStartElement("Color");
-        fileStream.writeAttribute("ID", color->id);
-        fileStream.writeTextElement("Label", color->stringAttributes.value(kernel->colors->LABELATTRIBUTEID));
-        fileStream.writeTextElement("Hue", QString::number(color->angleAttributes.value(kernel->colors->HUEATTRIBUTEID)));
-        fileStream.writeTextElement("Saturation", QString::number(color->floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID)));
-        fileStream.writeEndElement();
-    }
-    fileStream.writeEndElement();
-
-    fileStream.writeStartElement("Raws");
-    for (Raw* raw : kernel->raws->items) {
-        fileStream.writeStartElement("Raw");
-        fileStream.writeAttribute("ID", raw->id);
-        fileStream.writeTextElement("Label", raw->stringAttributes.value(kernel->raws->LABELATTRIBUTEID));
-        fileStream.writeTextElement("Channel", QString::number(raw->intAttributes.value(kernel->raws->CHANNELATTRIBUTEID)));
-        fileStream.writeTextElement("Value", QString::number(raw->intAttributes.value(kernel->raws->VALUEATTRIBUTEID)));
-        fileStream.writeEndElement();
-    }
-    fileStream.writeEndElement();
-
-    fileStream.writeStartElement("Cues");
-    for (Cue* cue : kernel->cues->items) {
-        fileStream.writeStartElement("Cue");
-        fileStream.writeAttribute("ID", cue->id);
-        fileStream.writeTextElement("Label", cue->stringAttributes.value(kernel->cues->LABELATTRIBUTEID));
-        fileStream.writeTextElement("Fade", QString::number(cue->floatAttributes.value(kernel->cues->FADEATTRIBUTEID)));
-        fileStream.writeStartElement("Groups");
-        for (Group* group : kernel->groups->items) {
-            fileStream.writeStartElement("Group");
-            fileStream.writeAttribute("ID", group->id);
-            if (cue->intensities.contains(group)) {
-                fileStream.writeTextElement("Intensity", cue->intensities.value(group)->id);
-            }
-            if (cue->colors.contains(group)) {
-                fileStream.writeTextElement("Color", cue->colors.value(group)->id);
-            }
-            if (cue->raws.contains(group)) {
-                fileStream.writeStartElement("Raws");
-                for (Raw* raw : cue->raws.value(group)) {
-                    fileStream.writeTextElement("Raw", raw->id);
-                }
-                fileStream.writeEndElement();
-            }
-            fileStream.writeEndElement();
-        }
-        fileStream.writeEndElement();
-        fileStream.writeEndElement();
-    }
-    fileStream.writeEndElement();
+    kernel->models->saveItemsToFile(&fileStream);
+    kernel->fixtures->saveItemsToFile(&fileStream);
+    kernel->groups->saveItemsToFile(&fileStream);
+    kernel->intensities->saveItemsToFile(&fileStream);
+    kernel->colors->saveItemsToFile(&fileStream);
+    kernel->raws->saveItemsToFile(&fileStream);
+    kernel->cues->saveItemsToFile(&fileStream);
 
     fileStream.writeEndElement();
     fileStream.writeEndDocument();

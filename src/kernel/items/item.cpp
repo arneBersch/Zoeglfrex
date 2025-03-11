@@ -32,3 +32,39 @@ QString Item::info() {
     info += "\n" + kernel->models->LABELATTRIBUTEID + " Label: \"" + stringAttributes.value(kernel->models->LABELATTRIBUTEID) + "\"";
     return info;
 }
+
+void Item::writeAttributesToFile(QXmlStreamWriter *fileStream) {
+    for (QString attribute : stringAttributes.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", attribute);
+        fileStream->writeCharacters(stringAttributes.value(attribute));
+        fileStream->writeEndElement();
+    }
+    for (QString attribute : intAttributes.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", attribute);
+        fileStream->writeCharacters(QString::number(intAttributes.value(attribute)));
+        fileStream->writeEndElement();
+    }
+    for (QString attribute : floatAttributes.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", attribute);
+        fileStream->writeCharacters(QString::number(floatAttributes.value(attribute)));
+        fileStream->writeEndElement();
+    }
+    for (QString attribute : fixtureSpecificFloatAttributes.keys()) {
+        for (Fixture* fixture : fixtureSpecificFloatAttributes.value(attribute).keys()) {
+            fileStream->writeStartElement("Attribute");
+            fileStream->writeAttribute("ID", attribute);
+            fileStream->writeAttribute("Fixture", fixture->id);
+            fileStream->writeCharacters(QString::number(fixtureSpecificFloatAttributes.value(attribute).value(fixture)));
+            fileStream->writeEndElement();
+        }
+    }
+    for (QString attribute : angleAttributes.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", attribute);
+        fileStream->writeCharacters(QString::number(angleAttributes.value(attribute)));
+        fileStream->writeEndElement();
+    }
+}

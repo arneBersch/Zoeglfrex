@@ -24,6 +24,7 @@ public:
     QString id;
     virtual QString name();
     virtual QString info();
+    virtual void writeAttributesToFile(QXmlStreamWriter *fileStream);
     QMap<QString, QString> stringAttributes;
     QMap<QString, int> intAttributes;
     QMap<QString, float> floatAttributes;

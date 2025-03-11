@@ -54,6 +54,7 @@ public:
     Kernel *kernel;
     QList<T*> items;
     void setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString());
+    void saveItemsToFile(QXmlStreamWriter* fileStream);
     T* addItem(QString id);
     const QString IDATTRIBUTEID = "0";
     const QString LABELATTRIBUTEID = "1";

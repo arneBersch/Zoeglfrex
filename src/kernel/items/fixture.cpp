@@ -55,9 +55,9 @@ Fixture::~Fixture() {
 }
 
 QString Fixture::name() {
-    QString channels = "Channel";
+    QString channels = "Dimmer";
     if (model != nullptr) {
-        channels = model->channels;
+        channels = model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
     }
     if (stringAttributes.value(kernel->fixtures->LABELATTRIBUTEID).isEmpty()) {
         return Item::name() + channels + " (" + QString::number(intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID)) + ")";
@@ -75,4 +75,14 @@ QString Fixture::info() {
     }
     info += "\n" + kernel->fixtures->ADDRESSATTRIBUTEID + " Address: " + QString::number(intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID));
     return info;
+}
+
+void Fixture::writeAttributesToFile(QXmlStreamWriter* fileStream) {
+    Item::writeAttributesToFile(fileStream);
+    if (model != nullptr) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", kernel->fixtures->MODELATTRIBUTEID);
+        fileStream->writeCharacters(model->id);
+        fileStream->writeEndElement();
+    }
 }

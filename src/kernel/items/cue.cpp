@@ -54,3 +54,32 @@ QString Cue::info() {
     info += "\n" + kernel->cues->FADEATTRIBUTEID + " Fade: " + QString::number(floatAttributes.value(kernel->cues->FADEATTRIBUTEID)) + "s";
     return info;
 }
+
+void Cue::writeAttributesToFile(QXmlStreamWriter* fileStream) {
+    Item::writeAttributesToFile(fileStream);
+    for (Group* group : intensities.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", kernel->cues->INTENSITIESATTRIBUTEID);
+        fileStream->writeAttribute("Group", group->id);
+        fileStream->writeCharacters(intensities.value(group)->id);
+        fileStream->writeEndElement();
+    }
+    for (Group* group : colors.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", kernel->cues->COLORSATTRIBUTEID);
+        fileStream->writeAttribute("Group", group->id);
+        fileStream->writeCharacters(colors.value(group)->id);
+        fileStream->writeEndElement();
+    }
+    for (Group* group : raws.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", kernel->cues->RAWSATTRIBUTEID);
+        fileStream->writeAttribute("Group", group->id);
+        QStringList rawIds;
+        for (Raw* raw : raws.value(group)) {
+            rawIds.append(raw->id);
+        }
+        fileStream->writeCharacters(rawIds.join(";"));
+        fileStream->writeEndElement();
+    }
+}

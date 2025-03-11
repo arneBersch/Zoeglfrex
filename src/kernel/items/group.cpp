@@ -49,3 +49,14 @@ QString Group::info() {
     return info;
 }
 
+void Group::writeAttributesToFile(QXmlStreamWriter* fileStream) {
+    Item::writeAttributesToFile(fileStream);
+    fileStream->writeStartElement("Attribute");
+    fileStream->writeAttribute("ID", kernel->groups->FIXTURESATTRIBUTEID);
+    QStringList fixtureIds;
+    for (Fixture* fixture : fixtures) {
+        fixtureIds.append(fixture->id);
+    }
+    fileStream->writeCharacters(fixtureIds.join(";"));
+    fileStream->writeEndElement();
+}

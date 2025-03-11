@@ -25,6 +25,7 @@ public:
     QMap<Group*, Color*> colors;
     QMap<Group*, QList<Raw*>> raws;
     QString info() override;
+    void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
 };
 
 #endif // CUE_H

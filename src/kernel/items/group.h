@@ -22,6 +22,7 @@ public:
     QList<Fixture*> fixtures;
     QString name() override;
     QString info() override;
+    void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
 };
 
 #endif // GROUP_H

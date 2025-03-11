@@ -79,7 +79,7 @@ void DmxEngine::generateDmx() {
     for (Fixture* fixture : kernel->fixtures->items) {
         QString channels = "D";
         if (fixture->model != nullptr) {
-            channels = fixture->model->channels;
+            channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
         }
         float dimmer = 0.0;
         float red = 0.0;

@@ -543,7 +543,7 @@ bool Kernel::patchOkay() {
         if (address > 0) {
             int fixtureChannels = 1;
             if (fixture->model != nullptr) {
-                fixtureChannels = fixture->model->channels.size();
+                fixtureChannels = fixture->model->stringAttributes.value(models->CHANNELSATTRIBUTEID).size();
             }
             for (int channel = address; channel < (address + fixtureChannels); channel++) {
                 if (channel > 512) {

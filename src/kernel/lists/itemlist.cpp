@@ -258,6 +258,17 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
     }
 }
 
+template <class T> void ItemList<T>::saveItemsToFile(QXmlStreamWriter* fileStream) {
+    fileStream->writeStartElement(pluralItemName);
+    for (T* item : items) {
+        fileStream->writeStartElement(singularItemName);
+        fileStream->writeAttribute("ID", item->id);
+        item->writeAttributesToFile(fileStream);
+        fileStream->writeEndElement();
+    }
+    fileStream->writeEndElement();
+}
+
 template <class T> int ItemList<T>::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return items.size();
