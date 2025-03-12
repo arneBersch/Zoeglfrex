@@ -55,6 +55,8 @@ public:
     Kernel();
     void execute(QList<int> command, QString text = QString());
     void reset();
+    void saveFile(QString fileName, QString version);
+    void openFile(QString fileName, QString version);
     ModelList *models;
     FixtureList *fixtures;
     GroupList *groups;
