@@ -25,8 +25,7 @@ public:
     const QString COLORSATTRIBUTEID = "3";
     const QString RAWSATTRIBUTEID = "4";
     const QString FADEATTRIBUTEID = "5";
-private:
-    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
+    void setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 
 #include "kernel/kernel.h"

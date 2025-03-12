@@ -12,7 +12,7 @@ GroupList::GroupList(Kernel *core) : ItemList(Keys::Group, "Group", "Groups") {
     kernel = core;
 }
 
-void GroupList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+void GroupList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute == FIXTURESATTRIBUTEID) {
         QList<Fixture*> fixtureSelection;
@@ -46,6 +46,6 @@ void GroupList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
         }
         kernel->terminal->success("Set Fixtures of " + QString::number(ids.length()) + " Group to " + QString::number(fixtureSelection.length()) + " Fixtures.");
     } else {
-        kernel->terminal->error("Can't set Group Attribute " + attribute + ".");
+        ItemList::setAttribute(ids, attributes, value, text);
     }
 }

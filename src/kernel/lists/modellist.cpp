@@ -12,7 +12,3 @@ ModelList::ModelList(Kernel *core) : ItemList(Keys::Model, "Model", "Models") {
     kernel = core;
     stringAttributes[CHANNELSATTRIBUTEID] = {"Channels", "D", "^[01DRGBWCMY]+$"};
 }
-
-void ModelList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
-    kernel->terminal->error("Can't set Model Attribute " + attributes.value(Keys::Attribute) + ".");
-}

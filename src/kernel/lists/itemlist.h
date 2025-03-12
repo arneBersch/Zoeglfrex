@@ -53,13 +53,12 @@ public:
     QVariant data(const QModelIndex &index, const int role) const override;
     Kernel *kernel;
     QList<T*> items;
-    void setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString());
+    virtual void setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString());
     void saveItemsToFile(QXmlStreamWriter* fileStream);
     T* addItem(QString id);
     const QString IDATTRIBUTEID = "0";
     const QString LABELATTRIBUTEID = "1";
 protected:
-    virtual void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString()) = 0;
     QMap<QString, StringAttribute> stringAttributes;
     QMap<QString, IntAttribute> intAttributes;
     QMap<QString, FloatAttribute> floatAttributes;

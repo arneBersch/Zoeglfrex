@@ -13,7 +13,3 @@ RawList::RawList(Kernel *core) : ItemList(Keys::Raw, "Raw", "Raws") {
     intAttributes[CHANNELATTRIBUTEID] ={"Channel", 1, 1, 512};
     intAttributes[VALUEATTRIBUTEID] ={"Value", 0, 0, 255};
 }
-
-void RawList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
-    kernel->terminal->error("Can't set Raw Attribute " + attributes.value(Keys::Attribute) + ".");
-}

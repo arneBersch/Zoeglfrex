@@ -14,7 +14,3 @@ ColorList::ColorList(Kernel *core) : ItemList(Keys::Color, "Color", "Colors") {
     fixtureSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
     angleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
 }
-
-void ColorList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
-    kernel->terminal->error("Can't set Color Attribute " + attributes.value(Keys::Attribute) + ".");
-}

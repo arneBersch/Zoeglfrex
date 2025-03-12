@@ -13,7 +13,3 @@ IntensityList::IntensityList(Kernel *core) : ItemList(Keys::Intensity, "Intensit
     floatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
     fixtureSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
 }
-
-void IntensityList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
-    kernel->terminal->error("Can't set Intensity Attribute " + attributes.value(Keys::Attribute) + ".");
-}

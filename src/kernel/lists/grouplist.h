@@ -22,8 +22,7 @@ class GroupList : public ItemList<Group> {
 public:
     GroupList(Kernel *core);
     const QString FIXTURESATTRIBUTEID = "2";
-private:
-    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
+    void setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 
 #include "kernel/kernel.h"

@@ -13,7 +13,7 @@ CueList::CueList(Kernel *core) : ItemList(Keys::Cue, "Cue", "Cues") {
     floatAttributes[FADEATTRIBUTEID] = {"Fade", 0, 0, 60, "s"};
 }
 
-void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute == INTENSITIESATTRIBUTEID) {
         if (value.isEmpty() || (value.first() != Keys::Intensity)) {
@@ -148,6 +148,6 @@ void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
             kernel->terminal->success("Set Raws of " + QString::number(cueCounter) + " Cues at Group " + group->name() + " to " + QString::number(raws.length()) + " Raws.");
         }
     } else {
-        kernel->terminal->error("Can't set Cue Attribute " + attribute + ".");
+        ItemList::setAttribute(ids, attributes, value, text);
     }
 }

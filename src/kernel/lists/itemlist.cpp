@@ -254,7 +254,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         }
         kernel->terminal->success("Set " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + "°.");
     } else {
-        setOtherAttribute(ids, attributes, value, text);
+        kernel->terminal->error("Can't set " + singularItemName + " Attribute " + attributes.value(Keys::Attribute) + ".");
     }
 }
 
