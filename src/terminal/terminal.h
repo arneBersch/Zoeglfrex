@@ -22,11 +22,11 @@ public:
     void backspace();
     void clear();
     void execute(bool clear=true);
-    void execute(QString command, QString action);
     void info(QString message);
     void success(QString message);
     void warning(QString message);
     void error(QString message);
+    bool printMessages = true;
 private:
     Kernel *kernel;
     QString promptText(QList<int> keys);

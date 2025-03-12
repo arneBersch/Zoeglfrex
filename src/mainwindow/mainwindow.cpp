@@ -179,277 +179,64 @@ void MainWindow::openFile() {
                         return;
                     }
                 }
-            } else if (fileStream.name().toString() == "Models") {
-                while (fileStream.readNextStartElement()) {
-                    if (fileStream.name().toString() != "Model") {
-                        kernel->terminal->error("Error reading file: Expected Model data.");
-                        return;
-                    }
-                    if (!fileStream.attributes().hasAttribute("ID")) {
-                        kernel->terminal->error("Error reading file: No Model ID was given.");
-                        return;
-                    }
-                    Model* model = kernel->models->addItem(fileStream.attributes().value("ID").toString());
-                    while (fileStream.readNextStartElement()) {
-                        if (fileStream.name().toString() == "Label") {
-                            model->stringAttributes[kernel->models->LABELATTRIBUTEID] = fileStream.readElementText();
-                        } else if (fileStream.name().toString() == "Channels") {
-                            model->stringAttributes[kernel->models->CHANNELSATTRIBUTEID] = fileStream.readElementText();
-                        } else {
-                            kernel->terminal->error("Error reading file: Unknown Model Attribute \"" + fileStream.name().toString() + "\".");
-                            return;
-                        }
-                    }
-                }
-            } else if (fileStream.name().toString() == "Fixtures") {
-                while (fileStream.readNextStartElement()) {
-                    if (fileStream.name().toString() != "Fixture") {
-                        kernel->terminal->error("Error reading file: Expected Fixture data.");
-                        return;
-                    }
-                    if (!fileStream.attributes().hasAttribute("ID")) {
-                        kernel->terminal->error("Error reading file: No Fixture ID was given.");
-                        return;
-                    }
-                    Fixture* fixture = kernel->fixtures->addItem(fileStream.attributes().value("ID").toString());
-                    while (fileStream.readNextStartElement()) {
-                        if (fileStream.name().toString() == "Label") {
-                            fixture->stringAttributes[kernel->fixtures->LABELATTRIBUTEID] = fileStream.readElementText();
-                        } else if (fileStream.name().toString() == "Model") {
-                            Model* model = kernel->models->getItem(fileStream.readElementText());
-                            if (model == nullptr) {
-                                kernel->terminal->error("Error reading file: Invalid Model given for Fixture " + fixture->id);
-                                return;
-                            }
-                            fixture->model = model;
-                        } else if (fileStream.name().toString() == "Address") {
-                            bool ok;
-                            int address = fileStream.readElementText().toInt(&ok);
-                            if (!ok) {
-                                kernel->terminal->error("Error reading file: Fixture Address of Fixture " + fixture->id + " is not valid.");
-                                return;
-                            }
-                            fixture->intAttributes[kernel->fixtures->ADDRESSATTRIBUTEID] = address;
-                        } else {
-                            kernel->terminal->error("Error reading file: Unknown Fixture Attribute \"" + fileStream.name().toString() + "\".");
-                            return;
-                        }
-                    }
-                }
-            } else if (fileStream.name().toString() == "Groups") {
-                while (fileStream.readNextStartElement()) {
-                    if (fileStream.name().toString() != "Group") {
-                        kernel->terminal->error("Error reading file: Expected Group data.");
-                        return;
-                    }
-                    if (!fileStream.attributes().hasAttribute("ID")) {
-                        kernel->terminal->error("Error reading file: No Group ID was given.");
-                        return;
-                    }
-                    Group* group = kernel->groups->addItem(fileStream.attributes().value("ID").toString());
-                    while (fileStream.readNextStartElement()) {
-                        if (fileStream.name().toString() == "Label") {
-                            group->stringAttributes[kernel->groups->LABELATTRIBUTEID] = fileStream.readElementText();
-                        } else if (fileStream.name().toString() == "Fixtures") {
-                            while (fileStream.readNextStartElement()) {
-                                if (fileStream.name().toString() != "Fixture") {
-                                    kernel->terminal->error("Error reading file: Expected Fixture for Group " + group->id);
-                                    return;
-                                }
-                                Fixture* fixture = kernel->fixtures->getItem(fileStream.readElementText());
-                                if (fixture == nullptr) {
-                                    kernel->terminal->error("Error reading file: Fixture of Group " + group->id + " was not found.");
-                                    return;
-                                }
-                                group->fixtures.append(fixture);
-                            }
-                        } else {
-                            kernel->terminal->error("Error reading file: Unknown Group Attribute \"" + fileStream.name().toString() + "\".");
-                            return;
-                        }
-                    }
-                }
-            } else if (fileStream.name().toString() == "Intensities") {
-                while (fileStream.readNextStartElement()) {
-                    if (fileStream.name().toString() != "Intensity") {
-                        kernel->terminal->error("Error reading file: Expected Intensity data.");
-                        return;
-                    }
-                    if (!fileStream.attributes().hasAttribute("ID")) {
-                        kernel->terminal->error("Error reading file: No Intensity ID was given.");
-                        return;
-                    }
-                    Intensity* intensity = kernel->intensities->addItem(fileStream.attributes().value("ID").toString());
-                    while (fileStream.readNextStartElement()) {
-                        if (fileStream.name().toString() == "Label") {
-                            intensity->stringAttributes[kernel->intensities->LABELATTRIBUTEID] = fileStream.readElementText();
-                        } else if (fileStream.name().toString() == "Dimmer") {
-                            bool ok;
-                            float dimmer = fileStream.readElementText().toFloat(&ok);
-                            if (!ok) {
-                                kernel->terminal->error("Error reading file: Dimmer of Intensity " + intensity->id + " isn't valid.");
-                                return;
-                            }
-                            intensity->floatAttributes[kernel->intensities->DIMMERATTRIBUTEID] = dimmer;
-                        } else {
-                            kernel->terminal->error("Error reading file: Unknown Intensity Attribute \"" + fileStream.name().toString() + "\".");
-                            return;
-                        }
-                    }
-                }
-            } else if (fileStream.name().toString() == "Colors") {
-                while (fileStream.readNextStartElement()) {
-                    if (fileStream.name().toString() != "Color") {
-                        kernel->terminal->error("Error reading file: Expected Color data.");
-                        return;
-                    }
-                    if (!fileStream.attributes().hasAttribute("ID")) {
-                        kernel->terminal->error("Error reading file: No Color ID was given.");
-                        return;
-                    }
-                    Color* color = kernel->colors->addItem(fileStream.attributes().value("ID").toString());
-                    while (fileStream.readNextStartElement()) {
-                        if (fileStream.name().toString() == "Label") {
-                            color->stringAttributes[kernel->colors->LABELATTRIBUTEID] = fileStream.readElementText();
-                        } else if (fileStream.name().toString() == "Hue") {
-                            bool ok;
-                            float hue = fileStream.readElementText().toFloat(&ok);
-                            if (!ok) {
-                                kernel->terminal->error("Error reading file: Hue of Color " + color->id + " isn't valid.");
-                                return;
-                            }
-                            color->angleAttributes[kernel->colors->HUEATTRIBUTEID] = hue;
-                        } else if (fileStream.name().toString() == "Saturation") {
-                            bool ok;
-                            float saturation = fileStream.readElementText().toFloat(&ok);
-                            if (!ok) {
-                                kernel->terminal->error("Error reading file: Saturation of Color " + color->id + " isn't valid.");
-                                return;
-                            }
-                            color->floatAttributes[kernel->colors->SATURATIONATTRIBUTEID] = saturation;
-                        } else {
-                            kernel->terminal->error("Error reading file: Unknown Color Attribute \"" + fileStream.name().toString() + "\".");
-                            return;
-                        }
-                    }
-                }
-            } else if (fileStream.name().toString() == "Raws") {
-                while (fileStream.readNextStartElement()) {
-                    if (fileStream.name().toString() != "Raw") {
-                        kernel->terminal->error("Error reading file: Expected Raw data.");
-                        return;
-                    }
-                    if (!fileStream.attributes().hasAttribute("ID")) {
-                        kernel->terminal->error("Error reading file: No Raw ID was given.");
-                        return;
-                    }
-                    Raw* raw = kernel->raws->addItem(fileStream.attributes().value("ID").toString());
-                    while (fileStream.readNextStartElement()) {
-                        if (fileStream.name().toString() == "Label") {
-                            raw->stringAttributes[kernel->raws->LABELATTRIBUTEID] = fileStream.readElementText();
-                        } else if (fileStream.name().toString() == "Channel") {
-                            bool ok;
-                            int channel = fileStream.readElementText().toInt(&ok);
-                            if (!ok) {
-                                kernel->terminal->error("Error reading file: Channel of Raw " + raw->id + " isn't valid.");
-                                return;
-                            }
-                            raw->intAttributes[kernel->raws->CHANNELATTRIBUTEID] = channel;
-                        } else if (fileStream.name().toString() == "Value") {
-                            bool ok;
-                            uint8_t value = fileStream.readElementText().toUInt(&ok);
-                            if (!ok) {
-                                kernel->terminal->error("Error reading file: Value of Raw " + raw->id + " isn't valid.");
-                                return;
-                            }
-                            raw->intAttributes[kernel->raws->VALUEATTRIBUTEID] = value;
-                        } else {
-                            kernel->terminal->error("Error reading file: Unknown Raw Attribute \"" + fileStream.name().toString() + "\".");
-                            return;
-                        }
-                    }
-                }
-            } else if (fileStream.name().toString() == "Cues") {
-                while (fileStream.readNextStartElement()) {
-                    if (fileStream.name().toString() != "Cue") {
-                        kernel->terminal->error("Error reading file: Expected Cue data.");
-                        return;
-                    }
-                    if (!fileStream.attributes().hasAttribute("ID")) {
-                        kernel->terminal->error("Error reading file: No Cue ID was given.");
-                        return;
-                    }
-                    Cue* cue = kernel->cues->addItem(fileStream.attributes().value("ID").toString());
-                    while (fileStream.readNextStartElement()) {
-                        if (fileStream.name().toString() == "Label") {
-                            cue->stringAttributes[kernel->cues->LABELATTRIBUTEID] = fileStream.readElementText();
-                        } else if (fileStream.name().toString() == "Fade") {
-                            bool ok;
-                            float fade = fileStream.readElementText().toFloat(&ok);
-                            if (!ok) {
-                                kernel->terminal->error("Error reading file: Fade of Cue " + cue->id + " isn't valid.");
-                                return;
-                            }
-                            cue->floatAttributes[kernel->cues->FADEATTRIBUTEID] = fade;
-                        } else if (fileStream.name().toString() == "Groups") {
-                            while (fileStream.readNextStartElement()) {
-                                if (fileStream.name().toString() != "Group") {
-                                    kernel->terminal->error("Error reading file: Expected Group data for Cue " + cue->id);
-                                    return;
-                                }
-                                if (!fileStream.attributes().hasAttribute("ID")) {
-                                    kernel->terminal->error("Error reading file: No Group was given for Cue " + cue->id);
-                                    return;
-                                }
-                                Group* group = kernel->groups->getItem(fileStream.attributes().value("ID").toString());
-                                if (group == nullptr) {
-                                    kernel->terminal->error("Error reading file: Group in Cue " + cue->id + " was not found.");
-                                    return;
-                                }
-                                while (fileStream.readNextStartElement()) {
-                                    if (fileStream.name().toString() == "Intensity") {
-                                        Intensity* intensity = kernel->intensities->getItem(fileStream.readElementText());
-                                        if (intensity == nullptr) {
-                                            kernel->terminal->error("Error reading file: Intensity for Group " + group->id + " in Cue " + cue->id + " was not found.");
-                                            return;
-                                        }
-                                        cue->intensities[group] = intensity;
-                                    } else if (fileStream.name().toString() == "Color") {
-                                        Color* color = kernel->colors->getItem(fileStream.readElementText());
-                                        if (color == nullptr) {
-                                            kernel->terminal->error("Error reading file: Color for Group " + group->id + " in Cue " + cue->id + " was not found.");
-                                            return;
-                                        }
-                                        cue->colors[group] = color;
-                                    } else if (fileStream.name().toString() == "Raws") {
-                                        cue->raws[group] = QList<Raw*>();
-                                        while (fileStream.readNextStartElement()) {
-                                            if (fileStream.name().toString() != "Raw") {
-                                                kernel->terminal->error("Error reading file: Expected Raw for Group " + group->id + " in Cue " + cue->id);
-                                                return;
-                                            }
-                                            Raw* raw = kernel->raws->getItem(fileStream.readElementText());
-                                            if (raw == nullptr) {
-                                                kernel->terminal->error("Error reading file: Raw for Group " + group->id + " in Cue " + cue->id + " was not found.");
-                                                return;
-                                            }
-                                            cue->raws[group].append(raw);
-                                        }
-                                    } else {
-                                        kernel->terminal->error("Error reading file: Expected data for Group " + group->id + " in Cue " + cue->id);
-                                        return;
-                                    }
-                                }
-                            }
-                        } else {
-                            kernel->terminal->error("Error reading file: Unknown Cue Attribute \"" + fileStream.name().toString() + "\".");
-                            return;
-                        }
-                    }
-                }
             } else {
-                kernel->terminal->error("Error reading file: Expected object type.");
-                return;
+                QString pluralName = fileStream.name().toString();
+                while (fileStream.readNextStartElement()) {
+                    QString singularName = fileStream.name().toString();
+                    if (!fileStream.attributes().hasAttribute("ID")) {
+                        kernel->terminal->error("Error reading file: No ID for " + singularName + " was given.");
+                        return;
+                    }
+                    QList<QString> ids = {fileStream.attributes().value("ID").toString()};
+                    while (fileStream.readNextStartElement()) {
+                        if ((fileStream.name().toString() != "Attribute") || !fileStream.attributes().hasAttribute("ID")) {
+                            kernel->terminal->error("Error reading file: Expected " + singularName + " Attribute.");
+                            return;
+                        }
+                        QMap<int, QString> attributes;
+                        attributes[Keys::Attribute] = fileStream.attributes().value("ID").toString();
+                        if (fileStream.attributes().hasAttribute("Model")) {
+                            attributes[Keys::Model] = fileStream.attributes().value("Model").toString();
+                        }
+                        if (fileStream.attributes().hasAttribute("Fixture")) {
+                            attributes[Keys::Fixture] = fileStream.attributes().value("Fixture").toString();
+                        }
+                        if (fileStream.attributes().hasAttribute("Group")) {
+                            attributes[Keys::Group] = fileStream.attributes().value("Group").toString();
+                        }
+                        if (fileStream.attributes().hasAttribute("Intensity")) {
+                            attributes[Keys::Intensity] = fileStream.attributes().value("Intensity").toString();
+                        }
+                        if (fileStream.attributes().hasAttribute("Color")) {
+                            attributes[Keys::Color] = fileStream.attributes().value("Color").toString();
+                        }
+                        if (fileStream.attributes().hasAttribute("Raw")) {
+                            attributes[Keys::Raw] = fileStream.attributes().value("Raw").toString();
+                        }
+                        if (fileStream.attributes().hasAttribute("Cue")) {
+                            attributes[Keys::Cue] = fileStream.attributes().value("Cue").toString();
+                        }
+                        QString text = fileStream.readElementText();
+                        if ((pluralName == "Models") && (singularName == "Model")) {
+                            kernel->models->setAttribute(ids, attributes, QList<int>(), text);
+                        } else if ((pluralName == "Fixtures") && (singularName == "Fixture")) {
+                            kernel->fixtures->setAttribute(ids, attributes, QList<int>(), text);
+                        } else if ((pluralName == "Groups") && (singularName == "Group")) {
+                            kernel->groups->setAttribute(ids, attributes, QList<int>(), text);
+                        } else if ((pluralName == "Intensities") && (singularName == "Intensity")) {
+                            kernel->intensities->setAttribute(ids, attributes, QList<int>(), text);
+                        } else if ((pluralName == "Colors") && (singularName == "Color")) {
+                            kernel->colors->setAttribute(ids, attributes, QList<int>(), text);
+                        } else if ((pluralName == "Raws") && (singularName == "Raw")) {
+                            kernel->raws->setAttribute(ids, attributes, QList<int>(), text);
+                        } else if ((pluralName == "Cues") && (singularName == "Cue")) {
+                            kernel->cues->setAttribute(ids, attributes, QList<int>(), text);
+                        } else {
+                            kernel->terminal->error("Error reading file: Expected Object Type");
+                            return;
+                        }
+                    }
+                }
             }
         }
     } else {

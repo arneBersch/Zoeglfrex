@@ -67,83 +67,24 @@ void Terminal::execute(bool clear)
     kernel->inspector->load(selectionType);
 }
 
-void Terminal::execute(QString command, QString action) {
-    QList<int> commandKeys;
-    QString text = QString();
-    for (qsizetype index = 0; index < command.size(); index++) {
-        if (command.at(index) == QChar('+')) {
-            commandKeys.append(Keys::Plus);
-        } else if (command.at(index) == QChar('-')) {
-            commandKeys.append(Keys::Minus);
-        } else if (command.at(index) == QChar('.')) {
-            commandKeys.append(Keys::Period);
-        } else if (command.at(index) == QChar('T')) {
-            commandKeys.append(Keys::Thru);
-        } else if (command.at(index) == QChar('0')) {
-            commandKeys.append(Keys::Zero);
-        } else if (command.at(index) == QChar('1')) {
-            commandKeys.append(Keys::One);
-        } else if (command.at(index) == QChar('2')) {
-            commandKeys.append(Keys::Two);
-        } else if (command.at(index) == QChar('3')) {
-            commandKeys.append(Keys::Three);
-        } else if (command.at(index) == QChar('4')) {
-            commandKeys.append(Keys::Four);
-        } else if (command.at(index) == QChar('5')) {
-            commandKeys.append(Keys::Five);
-        } else if (command.at(index) == QChar('6')) {
-            commandKeys.append(Keys::Six);
-        } else if (command.at(index) == QChar('7')) {
-            commandKeys.append(Keys::Seven);
-        } else if (command.at(index) == QChar('8')) {
-            commandKeys.append(Keys::Eight);
-        } else if (command.at(index) == QChar('9')) {
-            commandKeys.append(Keys::Nine);
-        } else if (command.at(index) == QChar('m')) {
-            commandKeys.append(Keys::Model);
-        } else if (command.at(index) == QChar('f')) {
-            commandKeys.append(Keys::Fixture);
-        } else if (command.at(index) == QChar('g')) {
-            commandKeys.append(Keys::Group);
-        } else if (command.at(index) == QChar('i')) {
-            commandKeys.append(Keys::Intensity);;
-        } else if (command.at(index) == QChar('c')) {
-            commandKeys.append(Keys::Color);
-        } else if (command.at(index) == QChar('r')) {
-            commandKeys.append(Keys::Raw);
-        } else if (command.at(index) == QChar('q')) {
-            commandKeys.append(Keys::Cue);
-        } else if (command.at(index) == QChar('a')) {
-            commandKeys.append(Keys::Attribute);
-        } else if (command.at(index) == QChar('s')) {
-            commandKeys.append(Keys::Set);
-        } else if (command.at(index) == QChar('"')) {
-            text = command.mid((index + 1), (command.length() - index - 2));
-        } else {
-            return;
-        }
-        if (!text.isEmpty()) {
-            break;
-        }
-    }
-    info(action + "> " + promptText(commandKeys));
-    kernel->execute(commandKeys, text);
-}
-
 void Terminal::info(QString message)
 {
-    QLabel *label = new QLabel(message);
-    label->setWordWrap(true);
-    messages->addWidget(label);
+    if (printMessages) {
+        QLabel *label = new QLabel(message);
+        label->setWordWrap(true);
+        messages->addWidget(label);
+    }
     qInfo() << message;
 }
 
 void Terminal::success(QString message)
 {
-    QLabel *label = new QLabel(message);
-    label->setWordWrap(true);
-    label->setStyleSheet("color: green;");
-    messages->addWidget(label);
+    if (printMessages) {
+        QLabel *label = new QLabel(message);
+        label->setWordWrap(true);
+        label->setStyleSheet("color: green;");
+        messages->addWidget(label);
+    }
     qInfo() << message;
 }
 

@@ -16,13 +16,18 @@ void GroupList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, 
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute == FIXTURESATTRIBUTEID) {
         QList<Fixture*> fixtureSelection;
-        if (!value.isEmpty()) {
-            if (value.first() != Keys::Fixture) {
-                kernel->terminal->error("Seting Group Fixtures requires Fixtures.");
-                return;
+        if (!value.isEmpty() || !text.isEmpty()) {
+            if (!value.isEmpty()) {
+                if (value.first() != Keys::Fixture) {
+                    kernel->terminal->error("Seting Group Fixtures requires Fixtures.");
+                    return;
+                }
+                value.removeFirst();
             }
-            value.removeFirst();
             QList<QString> fixtureIds = kernel->keysToSelection(value, Keys::Fixture);
+            if (!text.isEmpty()) {
+                fixtureIds = text.split("+");
+            }
             if (fixtureIds.isEmpty()) {
                 kernel->terminal->error("Can't set Group Fixtures because of an invalid Fixture selection.");
                 return;

@@ -79,7 +79,7 @@ void Cue::writeAttributesToFile(QXmlStreamWriter* fileStream) {
         for (Raw* raw : raws.value(group)) {
             rawIds.append(raw->id);
         }
-        fileStream->writeCharacters(rawIds.join(";"));
+        fileStream->writeCharacters(rawIds.join("+"));
         fileStream->writeEndElement();
     }
 }

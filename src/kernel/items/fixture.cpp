@@ -58,6 +58,9 @@ QString Fixture::name() {
     QString channels = "Dimmer";
     if (model != nullptr) {
         channels = model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
+        if (!model->stringAttributes.value(kernel->models->LABELATTRIBUTEID).isEmpty()) {
+            channels = model->stringAttributes.value(kernel->models->LABELATTRIBUTEID);
+        }
     }
     if (stringAttributes.value(kernel->fixtures->LABELATTRIBUTEID).isEmpty()) {
         return Item::name() + channels + " (" + QString::number(intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID)) + ")";

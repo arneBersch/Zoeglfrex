@@ -25,33 +25,28 @@ void FixtureList::setAttribute(QList<QString> ids, QMap<int, QString> attributes
                 fixture->model = nullptr;
             }
             kernel->terminal->success("Set Model of " + QString::number(ids.size()) + " Fixtures to None (Dimmer).");
-        } else if ((value.size() >= 2) && (value.first() == Keys::Model)) {
-            value.removeFirst();
+        } else if (((value.size() >= 2) && (value.first() == Keys::Model)) || !text.isEmpty()) {
+            if (!value.isEmpty()) {
+                value.removeFirst();
+            }
             QString modelId = kernel->keysToId(value);
+            if (!text.isEmpty()) {
+                modelId = text;
+            }
             Model *model = kernel->models->getItem(modelId);
             if (model == nullptr) {
                 kernel->terminal->error("Can't set Model of Fixtures because Model " + modelId + " doesn't exist.");
                 return;
             }
-            int fixtureCounter = 0;
             for (QString id : ids) {
                 Fixture* fixture = getItem(id);
-                Model* oldModel = nullptr;
                 if (fixture == nullptr) {
                     fixture = addItem(id);
-                } else {
-                    oldModel = fixture->model;
                 }
                 fixture->model = model;
-                if (kernel->patchOkay()) {
-                    emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
-                    fixtureCounter++;
-                } else {
-                    fixture->model = oldModel; // don't change Model if this would result in an address conflict
-                    kernel->terminal->warning("Can't set Model of Fixture " + id + " because this would result in an address conflict.");
-                }
+                emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
             }
-            kernel->terminal->success("Set Model of " + QString::number(fixtureCounter) + " Fixtures to Model " + model->name() + ".");
+            kernel->terminal->success("Set Model of " + QString::number(ids.size()) + " Fixtures to Model " + model->name() + ".");
         } else {
             kernel->terminal->error("Can' set Fixture Model because an invalid value was given.");
             return;

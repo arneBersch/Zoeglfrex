@@ -83,7 +83,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             }
         }
         kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + singularItemName + " " + sourceItem->id + " .");
-    } else if (attribute == IDATTRIBUTEID) {
+    } else if (attribute == IDATTRIBUTEID) { // Move Item
         QString targetId = kernel->keysToId(value);
         QList<int> itemRows;
         for (QString id : ids) {
@@ -110,7 +110,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             }
         }
         kernel->terminal->success("Set ID of " + QString::number(itemRows.length()) + " " + pluralItemName + " to " + targetId + ".");
-    } else if (stringAttributes.contains(attribute)){
+    } else if (stringAttributes.contains(attribute)){ // String Attribute
         StringAttribute stringAttribute = stringAttributes.value(attribute);
         if (!value.isEmpty()) {
             kernel->terminal->error(singularItemName + " " + stringAttribute.name + " doesn't take a value.");
@@ -129,7 +129,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set " + stringAttribute.name + " of " + QString::number(ids.size()) + " " + pluralItemName + " to \"" + text + "\".");
-    } else if (fixtureSpecificFloatAttributes.contains(attribute) && attributes.contains(Keys::Fixture)) {
+    } else if (fixtureSpecificFloatAttributes.contains(attribute) && attributes.contains(Keys::Fixture)) { // Fixture Specific Float Attribute
         FloatAttribute floatAttribute = fixtureSpecificFloatAttributes.value(attribute);
         Fixture* fixture = kernel->fixtures->getItem(attributes.value(Keys::Fixture));
         if (fixture == nullptr) {
@@ -151,13 +151,22 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             if (negativeValue) {
                 value.removeFirst();
             }
-            int newValue = kernel->keysToValue(value);
-            if (newValue < 0) {
-                kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Fixture " + fixture->id+ " because no valid number was given.");
-                return;
-            }
-            if (negativeValue) {
-                newValue *= -1;
+            float newValue = kernel->keysToValue(value);
+            if (text.isEmpty()) {
+                if (newValue < 0) {
+                    kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Fixture " + fixture->id + " because no valid number was given.");
+                    return;
+                }
+                if (negativeValue) {
+                    newValue *= -1;
+                }
+            } else {
+                bool ok = true;
+                newValue = text.toFloat(&ok);
+                if (!ok) {
+                    kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Fixture " + fixture->id + " because no valid number was given.");
+                    return;
+                }
             }
             if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
                 kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Fixture " + fixture->id + " because " + floatAttribute.name + " has to be a number between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
@@ -173,19 +182,28 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             }
             kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Fixutre " + fixture->id + " to " + QString::number(newValue) + floatAttribute.unit + ".");
         }
-    } else if (intAttributes.contains(attribute)) {
+    } else if (intAttributes.contains(attribute)) { // Integer Attribute
         IntAttribute intAttribute = intAttributes.value(attribute);
         bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
         if (negativeValue) {
             value.removeFirst();
         }
         int newValue = kernel->keysToValue(value);
-        if (newValue < 0) {
-            kernel->terminal->error("Can't set " + singularItemName + " " + intAttribute.name + " because no valid number was given.");
-            return;
-        }
-        if (negativeValue) {
-            newValue *= -1;
+        if (text.isEmpty()) {
+            if (newValue < 0) {
+                kernel->terminal->error("Can't set " + singularItemName + " " + intAttribute.name + " because no valid number was given.");
+                return;
+            }
+            if (negativeValue) {
+                newValue *= -1;
+            }
+        } else {
+            bool ok = true;
+            newValue = text.toInt(&ok);
+            if (!ok) {
+                kernel->terminal->error("Can't set " + singularItemName + " " + intAttribute.name + " because no valid number was given.");
+                return;
+            }
         }
         if ((newValue < intAttribute.min) || (newValue > intAttribute.max)) {
             kernel->terminal->error("Can't set " + singularItemName + " " + intAttribute.name + " because " + intAttribute.name + " has to be a number between " + QString::number(intAttribute.min) + intAttribute.unit + " and " + QString::number(intAttribute.max) + intAttribute.unit + ".");
@@ -200,19 +218,28 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set " + intAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + intAttribute.unit + ".");
-    } else if (floatAttributes.contains(attribute)) {
+    } else if (floatAttributes.contains(attribute)) { // Float Attribute
         FloatAttribute floatAttribute = floatAttributes.value(attribute);
         bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
         if (negativeValue) {
             value.removeFirst();
         }
         int newValue = kernel->keysToValue(value);
-        if (newValue < 0) {
-            kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because no valid number was given.");
-            return;
-        }
-        if (negativeValue) {
-            newValue *= -1;
+        if (text.isEmpty()) {
+            if (newValue < 0) {
+                kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because no valid number was given.");
+                return;
+            }
+            if (negativeValue) {
+                newValue *= -1;
+            }
+        } else {
+            bool ok = true;
+            newValue = text.toInt(&ok);
+            if (!ok) {
+                kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because no valid number was given.");
+                return;
+            }
         }
         if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
             kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because " + floatAttribute.name + " has to be a number between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
@@ -227,13 +254,21 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + floatAttribute.unit + ".");
-    } else if (angleAttributes.contains(attribute)) {
+    } else if (angleAttributes.contains(attribute)) { // Angle Attribute
         AngleAttribute angleAttribute = angleAttributes.value(attribute);
         bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
         if (negativeValue) {
             value.removeFirst();
         }
         float newValue = kernel->keysToValue(value);
+        if (!text.isEmpty()) {
+            bool ok = true;
+            newValue = text.toFloat(&ok);
+            if (!ok) {
+                kernel->terminal->error("Can't set " + singularItemName + " " + angleAttribute.name + " because no valid number was given.");
+                return;
+            }
+        }
         if (newValue < 0) {
             kernel->terminal->error("Can't set " + singularItemName + " " + angleAttribute.name + " because no valid number was given.");
             return;

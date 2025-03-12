@@ -30,9 +30,11 @@ Group::~Group() {
 QString Group::name() {
     if (stringAttributes.value(kernel->groups->LABELATTRIBUTEID).isEmpty()) {
         QString response = Item::name();
+        QStringList fixtureIds;
         for (Fixture* fixture : fixtures) {
-            response += fixture->name() + "; ";
+            fixtureIds.append(fixture->id);
         }
+        response += fixtureIds.join(" + ");
         return response;
     }
     return Item::name();
@@ -40,12 +42,11 @@ QString Group::name() {
 
 QString Group::info() {
     QString info = Item::info();
-    QString fixtureNames;
+    QStringList fixtureIds;
     for (Fixture* fixture : fixtures) {
-        fixtureNames += fixture->id + ", ";
+        fixtureIds.append(fixture->id);
     }
-    fixtureNames.chop(2);
-    info += "\n" + kernel->groups->FIXTURESATTRIBUTEID + " Fixtures: " + fixtureNames;
+    info += "\n" + kernel->groups->FIXTURESATTRIBUTEID + " Fixtures: " + fixtureIds.join(" + ");
     return info;
 }
 
@@ -57,6 +58,6 @@ void Group::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     for (Fixture* fixture : fixtures) {
         fixtureIds.append(fixture->id);
     }
-    fileStream->writeCharacters(fixtureIds.join(";"));
+    fileStream->writeCharacters(fixtureIds.join("+"));
     fileStream->writeEndElement();
 }
