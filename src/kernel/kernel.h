@@ -53,7 +53,6 @@ enum {
 class Kernel {
 public:
     Kernel();
-    void execute(QList<int> command, QString text = QString());
     void reset();
     void saveFile(QString fileName, QString version);
     void openFile(QString fileName, QString version);
@@ -68,14 +67,12 @@ public:
     Inspector *inspector;
     CuelistView *cuelistView;
     QMutex *mutex;
-    QString keysToId(QList<int> keys, bool removeTrailingZeros = true);
-    float keysToValue(QList<int> keys);
-    QList<QString> keysToSelection(QList<int> keys, int itemType);
-    bool patchOkay();
-private:
     bool isItem(int key);
     bool isNumber(int key);
     int keyToNumber(int key);
+    QString keysToId(QList<int> keys, bool removeTrailingZeros = true);
+    float keysToValue(QList<int> keys);
+    QList<QString> keysToSelection(QList<int> keys, int itemType);
 };
 
 #endif // KERNEL_H

@@ -21,7 +21,7 @@ public:
     void write(int key);
     void backspace();
     void clear();
-    void execute(bool clear=true);
+    void execute();
     void info(QString message);
     void success(QString message);
     void warning(QString message);
@@ -31,7 +31,6 @@ private:
     Kernel *kernel;
     QString promptText(QList<int> keys);
     QList<int> command;
-    QVBoxLayout *grid;
     QVBoxLayout *messages;
     QScrollArea *scrollArea;
     QLabel *prompt;
