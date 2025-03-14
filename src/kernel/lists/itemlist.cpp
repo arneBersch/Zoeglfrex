@@ -63,9 +63,9 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         kernel->terminal->success("Deleted " + QString::number(existingIds.length()) + " " + pluralItemName + ".");
     } else if (attributes.isEmpty() && (value.size() > 1) && (value.first() == itemKey)) { // Copy Item
         value.removeFirst();
-        T* sourceItem = getItem(kernel->keysToId(value));
+        T* sourceItem = getItem(kernel->terminal->keysToId(value));
         if (sourceItem == nullptr) {
-            kernel->terminal->error("Can't copy " + pluralItemName + " because " + singularItemName + " " + kernel->keysToId(value) + " doesn't exist.");
+            kernel->terminal->error("Can't copy " + pluralItemName + " because " + singularItemName + " " + kernel->terminal->keysToId(value) + " doesn't exist.");
             return;
         }
         int itemCounter = 0;
@@ -84,7 +84,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         }
         kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + singularItemName + " " + sourceItem->id + " .");
     } else if (attribute == IDATTRIBUTEID) { // Move Item
-        QString targetId = kernel->keysToId(value);
+        QString targetId = kernel->terminal->keysToId(value);
         QList<int> itemRows;
         for (QString id : ids) {
             int itemRow = getItemRow(id);
@@ -151,7 +151,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             if (negativeValue) {
                 value.removeFirst();
             }
-            float newValue = kernel->keysToValue(value);
+            float newValue = kernel->terminal->keysToValue(value);
             if (text.isEmpty()) {
                 if (newValue < 0) {
                     kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Fixture " + fixture->id + " because no valid number was given.");
@@ -188,7 +188,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         if (negativeValue) {
             value.removeFirst();
         }
-        int newValue = kernel->keysToValue(value);
+        int newValue = kernel->terminal->keysToValue(value);
         if (text.isEmpty()) {
             if (newValue < 0) {
                 kernel->terminal->error("Can't set " + singularItemName + " " + intAttribute.name + " because no valid number was given.");
@@ -224,7 +224,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         if (negativeValue) {
             value.removeFirst();
         }
-        int newValue = kernel->keysToValue(value);
+        int newValue = kernel->terminal->keysToValue(value);
         if (text.isEmpty()) {
             if (newValue < 0) {
                 kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because no valid number was given.");
@@ -260,7 +260,7 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
         if (negativeValue) {
             value.removeFirst();
         }
-        float newValue = kernel->keysToValue(value);
+        float newValue = kernel->terminal->keysToValue(value);
         if (!text.isEmpty()) {
             bool ok = true;
             newValue = text.toFloat(&ok);

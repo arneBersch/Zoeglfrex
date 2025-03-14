@@ -67,12 +67,6 @@ public:
     Inspector *inspector;
     CuelistView *cuelistView;
     QMutex *mutex;
-    bool isItem(int key);
-    bool isNumber(int key);
-    int keyToNumber(int key);
-    QString keysToId(QList<int> keys, bool removeTrailingZeros = true);
-    float keysToValue(QList<int> keys);
-    QList<QString> keysToSelection(QList<int> keys, int itemType);
 };
 
 #endif // KERNEL_H

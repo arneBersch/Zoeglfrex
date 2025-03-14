@@ -41,12 +41,12 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
             }
             kernel->terminal->success("Deleted " + QString::number(itemCounter) + + " Cue Intensity entries.");
         } else {
-            Intensity* intensity = kernel->intensities->getItem(kernel->keysToId(value));
+            Intensity* intensity = kernel->intensities->getItem(kernel->terminal->keysToId(value));
             if (!text.isEmpty()) {
                 intensity = kernel->intensities->getItem(text);
             }
             if (intensity == nullptr) {
-                kernel->terminal->error("Can't set Cue Intensities because Intensity " + kernel->keysToId(value) + " doesn't exist.");
+                kernel->terminal->error("Can't set Cue Intensities because Intensity " + kernel->terminal->keysToId(value) + " doesn't exist.");
                 return;
             }
             int itemCounter = 0;
@@ -87,7 +87,7 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
             }
             kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Color entries.");
         } else {
-            Color* color = kernel->colors->getItem(kernel->keysToId(value));
+            Color* color = kernel->colors->getItem(kernel->terminal->keysToId(value));
             if (!text.isEmpty()) {
                 color = kernel->colors->getItem(text);
             }
@@ -133,7 +133,7 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                 }
                 value.removeFirst();
             }
-            QList<QString> rawIds = kernel->keysToSelection(value, Keys::Raw);
+            QList<QString> rawIds = kernel->terminal->keysToSelection(value, Keys::Raw);
             if (!text.isEmpty()) {
                 rawIds = text.split("+");
             }

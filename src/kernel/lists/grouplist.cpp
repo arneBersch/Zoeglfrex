@@ -24,7 +24,7 @@ void GroupList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, 
                 }
                 value.removeFirst();
             }
-            QList<QString> fixtureIds = kernel->keysToSelection(value, Keys::Fixture);
+            QList<QString> fixtureIds = kernel->terminal->keysToSelection(value, Keys::Fixture);
             if (!text.isEmpty()) {
                 fixtureIds = text.split("+");
             }

@@ -29,7 +29,7 @@ void FixtureList::setAttribute(QList<QString> ids, QMap<int, QString> attributes
             if (!value.isEmpty()) {
                 value.removeFirst();
             }
-            QString modelId = kernel->keysToId(value);
+            QString modelId = kernel->terminal->keysToId(value);
             if (!text.isEmpty()) {
                 modelId = text;
             }

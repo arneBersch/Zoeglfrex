@@ -57,7 +57,7 @@ void Terminal::execute() {
     int selectionType = command.first();
     QList<int> commandWithoutSelectionType = command;
     commandWithoutSelectionType.removeFirst();
-    if (!kernel->isItem(selectionType)) {
+    if (!isItem(selectionType)) {
         error("No Item Type specified.");
         return;
     }
@@ -73,7 +73,7 @@ void Terminal::execute() {
                 return;
             }
             valueReached = true;
-        } else if ((kernel->isItem(key) || (key == Keys::Attribute)) && !valueReached) {
+        } else if ((isItem(key) || (key == Keys::Attribute)) && !valueReached) {
             attribute.append(key);
             attributeReached = true;
         } else {
@@ -86,7 +86,7 @@ void Terminal::execute() {
             }
         }
     }
-    QList<QString> ids = kernel->keysToSelection(selection, selectionType);
+    QList<QString> ids = keysToSelection(selection, selectionType);
     QMap<int, QString> attributeMap = QMap<int, QString>();
     if (!valueReached && !attributeReached) {
         if (selectionType == Keys::Fixture) {
@@ -220,14 +220,14 @@ void Terminal::execute() {
     int currentItemType = Keys::Attribute;
     QList<int> currentId;
     for (int attributeKey : attribute) {
-        if (kernel->isItem(attributeKey) || (attributeKey == Keys::Attribute)) {
+        if (isItem(attributeKey) || (attributeKey == Keys::Attribute)) {
             if (!currentId.isEmpty()) {
-                QString currentIdString = kernel->keysToId(currentId);
+                QString currentIdString = keysToId(currentId);
                 attributeMap[currentItemType] = currentIdString;
             }
             currentId.clear();
             currentItemType = attributeKey;
-        } else if (kernel->isNumber(attributeKey) || (attributeKey == Keys::Period)) {
+        } else if (isNumber(attributeKey) || (attributeKey == Keys::Period)) {
             currentId.append(attributeKey);
         } else {
             error("Invalid key in Attribute.");
@@ -235,7 +235,7 @@ void Terminal::execute() {
         }
     }
     if (!currentId.isEmpty()) {
-        QString currentIdString = kernel->keysToId(currentId);
+        QString currentIdString = keysToId(currentId);
         attributeMap[currentItemType] = currentIdString;
     }
     QString text;
@@ -415,6 +415,230 @@ QString Terminal::promptText(QList<int> keys) {
         commandString.remove(commandString.size(), 1); // remove last character
     }
     return commandString;
+}
+
+QString Terminal::keysToId(QList<int> keys, bool removeTrailingZeros) {
+    QString id;
+    int number = 0;
+    for (const int key : keys) {
+        if (isNumber(key)) {
+            number = (number * 10) + keyToNumber(key);
+        } else if (key == Keys::Period) {
+            id += QString::number(number) + ".";
+            number = 0;
+        } else {
+            return QString();
+        }
+    }
+    id += QString::number(number);
+    if (removeTrailingZeros) {
+        while (id.endsWith(".0")) {
+            id.chop(2);
+        }
+    }
+    return id;
+}
+
+float Terminal::keysToValue(QList<int> keys) {
+    QString value;
+    for (const int key : keys) {
+        if (isNumber(key)) {
+            value += QString::number(keyToNumber(key));
+        } else if (key == Keys::Period) {
+            value += ".";
+        } else {
+            return -1;
+        }
+    }
+    bool ok;
+    float valueFloat = value.toFloat(&ok);
+    if (!ok) {
+        return -1;
+    }
+    return valueFloat;
+}
+
+QList<QString> Terminal::keysToSelection(QList<int> keys, int itemType) {
+    QList<QString> allIds;
+    if (itemType == Keys::Model) {
+        allIds = kernel->models->getIds();
+    } else if (itemType == Keys::Fixture) {
+        allIds = kernel->fixtures->getIds();
+    } else if (itemType == Keys::Group) {
+        allIds = kernel->groups->getIds();
+    } else if (itemType == Keys::Intensity) {
+        allIds = kernel->intensities->getIds();
+    } else if (itemType == Keys::Color) {
+        allIds = kernel->colors->getIds();
+    } else if (itemType == Keys::Raw) {
+        allIds = kernel->raws->getIds();
+    } else if (itemType == Keys::Cue) {
+        allIds = kernel->cues->getIds();
+    } else {
+        return QList<QString>();
+    }
+    if (keys.isEmpty()) {
+        return QList<QString>();
+    }
+    if (!keys.endsWith(Keys::Plus)) {
+        keys.append(Keys::Plus);
+    }
+    QList<QString> ids;
+    QList<int> idKeys;
+    QList<int> thruBuffer;
+    bool idAdding = true;
+    for (int key : keys) {
+        if (isNumber(key) || key == Keys::Period) {
+            idKeys += key;
+        } else if ((key == Keys::Plus) || (key == Keys::Minus)) {
+            if (!thruBuffer.isEmpty()) {
+                if (idKeys.startsWith(Keys::Period)) {
+                    idKeys.removeFirst();
+                    if (idKeys.contains(Keys::Period)) {
+                        return QList<QString>();
+                    }
+                    int maxId = keysToId(idKeys).toInt();
+                    QString idBeginning = keysToId(thruBuffer, false);
+                    int minId = idBeginning.split('.').last().toInt();
+                    if (idBeginning.contains('.')) {
+                        idBeginning = idBeginning.left(idBeginning.lastIndexOf(QChar('.'))) + ".";
+                    } else {
+                        idBeginning = QString();
+                    }
+                    if (minId >= maxId) {
+                        return QList<QString>();
+                    }
+                    for (int counter = minId; counter <= maxId; counter++) {
+                        QString id = idBeginning + QString::number(counter);
+                        if (idAdding) {
+                            ids.append(id);
+                        } else {
+                            ids.removeAll(id);
+                        }
+                    }
+                } else {
+                    QString firstId = keysToId(thruBuffer);
+                    if (firstId.isEmpty() || !allIds.contains(firstId)) {
+                        return QList<QString>();
+                    }
+                    QString lastId = keysToId(idKeys);
+                    if (lastId.isEmpty() || !allIds.contains(lastId)) {
+                        return QList<QString>();
+                    }
+                    int firstIdRow = allIds.indexOf(firstId);
+                    int lastIdRow = allIds.indexOf(lastId);
+                    if (firstIdRow >= lastIdRow) {
+                        return QList<QString>();
+                    }
+                    for (int idRow = firstIdRow; idRow <= lastIdRow; idRow++) {
+                        if (idAdding) {
+                            ids.append(allIds[idRow]);
+                        } else {
+                            ids.removeAll(allIds[idRow]);
+                        }
+                    }
+                }
+                thruBuffer.clear();
+                idKeys.clear();
+            } else if (idKeys.endsWith(Keys::Period)) {
+                idKeys.removeLast();
+                if (idKeys.isEmpty()) {
+                    if (idAdding) {
+                        ids.append(allIds);
+                    } else {
+                        for (QString id : allIds) {
+                            ids.removeAll(id);
+                        }
+                    }
+                } else {
+                    QString idStart = keysToId(idKeys, false);
+                    for (QString id : allIds) {
+                        if ((id.startsWith(idStart + ".")) || (idStart == id)) {
+                            if (idAdding) {
+                                ids.append(id);
+                            } else {
+                                ids.removeAll(id);
+                            }
+                        }
+                    }
+                }
+            } else {
+                QString id = keysToId(idKeys);
+                if (id.isEmpty()) {
+                    return QList<QString>();
+                }
+                if (idAdding) {
+                    ids.append(id);
+                } else {
+                    ids.removeAll(id);
+                }
+            }
+            idKeys.clear();
+            idAdding = (key == Keys::Plus);
+        } else if (key == Keys::Thru) {
+            if (!thruBuffer.isEmpty()) {
+                return QList<QString>();
+            }
+            thruBuffer = idKeys;
+            idKeys.clear();
+        } else {
+            return QList<QString>();
+        }
+    }
+    return ids;
+}
+
+bool Terminal::isItem(int key) {
+    return (
+        (key == Keys::Model) ||
+        (key == Keys::Fixture) ||
+        (key == Keys::Group) ||
+        (key == Keys::Intensity) ||
+        (key == Keys::Color) ||
+        (key == Keys::Raw) ||
+        (key == Keys::Cue)
+        );
+}
+
+bool Terminal::isNumber(int key) {
+    return (
+        (key == Keys::Zero) ||
+        (key == Keys::One) ||
+        (key == Keys::Two) ||
+        (key == Keys::Three) ||
+        (key == Keys::Four) ||
+        (key == Keys::Five) ||
+        (key == Keys::Six) ||
+        (key == Keys::Seven) ||
+        (key == Keys::Eight) ||
+        (key == Keys::Nine)
+        );
+}
+
+int Terminal::keyToNumber(int key) {
+    if (key == Keys::Zero) {
+        return 0;
+    } else if (key == Keys::One) {
+        return 1;
+    } else if (key == Keys::Two) {
+        return 2;
+    } else if (key == Keys::Three) {
+        return 3;
+    } else if (key == Keys::Four) {
+        return 4;
+    } else if (key == Keys::Five) {
+        return 5;
+    } else if (key == Keys::Six) {
+        return 6;
+    } else if (key == Keys::Seven) {
+        return 7;
+    } else if (key == Keys::Eight) {
+        return 8;
+    } else if (key == Keys::Nine) {
+        return 9;
+    } else {
+        return false;
+    }
 }
 
 void Terminal::scrollToLastMessage(int min, int max) {

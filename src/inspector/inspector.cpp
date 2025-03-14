@@ -30,7 +30,7 @@ void Inspector::load(QList<int> keys)
     for (int keyIndex = (keys.length() - 1); keyIndex >= 0; keyIndex--) {
         QString id = QString();
         if (keyIndex < (keys.length() - 1)) {
-            id = kernel->keysToId(keys.mid((keyIndex + 1), (keys.length() - keyIndex)));
+            id = kernel->terminal->keysToId(keys.mid((keyIndex + 1), (keys.length() - keyIndex)));
         }
         if (keys[keyIndex] == Keys::Model) {
             table->setModel(kernel->models);

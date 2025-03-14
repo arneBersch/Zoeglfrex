@@ -27,6 +27,12 @@ public:
     void warning(QString message);
     void error(QString message);
     bool printMessages = true;
+    bool isItem(int key);
+    bool isNumber(int key);
+    int keyToNumber(int key);
+    QString keysToId(QList<int> keys, bool removeTrailingZeros = true);
+    float keysToValue(QList<int> keys);
+    QList<QString> keysToSelection(QList<int> keys, int itemType);
 private:
     Kernel *kernel;
     QString promptText(QList<int> keys);
