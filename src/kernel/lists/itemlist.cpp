@@ -129,6 +129,59 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set " + stringAttribute.name + " of " + QString::number(ids.size()) + " " + pluralItemName + " to \"" + text + "\".");
+    } else if (modelSpecificFloatAttributes.contains(attribute) && attributes.contains(Keys::Model)) { // Model Specific Float Attribute
+        FloatAttribute floatAttribute = modelSpecificFloatAttributes.value(attribute);
+        Model* model = kernel->models->getItem(attributes.value(Keys::Model));
+        if (model == nullptr) {
+            kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Model " + attributes.value(Keys::Fixture) + " because Model doesn't exist.");
+            return;
+        }
+        if ((value.size() == 1) && (value.first() == Keys::Minus)) {
+            for (QString id : ids) {
+                T* item = getItem(id);
+                if (item == nullptr) {
+                    item = addItem(id);
+                }
+                item->modelSpecificFloatAttributes[attribute].remove(model);
+                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+            }
+            kernel->terminal->success("Removed " + floatAttribute.name + " of Model " + model->id + " in " + QString::number(ids.length()) + " " + pluralItemName + ".");
+        } else {
+            bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
+            if (negativeValue) {
+                value.removeFirst();
+            }
+            float newValue = kernel->terminal->keysToValue(value);
+            if (text.isEmpty()) {
+                if (newValue < 0) {
+                    kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Model " + model->id + " because no valid number was given.");
+                    return;
+                }
+                if (negativeValue) {
+                    newValue *= -1;
+                }
+            } else {
+                bool ok = true;
+                newValue = text.toFloat(&ok);
+                if (!ok) {
+                    kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Model " + model->id + " because no valid number was given.");
+                    return;
+                }
+            }
+            if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
+                kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Model " + model->id + " because " + floatAttribute.name + " has to be a number between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
+                return;
+            }
+            for (QString id : ids) {
+                T* item = getItem(id);
+                if (item == nullptr) {
+                    item = addItem(id);
+                }
+                item->modelSpecificFloatAttributes[attribute][model] = newValue;
+                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+            }
+            kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Model " + model->id + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+        }
     } else if (fixtureSpecificFloatAttributes.contains(attribute) && attributes.contains(Keys::Fixture)) { // Fixture Specific Float Attribute
         FloatAttribute floatAttribute = fixtureSpecificFloatAttributes.value(attribute);
         Fixture* fixture = kernel->fixtures->getItem(attributes.value(Keys::Fixture));
@@ -366,6 +419,9 @@ template <class T> T* ItemList<T>::addItem(QString id) {
     }
     for (QString attribute : floatAttributes.keys()) {
         item->floatAttributes[attribute] = floatAttributes.value(attribute).value;
+    }
+    for (QString attribute : modelSpecificFloatAttributes.keys()) {
+        item->modelSpecificFloatAttributes[attribute] = QMap<Model*, float>();
     }
     for (QString attribute : fixtureSpecificFloatAttributes.keys()) {
         item->fixtureSpecificFloatAttributes[attribute] = QMap<Fixture*, float>();

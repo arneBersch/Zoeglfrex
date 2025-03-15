@@ -11,5 +11,6 @@
 IntensityList::IntensityList(Kernel *core) : ItemList(Keys::Intensity, "Intensity", "Intensities") {
     kernel = core;
     floatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
+    modelSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
     fixtureSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
 }

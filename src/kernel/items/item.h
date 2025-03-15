@@ -12,6 +12,7 @@
 #include <QtWidgets>
 
 class Kernel;
+class Model;
 class Fixture;
 class Group;
 class Intensity;
@@ -28,6 +29,7 @@ public:
     QMap<QString, QString> stringAttributes;
     QMap<QString, int> intAttributes;
     QMap<QString, float> floatAttributes;
+    QMap<QString, QMap<Model*, float>> modelSpecificFloatAttributes;
     QMap<QString, QMap<Fixture*, float>> fixtureSpecificFloatAttributes;
     QMap<QString, float> angleAttributes;
 protected:

@@ -18,6 +18,8 @@ Item::Item(const Item* item) {
     stringAttributes = item->stringAttributes;
     intAttributes = item->intAttributes;
     floatAttributes = item->floatAttributes;
+    modelSpecificFloatAttributes = item->modelSpecificFloatAttributes;
+    fixtureSpecificFloatAttributes = item->fixtureSpecificFloatAttributes;
     angleAttributes = item->angleAttributes;
 }
 
@@ -51,6 +53,15 @@ void Item::writeAttributesToFile(QXmlStreamWriter *fileStream) {
         fileStream->writeAttribute("ID", attribute);
         fileStream->writeCharacters(QString::number(floatAttributes.value(attribute)));
         fileStream->writeEndElement();
+    }
+    for (QString attribute : modelSpecificFloatAttributes.keys()) {
+        for (Model* model : modelSpecificFloatAttributes.value(attribute).keys()) {
+            fileStream->writeStartElement("Attribute");
+            fileStream->writeAttribute("ID", attribute);
+            fileStream->writeAttribute("Model", model->id);
+            fileStream->writeCharacters(QString::number(modelSpecificFloatAttributes.value(attribute).value(model)));
+            fileStream->writeEndElement();
+        }
     }
     for (QString attribute : fixtureSpecificFloatAttributes.keys()) {
         for (Fixture* fixture : fixtureSpecificFloatAttributes.value(attribute).keys()) {

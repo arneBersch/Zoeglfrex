@@ -62,6 +62,7 @@ protected:
     QMap<QString, StringAttribute> stringAttributes;
     QMap<QString, IntAttribute> intAttributes;
     QMap<QString, FloatAttribute> floatAttributes;
+    QMap<QString, FloatAttribute> modelSpecificFloatAttributes;
     QMap<QString, FloatAttribute> fixtureSpecificFloatAttributes;
     QMap<QString, AngleAttribute> angleAttributes;
 private:

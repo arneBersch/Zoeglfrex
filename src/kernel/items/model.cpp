@@ -14,9 +14,42 @@ Model::Model(Kernel* core) : Item(core) {}
 Model::Model(const Model* item) : Item(item) {}
 
 Model::~Model() {
+    for (Model* model : kernel->models->items) {
+        for (QString modelSpecificFloatAttribute : model->modelSpecificFloatAttributes.keys()) {
+            model->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+        }
+    }
     for (Fixture* fixture : kernel->fixtures->items) {
         if (fixture->model == this) {
             fixture->model = nullptr;
+        }
+        for (QString modelSpecificFloatAttribute : fixture->modelSpecificFloatAttributes.keys()) {
+            fixture->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+        }
+    }
+    for (Group* group : kernel->groups->items) {
+        for (QString modelSpecificFloatAttribute : group->modelSpecificFloatAttributes.keys()) {
+            group->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+        }
+    }
+    for (Intensity* intensity : kernel->intensities->items) {
+        for (QString modelSpecificFloatAttribute : intensity->modelSpecificFloatAttributes.keys()) {
+            intensity->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+        }
+    }
+    for (Color* color : kernel->colors->items) {
+        for (QString modelSpecificFloatAttribute : color->modelSpecificFloatAttributes.keys()) {
+            color->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+        }
+    }
+    for (Raw* raw : kernel->raws->items) {
+        for (QString modelSpecificFloatAttribute : raw->modelSpecificFloatAttributes.keys()) {
+            raw->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+        }
+    }
+    for (Cue* cue : kernel->cues->items) {
+        for (QString modelSpecificFloatAttribute : cue->modelSpecificFloatAttributes.keys()) {
+            cue->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
         }
     }
 }

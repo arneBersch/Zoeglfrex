@@ -89,6 +89,8 @@ void DmxEngine::generateDmx() {
             dimmer = fixtureIntensities.value(fixture)->floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID);
             if (fixtureIntensities.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture)) {
                 dimmer = fixtureIntensities.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture);
+            } else if (fixtureIntensities.value(fixture)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture->model)) {
+                dimmer = fixtureIntensities.value(fixture)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture->model);
             }
         }
         if (fixtureColors.contains(fixture)) {
@@ -98,6 +100,8 @@ void DmxEngine::generateDmx() {
             float saturation = fixtureColors.value(fixture)->floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID);
             if (fixtureColors.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).contains(fixture)) {
                 saturation = fixtureColors.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture);
+            } else if (fixtureColors.value(fixture)->modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).contains(fixture->model)) {
+                saturation = fixtureColors.value(fixture)->modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture->model);
             }
             const double p = (100.0 - saturation);
             const double q = (100.0 - (saturation * f));
