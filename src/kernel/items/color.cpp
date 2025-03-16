@@ -33,6 +33,16 @@ QString Color::name() {
 QString Color::info() {
     QString info = Item::info();
     info += "\n" + kernel->colors->HUEATTRIBUTEID + " Hue: " + QString::number(angleAttributes.value(kernel->colors->HUEATTRIBUTEID)) + "°";
+    QStringList modelHueValues;
+    for (Model* model : modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).keys()) {
+        modelHueValues.append(model->id + " @ " + QString::number(modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(model)) + "°");
+    }
+    info += "\n    Model Exceptions: " + modelHueValues.join("; ");
+    QStringList fixtureHueValues;
+    for (Fixture* fixture : fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).keys()) {
+        fixtureHueValues.append(fixture->id + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture)) + "°");
+    }
+    info += "\n    Fixture Exceptions: " + fixtureHueValues.join("; ");
     info += "\n" + kernel->colors->SATURATIONATTRIBUTEID + " Saturation: " + QString::number(floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID)) + "%";
     QStringList modelSaturationValues;
     for (Model* model : modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).keys()) {

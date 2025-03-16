@@ -32,6 +32,8 @@ public:
     QMap<QString, QMap<Model*, float>> modelSpecificFloatAttributes;
     QMap<QString, QMap<Fixture*, float>> fixtureSpecificFloatAttributes;
     QMap<QString, float> angleAttributes;
+    QMap<QString, QMap<Model*, float>> modelSpecificAngleAttributes;
+    QMap<QString, QMap<Fixture*, float>> fixtureSpecificAngleAttributes;
 protected:
     Kernel *kernel;
 };

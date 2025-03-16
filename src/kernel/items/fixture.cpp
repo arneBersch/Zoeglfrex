@@ -20,10 +20,16 @@ Fixture::~Fixture() {
         for (QString fixtureSpecificFloatAttribute : currentModel->fixtureSpecificFloatAttributes.keys()) {
             currentModel->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }
+        for (QString fixtureSpecificAngleAttribute : currentModel->fixtureSpecificAngleAttributes.keys()) {
+            currentModel->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
+        }
     }
     for (Fixture* fixture : kernel->fixtures->items) {
         for (QString fixtureSpecificFloatAttribute : fixture->fixtureSpecificFloatAttributes.keys()) {
             fixture->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
+        }
+        for (QString fixtureSpecificAngleAttribute : fixture->fixtureSpecificAngleAttributes.keys()) {
+            fixture->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
         }
     }
     for (Group* group : kernel->groups->items) {
@@ -31,25 +37,40 @@ Fixture::~Fixture() {
         for (QString fixtureSpecificFloatAttribute : group->fixtureSpecificFloatAttributes.keys()) {
             group->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }
+        for (QString fixtureSpecificAngleAttribute : group->fixtureSpecificAngleAttributes.keys()) {
+            group->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
+        }
     }
     for (Intensity* intensity : kernel->intensities->items) {
         for (QString fixtureSpecificFloatAttribute : intensity->fixtureSpecificFloatAttributes.keys()) {
             intensity->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
+        }
+        for (QString fixtureSpecificAngleAttribute : intensity->fixtureSpecificAngleAttributes.keys()) {
+            intensity->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
         }
     }
     for (Color* color : kernel->colors->items) {
         for (QString fixtureSpecificFloatAttribute : color->fixtureSpecificFloatAttributes.keys()) {
             color->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }
+        for (QString fixtureSpecificAngleAttribute : color->fixtureSpecificAngleAttributes.keys()) {
+            color->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
+        }
     }
     for (Raw* raw : kernel->raws->items) {
         for (QString fixtureSpecificFloatAttribute : raw->fixtureSpecificFloatAttributes.keys()) {
             raw->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }
+        for (QString fixtureSpecificAngleAttribute : raw->fixtureSpecificAngleAttributes.keys()) {
+            raw->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
+        }
     }
     for (Cue* cue : kernel->cues->items) {
         for (QString fixtureSpecificFloatAttribute : cue->fixtureSpecificFloatAttributes.keys()) {
             cue->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
+        }
+        for (QString fixtureSpecificAngleAttribute : cue->fixtureSpecificAngleAttributes.keys()) {
+            cue->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
         }
     }
 }

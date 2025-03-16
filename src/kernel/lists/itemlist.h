@@ -65,6 +65,8 @@ protected:
     QMap<QString, FloatAttribute> modelSpecificFloatAttributes;
     QMap<QString, FloatAttribute> fixtureSpecificFloatAttributes;
     QMap<QString, AngleAttribute> angleAttributes;
+    QMap<QString, AngleAttribute> modelSpecificAngleAttributes;
+    QMap<QString, AngleAttribute> fixtureSpecificAngleAttributes;
 private:
     int findRow(QString id);
     int itemKey;

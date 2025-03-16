@@ -94,7 +94,13 @@ void DmxEngine::generateDmx() {
             }
         }
         if (fixtureColors.contains(fixture)) {
-            const double h = (fixtureColors.value(fixture)->angleAttributes.value(kernel->colors->HUEATTRIBUTEID) / 60.0);
+            float hue = fixtureColors.value(fixture)->angleAttributes.value(kernel->colors->HUEATTRIBUTEID);
+            if (fixtureColors.value(fixture)->fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).contains(fixture)) {
+                hue = fixtureColors.value(fixture)->fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture);
+            } else if (fixtureColors.value(fixture)->modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).contains(fixture->model)) {
+                hue = fixtureColors.value(fixture)->modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture->model);
+            }
+            const double h = (hue / 60.0);
             const int i = (int)h;
             const double f = h - i;
             float saturation = fixtureColors.value(fixture)->floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID);

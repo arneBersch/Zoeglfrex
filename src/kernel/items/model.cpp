@@ -18,6 +18,9 @@ Model::~Model() {
         for (QString modelSpecificFloatAttribute : model->modelSpecificFloatAttributes.keys()) {
             model->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
         }
+        for (QString modelSpecificAngleAttribute : model->modelSpecificAngleAttributes.keys()) {
+            model->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
+        }
     }
     for (Fixture* fixture : kernel->fixtures->items) {
         if (fixture->model == this) {
@@ -26,30 +29,48 @@ Model::~Model() {
         for (QString modelSpecificFloatAttribute : fixture->modelSpecificFloatAttributes.keys()) {
             fixture->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
         }
+        for (QString modelSpecificAngleAttribute : fixture->modelSpecificAngleAttributes.keys()) {
+            fixture->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
+        }
     }
     for (Group* group : kernel->groups->items) {
         for (QString modelSpecificFloatAttribute : group->modelSpecificFloatAttributes.keys()) {
             group->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+        }
+        for (QString modelSpecificAngleAttribute : group->modelSpecificAngleAttributes.keys()) {
+            group->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
         }
     }
     for (Intensity* intensity : kernel->intensities->items) {
         for (QString modelSpecificFloatAttribute : intensity->modelSpecificFloatAttributes.keys()) {
             intensity->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
         }
+        for (QString modelSpecificAngleAttribute : intensity->modelSpecificAngleAttributes.keys()) {
+            intensity->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
+        }
     }
     for (Color* color : kernel->colors->items) {
         for (QString modelSpecificFloatAttribute : color->modelSpecificFloatAttributes.keys()) {
             color->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+        }
+        for (QString modelSpecificAngleAttribute : color->modelSpecificAngleAttributes.keys()) {
+            color->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
         }
     }
     for (Raw* raw : kernel->raws->items) {
         for (QString modelSpecificFloatAttribute : raw->modelSpecificFloatAttributes.keys()) {
             raw->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
         }
+        for (QString modelSpecificAngleAttribute : raw->modelSpecificAngleAttributes.keys()) {
+            raw->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
+        }
     }
     for (Cue* cue : kernel->cues->items) {
         for (QString modelSpecificFloatAttribute : cue->modelSpecificFloatAttributes.keys()) {
             cue->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+        }
+        for (QString modelSpecificAngleAttribute : cue->modelSpecificAngleAttributes.keys()) {
+            cue->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
         }
     }
 }
