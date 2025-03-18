@@ -58,6 +58,7 @@ Model::~Model() {
         }
     }
     for (Raw* raw : kernel->raws->items) {
+        raw->modelSpecificChannelValues.remove(this);
         for (QString modelSpecificFloatAttribute : raw->modelSpecificFloatAttributes.keys()) {
             raw->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
         }

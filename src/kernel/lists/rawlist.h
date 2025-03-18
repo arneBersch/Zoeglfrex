@@ -21,8 +21,8 @@ class RawList : public ItemList<Raw> {
     Q_OBJECT
 public:
     RawList(Kernel *core);
-    const QString CHANNELATTRIBUTEID = "2";
-    const QString VALUEATTRIBUTEID = "3";
+    const QString CHANNELVALUEATTRIBUTEID = "2";
+    void setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 
 #include "kernel/kernel.h"

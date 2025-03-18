@@ -26,16 +26,58 @@ Raw::~Raw() {
     }
 }
 
-QString Raw::name() {
-    if (stringAttributes.value(kernel->raws->LABELATTRIBUTEID).isEmpty()) {
-        return Item::name() + QString::number(intAttributes.value(kernel->raws->CHANNELATTRIBUTEID)) + " @ " + QString::number(intAttributes.value(kernel->raws->VALUEATTRIBUTEID));
-    }
-    return Item::name();
-}
-
 QString Raw::info() {
     QString info = Item::info();
-    info += "\n" + kernel->raws->CHANNELATTRIBUTEID + " Channel: " + QString::number(intAttributes.value(kernel->raws->CHANNELATTRIBUTEID));
-    info += "\n" + kernel->raws->VALUEATTRIBUTEID + " Value: " + QString::number(intAttributes.value(kernel->raws->VALUEATTRIBUTEID));
+    QStringList channelValue;
+    for (int channel : channelValues.keys()) {
+        channelValue.append(QString::number(channel) + " @ " + QString::number(channelValues.value(channel)));
+    }
+    info += "\n" + kernel->raws->CHANNELVALUEATTRIBUTEID + " Channel Values: " + channelValue.join(", ");
+    QStringList modelChannelValue;
+    for (Model* model : modelSpecificChannelValues.keys()) {
+        QStringList modelChannelValueValues;
+        for (int channel : modelSpecificChannelValues.value(model).keys()) {
+            modelChannelValueValues.append(QString::number(channel) + " @ " + QString::number(modelSpecificChannelValues.value(model).value(channel)));
+        }
+        modelChannelValue.append(model->id + ": " + modelChannelValueValues.join(", "));
+    }
+    info += "\n    Model Exceptions: " + modelChannelValue.join("; ");
+    QStringList fixtureChannelValue;
+    for (Fixture* fixture : fixtureSpecificChannelValues.keys()) {
+        QStringList fixtureChannelValueValues;
+        for (int channel : fixtureSpecificChannelValues.value(fixture).keys()) {
+            fixtureChannelValueValues.append(QString::number(channel) + " @ " + QString::number(fixtureSpecificChannelValues.value(fixture).value(channel)));
+        }
+        fixtureChannelValue.append(fixture->id + ": " + fixtureChannelValueValues.join(", "));
+    }
+    info += "\n    Fixture Exceptions: " + fixtureChannelValue.join("; ");
     return info;
+}
+
+void Raw::writeAttributesToFile(QXmlStreamWriter* fileStream) {
+    Item::writeAttributesToFile(fileStream);
+    for (int channel : channelValues.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", (kernel->raws->CHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
+        fileStream->writeCharacters(QString::number(channelValues.value(channel)));
+        fileStream->writeEndElement();
+    }
+    for (Model* model : modelSpecificChannelValues.keys()) {
+        for (int channel : modelSpecificChannelValues.value(model).keys()) {
+            fileStream->writeStartElement("Attribute");
+            fileStream->writeAttribute("ID", (kernel->raws->CHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
+            fileStream->writeAttribute("Model", model->id);
+            fileStream->writeCharacters(QString::number(modelSpecificChannelValues.value(model).value(channel)));
+            fileStream->writeEndElement();
+        }
+    }
+    for (Fixture* fixture : fixtureSpecificChannelValues.keys()) {
+        for (int channel : fixtureSpecificChannelValues.value(fixture).keys()) {
+            fileStream->writeStartElement("Attribute");
+            fileStream->writeAttribute("ID", (kernel->raws->CHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
+            fileStream->writeAttribute("Fixture", fixture->id);
+            fileStream->writeCharacters(QString::number(fixtureSpecificChannelValues.value(fixture).value(channel)));
+            fileStream->writeEndElement();
+        }
+    }
 }

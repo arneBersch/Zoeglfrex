@@ -194,9 +194,24 @@ void DmxEngine::generateDmx() {
             }
             if (fixtureRaws.contains(fixture)) {
                 for (Raw* raw : fixtureRaws[fixture]) {
-                    int channel = address + raw->intAttributes.value(kernel->raws->CHANNELATTRIBUTEID) - 1;
-                    if ((channel <= 512) && (raw->intAttributes.value(kernel->raws->CHANNELATTRIBUTEID) <= channels.size())) {
-                        currentCueValues[channel] = raw->intAttributes.value(kernel->raws->VALUEATTRIBUTEID);
+                    for (int channel : raw->channelValues.keys()) {
+                        if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
+                            currentCueValues[address + channel - 1] = raw->channelValues.value(channel);
+                        }
+                    }
+                    if (raw->modelSpecificChannelValues.contains(fixture->model)) {
+                        for (int channel : raw->modelSpecificChannelValues.value(fixture->model).keys()) {
+                            if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
+                                currentCueValues[address + channel - 1] = raw->modelSpecificChannelValues.value(fixture->model).value(channel);
+                            }
+                        }
+                    }
+                    if (raw->fixtureSpecificChannelValues.contains(fixture)) {
+                        for (int channel : raw->fixtureSpecificChannelValues.value(fixture).keys()) {
+                            if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
+                                currentCueValues[address + channel - 1] = raw->fixtureSpecificChannelValues.value(fixture).value(channel);
+                            }
+                        }
                     }
                 }
             }

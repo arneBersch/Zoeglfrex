@@ -18,8 +18,11 @@ public:
     Raw(Kernel* core);
     Raw(const Raw* item);
     ~Raw();
-    QString name() override;
+    QMap<int, uint8_t> channelValues;
+    QMap<Model*, QMap<int, uint8_t>> modelSpecificChannelValues;
+    QMap<Fixture*, QMap<int, uint8_t>> fixtureSpecificChannelValues;
     QString info() override;
+    void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
 };
 
 #endif // RAW_H

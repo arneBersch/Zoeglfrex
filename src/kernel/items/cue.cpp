@@ -26,31 +26,25 @@ Cue::~Cue() {
 
 QString Cue::info() {
     QString info = Item::info();
-    QString intensityValues;
-    QString colorValues;
-    QString rawValues;
-    for (Group* group : kernel->groups->items) {
-        if (intensities.contains(group)) {
-            intensityValues += group->id + " @ " + intensities.value(group)->id + "; ";
-        }
-        if (colors.contains(group)) {
-            colorValues += group->id + " @ " + colors.value(group)->id + "; ";
-        }
-        if (raws.contains(group)) {
-            rawValues += group->id + " @ ";
-            for (Raw* raw : raws.value(group)) {
-                rawValues += raw->id + ", ";
-            }
-            rawValues.chop(2);
-            rawValues += "; ";
-        }
+    QStringList intensityValues;
+    for (Group* group : intensities.keys()) {
+        intensityValues.append(group->id + " @ " + intensities.value(group)->id);
     }
-    intensityValues.chop(2);
-    colorValues.chop(2);
-    rawValues.chop(2);
-    info += "\n" + kernel->cues->INTENSITIESATTRIBUTEID + " Intensities: " + intensityValues;
-    info += "\n" + kernel->cues->COLORSATTRIBUTEID + " Colors: " + colorValues;
-    info += "\n" + kernel->cues->RAWSATTRIBUTEID + " Raws: " + rawValues;
+    info += "\n" + kernel->cues->INTENSITIESATTRIBUTEID + " Intensities: " + intensityValues.join("; ");
+    QStringList colorValues;
+    for (Group* group : colors.keys()) {
+        colorValues.append(group->id + " @ " + colors.value(group)->id);
+    }
+    info += "\n" + kernel->cues->COLORSATTRIBUTEID + " Colors: " + colorValues.join("; ");
+    QStringList rawValues;
+    for (Group* group : raws.keys()) {
+        QStringList rawValueItems;
+        for (Raw* raw : raws.value(group)) {
+            rawValueItems.append(raw->id);
+        }
+        rawValues.append(group->id + " @ " + rawValueItems.join(", "));
+    }
+    info += "\n" + kernel->cues->RAWSATTRIBUTEID + " Raws: " + rawValues.join("; ");
     info += "\n" + kernel->cues->FADEATTRIBUTEID + " Fade: " + QString::number(floatAttributes.value(kernel->cues->FADEATTRIBUTEID)) + "s";
     return info;
 }

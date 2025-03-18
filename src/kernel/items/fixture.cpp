@@ -58,6 +58,7 @@ Fixture::~Fixture() {
         }
     }
     for (Raw* raw : kernel->raws->items) {
+        raw->fixtureSpecificChannelValues.remove(this);
         for (QString fixtureSpecificFloatAttribute : raw->fixtureSpecificFloatAttributes.keys()) {
             raw->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }

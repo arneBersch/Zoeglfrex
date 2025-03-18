@@ -287,7 +287,7 @@ void Terminal::execute() {
         kernel->colors->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Raw) {
         if (standardAttribute) {
-            attributeMap[Keys::Attribute] = kernel->raws->VALUEATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->raws->CHANNELVALUEATTRIBUTEID;
         }
         kernel->raws->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Cue) {
