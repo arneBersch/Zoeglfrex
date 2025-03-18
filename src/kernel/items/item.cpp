@@ -23,6 +23,7 @@ Item::Item(const Item* item) {
     angleAttributes = item->angleAttributes;
     modelSpecificAngleAttributes = item->modelSpecificAngleAttributes;
     fixtureSpecificAngleAttributes = item->fixtureSpecificAngleAttributes;
+    boolAttributes = item->boolAttributes;
 }
 
 Item::~Item() {}
@@ -97,5 +98,15 @@ void Item::writeAttributesToFile(QXmlStreamWriter *fileStream) {
             fileStream->writeCharacters(QString::number(fixtureSpecificAngleAttributes.value(attribute).value(fixture)));
             fileStream->writeEndElement();
         }
+    }
+    for (QString attribute : boolAttributes.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", attribute);
+        QString valueText = "0";
+        if (boolAttributes.value(attribute)) {
+            valueText = "1";
+        }
+        fileStream->writeCharacters(valueText);
+        fileStream->writeEndElement();
     }
 }

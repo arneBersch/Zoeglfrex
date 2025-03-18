@@ -40,6 +40,11 @@ struct AngleAttribute {
     float value = 0;
 };
 
+struct BoolAttribute {
+    QString name = QString();
+    bool value = false;
+};
+
 class Kernel;
 
 template <class T> class ItemList : public QAbstractTableModel {
@@ -68,6 +73,7 @@ protected:
     QMap<QString, AngleAttribute> angleAttributes;
     QMap<QString, AngleAttribute> modelSpecificAngleAttributes;
     QMap<QString, AngleAttribute> fixtureSpecificAngleAttributes;
+    QMap<QString, BoolAttribute> boolAttributes;
 private:
     int findRow(QString id);
     int itemKey;

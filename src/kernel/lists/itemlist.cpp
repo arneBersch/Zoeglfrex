@@ -432,6 +432,30 @@ template <class T> void ItemList<T>::setAttribute(QList<QString> ids, QMap<int, 
             emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         kernel->terminal->success("Set " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + "°.");
+    } else if (boolAttributes.contains(attribute)) {
+        BoolAttribute boolAttribute = boolAttributes.value(attribute);
+        bool newValue;
+        QString valueText = QString::number(kernel->terminal->keysToValue(value));
+        if (!text.isEmpty()) {
+            valueText = text;
+        }
+        if (valueText == "0") {
+            newValue = false;
+        } else if (valueText == "1") {
+            newValue = true;
+        } else {
+            kernel->terminal->error("Can't set " + singularItemName + " " + boolAttribute.name + " because this Atribute only accepts 0 or 1 as values.");
+            return;
+        }
+        for (QString id : ids) {
+            T* item = getItem(id);
+            if (item == nullptr) {
+                item = addItem(id);
+            }
+            item->boolAttributes[attribute] = newValue;
+            emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+        }
+        kernel->terminal->success("Set " + boolAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + "°.");
     } else {
         kernel->terminal->error("Can't set " + singularItemName + " Attribute " + attributes.value(Keys::Attribute) + ".");
     }
@@ -532,6 +556,9 @@ template <class T> T* ItemList<T>::addItem(QString id) {
     }
     for (QString attribute : angleAttributes.keys()) {
         item->fixtureSpecificAngleAttributes[attribute] = QMap<Fixture*, float>();
+    }
+    for (QString attribute : boolAttributes.keys()) {
+        item->boolAttributes[attribute] = boolAttributes.value(attribute).value;
     }
     int row = findRow(id);
     beginInsertRows(QModelIndex(), row, row);
