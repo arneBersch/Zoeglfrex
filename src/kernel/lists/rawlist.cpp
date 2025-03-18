@@ -127,6 +127,41 @@ void RawList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                 kernel->terminal->success("Set Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " to " + QString::number(newValue) + ".");
             }
         }
+    } else if (attribute == CHANNELVALUEATTRIBUTEID) {
+        if ((value.size() != 1) || (value.first() != Keys::Minus)) {
+            kernel->terminal->error("Can't set Raw Channel Value because no Channel was given.");
+            return;
+        }
+        if (attributes.contains(Keys::Model)) {
+            Model* model = kernel->models->getItem(attributes.value(Keys::Model));
+            if (model == nullptr) {
+                kernel->terminal->error("Can't remove Raw Channels for Model " + attributes.value(Keys::Model) + " because Model does not exist.");
+                return;
+            }
+            for (QString id : ids) {
+                Raw* raw = getItem(id);
+                if (raw != nullptr) {
+                    raw->modelSpecificChannelValues.remove(model);
+                }
+            }
+            kernel->terminal->success("Removed Channel Values of " + QString::number(ids.size()) + " Raws at Model " + model->id + ".");
+        } else if (attributes.contains(Keys::Fixture)) {
+            Fixture* fixture = kernel->fixtures->getItem(attributes.value(Keys::Fixture));
+            if (fixture == nullptr) {
+                kernel->terminal->error("Can't remove Raw Channels for Fixture " + attributes.value(Keys::Fixture) + " because Fixture does not exist.");
+                return;
+            }
+            for (QString id : ids) {
+                Raw* raw = getItem(id);
+                if (raw != nullptr) {
+                    raw->fixtureSpecificChannelValues.remove(fixture);
+                }
+            }
+            kernel->terminal->success("Removed Channel Values of " + QString::number(ids.size()) + " Raws at Fixture " + fixture->id + ".");
+        } else {
+            kernel->terminal->error("Can't remove Raw Channel Values because no Model or Fixture was given.");
+            return;
+        }
     } else {
         ItemList::setAttribute(ids, attributes, value, text);
     }
