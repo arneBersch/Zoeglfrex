@@ -23,36 +23,13 @@ Kernel::Kernel() {
 }
 
 void Kernel::reset() {
-    for (Model* model : models->items) {
-        delete model;
-    }
-    models->items.clear();
-    for (Fixture* fixture : fixtures->items) {
-        delete fixture;
-    }
-    fixtures->items.clear();
-    for (Group* group : groups->items) {
-        delete group;
-    }
-    groups->items.clear();
-    for (Intensity* intensity : intensities->items) {
-        delete intensity;
-    }
-    intensities->items.clear();
-    for (Color* color : colors->items) {
-        delete color;
-    }
-    colors->items.clear();
-    for (Raw* raw : raws->items) {
-        delete raw;
-    }
-    raws->items.clear();
-    QList<Cue*> cueItems = cues->items;
-    cues->items.clear();
-    for (Cue* cue : cueItems) {
-        delete cue;
-    }
-
+    models->reset();
+    fixtures->reset();
+    groups->reset();
+    intensities->reset();
+    colors->reset();
+    raws->reset();
+    cues->reset();
     cuelistView->dmxEngine->sacnServer->universeSpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_UNIVERSE); // reset sACN universe
     cuelistView->dmxEngine->sacnServer->prioritySpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
     cuelistView->loadCue();

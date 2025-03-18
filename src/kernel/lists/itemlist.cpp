@@ -448,6 +448,13 @@ template <class T> void ItemList<T>::saveItemsToFile(QXmlStreamWriter* fileStrea
     fileStream->writeEndElement();
 }
 
+template <class T> void ItemList<T>::reset() {
+    items.clear();
+    for (T* item : items) {
+        delete item;
+    }
+}
+
 template <class T> int ItemList<T>::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return items.size();
