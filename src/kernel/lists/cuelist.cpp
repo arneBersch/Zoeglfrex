@@ -34,7 +34,14 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                 if (cue == nullptr) {
                     cue = addItem(id);
                 }
-                cue->intensities.remove(group);
+                if (cue->intensities.contains(group)) {
+                    Intensity* oldIntensity = cue->intensities.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->intensities.contains(group) && (items[cueRow]->intensities.value(group) == oldIntensity)) {
+                        items[cueRow]->intensities.remove(group);
+                        cueRow++;
+                    }
+                }
             }
             kernel->terminal->success("Deleted " + QString::number(ids.length()) + + " Cue Intensity entries.");
         } else {
@@ -51,7 +58,20 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                 if (cue == nullptr) {
                     cue = addItem(id);
                 }
-                cue->intensities[group] = intensity;
+                if (cue->intensities.contains(group)) {
+                    Intensity* oldIntensity = cue->intensities.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->intensities.contains(group) && (items[cueRow]->intensities.value(group) == oldIntensity)) {
+                        items[cueRow]->intensities[group] = intensity;
+                        cueRow++;
+                    }
+                } else {
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && !items[cueRow]->intensities.contains(group)) {
+                        items[cueRow]->intensities[group] = intensity;
+                        cueRow++;
+                    }
+                }
             }
             kernel->terminal->success("Set Intensities of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to Intensity " + intensity->name() + ".");
         }
@@ -74,7 +94,14 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                 if (cue == nullptr) {
                     cue = addItem(id);
                 }
-                cue->colors.remove(group);
+                if (cue->colors.contains(group)) {
+                    Color* oldColor = cue->colors.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->colors.contains(group) && (items[cueRow]->colors.value(group) == oldColor)) {
+                        items[cueRow]->colors.remove(group);
+                        cueRow++;
+                    }
+                }
             }
             kernel->terminal->success("Deleted " + QString::number(ids.size()) + " Cue Color entries.");
         } else {
@@ -91,7 +118,20 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                 if (cue == nullptr) {
                     cue = addItem(id);
                 }
-                cue->colors[group] = color;
+                if (cue->colors.contains(group)) {
+                    Color* oldColor = cue->colors.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->colors.contains(group) && (items[cueRow]->colors.value(group) == oldColor)) {
+                        items[cueRow]->colors[group] = color;
+                        cueRow++;
+                    }
+                } else {
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && !items[cueRow]->colors.contains(group)) {
+                        items[cueRow]->colors[group] = color;
+                        cueRow++;
+                    }
+                }
             }
             kernel->terminal->success("Set Colors of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to Color " + color->name() + ".");
         }
