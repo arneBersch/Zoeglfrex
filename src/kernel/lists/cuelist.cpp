@@ -141,13 +141,20 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
             kernel->terminal->error("Can't set Cue Raws because an invalid Group was given.");
             return;
         }
-        if ((value.size() == 1) && (value.first() == Keys::Minus)) {
+        if (value.isEmpty()) {
             for (QString id : ids) {
                 Cue *cue = getItem(id);
                 if (cue == nullptr) {
                     cue = addItem(id);
                 }
-                cue->raws.remove(group);
+                if (cue->raws.contains(group)) {
+                    QList<Raw*> oldRaws = cue->raws.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->raws.contains(group) && (items[cueRow]->raws.value(group) == oldRaws)) {
+                        items[cueRow]->raws.remove(group);
+                        cueRow++;
+                    }
+                }
             }
             kernel->terminal->success("Deleted " + QString::number(ids.length()) + " Cue Raw entries.");
         } else {
@@ -180,7 +187,20 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                 if (cue == nullptr) {
                     cue = addItem(id);
                 }
-                cue->raws[group] = raws;
+                if (cue->raws.contains(group)) {
+                    QList<Raw*> oldRaws = cue->raws.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->raws.contains(group) && (items[cueRow]->raws.value(group) == oldRaws)) {
+                        items[cueRow]->raws[group] = raws;
+                        cueRow++;
+                    }
+                } else {
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && !items[cueRow]->raws.contains(group)) {
+                        items[cueRow]->raws[group] = raws;
+                        cueRow++;
+                    }
+                }
             }
             kernel->terminal->success("Set Raws of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to " + QString::number(raws.length()) + " Raws.");
         }
