@@ -24,7 +24,6 @@ public:
     void loadCue();
     void nextCue();
     void previousCue();
-    bool validGroupAndCue();
     Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;
     DmxEngine *dmxEngine;

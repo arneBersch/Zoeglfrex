@@ -64,7 +64,6 @@ public:
     T* addItem(QString id);
     const QString IDATTRIBUTEID = "0";
     const QString LABELATTRIBUTEID = "1";
-protected:
     QMap<QString, StringAttribute> stringAttributes;
     QMap<QString, IntAttribute> intAttributes;
     QMap<QString, FloatAttribute> floatAttributes;

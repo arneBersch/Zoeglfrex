@@ -91,13 +91,11 @@ void Terminal::execute() {
     if (!valueReached && !attributeReached) {
         if (selectionType == Keys::Fixture) {
             if (kernel->cuelistView->currentGroup == nullptr) {
-                error("Can't update Fixtures of Group because no Group is currently selected.");
+                error("Can't update Fixtures of current Group because no Group is currently selected.");
                 return;
             }
             attributeMap[Keys::Attribute] = kernel->groups->FIXTURESATTRIBUTEID;
-            QList<QString> groupIds;
-            groupIds.append(kernel->cuelistView->currentGroup->id);
-            kernel->groups->setAttribute(groupIds, attributeMap, command);
+            kernel->groups->setAttribute({kernel->cuelistView->currentGroup->id}, attributeMap, command);
         } else if (selectionType == Keys::Group) {
             if (ids.size() != 1) {
                 error("Can't select Group because Group only allows one Group ID.");
@@ -105,23 +103,30 @@ void Terminal::execute() {
             }
             Group* group = kernel->groups->getItem(ids.first());
             if (group == nullptr) {
-                group = kernel->groups->addItem(ids.first());
-                success("Added and selected Group " + group->id);
-            } else {
-                success("Selected Group " + group->id);
+                error("Can't select Group because Group " + ids.first() + " doesn't exist.");
+                return;
             }
             kernel->cuelistView->currentGroup = group;
+            success("Selected Group " + group->id);
         } else if (selectionType == Keys::Intensity) {
-            if (!kernel->cuelistView->validGroupAndCue()) {
+            if (kernel->cuelistView->currentGroup == nullptr) {
+                kernel->terminal->error("Can't set Intensity because no Group is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCue == nullptr) {
+                kernel->terminal->error("Can't set Intensity because no Cue is currently selected.");
                 return;
             }
             attributeMap[Keys::Attribute] = kernel->cues->INTENSITIESATTRIBUTEID;
             attributeMap[Keys::Group] = kernel->cuelistView->currentGroup->id;
-            QList<QString> cueIds;
-            cueIds.append(kernel->cuelistView->currentCue->id);
-            kernel->cues->setAttribute(cueIds, attributeMap, command);
+            kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, command);
         } else if (selectionType == Keys::Color) {
-            if (!kernel->cuelistView->validGroupAndCue()) {
+            if (kernel->cuelistView->currentGroup == nullptr) {
+                kernel->terminal->error("Can't set Color because no Group is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCue == nullptr) {
+                kernel->terminal->error("Can't set Color because no Cue is currently selected.");
                 return;
             }
             attributeMap[Keys::Attribute] = kernel->cues->COLORSATTRIBUTEID;
@@ -130,14 +135,17 @@ void Terminal::execute() {
             cueIds.append(kernel->cuelistView->currentCue->id);
             kernel->cues->setAttribute(cueIds, attributeMap, command);
         } else if (selectionType == Keys::Raw) {
-            if (!kernel->cuelistView->validGroupAndCue()) {
+            if (kernel->cuelistView->currentGroup == nullptr) {
+                kernel->terminal->error("Can't set Raws because no Group is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCue == nullptr) {
+                kernel->terminal->error("Can't set Raws because no Cue is currently selected.");
                 return;
             }
             attributeMap[Keys::Attribute] = kernel->cues->RAWSATTRIBUTEID;
             attributeMap[Keys::Group] = kernel->cuelistView->currentGroup->id;
-            QList<QString> cueIds;
-            cueIds.append(kernel->cuelistView->currentCue->id);
-            kernel->cues->setAttribute(cueIds, attributeMap, command);
+            kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, command);
         } else if (selectionType == Keys::Cue) {
             if (ids.size() != 1) {
                 error("Can't select Cue because Cue only allows one Cue ID.");
@@ -145,12 +153,11 @@ void Terminal::execute() {
             }
             Cue* cue = kernel->cues->getItem(ids.first());
             if (cue == nullptr) {
-                cue = kernel->cues->addItem(ids.first());
-                success("Added and selected Cue " + cue->id);
-            } else {
-                success("Selected Cue " + cue->id);
+                error("Can't select Cue because Cue " + ids.first() + " doesn't exist.");
+                return;
             }
             kernel->cuelistView->currentCue = cue;
+            success("Selected Cue " + cue->id);
         } else {
             error("No Attribute and Value were given.");
             return;
@@ -164,7 +171,7 @@ void Terminal::execute() {
                 error("Can't load the Fixtures of the current because no Group is selected.");
                 return;
             }
-            for (Fixture* fixture : kernel->fixtures->items) {
+            for (Fixture* fixture : kernel->cuelistView->currentGroup->fixtures) {
                 ids.append(fixture->id);
             }
         } else if (selectionType == Keys::Group) {
@@ -174,32 +181,47 @@ void Terminal::execute() {
             }
             ids.append(kernel->cuelistView->currentGroup->id);
         } else if (selectionType == Keys::Intensity) {
-            if (!kernel->cuelistView->validGroupAndCue()) {
+            if (kernel->cuelistView->currentGroup == nullptr) {
+                kernel->terminal->error("Can't load the Intensity because no Group is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCue == nullptr) {
+                kernel->terminal->error("Can't set Intensity because no Cue is currently selected.");
                 return;
             }
             if (!kernel->cuelistView->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
-                error("Can't load the Intensity as the selected Cue contains no Intensity for this Group.");
+                error("Can't load the Intensity because the selected Cue contains no Intensity for this Group.");
                 return;
             }
             ids.append(kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id);
         } else if (selectionType == Keys::Color) {
-            if (!kernel->cuelistView->validGroupAndCue()) {
+            if (kernel->cuelistView->currentGroup == nullptr) {
+                kernel->terminal->error("Can't load the Color because no Group is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCue == nullptr) {
+                kernel->terminal->error("Can't set Color because no Cue is currently selected.");
                 return;
             }
             if (!kernel->cuelistView->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
-                error("Can't load the Color as the selected Cue contains no Color for this Group.");
+                error("Can't load the Color because the selected Cue contains no Color for this Group.");
                 return;
             }
             ids.append(kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id);
         } else if (selectionType == Keys::Raw) {
-            if (!kernel->cuelistView->validGroupAndCue()) {
+            if (kernel->cuelistView->currentGroup == nullptr) {
+                kernel->terminal->error("Can't load the Raws because no Group is currently selected.");
                 return;
             }
-            if (!kernel->cuelistView->currentCue->raws.contains(kernel->cuelistView->currentGroup) || kernel->cuelistView->currentCue->raws[kernel->cuelistView->currentGroup].isEmpty()) {
-                error("Can't load the Raws as the selected Cue contains no Raws for this Group.");
+            if (kernel->cuelistView->currentCue == nullptr) {
+                kernel->terminal->error("Can't set Raws because no Cue is currently selected.");
                 return;
             }
-            for (Raw* raw : kernel->cuelistView->currentCue->raws[kernel->cuelistView->currentGroup]) {
+            if (!kernel->cuelistView->currentCue->raws.contains(kernel->cuelistView->currentGroup)) {
+                error("Can't load the Raws because the selected Cue contains no Raws for this Group.");
+                return;
+            }
+            for (Raw* raw : kernel->cuelistView->currentCue->raws.value(kernel->cuelistView->currentGroup)) {
                 ids.append(raw->id);
             }
         } else if (selectionType == Keys::Cue) {
@@ -238,31 +260,27 @@ void Terminal::execute() {
         QString currentIdString = keysToId(currentId);
         attributeMap[currentItemType] = currentIdString;
     }
+    bool standardAttribute = (!attributeMap.contains(Keys::Attribute) && !(attributeMap.isEmpty() && !value.isEmpty() && (((value.size() == 1) && (value.first() == Keys::Minus)) || (value.first() == selectionType))));
     QString text;
-    if (attributeMap.value(Keys::Attribute) == kernel->models->LABELATTRIBUTEID) {
+    if (((selectionType == Keys::Model) && kernel->models->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
+        || ((selectionType == Keys::Fixture) && kernel->fixtures->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
+        || ((selectionType == Keys::Group) && kernel->groups->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
+        || ((selectionType == Keys::Intensity) && kernel->intensities->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
+        || ((selectionType == Keys::Color) && kernel->colors->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
+        || ((selectionType == Keys::Raw) && kernel->raws->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
+        || ((selectionType == Keys::Cue) && kernel->cues->stringAttributes.contains(attributeMap.value(Keys::Attribute)))) {
         bool ok = false;
         locker.unlock();
-        text = QInputDialog::getText(kernel->terminal, QString(), "Label", QLineEdit::Normal, QString(), &ok);
+        text = QInputDialog::getText(this, QString(), "Insert Text", QLineEdit::Normal, QString(), &ok);
         locker.relock();
         if (!ok) {
-            warning("Popup cancelled.");
+            error("Popup cancelled.");
             return;
         }
     }
-    bool standardAttribute = (!attributeMap.contains(Keys::Attribute) && !(attributeMap.isEmpty() && !value.isEmpty() && (((value.size() == 1) && (value.first() == Keys::Minus)) || (value.first() == selectionType))));
     if (selectionType == Keys::Model) {
         if (standardAttribute) {
             attributeMap[Keys::Attribute] = kernel->models->CHANNELSATTRIBUTEID;
-        }
-        if (attributeMap.value(Keys::Attribute) == kernel->models->CHANNELSATTRIBUTEID) {
-            bool ok = false;
-            locker.unlock();
-            text = QInputDialog::getText(this, QString(), "Channels", QLineEdit::Normal, QString(), &ok);
-            locker.relock();
-            if (!ok) {
-                warning("Popup cancelled.");
-                return;
-            }
         }
         kernel->models->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Fixture) {
