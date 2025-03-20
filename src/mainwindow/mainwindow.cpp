@@ -134,7 +134,7 @@ void MainWindow::openFile() {
     kernel->terminal->printMessages = false;
     kernel->openFile(fileName, VERSION);
     kernel->terminal->printMessages = true;
-    kernel->cuelistView->loadCue();
+    kernel->terminal->success("Opened File " + fileName);
 }
 
 void MainWindow::newFile() {

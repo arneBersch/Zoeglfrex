@@ -23,6 +23,7 @@ Kernel::Kernel() {
 }
 
 void Kernel::reset() {
+    QMutexLocker locker(mutex);
     models->reset();
     fixtures->reset();
     groups->reset();
@@ -79,6 +80,7 @@ void Kernel::openFile(QString fileName, QString version) {
     }
     QXmlStreamReader fileStream(&file);
     reset();
+    QMutexLocker locker(mutex);
     if (fileStream.readNextStartElement() && (fileStream.name().toString() == "Workspace")) {
         while (fileStream.readNextStartElement()) {
             if (fileStream.name().toString() == "Creator") {
@@ -189,5 +191,5 @@ void Kernel::openFile(QString fileName, QString version) {
         terminal->error("Can't open file because a XML parsing error occured in line " + QString::number(fileStream.lineNumber()) + ": " + fileStream.errorString() + " (" + QString::number(fileStream.error()) + ")");
         return;
     }
-    terminal->success("Opened File " + fileName);
+    cuelistView->loadCue();
 }

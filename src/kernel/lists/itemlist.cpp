@@ -473,8 +473,9 @@ template <class T> void ItemList<T>::saveItemsToFile(QXmlStreamWriter* fileStrea
 }
 
 template <class T> void ItemList<T>::reset() {
-    items.clear();
-    for (T* item : items) {
+    for (int itemIndex = (items.length() - 1); itemIndex >= 0; itemIndex--) {
+        T* item = items[itemIndex];
+        items.removeAt(itemIndex);
         delete item;
     }
 }
