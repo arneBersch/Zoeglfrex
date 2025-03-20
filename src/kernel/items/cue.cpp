@@ -46,6 +46,12 @@ QString Cue::info() {
     }
     info += "\n" + kernel->cues->RAWSATTRIBUTEID + " Raws: " + rawValues.join("; ");
     info += "\n" + kernel->cues->FADEATTRIBUTEID + " Fade: " + QString::number(floatAttributes.value(kernel->cues->FADEATTRIBUTEID)) + "s";
+    info += "\n" + kernel->cues->BLOCKATTRIBUTEID + " Block: ";
+    if (boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)) {
+        info += "True";
+    } else {
+        info += "False";
+    }
     return info;
 }
 

@@ -11,6 +11,7 @@
 CueList::CueList(Kernel *core) : ItemList(Keys::Cue, "Cue", "Cues") {
     kernel = core;
     floatAttributes[FADEATTRIBUTEID] = {"Fade", 0, 0, 60, "s"};
+    boolAttributes[BLOCKATTRIBUTEID] = {"Block", false};
 }
 
 void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
@@ -37,7 +38,7 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                 if (cue->intensities.contains(group)) {
                     Intensity* oldIntensity = cue->intensities.value(group);
                     int cueRow = getItemRow(id);
-                    while ((cueRow < items.size()) && items[cueRow]->intensities.contains(group) && (items[cueRow]->intensities.value(group) == oldIntensity)) {
+                    while ((cueRow < items.size()) && items[cueRow]->intensities.contains(group) && (items[cueRow]->intensities.value(group) == oldIntensity) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
                         items[cueRow]->intensities.remove(group);
                         cueRow++;
                     }
@@ -61,13 +62,13 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                 if (cue->intensities.contains(group)) {
                     Intensity* oldIntensity = cue->intensities.value(group);
                     int cueRow = getItemRow(id);
-                    while ((cueRow < items.size()) && items[cueRow]->intensities.contains(group) && (items[cueRow]->intensities.value(group) == oldIntensity)) {
+                    while ((cueRow < items.size()) && items[cueRow]->intensities.contains(group) && (items[cueRow]->intensities.value(group) == oldIntensity) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
                         items[cueRow]->intensities[group] = intensity;
                         cueRow++;
                     }
                 } else {
                     int cueRow = getItemRow(id);
-                    while ((cueRow < items.size()) && !items[cueRow]->intensities.contains(group)) {
+                    while ((cueRow < items.size()) && !items[cueRow]->intensities.contains(group) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
                         items[cueRow]->intensities[group] = intensity;
                         cueRow++;
                     }
@@ -97,7 +98,7 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                 if (cue->colors.contains(group)) {
                     Color* oldColor = cue->colors.value(group);
                     int cueRow = getItemRow(id);
-                    while ((cueRow < items.size()) && items[cueRow]->colors.contains(group) && (items[cueRow]->colors.value(group) == oldColor)) {
+                    while ((cueRow < items.size()) && items[cueRow]->colors.contains(group) && (items[cueRow]->colors.value(group) == oldColor) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
                         items[cueRow]->colors.remove(group);
                         cueRow++;
                     }
@@ -121,13 +122,13 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                 if (cue->colors.contains(group)) {
                     Color* oldColor = cue->colors.value(group);
                     int cueRow = getItemRow(id);
-                    while ((cueRow < items.size()) && items[cueRow]->colors.contains(group) && (items[cueRow]->colors.value(group) == oldColor)) {
+                    while ((cueRow < items.size()) && items[cueRow]->colors.contains(group) && (items[cueRow]->colors.value(group) == oldColor) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
                         items[cueRow]->colors[group] = color;
                         cueRow++;
                     }
                 } else {
                     int cueRow = getItemRow(id);
-                    while ((cueRow < items.size()) && !items[cueRow]->colors.contains(group)) {
+                    while ((cueRow < items.size()) && !items[cueRow]->colors.contains(group) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
                         items[cueRow]->colors[group] = color;
                         cueRow++;
                     }
@@ -150,7 +151,7 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                 if (cue->raws.contains(group)) {
                     QList<Raw*> oldRaws = cue->raws.value(group);
                     int cueRow = getItemRow(id);
-                    while ((cueRow < items.size()) && items[cueRow]->raws.contains(group) && (items[cueRow]->raws.value(group) == oldRaws)) {
+                    while ((cueRow < items.size()) && items[cueRow]->raws.contains(group) && (items[cueRow]->raws.value(group) == oldRaws) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
                         items[cueRow]->raws.remove(group);
                         cueRow++;
                     }
@@ -190,13 +191,13 @@ void CueList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                 if (cue->raws.contains(group)) {
                     QList<Raw*> oldRaws = cue->raws.value(group);
                     int cueRow = getItemRow(id);
-                    while ((cueRow < items.size()) && items[cueRow]->raws.contains(group) && (items[cueRow]->raws.value(group) == oldRaws)) {
+                    while ((cueRow < items.size()) && items[cueRow]->raws.contains(group) && (items[cueRow]->raws.value(group) == oldRaws) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
                         items[cueRow]->raws[group] = raws;
                         cueRow++;
                     }
                 } else {
                     int cueRow = getItemRow(id);
-                    while ((cueRow < items.size()) && !items[cueRow]->raws.contains(group)) {
+                    while ((cueRow < items.size()) && !items[cueRow]->raws.contains(group) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
                         items[cueRow]->raws[group] = raws;
                         cueRow++;
                     }

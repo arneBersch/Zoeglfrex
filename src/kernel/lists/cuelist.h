@@ -25,6 +25,7 @@ public:
     const QString COLORSATTRIBUTEID = "3";
     const QString RAWSATTRIBUTEID = "4";
     const QString FADEATTRIBUTEID = "5";
+    const QString BLOCKATTRIBUTEID = "6";
     void setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 
