@@ -16,33 +16,45 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
     cueLabel = new QLabel();
     layout->addWidget(cueLabel);
 
+    cueViewModeComboBox = new QComboBox();
+    cueViewModeComboBox->addItem(CUEVIEWCUEMODE);
+    cueViewModeComboBox->addItem(CUEVIEWGROUPMODE);
+    connect(cueViewModeComboBox, &QComboBox::currentIndexChanged, this, &CuelistView::updateCuelistView);
+    layout->addWidget(cueViewModeComboBox);
+
     cueModel = new CueModel(kernel);
-    cueView = new QTableView();
-    cueView->setSelectionMode(QAbstractItemView::NoSelection);
-    cueView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    cueView->setFocusPolicy(Qt::NoFocus);
-    cueView->verticalHeader()->hide();
-    cueView->horizontalHeader()->setStretchLastSection(true);
-    cueView->setModel(cueModel);
-    layout->addWidget(cueView);
+    groupModel = new GroupModel(kernel);
+
+    cuelistTableView = new QTableView();
+    cuelistTableView->setSelectionMode(QAbstractItemView::NoSelection);
+    cuelistTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    cuelistTableView->setFocusPolicy(Qt::NoFocus);
+    cuelistTableView->verticalHeader()->hide();
+    cuelistTableView->horizontalHeader()->setStretchLastSection(true);
+    cuelistTableView->setModel(cueModel);
+    layout->addWidget(cuelistTableView);
 
     dmxEngine = new DmxEngine(kernel);
     layout->addWidget(dmxEngine);
 }
 
-
 void CuelistView::loadCue() {
     cueModel->loadCue();
+    groupModel->loadGroup();
     dmxEngine->generateDmx();
+    cueLabel->setText(QString());
+    if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE) && (currentCue != nullptr)) {
+        cueLabel->setText(currentCue->name());
+    } else if ((cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE) && (currentGroup != nullptr)) {
+        cueLabel->setText(currentGroup->name());
+    }
     if (currentCue == nullptr) {
-        cueLabel->setText(QString());
         if (!kernel->cues->items.isEmpty()) {
             currentCue = kernel->cues->items.first();
             loadCue();
         }
         return;
     }
-    cueLabel->setText(currentCue->name());
 }
 
 void CuelistView::previousCue() {
@@ -83,4 +95,13 @@ void CuelistView::nextCue() {
             nextCue = true;
         }
     }
+}
+
+void CuelistView::updateCuelistView() {
+    if (cueViewModeComboBox->currentText() == CUEVIEWCUEMODE) {
+        cuelistTableView->setModel(cueModel);
+    } else if (cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE) {
+        cuelistTableView->setModel(groupModel);
+    }
+    loadCue();
 }

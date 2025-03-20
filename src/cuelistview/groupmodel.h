@@ -6,41 +6,33 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef CUELISTVIEW_H
-#define CUELISTVIEW_H
+#ifndef GROUPMODEL_H
+#define GROUPMODEL_H
 
 #include <QtWidgets>
 
-#include "cuelistview/cuemodel.h"
-#include "cuelistview/groupmodel.h"
 class Kernel;
-class Group;
-class Cue;
-class DmxEngine;
 
-class CuelistView : public QWidget {
+namespace GroupModelColumns {
+enum {
+    cue,
+    intensity,
+    color,
+    raws,
+};
+}
+
+class GroupModel : public QAbstractTableModel {
     Q_OBJECT
 public:
-    CuelistView(Kernel *core, QWidget *parent = nullptr);
-    void loadCue();
-    void nextCue();
-    void previousCue();
-    Group* currentGroup = nullptr;
-    Cue* currentCue = nullptr;
-    DmxEngine *dmxEngine;
+    GroupModel(Kernel *core);
+    void loadGroup();
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, const int role) const override;
+    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
 private:
-    void updateCuelistView();
     Kernel *kernel;
-    QComboBox *cueViewModeComboBox;
-    const QString CUEVIEWCUEMODE = "Cue Mode";
-    const QString CUEVIEWGROUPMODE = "Group Mode";
-    QTableView *cuelistTableView;
-    CueModel *cueModel;
-    GroupModel *groupModel;
-    QLabel *cueLabel;
 };
 
-#include "kernel/kernel.h"
-#include "cuelistview/dmxengine.h"
-
-#endif // CUELISTVIEW_H
+#endif // GROUPMODEL_H
