@@ -11,7 +11,6 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    aboutwindow/aboutwindow.cpp \
     cuelistview/cuelistview.cpp \
     cuelistview/cuemodel.cpp \
     cuelistview/dmxengine.cpp \
@@ -35,11 +34,11 @@ SOURCES += \
     kernel/lists/modellist.cpp \
     kernel/lists/rawlist.cpp \
     main.cpp \
+    mainwindow/aboutwindow.cpp \
     mainwindow/mainwindow.cpp \
     terminal/terminal.cpp
 
 HEADERS += \
-    aboutwindow/aboutwindow.h \
     cuelistview/cuelistview.h \
     cuelistview/cuemodel.h \
     cuelistview/dmxengine.h \
@@ -62,6 +61,7 @@ HEADERS += \
     kernel/lists/itemlist.h \
     kernel/lists/modellist.h \
     kernel/lists/rawlist.h \
+    mainwindow/aboutwindow.h \
     mainwindow/mainwindow.h \
     terminal/terminal.h
 

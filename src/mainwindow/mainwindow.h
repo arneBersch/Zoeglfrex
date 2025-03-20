@@ -12,7 +12,7 @@
 #include <QtWidgets>
 
 #include "kernel/kernel.h"
-#include "aboutwindow/aboutwindow.h"
+#include "mainwindow/aboutwindow.h"
 
 class MainWindow : public QMainWindow
 {
