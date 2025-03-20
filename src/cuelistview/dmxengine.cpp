@@ -25,6 +25,10 @@ DmxEngine::DmxEngine(Kernel *core, QWidget* parent) : QWidget(parent) {
     fadeProgress->setValue(1);
     layout->addWidget(fadeProgress);
 
+    skipFadeButton = new QPushButton("Skip Fade");
+    skipFadeButton->setCheckable(true);
+    layout->addWidget(skipFadeButton);
+
     timer = new QTimer();
     connect(timer, &QTimer::timeout, this, &DmxEngine::sendDmx);
     timer->start(25);
@@ -221,6 +225,9 @@ void DmxEngine::generateDmx() {
 
 void DmxEngine::sendDmx() {
     QMutexLocker(kernel->mutex);
+    if (skipFadeButton->isChecked()) {
+        remainingFadeFrames = 0;
+    }
     if (remainingFadeFrames > 0) {
         for (int channel = 1; channel <= 512; channel++) {
             float delta = ((float)currentCueValues[channel] - (float)lastCueValues[channel]);
