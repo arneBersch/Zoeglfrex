@@ -61,7 +61,6 @@ public:
     virtual void setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString());
     void saveItemsToFile(QXmlStreamWriter* fileStream);
     void reset();
-    T* addItem(QString id);
     const QString IDATTRIBUTEID = "0";
     const QString LABELATTRIBUTEID = "1";
     QMap<QString, StringAttribute> stringAttributes;
@@ -73,6 +72,8 @@ public:
     QMap<QString, AngleAttribute> modelSpecificAngleAttributes;
     QMap<QString, AngleAttribute> fixtureSpecificAngleAttributes;
     QMap<QString, BoolAttribute> boolAttributes;
+protected:
+    T* addItem(QString id);
 private:
     int findRow(QString id);
     int itemKey;

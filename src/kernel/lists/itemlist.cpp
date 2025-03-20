@@ -565,5 +565,6 @@ template <class T> T* ItemList<T>::addItem(QString id) {
     beginInsertRows(QModelIndex(), row, row);
     items.insert(row, item);
     endInsertRows();
+    kernel->terminal->success("Added " + singularItemName + " " + id + ".");
     return item;
 }
