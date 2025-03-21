@@ -26,6 +26,10 @@ public:
     void loadCue();
     void nextCue();
     void previousCue();
+    void nextGroup();
+    void previousGroup();
+    void nextFixture();
+    void previousFixture();
     Fixture* currentFixture = nullptr;
     Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;

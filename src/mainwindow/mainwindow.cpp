@@ -113,6 +113,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Backspace), this), &QShortcut::activated, this, [this]{ kernel->terminal->clear(); }); // Clear Terminal
     connect(new QShortcut(QKeySequence(Qt::Key_Space), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextCue(); }); // Go to next Cue
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Space), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousCue(); }); // Go to previous Cue
+    connect(new QShortcut(QKeySequence(Qt::Key_Down), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextGroup(); }); // Go to next Group
+    connect(new QShortcut(QKeySequence(Qt::Key_Up), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousGroup(); }); // Go to previous Group
+    connect(new QShortcut(QKeySequence(Qt::Key_Right), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextFixture(); }); // Go to next Fixture
+    connect(new QShortcut(QKeySequence(Qt::Key_Left), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousFixture(); }); // Go to previous Fixture
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_N), this), &QShortcut::activated, this, [this]{ this->newFile(); }); // New File
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_O), this), &QShortcut::activated, this, [this]{ this->openFile(); }); // Open File
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this), &QShortcut::activated, this, [this]{ this->saveFile(); }); // Save File

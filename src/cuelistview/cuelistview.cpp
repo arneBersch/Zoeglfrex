@@ -99,6 +99,74 @@ void CuelistView::nextCue() {
     }
 }
 
+void CuelistView::previousGroup() {
+    QMutexLocker locker(kernel->mutex);
+    if (currentGroup == nullptr) {
+        if (!kernel->groups->items.isEmpty()) {
+            currentGroup = kernel->groups->items.first();
+            loadCue();
+        }
+        return;
+    }
+    if (kernel->groups->items.indexOf(currentGroup) > 0) {
+        currentGroup = kernel->groups->items[kernel->groups->items.indexOf(currentGroup) - 1];
+        currentFixture = nullptr;
+        loadCue();
+    }
+}
+
+void CuelistView::nextGroup() {
+    QMutexLocker locker(kernel->mutex);
+    if (currentGroup == nullptr) {
+        if (!kernel->groups->items.isEmpty()) {
+            currentGroup = kernel->groups->items.first();
+            loadCue();
+        }
+        return;
+    }
+    if ((kernel->groups->items.indexOf(currentGroup) + 1) < kernel->groups->items.length()) {
+        currentGroup = kernel->groups->items[kernel->groups->items.indexOf(currentGroup) + 1];
+        currentFixture = nullptr;
+        loadCue();
+    }
+}
+
+void CuelistView::previousFixture() {
+    QMutexLocker locker(kernel->mutex);
+    if (currentGroup == nullptr) {
+        return;
+    }
+    if (currentFixture == nullptr) {
+        if (!currentGroup->fixtures.isEmpty()) {
+            currentFixture = currentGroup->fixtures.first();
+            loadCue();
+        }
+        return;
+    }
+    if (currentGroup->fixtures.indexOf(currentFixture) > 0) {
+        currentFixture = currentGroup->fixtures[currentGroup->fixtures.indexOf(currentFixture) - 1];
+        loadCue();
+    }
+}
+
+void CuelistView::nextFixture() {
+    QMutexLocker locker(kernel->mutex);
+    if (currentGroup == nullptr) {
+        return;
+    }
+    if (currentFixture == nullptr) {
+        if (!currentGroup->fixtures.isEmpty()) {
+            currentFixture = currentGroup->fixtures.first();
+            loadCue();
+        }
+        return;
+    }
+    if ((currentGroup->fixtures.indexOf(currentFixture) + 1) < currentGroup->fixtures.length()) {
+        currentFixture = currentGroup->fixtures[currentGroup->fixtures.indexOf(currentFixture) + 1];
+        loadCue();
+    }
+}
+
 void CuelistView::updateCuelistView() {
     if (cueViewModeComboBox->currentText() == CUEVIEWCUEMODE) {
         cuelistTableView->setModel(cueModel);
