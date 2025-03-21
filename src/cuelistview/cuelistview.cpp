@@ -13,8 +13,10 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
 
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    cueLabel = new QLabel();
-    layout->addWidget(cueLabel);
+    cueOrGroupLabel = new QLabel();
+    layout->addWidget(cueOrGroupLabel);
+    fixtureLabel = new QLabel();
+    layout->addWidget(fixtureLabel);
 
     cueViewModeComboBox = new QComboBox();
     cueViewModeComboBox->addItem(CUEVIEWCUEMODE);
@@ -42,11 +44,21 @@ void CuelistView::loadCue() {
     cueModel->loadCue();
     groupModel->loadGroup();
     dmxEngine->generateDmx();
-    cueLabel->setText(QString());
-    if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE) && (currentCue != nullptr)) {
-        cueLabel->setText(currentCue->name());
-    } else if ((cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE) && (currentGroup != nullptr)) {
-        cueLabel->setText(currentGroup->name());
+    cueOrGroupLabel->setText(QString());
+    if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE)) {
+        cueOrGroupLabel->setText("No Cue selected.");
+        if (currentCue != nullptr) {
+            cueOrGroupLabel->setText("Cue " + currentCue->name());
+        }
+    } else if ((cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE)) {
+        cueOrGroupLabel->setText("No Group selected.");
+        if (currentGroup != nullptr) {
+            cueOrGroupLabel->setText("Group " + currentGroup->name());
+        }
+    }
+    fixtureLabel->setText("No Fixture selected.");
+    if (currentFixture != nullptr) {
+        fixtureLabel->setText("Fixture " + currentFixture->id);
     }
     if (currentCue == nullptr) {
         if (!kernel->cues->items.isEmpty()) {
@@ -60,40 +72,30 @@ void CuelistView::loadCue() {
 void CuelistView::previousCue() {
     QMutexLocker locker(kernel->mutex);
     if (currentCue == nullptr) {
-        if (kernel->cues->rowCount() > 0) {
-            currentCue = kernel->cues->items[0];
+        if (!kernel->cues->items.isEmpty()) {
+            currentCue = kernel->cues->items.first();
             loadCue();
         }
+        return;
     }
-    Cue* previousCue = nullptr;
-    for (Cue* cue : kernel->cues->items) {
-        if (cue == currentCue && previousCue != nullptr) {
-            currentCue = previousCue;
-            loadCue();
-            return;
-        }
-        previousCue = cue;
+    if (kernel->cues->items.indexOf(currentCue) > 0) {
+        currentCue = kernel->cues->items[kernel->cues->items.indexOf(currentCue) - 1];
+        loadCue();
     }
 }
 
 void CuelistView::nextCue() {
     QMutexLocker locker(kernel->mutex);
     if (currentCue == nullptr) {
-        if (kernel->cues->rowCount() > 0) {
-            currentCue = kernel->cues->items[0];
+        if (!kernel->cues->items.isEmpty()) {
+            currentCue = kernel->cues->items.first();
             loadCue();
         }
+        return;
     }
-    bool nextCue = false;
-    for (Cue* cue : kernel->cues->items) {
-        if (nextCue) {
-            currentCue = cue;
-            loadCue();
-            return;
-        }
-        if (cue == currentCue) {
-            nextCue = true;
-        }
+    if ((kernel->cues->items.indexOf(currentCue) + 1) < kernel->cues->items.length()) {
+        currentCue = kernel->cues->items[kernel->cues->items.indexOf(currentCue) + 1];
+        loadCue();
     }
 }
 

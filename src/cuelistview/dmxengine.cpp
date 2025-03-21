@@ -148,7 +148,7 @@ void DmxEngine::generateDmx() {
                 blue = 100.0;
             }
         }
-        if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) { // Highlight
+        if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (((kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) || ((kernel->cuelistView->currentFixture != nullptr) && (kernel->cuelistView->currentFixture == fixture)))) { // Highlight
             dimmer = 100.0;
             red = 100.0;
             green = 100.0;

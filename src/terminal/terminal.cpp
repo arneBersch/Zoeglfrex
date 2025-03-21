@@ -94,8 +94,21 @@ void Terminal::execute() {
                 error("Can't update Fixtures of current Group because no Group is currently selected.");
                 return;
             }
-            attributeMap[Keys::Attribute] = kernel->groups->FIXTURESATTRIBUTEID;
-            kernel->groups->setAttribute({kernel->cuelistView->currentGroup->id}, attributeMap, command);
+            if (ids.size() != 1) {
+                error("Can't select Fixture because Fixture only allows one Fixture ID.");
+                return;
+            }
+            Fixture* fixture = kernel->fixtures->getItem(ids.first());
+            if (fixture == nullptr) {
+                error("Can't select Fixture because Fixture " + ids.first() + " doesn't exist.");
+                return;
+            }
+            if (!kernel->cuelistView->currentGroup->fixtures.contains(fixture)) {
+                kernel->cuelistView->currentGroup->fixtures.append(fixture);
+                success("Added Fixture " + fixture->id + " to Group " + kernel->cuelistView->currentGroup->id + ".");
+            }
+            kernel->cuelistView->currentFixture = fixture;
+            success("Selected Fixture " + fixture->id + ".");
         } else if (selectionType == Keys::Group) {
             if (ids.size() != 1) {
                 error("Can't select Group because Group only allows one Group ID.");
@@ -107,14 +120,15 @@ void Terminal::execute() {
                 return;
             }
             kernel->cuelistView->currentGroup = group;
-            success("Selected Group " + group->id);
+            kernel->cuelistView->currentFixture = nullptr;
+            success("Selected Group " + group->id + ".");
         } else if (selectionType == Keys::Intensity) {
             if (kernel->cuelistView->currentGroup == nullptr) {
-                kernel->terminal->error("Can't set Intensity because no Group is currently selected.");
+                error("Can't set Intensity because no Group is currently selected.");
                 return;
             }
             if (kernel->cuelistView->currentCue == nullptr) {
-                kernel->terminal->error("Can't set Intensity because no Cue is currently selected.");
+                error("Can't set Intensity because no Cue is currently selected.");
                 return;
             }
             attributeMap[Keys::Attribute] = kernel->cues->INTENSITIESATTRIBUTEID;
@@ -122,11 +136,11 @@ void Terminal::execute() {
             kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, command);
         } else if (selectionType == Keys::Color) {
             if (kernel->cuelistView->currentGroup == nullptr) {
-                kernel->terminal->error("Can't set Color because no Group is currently selected.");
+                error("Can't set Color because no Group is currently selected.");
                 return;
             }
             if (kernel->cuelistView->currentCue == nullptr) {
-                kernel->terminal->error("Can't set Color because no Cue is currently selected.");
+                error("Can't set Color because no Cue is currently selected.");
                 return;
             }
             attributeMap[Keys::Attribute] = kernel->cues->COLORSATTRIBUTEID;
@@ -136,11 +150,11 @@ void Terminal::execute() {
             kernel->cues->setAttribute(cueIds, attributeMap, command);
         } else if (selectionType == Keys::Raw) {
             if (kernel->cuelistView->currentGroup == nullptr) {
-                kernel->terminal->error("Can't set Raws because no Group is currently selected.");
+                error("Can't set Raws because no Group is currently selected.");
                 return;
             }
             if (kernel->cuelistView->currentCue == nullptr) {
-                kernel->terminal->error("Can't set Raws because no Cue is currently selected.");
+                error("Can't set Raws because no Cue is currently selected.");
                 return;
             }
             attributeMap[Keys::Attribute] = kernel->cues->RAWSATTRIBUTEID;
@@ -157,7 +171,7 @@ void Terminal::execute() {
                 return;
             }
             kernel->cuelistView->currentCue = cue;
-            success("Selected Cue " + cue->id);
+            success("Selected Cue " + cue->id + ".");
         } else {
             error("No Attribute and Value were given.");
             return;
@@ -167,13 +181,11 @@ void Terminal::execute() {
     }
     if (selection.isEmpty()) {
         if (selectionType == Keys::Fixture) {
-            if (kernel->cuelistView->currentGroup == nullptr) {
-                error("Can't load the Fixtures of the current because no Group is selected.");
+            if (kernel->cuelistView->currentFixture == nullptr) {
+                error("Can't load the current Fixture because no Fixture is selected.");
                 return;
             }
-            for (Fixture* fixture : kernel->cuelistView->currentGroup->fixtures) {
-                ids.append(fixture->id);
-            }
+            ids.append(kernel->cuelistView->currentFixture->id);
         } else if (selectionType == Keys::Group) {
             if (kernel->cuelistView->currentGroup == nullptr) {
                 error("Can't load the Group because no Group is selected.");
@@ -182,11 +194,11 @@ void Terminal::execute() {
             ids.append(kernel->cuelistView->currentGroup->id);
         } else if (selectionType == Keys::Intensity) {
             if (kernel->cuelistView->currentGroup == nullptr) {
-                kernel->terminal->error("Can't load the Intensity because no Group is currently selected.");
+                error("Can't load the Intensity because no Group is currently selected.");
                 return;
             }
             if (kernel->cuelistView->currentCue == nullptr) {
-                kernel->terminal->error("Can't set Intensity because no Cue is currently selected.");
+                error("Can't set Intensity because no Cue is currently selected.");
                 return;
             }
             if (!kernel->cuelistView->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
@@ -196,11 +208,11 @@ void Terminal::execute() {
             ids.append(kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id);
         } else if (selectionType == Keys::Color) {
             if (kernel->cuelistView->currentGroup == nullptr) {
-                kernel->terminal->error("Can't load the Color because no Group is currently selected.");
+                error("Can't load the Color because no Group is currently selected.");
                 return;
             }
             if (kernel->cuelistView->currentCue == nullptr) {
-                kernel->terminal->error("Can't set Color because no Cue is currently selected.");
+                error("Can't set Color because no Cue is currently selected.");
                 return;
             }
             if (!kernel->cuelistView->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
@@ -210,11 +222,11 @@ void Terminal::execute() {
             ids.append(kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id);
         } else if (selectionType == Keys::Raw) {
             if (kernel->cuelistView->currentGroup == nullptr) {
-                kernel->terminal->error("Can't load the Raws because no Group is currently selected.");
+                error("Can't load the Raws because no Group is currently selected.");
                 return;
             }
             if (kernel->cuelistView->currentCue == nullptr) {
-                kernel->terminal->error("Can't set Raws because no Cue is currently selected.");
+                error("Can't set Raws because no Cue is currently selected.");
                 return;
             }
             if (!kernel->cuelistView->currentCue->raws.contains(kernel->cuelistView->currentGroup)) {

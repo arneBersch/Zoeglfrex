@@ -16,6 +16,10 @@ Fixture::Fixture(const Fixture* item) : Item(item) {
 }
 
 Fixture::~Fixture() {
+    if (kernel->cuelistView->currentFixture == this) {
+        kernel->cuelistView->currentFixture = nullptr;
+        kernel->cuelistView->loadCue();
+    }
     for (Model* currentModel : kernel->models->items) {
         for (QString fixtureSpecificFloatAttribute : currentModel->fixtureSpecificFloatAttributes.keys()) {
             currentModel->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);

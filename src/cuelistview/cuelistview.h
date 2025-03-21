@@ -14,6 +14,7 @@
 #include "cuelistview/cuemodel.h"
 #include "cuelistview/groupmodel.h"
 class Kernel;
+class Fixture;
 class Group;
 class Cue;
 class DmxEngine;
@@ -25,6 +26,7 @@ public:
     void loadCue();
     void nextCue();
     void previousCue();
+    Fixture* currentFixture = nullptr;
     Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;
     DmxEngine *dmxEngine;
@@ -37,7 +39,8 @@ private:
     QTableView *cuelistTableView;
     CueModel *cueModel;
     GroupModel *groupModel;
-    QLabel *cueLabel;
+    QLabel *cueOrGroupLabel;
+    QLabel *fixtureLabel;
 };
 
 #include "kernel/kernel.h"

@@ -37,7 +37,9 @@ void GroupList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, 
                 if (fixture == nullptr) {
                     kernel->terminal->warning("Can't add Fixture " + fixtureId + " to Group because it doesn't exist.");
                 } else {
-                    fixtureSelection.append(fixture);
+                    if (!fixtureSelection.contains(fixture)) {
+                        fixtureSelection.append(fixture);
+                    }
                 }
             }
         }
@@ -48,6 +50,9 @@ void GroupList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, 
             }
             group->fixtures = fixtureSelection;
             emit dataChanged(index(getItemRow(group->id), 0), index(getItemRow(group->id), 0), {Qt::DisplayRole, Qt::EditRole});
+        }
+        if ((kernel->cuelistView->currentGroup != nullptr) && (kernel->cuelistView->currentFixture != nullptr) && !kernel->cuelistView->currentGroup->fixtures.contains(kernel->cuelistView->currentFixture)) {
+            kernel->cuelistView->currentGroup->fixtures.removeAll(kernel->cuelistView->currentFixture);
         }
         kernel->terminal->success("Set Fixtures of " + QString::number(ids.length()) + " Group to " + QString::number(fixtureSelection.length()) + " Fixtures.");
     } else {

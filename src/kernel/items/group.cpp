@@ -18,6 +18,7 @@ Group::Group(const Group* item) : Item(item) {
 Group::~Group() {
     if (kernel->cuelistView->currentGroup == this) {
         kernel->cuelistView->currentGroup = nullptr;
+        kernel->cuelistView->currentFixture = nullptr;
         kernel->cuelistView->loadCue();
     }
     for (Cue *cue : kernel->cues->items) {
