@@ -13,7 +13,7 @@ FixtureList::FixtureList(Kernel *core) : ItemList(Keys::Fixture, "Fixture", "Fix
     intAttributes[ADDRESSATTRIBUTEID] = {"Address", 0, 0, 512};
 }
 
-void FixtureList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+void FixtureList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute == MODELATTRIBUTEID) {
         if ((value.size() == 1) && (value.first() == Keys::Minus)) {
@@ -24,7 +24,11 @@ void FixtureList::setAttribute(QList<QString> ids, QMap<int, QString> attributes
                 }
                 fixture->model = nullptr;
             }
-            kernel->terminal->success("Set Model of " + QString::number(ids.size()) + " Fixtures to None (Dimmer).");
+            if (ids.size() == 1) {
+                kernel->terminal->success("Set Model of Fixture " + getItem(ids.first())->name() + " to None (Dimmer).");
+            } else {
+                kernel->terminal->success("Set Model of " + QString::number(ids.size()) + " Fixtures to None (Dimmer).");
+            }
         } else if (((value.size() >= 2) && (value.first() == Keys::Model)) || !text.isEmpty()) {
             if (!value.isEmpty()) {
                 value.removeFirst();
@@ -46,7 +50,11 @@ void FixtureList::setAttribute(QList<QString> ids, QMap<int, QString> attributes
                 fixture->model = model;
                 emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
             }
-            kernel->terminal->success("Set Model of " + QString::number(ids.size()) + " Fixtures to Model " + model->name() + ".");
+            if (ids.size() == 1) {
+                kernel->terminal->success("Set Model of Fixture " + getItem(ids.first())->name() + " to Model " + model->name() + ".");
+            } else {
+                kernel->terminal->success("Set Model of " + QString::number(ids.size()) + " Fixtures to Model " + model->name() + ".");
+            }
         } else {
             kernel->terminal->error("Can' set Fixture Model because an invalid value was given.");
             return;

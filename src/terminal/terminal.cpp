@@ -86,7 +86,7 @@ void Terminal::execute() {
             }
         }
     }
-    QList<QString> ids = keysToSelection(selection, selectionType);
+    QStringList ids = keysToSelection(selection, selectionType);
     QMap<int, QString> attributeMap = QMap<int, QString>();
     if (!valueReached && !attributeReached) {
         if (selectionType == Keys::Fixture) {
@@ -145,7 +145,7 @@ void Terminal::execute() {
             }
             attributeMap[Keys::Attribute] = kernel->cues->COLORSATTRIBUTEID;
             attributeMap[Keys::Group] = kernel->cuelistView->currentGroup->id;
-            QList<QString> cueIds;
+            QStringList cueIds;
             cueIds.append(kernel->cuelistView->currentCue->id);
             kernel->cues->setAttribute(cueIds, attributeMap, command);
         } else if (selectionType == Keys::Raw) {
@@ -488,8 +488,8 @@ float Terminal::keysToValue(QList<int> keys) {
     return valueFloat;
 }
 
-QList<QString> Terminal::keysToSelection(QList<int> keys, int itemType) {
-    QList<QString> allIds;
+QStringList Terminal::keysToSelection(QList<int> keys, int itemType) {
+    QStringList allIds;
     if (itemType == Keys::Model) {
         allIds = kernel->models->getIds();
     } else if (itemType == Keys::Fixture) {
@@ -505,15 +505,15 @@ QList<QString> Terminal::keysToSelection(QList<int> keys, int itemType) {
     } else if (itemType == Keys::Cue) {
         allIds = kernel->cues->getIds();
     } else {
-        return QList<QString>();
+        return QStringList();
     }
     if (keys.isEmpty()) {
-        return QList<QString>();
+        return QStringList();
     }
     if (!keys.endsWith(Keys::Plus)) {
         keys.append(Keys::Plus);
     }
-    QList<QString> ids;
+    QStringList ids;
     QList<int> idKeys;
     QList<int> thruBuffer;
     bool idAdding = true;
@@ -525,7 +525,7 @@ QList<QString> Terminal::keysToSelection(QList<int> keys, int itemType) {
                 if (idKeys.startsWith(Keys::Period)) {
                     idKeys.removeFirst();
                     if (idKeys.contains(Keys::Period)) {
-                        return QList<QString>();
+                        return QStringList();
                     }
                     int maxId = keysToId(idKeys).toInt();
                     QString idBeginning = keysToId(thruBuffer, false);
@@ -536,7 +536,7 @@ QList<QString> Terminal::keysToSelection(QList<int> keys, int itemType) {
                         idBeginning = QString();
                     }
                     if (minId >= maxId) {
-                        return QList<QString>();
+                        return QStringList();
                     }
                     for (int counter = minId; counter <= maxId; counter++) {
                         QString id = idBeginning + QString::number(counter);
@@ -549,16 +549,16 @@ QList<QString> Terminal::keysToSelection(QList<int> keys, int itemType) {
                 } else {
                     QString firstId = keysToId(thruBuffer);
                     if (firstId.isEmpty() || !allIds.contains(firstId)) {
-                        return QList<QString>();
+                        return QStringList();
                     }
                     QString lastId = keysToId(idKeys);
                     if (lastId.isEmpty() || !allIds.contains(lastId)) {
-                        return QList<QString>();
+                        return QStringList();
                     }
                     int firstIdRow = allIds.indexOf(firstId);
                     int lastIdRow = allIds.indexOf(lastId);
                     if (firstIdRow >= lastIdRow) {
-                        return QList<QString>();
+                        return QStringList();
                     }
                     for (int idRow = firstIdRow; idRow <= lastIdRow; idRow++) {
                         if (idAdding) {
@@ -595,7 +595,7 @@ QList<QString> Terminal::keysToSelection(QList<int> keys, int itemType) {
             } else {
                 QString id = keysToId(idKeys);
                 if (id.isEmpty()) {
-                    return QList<QString>();
+                    return QStringList();
                 }
                 if (idAdding) {
                     ids.append(id);
@@ -607,12 +607,12 @@ QList<QString> Terminal::keysToSelection(QList<int> keys, int itemType) {
             idAdding = (key == Keys::Plus);
         } else if (key == Keys::Thru) {
             if (!thruBuffer.isEmpty()) {
-                return QList<QString>();
+                return QStringList();
             }
             thruBuffer = idKeys;
             idKeys.clear();
         } else {
-            return QList<QString>();
+            return QStringList();
         }
     }
     return ids;

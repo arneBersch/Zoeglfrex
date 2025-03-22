@@ -12,7 +12,7 @@ GroupList::GroupList(Kernel *core) : ItemList(Keys::Group, "Group", "Groups") {
     kernel = core;
 }
 
-void GroupList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+void GroupList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute == FIXTURESATTRIBUTEID) {
         QList<Fixture*> fixtureSelection;
@@ -24,7 +24,7 @@ void GroupList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, 
                 }
                 value.removeFirst();
             }
-            QList<QString> fixtureIds = kernel->terminal->keysToSelection(value, Keys::Fixture);
+            QStringList fixtureIds = kernel->terminal->keysToSelection(value, Keys::Fixture);
             if (!text.isEmpty()) {
                 fixtureIds = text.split("+");
             }
@@ -54,7 +54,11 @@ void GroupList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, 
         if ((kernel->cuelistView->currentGroup != nullptr) && (kernel->cuelistView->currentFixture != nullptr) && !kernel->cuelistView->currentGroup->fixtures.contains(kernel->cuelistView->currentFixture)) {
             kernel->cuelistView->currentGroup->fixtures.removeAll(kernel->cuelistView->currentFixture);
         }
-        kernel->terminal->success("Set Fixtures of " + QString::number(ids.length()) + " Group to " + QString::number(fixtureSelection.length()) + " Fixtures.");
+        if (ids.size() == 1) {
+            kernel->terminal->success("Set Fixtures of Group " + getItem(ids.first())->name() + " to " + QString::number(fixtureSelection.length()) + " Fixtures.");
+        } else {
+            kernel->terminal->success("Set Fixtures of " + QString::number(ids.length()) + " Groups to " + QString::number(fixtureSelection.length()) + " Fixtures.");
+        }
     } else {
         ItemList::setAttribute(ids, attributes, value, text);
     }

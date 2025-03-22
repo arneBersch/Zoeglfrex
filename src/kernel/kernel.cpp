@@ -131,7 +131,7 @@ void Kernel::openFile(QString fileName, QString version) {
                         terminal->error("Error reading file: No ID for " + singularName + " was given.");
                         return;
                     }
-                    QList<QString> ids = {fileStream.attributes().value("ID").toString()};
+                    QStringList ids = {fileStream.attributes().value("ID").toString()};
                     while (fileStream.readNextStartElement()) {
                         if ((fileStream.name().toString() != "Attribute") || !fileStream.attributes().hasAttribute("ID")) {
                             terminal->error("Error reading file: Expected " + singularName + " Attribute.");

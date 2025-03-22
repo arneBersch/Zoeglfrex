@@ -52,13 +52,13 @@ public:
     ItemList(int key, QString singularName, QString pluralName);
     T* getItem(QString id) const;
     int getItemRow(QString id) const;
-    QList<QString> getIds() const;
+    QStringList getIds() const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
     Kernel *kernel;
     QList<T*> items;
-    virtual void setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> values, QString text = QString());
+    virtual void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> values, QString text = QString());
     void saveItemsToFile(QXmlStreamWriter* fileStream);
     void reset();
     const QString IDATTRIBUTEID = "0";

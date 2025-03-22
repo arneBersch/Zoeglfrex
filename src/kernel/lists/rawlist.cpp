@@ -12,7 +12,7 @@ RawList::RawList(Kernel *core) : ItemList(Keys::Raw, "Raw", "Raws") {
     kernel = core;
 }
 
-void RawList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute.startsWith(CHANNELVALUEATTRIBUTEID + ".")) {
         attribute.remove(0, QString(CHANNELVALUEATTRIBUTEID + ".").length());
@@ -42,7 +42,11 @@ void RawList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                         raw->modelSpecificChannelValues[model].remove(channel);
                     }
                 }
-                kernel->terminal->success("Removed Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Model " + model->id + ".");
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Removed Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " of Model " + model->name() + ".");
+                } else {
+                    kernel->terminal->success("Removed Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Model " + model->name() + ".");
+                }
             } else if (attributes.contains(Keys::Fixture)) {
                 Fixture* fixture = kernel->fixtures->getItem(attributes.value(Keys::Fixture));
                 if (fixture == nullptr) {
@@ -58,7 +62,11 @@ void RawList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                         raw->fixtureSpecificChannelValues[fixture].remove(channel);
                     }
                 }
-                kernel->terminal->success("Removed Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Fixture " + fixture->id + ".");
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Removed Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " of Fixture " + fixture->name() + ".");
+                } else {
+                    kernel->terminal->success("Removed Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Fixture " + fixture->name() + ".");
+                }
             } else {
                 for (QString id : ids) {
                     Raw* raw = getItem(id);
@@ -67,7 +75,11 @@ void RawList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                     }
                     raw->channelValues.remove(channel);
                 }
-                kernel->terminal->success("Removed Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + ".");
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Removed Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + ".");
+                } else {
+                    kernel->terminal->success("Removed Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + ".");
+                }
             }
         } else {
             int newValue = kernel->terminal->keysToValue(value);
@@ -101,7 +113,11 @@ void RawList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                     }
                     raw->modelSpecificChannelValues[model][channel] = (uint8_t)newValue;
                 }
-                kernel->terminal->success("Set Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Model " + model->id + " to " + QString::number(newValue) + ".");
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Set Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " of Model " + model->name() + " to " + QString::number(newValue) + ".");
+                } else {
+                    kernel->terminal->success("Set Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Model " + model->name() + " to " + QString::number(newValue) + ".");
+                }
             } else if (attributes.contains(Keys::Fixture)) {
                 Fixture* fixture = kernel->fixtures->getItem(attributes.value(Keys::Fixture));
                 if (fixture == nullptr) {
@@ -115,7 +131,11 @@ void RawList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                     }
                     raw->fixtureSpecificChannelValues[fixture][channel] = (uint8_t)newValue;
                 }
-                kernel->terminal->success("Set Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Fixture " + fixture->id + " to " + QString::number(newValue) + ".");
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Set Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " of Fixture " + fixture->name() + " to " + QString::number(newValue) + ".");
+                } else {
+                    kernel->terminal->success("Set Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Fixture " + fixture->name() + " to " + QString::number(newValue) + ".");
+                }
             } else {
                 for (QString id : ids) {
                     Raw* raw = getItem(id);
@@ -124,7 +144,11 @@ void RawList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                     }
                     raw->channelValues[channel] = (uint8_t)newValue;
                 }
-                kernel->terminal->success("Set Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " to " + QString::number(newValue) + ".");
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Set Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " to " + QString::number(newValue) + ".");
+                } else {
+                    kernel->terminal->success("Set Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " to " + QString::number(newValue) + ".");
+                }
             }
         }
     } else if (attribute == CHANNELVALUEATTRIBUTEID) {
@@ -144,7 +168,11 @@ void RawList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                     raw->modelSpecificChannelValues.remove(model);
                 }
             }
-            kernel->terminal->success("Removed Channel Values of " + QString::number(ids.size()) + " Raws at Model " + model->id + ".");
+            if (ids.size() == 1) {
+                kernel->terminal->success("Removed Channel Values of Raw " + getItem(ids.first())->name() + " at Model " + model->name() + ".");
+            } else {
+                kernel->terminal->success("Removed Channel Values of " + QString::number(ids.size()) + " Raws at Model " + model->name() + ".");
+            }
         } else if (attributes.contains(Keys::Fixture)) {
             Fixture* fixture = kernel->fixtures->getItem(attributes.value(Keys::Fixture));
             if (fixture == nullptr) {
@@ -157,7 +185,11 @@ void RawList::setAttribute(QList<QString> ids, QMap<int, QString> attributes, QL
                     raw->fixtureSpecificChannelValues.remove(fixture);
                 }
             }
-            kernel->terminal->success("Removed Channel Values of " + QString::number(ids.size()) + " Raws at Fixture " + fixture->id + ".");
+            if (ids.size() == 1) {
+                kernel->terminal->success("Removed Channel Values of Raw " + getItem(ids.first())->name() + " at Fixture " + fixture->name() + ".");
+            } else {
+                kernel->terminal->success("Removed Channel Values of " + QString::number(ids.size()) + " Raws at Fixture " + fixture->name() + ".");
+            }
         } else {
             kernel->terminal->error("Can't remove Raw Channel Values because no Model or Fixture was given.");
             return;

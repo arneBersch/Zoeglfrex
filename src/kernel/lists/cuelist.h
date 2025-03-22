@@ -26,7 +26,7 @@ public:
     const QString RAWSATTRIBUTEID = "4";
     const QString FADEATTRIBUTEID = "5";
     const QString BLOCKATTRIBUTEID = "6";
-    void setAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
+    void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 
 #include "kernel/kernel.h"
