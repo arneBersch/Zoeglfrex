@@ -148,7 +148,7 @@ void DmxEngine::generateDmx() {
                 blue = 100.0;
             }
         }
-        if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (((kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) || ((kernel->cuelistView->currentFixture != nullptr) && (kernel->cuelistView->currentFixture == fixture)))) { // Highlight
+        if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (((kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) || (kernel->cuelistView->currentFixture == fixture))) { // Highlight
             dimmer = 100.0;
             red = 100.0;
             green = 100.0;
@@ -159,11 +159,12 @@ void DmxEngine::generateDmx() {
             green *= (dimmer / 100.0);
             blue *= (dimmer / 100.0);
         }
-        float white = std::min(std::min(red, green), blue);
+        const float white = std::min(std::min(red, green), blue);
+        const float quality = fixtureColors.value(fixture)->floatAttributes.value(kernel->colors->QUALITYATTRIBUTEID);
         if (channels.contains('W')) { // RGB to RGBW
-            red -= white;
-            green -= white;
-            blue -= white;
+            red -= (white * quality / 100.0);
+            green -= (white * quality / 100.0);
+            blue -= (white * quality / 100.0);
         }
         int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
         if (address > 0) {

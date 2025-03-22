@@ -10,10 +10,11 @@
 
 ColorList::ColorList(Kernel *core) : ItemList(Keys::Color, "Color", "Colors") {
     kernel = core;
-    floatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
-    modelSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
-    fixtureSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
     angleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
     modelSpecificAngleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
     fixtureSpecificAngleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
+    floatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
+    modelSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
+    fixtureSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
+    floatAttributes[QUALITYATTRIBUTEID] = {"Quality", 100, 0, 100, "%"};
 }

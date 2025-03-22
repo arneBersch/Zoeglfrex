@@ -54,5 +54,6 @@ QString Color::info() {
         fixtureSaturationValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture)) + "%");
     }
     info += "\n    Fixture Exceptions: " + fixtureSaturationValues.join("; ");
+    info += "\n" + kernel->colors->QUALITYATTRIBUTEID + " Quality: " + QString::number(floatAttributes.value(kernel->colors->QUALITYATTRIBUTEID)) + "%";
     return info;
 }
