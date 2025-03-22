@@ -251,26 +251,84 @@ void Terminal::execute() {
         error("No items selected.");
         return;
     }
-    int currentItemType = Keys::Attribute;
+    attribute.append(Keys::Attribute);
+    int currentItemType;
     QList<int> currentId;
+    bool firstItem = true;
     for (int attributeKey : attribute) {
         if (isItem(attributeKey) || (attributeKey == Keys::Attribute)) {
-            if (!currentId.isEmpty()) {
+            if (!firstItem) {
                 QString currentIdString = keysToId(currentId);
+                if (currentId.isEmpty()) {
+                    if (currentItemType == Keys::Fixture) {
+                        if (kernel->cuelistView->currentFixture == nullptr) {
+                            error("Can't load the current Fixture because no Fixture is selected.");
+                            return;
+                        }
+                        currentIdString = kernel->cuelistView->currentFixture->id;
+                    } else if (currentItemType == Keys::Group) {
+                        if (kernel->cuelistView->currentGroup == nullptr) {
+                            error("Can't load the current Group because no Group is selected.");
+                            return;
+                        }
+                        currentIdString = kernel->cuelistView->currentGroup->id;
+                    } else if (currentItemType == Keys::Intensity) {
+                        if (kernel->cuelistView->currentGroup == nullptr) {
+                            error("Can't load the current Intensity because no Group is currently selected.");
+                            return;
+                        }
+                        if (kernel->cuelistView->currentCue == nullptr) {
+                            error("Can't load the current Intensity because no Cue is currently selected.");
+                            return;
+                        }
+                        if (!kernel->cuelistView->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
+                            error("Can't load the current Intensity because the current Cue contains no Intensity for the current Group.");
+                            return;
+                        }
+                        currentIdString = kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id;
+                    } else if (currentItemType == Keys::Color) {
+                        if (kernel->cuelistView->currentGroup == nullptr) {
+                            error("Can't load the current Color because no Group is currently selected.");
+                            return;
+                        }
+                        if (kernel->cuelistView->currentCue == nullptr) {
+                            error("Can't load the current Color because no Cue is currently selected.");
+                            return;
+                        }
+                        if (!kernel->cuelistView->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
+                            error("Can't load the current Color because the current Cue contains no Color for the current Group.");
+                            return;
+                        }
+                        currentIdString = kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id;
+                    } else if (currentItemType == Keys::Raw) {
+                        error("Can't load the current Raw.");
+                        return;
+                    } else if (currentItemType == Keys::Cue) {
+                        if (kernel->cuelistView->currentCue == nullptr) {
+                            error("Can't load the Cue because no Cue is selected.");
+                            return;
+                        }
+                        currentIdString = kernel->cuelistView->currentCue->id;
+                    } else {
+                        error("No selection given.");
+                        return;
+                    }
+                }
+                if (currentIdString.isEmpty()) {
+                    error("Invalid ID given in Attributes.");
+                    return;
+                }
                 attributeMap[currentItemType] = currentIdString;
             }
             currentId.clear();
             currentItemType = attributeKey;
+            firstItem = false;
         } else if (isNumber(attributeKey) || (attributeKey == Keys::Period)) {
             currentId.append(attributeKey);
         } else {
             error("Invalid key in Attribute.");
             return;
         }
-    }
-    if (!currentId.isEmpty()) {
-        QString currentIdString = keysToId(currentId);
-        attributeMap[currentItemType] = currentIdString;
     }
     bool standardAttribute = (!attributeMap.contains(Keys::Attribute) && !(attributeMap.isEmpty() && !value.isEmpty() && (((value.size() == 1) && (value.first() == Keys::Minus)) || (value.first() == selectionType))));
     QString text;
