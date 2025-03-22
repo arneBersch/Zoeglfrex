@@ -160,7 +160,10 @@ void DmxEngine::generateDmx() {
             blue *= (dimmer / 100.0);
         }
         const float white = std::min(std::min(red, green), blue);
-        const float quality = fixtureColors.value(fixture)->floatAttributes.value(kernel->colors->QUALITYATTRIBUTEID);
+        float quality = 0.0;
+        if (fixtureColors.contains(fixture)) {
+            quality = fixtureColors.value(fixture)->floatAttributes.value(kernel->colors->QUALITYATTRIBUTEID);
+        }
         if (channels.contains('W')) { // RGB to RGBW
             red -= (white * quality / 100.0);
             green -= (white * quality / 100.0);

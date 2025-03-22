@@ -139,6 +139,10 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
         }
     } else if (intAttributes.contains(attribute)) { // Integer Attribute
         IntAttribute intAttribute = intAttributes.value(attribute);
+        bool difference = (!value.isEmpty() && (value.first() == Keys::Plus));
+        if (difference) {
+            value.removeFirst();
+        }
         bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
         if (negativeValue) {
             value.removeFirst();
@@ -160,24 +164,46 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                 return;
             }
         }
-        if ((newValue < intAttribute.min) || (newValue > intAttribute.max)) {
-            kernel->terminal->error("Can't set " + singularItemName + " " + intAttribute.name + " because " + intAttribute.name + " has to be a number between " + QString::number(intAttribute.min) + intAttribute.unit + " and " + QString::number(intAttribute.max) + intAttribute.unit + ".");
-            return;
-        }
-        for (QString id : ids) {
-            T* item = getItem(id);
-            if (item == nullptr) {
-                item = addItem(id);
+        if (difference) {
+            for (QString id : ids) {
+                T* item = getItem(id);
+                if (item == nullptr) {
+                    item = addItem(id);
+                }
+                item->intAttributes[attribute] += newValue;
+                if (item->intAttributes.value(attribute) < intAttribute.min) {
+                    kernel->terminal->warning("Can't decrease " +  intAttribute.name + " of " + singularItemName + " " + item->name() + " because " + intAttribute.name + " must be at least " + QString::number(intAttribute.min) + intAttribute.unit + ".");
+                    item->intAttributes[attribute] = intAttribute.min;
+                } else if (item->intAttributes.value(attribute) > intAttribute.max) {
+                    kernel->terminal->warning("Can't increase " +  intAttribute.name + " of " + singularItemName + " " + item->name() + " because " + intAttribute.name + " must not exceed " + QString::number(intAttribute.max) + intAttribute.unit + ".");
+                    item->intAttributes[attribute] = intAttribute.max;
+                }
+                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
             }
-            item->intAttributes[attribute] = newValue;
-            emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
-        }
-        if (ids.size() == 1) {
-            kernel->terminal->success("Set " + intAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " " + pluralItemName + " to " + QString::number(newValue) + intAttribute.unit + ".");
+            if (ids.size() == 1) {
+                kernel->terminal->success("Set " + intAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(getItem(ids.first())->intAttributes.value(attribute)) + intAttribute.unit + ".");
+            } else {
+                kernel->terminal->success("Changed " + intAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + ".");
+            }
         } else {
-            kernel->terminal->success("Set " + intAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + intAttribute.unit + ".");
+            if ((newValue < intAttribute.min) || (newValue > intAttribute.max)) {
+                kernel->terminal->error("Can't set " + singularItemName + " " + intAttribute.name + " because " + intAttribute.name + " has to be a number between " + QString::number(intAttribute.min) + intAttribute.unit + " and " + QString::number(intAttribute.max) + intAttribute.unit + ".");
+                return;
+            }
+            for (QString id : ids) {
+                T* item = getItem(id);
+                if (item == nullptr) {
+                    item = addItem(id);
+                }
+                item->intAttributes[attribute] = newValue;
+                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+            }
+            if (ids.size() == 1) {
+                kernel->terminal->success("Set " + intAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(newValue) + intAttribute.unit + ".");
+            } else {
+                kernel->terminal->success("Set " + intAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + intAttribute.unit + ".");
+            }
         }
-
     } else if (modelSpecificFloatAttributes.contains(attribute) && attributes.contains(Keys::Model)) { // Model Specific Float Attribute
         FloatAttribute floatAttribute = modelSpecificFloatAttributes.value(attribute);
         Model* model = kernel->models->getItem(attributes.value(Keys::Model));
@@ -200,6 +226,10 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                 kernel->terminal->success("Removed " + floatAttribute.name + " of Model " + model->name() + " in " + QString::number(ids.length()) + " " + pluralItemName + ".");
             }
         } else {
+            bool difference = (!value.isEmpty() && (value.first() == Keys::Plus));
+            if (difference) {
+                value.removeFirst();
+            }
             bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
             if (negativeValue) {
                 value.removeFirst();
@@ -221,22 +251,48 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                     return;
                 }
             }
-            if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
-                kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Model " + model->name() + " because " + floatAttribute.name + " has to be a number between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
-                return;
-            }
-            for (QString id : ids) {
-                T* item = getItem(id);
-                if (item == nullptr) {
-                    item = addItem(id);
+            if (difference) {
+                for (QString id : ids) {
+                    T* item = getItem(id);
+                    if (item == nullptr) {
+                        item = addItem(id);
+                    }
+                    if (!item->modelSpecificFloatAttributes.value(attribute).contains(model)) {
+                        item->modelSpecificFloatAttributes[attribute][model] = item->floatAttributes.value(attribute);
+                    }
+                    item->modelSpecificFloatAttributes[attribute][model] += newValue;
+                    if (item->modelSpecificFloatAttributes.value(attribute).value(model) < floatAttribute.min) {
+                        kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
+                        item->modelSpecificFloatAttributes[attribute][model] = floatAttribute.min;
+                    } else if (item->modelSpecificFloatAttributes.value(attribute).value(model) > floatAttribute.max) {
+                        kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
+                        item->modelSpecificFloatAttributes[attribute][model] = floatAttribute.max;
+                    }
+                    emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
                 }
-                item->modelSpecificFloatAttributes[attribute][model] = newValue;
-                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
-            }
-            if (ids.size() == 1) {
-                kernel->terminal->success("Set " + floatAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " at Model " + model->name() + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Set " + floatAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " at Model " + model->name() + + " to " + QString::number(getItem(ids.first())->modelSpecificFloatAttributes.value(attribute).value(model)) + floatAttribute.unit + ".");
+                } else {
+                    kernel->terminal->success("Changed " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Model " + model->name() + ".");
+                }
             } else {
-                kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Model " + model->name() + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+                if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
+                    kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Model " + model->name() + " because " + floatAttribute.name + " has to be a number between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
+                    return;
+                }
+                for (QString id : ids) {
+                    T* item = getItem(id);
+                    if (item == nullptr) {
+                        item = addItem(id);
+                    }
+                    item->modelSpecificFloatAttributes[attribute][model] = newValue;
+                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+                }
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Set " + floatAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " at Model " + model->name() + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+                } else {
+                    kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Model " + model->name() + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+                }
             }
         }
     } else if (fixtureSpecificFloatAttributes.contains(attribute) && attributes.contains(Keys::Fixture)) { // Fixture Specific Float Attribute
@@ -261,6 +317,10 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                 kernel->terminal->success("Removed " + floatAttribute.name + " of Fixture " + fixture->name() + " in " + QString::number(ids.length()) + " " + pluralItemName + ".");
             }
         } else {
+            bool difference = (!value.isEmpty() && (value.first() == Keys::Plus));
+            if (difference) {
+                value.removeFirst();
+            }
             bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
             if (negativeValue) {
                 value.removeFirst();
@@ -282,31 +342,64 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                     return;
                 }
             }
-            if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
-                kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Fixture " + fixture->name() + " because " + floatAttribute.name + " has to be a number between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
-                return;
-            }
-            for (QString id : ids) {
-                T* item = getItem(id);
-                if (item == nullptr) {
-                    item = addItem(id);
+            if (difference) {
+                for (QString id : ids) {
+                    T* item = getItem(id);
+                    if (item == nullptr) {
+                        item = addItem(id);
+                    }
+                    if (!item->fixtureSpecificFloatAttributes.value(attribute).contains(fixture)) {
+                        item->fixtureSpecificFloatAttributes[attribute][fixture] = item->floatAttributes.value(attribute);
+                        if (item->modelSpecificFloatAttributes.value(attribute).contains(fixture->model)) {
+                            item->fixtureSpecificFloatAttributes[attribute][fixture] = item->modelSpecificFloatAttributes.value(attribute).value(fixture->model);
+                        }
+                    }
+                    item->fixtureSpecificFloatAttributes[attribute][fixture] += newValue;
+                    if (item->fixtureSpecificFloatAttributes.value(attribute).value(fixture) < floatAttribute.min) {
+                        kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
+                        item->fixtureSpecificFloatAttributes[attribute][fixture] = floatAttribute.min;
+                    } else if (item->fixtureSpecificFloatAttributes.value(attribute).value(fixture) > floatAttribute.max) {
+                        kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
+                        item->fixtureSpecificFloatAttributes[attribute][fixture] = floatAttribute.max;
+                    }
+                    emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
                 }
-                item->fixtureSpecificFloatAttributes[attribute][fixture] = newValue;
-                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
-            }
-            if (ids.size() == 1) {
-                kernel->terminal->success("Set " + floatAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " at Fixture " + fixture->name() + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Set " + floatAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " at Fixture " + fixture->name() + + " to " + QString::number(getItem(ids.first())->fixtureSpecificFloatAttributes.value(attribute).value(fixture)) + floatAttribute.unit + ".");
+                } else {
+                    kernel->terminal->success("Changed " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Fixture " + fixture->name() + ".");
+                }
             } else {
-                kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Fixture " + fixture->name() + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+                if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
+                    kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " of Fixture " + fixture->name() + " because " + floatAttribute.name + " has to be a number between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
+                    return;
+                }
+                for (QString id : ids) {
+                    T* item = getItem(id);
+                    if (item == nullptr) {
+                        item = addItem(id);
+                    }
+                    item->fixtureSpecificFloatAttributes[attribute][fixture] = newValue;
+                    emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+                }
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Set " + floatAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " at Fixture " + fixture->name() + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+                } else {
+                    kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Fixture " + fixture->name() + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+                }
             }
         }
     } else if (floatAttributes.contains(attribute)) { // Float Attribute
         FloatAttribute floatAttribute = floatAttributes.value(attribute);
+        bool difference = (!value.isEmpty() && (value.first() == Keys::Plus));
+        if (difference) {
+            value.removeFirst();
+        }
         bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
         if (negativeValue) {
             value.removeFirst();
         }
-        int newValue = kernel->terminal->keysToValue(value);
+        float newValue = kernel->terminal->keysToValue(value);
         if (text.isEmpty()) {
             if (newValue < 0) {
                 kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because no valid number was given.");
@@ -317,28 +410,51 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
             }
         } else {
             bool ok = true;
-            newValue = text.toInt(&ok);
+            newValue = text.toFloat(&ok);
             if (!ok) {
                 kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because no valid number was given.");
                 return;
             }
         }
-        if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
-            kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because " + floatAttribute.name + " has to be a number between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
-            return;
-        }
-        for (QString id : ids) {
-            T* item = getItem(id);
-            if (item == nullptr) {
-                item = addItem(id);
+        if (difference) {
+            for (QString id : ids) {
+                T* item = getItem(id);
+                if (item == nullptr) {
+                    item = addItem(id);
+                }
+                item->floatAttributes[attribute] += newValue;
+                if (item->floatAttributes.value(attribute) < floatAttribute.min) {
+                    kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
+                    item->floatAttributes[attribute] = floatAttribute.min;
+                } else if (item->floatAttributes.value(attribute) > floatAttribute.max) {
+                    kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
+                    item->floatAttributes[attribute] = floatAttribute.max;
+                }
+                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
             }
-            item->floatAttributes[attribute] = newValue;
-            emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
-        }
-        if (ids.size() == 1) {
-            kernel->terminal->success("Set " + floatAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+            if (ids.size() == 1) {
+                kernel->terminal->success("Set " + floatAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(getItem(ids.first())->floatAttributes.value(attribute)) + floatAttribute.unit + ".");
+            } else {
+                kernel->terminal->success("Changed " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + ".");
+            }
         } else {
-            kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+            if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
+                kernel->terminal->error("Can't set " + singularItemName + " " + floatAttribute.name + " because " + floatAttribute.name + " has to be a number between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
+                return;
+            }
+            for (QString id : ids) {
+                T* item = getItem(id);
+                if (item == nullptr) {
+                    item = addItem(id);
+                }
+                item->floatAttributes[attribute] = newValue;
+                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+            }
+            if (ids.size() == 1) {
+                kernel->terminal->success("Set " + floatAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+            } else {
+                kernel->terminal->success("Set " + floatAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+            }
         }
     } else if (modelSpecificAngleAttributes.contains(attribute) && attributes.contains(Keys::Model)) { // Model Specific Angle Attribute
         AngleAttribute angleAttribute = modelSpecificAngleAttributes.value(attribute);
@@ -362,6 +478,10 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                 kernel->terminal->success("Removed " + angleAttribute.name + " of Model " + model->name() + " in " + QString::number(ids.length()) + " " + pluralItemName + ".");
             }
         } else {
+            bool difference = (!value.isEmpty() && (value.first() == Keys::Plus));
+            if (difference) {
+                value.removeFirst();
+            }
             bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
             if (negativeValue) {
                 value.removeFirst();
@@ -375,24 +495,53 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                 kernel->terminal->error("Can't set " + singularItemName + " " + angleAttribute.name + " because no valid number was given.");
                 return;
             }
-            while (newValue >= 360) {
-                newValue -= 360;
-            }
-            if (negativeValue && (newValue > 0)) {
-                newValue = 360 - newValue;
-            }
-            for (QString id : ids) {
-                T* item = getItem(id);
-                if (item == nullptr) {
-                    item = addItem(id);
+            if (difference) {
+                for (QString id : ids) {
+                    T* item = getItem(id);
+                    if (item == nullptr) {
+                        item = addItem(id);
+                    }
+                    if (!item->modelSpecificAngleAttributes.value(attribute).contains(model)) {
+                        item->modelSpecificAngleAttributes[attribute][model] = item->angleAttributes.value(attribute);
+                    }
+                    if (!negativeValue) {
+                        item->modelSpecificAngleAttributes[attribute][model] += newValue;
+                    } else {
+                        item->modelSpecificAngleAttributes[attribute][model] -= newValue;
+                    }
+                    while (item->modelSpecificAngleAttributes.value(attribute).value(model) >= 360.0) {
+                        item->modelSpecificAngleAttributes[attribute][model] -= 360.0;
+                    }
+                    while (item->modelSpecificAngleAttributes.value(attribute).value(model) < 0.0) {
+                        item->modelSpecificAngleAttributes[attribute][model] += 360.0;
+                    }
+                    emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
                 }
-                item->modelSpecificAngleAttributes[attribute][model] = newValue;
-                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
-            }
-            if (ids.size() == 1) {
-                kernel->terminal->success("Set " + angleAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " at Model " + model->name() + " to " + QString::number(newValue) + "°.");
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Set " + angleAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " at Model " + model->name() + + " to " + QString::number(getItem(ids.first())->modelSpecificAngleAttributes.value(attribute).value(model)) + "°.");
+                } else {
+                    kernel->terminal->success("Changed " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Model " + model->name() + ".");
+                }
             } else {
-                kernel->terminal->success("Set " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Model " + model->name() + " to " + QString::number(newValue) + "°.");
+                while (newValue >= 360) {
+                    newValue -= 360;
+                }
+                if (negativeValue && (newValue > 0)) {
+                    newValue = 360 - newValue;
+                }
+                for (QString id : ids) {
+                    T* item = getItem(id);
+                    if (item == nullptr) {
+                        item = addItem(id);
+                    }
+                    item->modelSpecificAngleAttributes[attribute][model] = newValue;
+                    emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+                }
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Set " + angleAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " at Model " + model->name() + " to " + QString::number(newValue) + "°.");
+                } else {
+                    kernel->terminal->success("Set " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Model " + model->name() + " to " + QString::number(newValue) + "°.");
+                }
             }
         }
     } else if (fixtureSpecificAngleAttributes.contains(attribute) && attributes.contains(Keys::Fixture)) { // Fixture Specific Angle Attribute
@@ -417,6 +566,10 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                 kernel->terminal->success("Removed " + angleAttribute.name + " of Fixture " + fixture->name() + " in " + QString::number(ids.length()) + " " + pluralItemName + ".");
             }
         } else {
+            bool difference = (!value.isEmpty() && (value.first() == Keys::Plus));
+            if (difference) {
+                value.removeFirst();
+            }
             bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
             if (negativeValue) {
                 value.removeFirst();
@@ -430,28 +583,64 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                 kernel->terminal->error("Can't set " + singularItemName + " " + angleAttribute.name + " because no valid number was given.");
                 return;
             }
-            while (newValue >= 360) {
-                newValue -= 360;
-            }
-            if (negativeValue && (newValue > 0)) {
-                newValue = 360 - newValue;
-            }
-            for (QString id : ids) {
-                T* item = getItem(id);
-                if (item == nullptr) {
-                    item = addItem(id);
+            if (difference) {
+                for (QString id : ids) {
+                    T* item = getItem(id);
+                    if (item == nullptr) {
+                        item = addItem(id);
+                    }
+                    if (!item->fixtureSpecificAngleAttributes.value(attribute).contains(fixture)) {
+                        item->fixtureSpecificAngleAttributes[attribute][fixture] = item->angleAttributes.value(attribute);
+                        if (item->modelSpecificAngleAttributes.value(attribute).contains(fixture->model)) {
+                            item->fixtureSpecificAngleAttributes[attribute][fixture] = item->modelSpecificAngleAttributes.value(attribute).value(fixture->model);
+                        }
+                    }
+                    if (!negativeValue) {
+                        item->fixtureSpecificAngleAttributes[attribute][fixture] += newValue;
+                    } else {
+                        item->fixtureSpecificAngleAttributes[attribute][fixture] -= newValue;
+                    }
+                    while (item->fixtureSpecificAngleAttributes.value(attribute).value(fixture) >= 360.0) {
+                        item->fixtureSpecificAngleAttributes[attribute][fixture] -= 360.0;
+                    }
+                    while (item->fixtureSpecificAngleAttributes.value(attribute).value(fixture) < 0.0) {
+                        item->fixtureSpecificAngleAttributes[attribute][fixture] += 360.0;
+                    }
+                    emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
                 }
-                item->fixtureSpecificAngleAttributes[attribute][fixture] = newValue;
-                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
-            }
-            if (ids.size() == 1) {
-                kernel->terminal->success("Set " + angleAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " at Fixture " + fixture->name() + " to " + QString::number(newValue) + "°.");
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Set " + angleAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " at Fixture " + fixture->name() + + " to " + QString::number(getItem(ids.first())->fixtureSpecificAngleAttributes.value(attribute).value(fixture)) + "°.");
+                } else {
+                    kernel->terminal->success("Changed " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Fixture " + fixture->name() + ".");
+                }
             } else {
-                kernel->terminal->success("Set " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Fixture " + fixture->name() + " to " + QString::number(newValue) + "°.");
+                while (newValue >= 360) {
+                    newValue -= 360;
+                }
+                if (negativeValue && (newValue > 0)) {
+                    newValue = 360 - newValue;
+                }
+                for (QString id : ids) {
+                    T* item = getItem(id);
+                    if (item == nullptr) {
+                        item = addItem(id);
+                    }
+                    item->fixtureSpecificAngleAttributes[attribute][fixture] = newValue;
+                    emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+                }
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Set " + angleAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " at Fixture " + fixture->name() + " to " + QString::number(newValue) + "°.");
+                } else {
+                    kernel->terminal->success("Set " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " at Fixture " + fixture->name() + " to " + QString::number(newValue) + "°.");
+                }
             }
         }
     } else if (angleAttributes.contains(attribute)) { // Angle Attribute
         AngleAttribute angleAttribute = angleAttributes.value(attribute);
+        bool difference = (!value.isEmpty() && (value.first() == Keys::Plus));
+        if (difference) {
+            value.removeFirst();
+        }
         bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
         if (negativeValue) {
             value.removeFirst();
@@ -465,24 +654,50 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
             kernel->terminal->error("Can't set " + singularItemName + " " + angleAttribute.name + " because no valid number was given.");
             return;
         }
-        while (newValue >= 360) {
-            newValue -= 360;
-        }
-        if (negativeValue && (newValue > 0)) {
-            newValue = 360 - newValue;
-        }
-        for (QString id : ids) {
-            T* item = getItem(id);
-            if (item == nullptr) {
-                item = addItem(id);
+        if (difference) {
+            for (QString id : ids) {
+                T* item = getItem(id);
+                if (item == nullptr) {
+                    item = addItem(id);
+                }
+                if (!negativeValue) {
+                    item->angleAttributes[attribute] += newValue;
+                } else {
+                    item->angleAttributes[attribute] -= newValue;
+                }
+                while (item->angleAttributes.value(attribute) >= 360.0) {
+                    item->angleAttributes[attribute] -= 360.0;
+                }
+                while (item->angleAttributes.value(attribute) < 0.0) {
+                    item->angleAttributes[attribute] += 360.0;
+                }
+                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
             }
-            item->angleAttributes[attribute] = newValue;
-            emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
-        }
-        if (ids.size() == 1) {
-            kernel->terminal->success("Set " + angleAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(newValue) + "°.");
+            if (ids.size() == 1) {
+                kernel->terminal->success("Set " + angleAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(getItem(ids.first())->angleAttributes.value(attribute)) + "°.");
+            } else {
+                kernel->terminal->success("Changed " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + ".");
+            }
         } else {
-            kernel->terminal->success("Set " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + "°.");
+            while (newValue >= 360.0) {
+                newValue -= 360.0;
+            }
+            if (negativeValue && (newValue > 0)) {
+                newValue = 360.0 - newValue;
+            }
+            for (QString id : ids) {
+                T* item = getItem(id);
+                if (item == nullptr) {
+                    item = addItem(id);
+                }
+                item->angleAttributes[attribute] = newValue;
+                emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+            }
+            if (ids.size() == 1) {
+                kernel->terminal->success("Set " + angleAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(newValue) + "°.");
+            } else {
+                kernel->terminal->success("Set " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + "°.");
+            }
         }
     } else if (boolAttributes.contains(attribute)) {
         BoolAttribute boolAttribute = boolAttributes.value(attribute);

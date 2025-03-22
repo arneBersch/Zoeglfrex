@@ -82,11 +82,22 @@ void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                 }
             }
         } else {
+            bool difference = (!value.isEmpty() && (value.first() == Keys::Plus));
+            if (difference) {
+                value.removeFirst();
+            }
+            bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
+            if (negativeValue) {
+                value.removeFirst();
+            }
             int newValue = kernel->terminal->keysToValue(value);
             if (text.isEmpty()) {
                 if (newValue < 0) {
                     kernel->terminal->error("Can't set Raw Channel Value because no valid Value was given.");
                     return;
+                }
+                if (negativeValue) {
+                    newValue *= -1;
                 }
             } else {
                 bool ok = true;
@@ -96,7 +107,7 @@ void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                     return;
                 }
             }
-            if ((newValue < 0) || (newValue > 255)) {
+            if (!difference && ((newValue < 0) || (newValue > 255))) {
                 kernel->terminal->error("Can't set Raw Channel Value because Value has to be between 0 and 255.");
                 return;
             }
@@ -106,17 +117,47 @@ void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                     kernel->terminal->error("Can't set Raw Channel Value for Model " + attributes.value(Keys::Model) + " because Model does not exist.");
                     return;
                 }
-                for (QString id : ids) {
-                    Raw* raw = getItem(id);
-                    if (raw == nullptr) {
-                        raw = addItem(id);
+                if (difference) {
+                    for (QString id : ids) {
+                        Raw* raw = getItem(id);
+                        if (raw == nullptr) {
+                            raw = addItem(id);
+                        }
+                        if (!raw->modelSpecificChannelValues.contains(model) || !raw->modelSpecificChannelValues.value(model).contains(channel)) {
+                            raw->modelSpecificChannelValues[model][channel] = 0;
+                            if (raw->channelValues.contains(channel)) {
+                                raw->modelSpecificChannelValues[model][channel] = raw->channelValues.value(channel);
+                            }
+                        }
+                        if ((raw->modelSpecificChannelValues.value(model).value(channel) + newValue) < 0) {
+                            kernel->terminal->warning("Can't decrease Channel Value of Raw " + raw->name() + " because Value must be at least 0.");
+                            raw->modelSpecificChannelValues[model][channel] = 0;
+                        } else if ((raw->modelSpecificChannelValues.value(model).value(channel) + newValue) > 255) {
+                            kernel->terminal->warning("Can't increase Channel Values of Raw " + raw->name() + " because Value must not exceed 255.");
+                            raw->modelSpecificChannelValues[model][channel] = 255;
+                        } else {
+                            raw->modelSpecificChannelValues[model][channel] += newValue;
+                        }
+                        emit dataChanged(index(getItemRow(raw->id), 0), index(getItemRow(raw->id), 0), {Qt::DisplayRole, Qt::EditRole});
                     }
-                    raw->modelSpecificChannelValues[model][channel] = (uint8_t)newValue;
-                }
-                if (ids.size() == 1) {
-                    kernel->terminal->success("Set Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " of Model " + model->name() + " to " + QString::number(newValue) + ".");
+                    if (ids.size() == 1) {
+                        kernel->terminal->success("Set Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " of Model " + model->name() + " to " + QString::number(getItem(ids.first())->modelSpecificChannelValues.value(model).value(channel)) + ".");
+                    } else {
+                        kernel->terminal->success("Changed Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Model " + model->name() + ".");
+                    }
                 } else {
-                    kernel->terminal->success("Set Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Model " + model->name() + " to " + QString::number(newValue) + ".");
+                    for (QString id : ids) {
+                        Raw* raw = getItem(id);
+                        if (raw == nullptr) {
+                            raw = addItem(id);
+                        }
+                        raw->modelSpecificChannelValues[model][channel] = (uint8_t)newValue;
+                    }
+                    if (ids.size() == 1) {
+                        kernel->terminal->success("Set Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " of Model " + model->name() + " to " + QString::number(newValue) + ".");
+                    } else {
+                        kernel->terminal->success("Set Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Model " + model->name() + " to " + QString::number(newValue) + ".");
+                    }
                 }
             } else if (attributes.contains(Keys::Fixture)) {
                 Fixture* fixture = kernel->fixtures->getItem(attributes.value(Keys::Fixture));
@@ -124,30 +165,90 @@ void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                     kernel->terminal->error("Can't set Raw Channel Value for Fixture " + attributes.value(Keys::Fixture) + " because Fixture does not exist.");
                     return;
                 }
-                for (QString id : ids) {
-                    Raw* raw = getItem(id);
-                    if (raw == nullptr) {
-                        raw = addItem(id);
+                if (difference) {
+                    for (QString id : ids) {
+                        Raw* raw = getItem(id);
+                        if (raw == nullptr) {
+                            raw = addItem(id);
+                        }
+                        if (!raw->fixtureSpecificChannelValues.contains(fixture) || !raw->fixtureSpecificChannelValues.value(fixture).contains(channel)) {
+                            raw->fixtureSpecificChannelValues[fixture][channel] = 0;
+                            if (raw->modelSpecificChannelValues.contains(fixture->model) && raw->modelSpecificChannelValues.value(fixture->model).contains(channel)) {
+                                raw->fixtureSpecificChannelValues[fixture][channel] = raw->modelSpecificChannelValues.value(fixture->model).value(channel);
+                            } else if (raw->channelValues.contains(channel)) {
+                                raw->fixtureSpecificChannelValues[fixture][channel] = raw->channelValues.value(channel);
+                            }
+                        }
+                        raw->fixtureSpecificChannelValues[fixture][channel] += newValue;
+                        if ((raw->fixtureSpecificChannelValues.value(fixture).value(channel) + newValue) < 0) {
+                            kernel->terminal->warning("Can't decrease Channel Value of Raw " + raw->name() + " because Value must be at least 0.");
+                            raw->fixtureSpecificChannelValues[fixture][channel] = 0;
+                        } else if ((raw->fixtureSpecificChannelValues.value(fixture).value(channel) + newValue) > 255) {
+                            kernel->terminal->warning("Can't increase Channel Values of Raw " + raw->name() + " because Value must not exceed 255.");
+                            raw->fixtureSpecificChannelValues[fixture][channel] = 255;
+                        } else {
+                            raw->fixtureSpecificChannelValues[fixture][channel] += newValue;
+                        }
+                        emit dataChanged(index(getItemRow(raw->id), 0), index(getItemRow(raw->id), 0), {Qt::DisplayRole, Qt::EditRole});
                     }
-                    raw->fixtureSpecificChannelValues[fixture][channel] = (uint8_t)newValue;
-                }
-                if (ids.size() == 1) {
-                    kernel->terminal->success("Set Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " of Fixture " + fixture->name() + " to " + QString::number(newValue) + ".");
+                    if (ids.size() == 1) {
+                        kernel->terminal->success("Set Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " of Fixture " + fixture->name() + " to " + QString::number(getItem(ids.first())->fixtureSpecificChannelValues.value(fixture).value(channel)) + ".");
+                    } else {
+                        kernel->terminal->success("Changed Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Fixture " + fixture->name() + ".");
+                    }
                 } else {
-                    kernel->terminal->success("Set Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Fixture " + fixture->name() + " to " + QString::number(newValue) + ".");
+                    for (QString id : ids) {
+                        Raw* raw = getItem(id);
+                        if (raw == nullptr) {
+                            raw = addItem(id);
+                        }
+                        raw->fixtureSpecificChannelValues[fixture][channel] = (uint8_t)newValue;
+                    }
+                    if (ids.size() == 1) {
+                        kernel->terminal->success("Set Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " of Fixture " + fixture->name() + " to " + QString::number(newValue) + ".");
+                    } else {
+                        kernel->terminal->success("Set Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " of Fixture " + fixture->name() + " to " + QString::number(newValue) + ".");
+                    }
                 }
             } else {
-                for (QString id : ids) {
-                    Raw* raw = getItem(id);
-                    if (raw == nullptr) {
-                        raw = addItem(id);
+                if (difference) {
+                    for (QString id : ids) {
+                        Raw* raw = getItem(id);
+                        if (raw == nullptr) {
+                            raw = addItem(id);
+                        }
+                        if (!raw->channelValues.contains(channel)) {
+                            raw->channelValues[channel] = 0;
+                        }
+                        if ((raw->channelValues.value(channel) + newValue) < 0) {
+                            kernel->terminal->warning("Can't decrease Channel Value of Raw " + raw->name() + " because Value must be at least 0.");
+                            raw->channelValues[channel] = 0;
+                        } else if ((raw->channelValues.value(channel) + newValue) > 255) {
+                            kernel->terminal->warning("Can't increase Channel Values of Raw " + raw->name() + " because Value must not exceed 255.");
+                            raw->channelValues[channel] = 255;
+                        } else {
+                            raw->channelValues[channel] += newValue;
+                        }
+                        emit dataChanged(index(getItemRow(raw->id), 0), index(getItemRow(raw->id), 0), {Qt::DisplayRole, Qt::EditRole});
                     }
-                    raw->channelValues[channel] = (uint8_t)newValue;
-                }
-                if (ids.size() == 1) {
-                    kernel->terminal->success("Set Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " to " + QString::number(newValue) + ".");
+                    if (ids.size() == 1) {
+                        kernel->terminal->success("Set Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " to " + QString::number(getItem(ids.first())->channelValues.value(channel)) + ".");
+                    } else {
+                        kernel->terminal->success("Changed Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + ".");
+                    }
                 } else {
-                    kernel->terminal->success("Set Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " to " + QString::number(newValue) + ".");
+                    for (QString id : ids) {
+                        Raw* raw = getItem(id);
+                        if (raw == nullptr) {
+                            raw = addItem(id);
+                        }
+                        raw->channelValues[channel] = (uint8_t)newValue;
+                    }
+                    if (ids.size() == 1) {
+                        kernel->terminal->success("Set Channel Value of Raw " + getItem(ids.first())->name() + " at Channel " + QString::number(channel) + " to " + QString::number(newValue) + ".");
+                    } else {
+                        kernel->terminal->success("Set Channel Value of " + QString::number(ids.size()) + " Raws at Channel " + QString::number(channel) + " to " + QString::number(newValue) + ".");
+                    }
                 }
             }
         }
