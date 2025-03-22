@@ -35,12 +35,12 @@ QString Intensity::info() {
     info += "\n" + kernel->intensities->DIMMERATTRIBUTEID + " Dimmer: " + QString::number(floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID)) + "%";
     QStringList modelDimmerValues;
     for (Model* model : modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).keys()) {
-        modelDimmerValues.append(model->id + " @ " + QString::number(modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(model)) + "%");
+        modelDimmerValues.append(model->name() + " @ " + QString::number(modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(model)) + "%");
     }
     info += "\n    Model Exceptions: " + modelDimmerValues.join("; ");
     QStringList fixtureDimmerValues;
     for (Fixture* fixture : fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).keys()) {
-        fixtureDimmerValues.append(fixture->id + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture)) + "%");
+        fixtureDimmerValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture)) + "%");
     }
     info += "\n    Fixture Exceptions: " + fixtureDimmerValues.join("; ");
     return info;

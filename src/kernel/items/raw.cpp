@@ -39,7 +39,7 @@ QString Raw::info() {
         for (int channel : modelSpecificChannelValues.value(model).keys()) {
             modelChannelValueValues.append(QString::number(channel) + " @ " + QString::number(modelSpecificChannelValues.value(model).value(channel)));
         }
-        modelChannelValue.append(model->id + ": " + modelChannelValueValues.join(", "));
+        modelChannelValue.append(model->name() + ": " + modelChannelValueValues.join(", "));
     }
     info += "\n    Model Exceptions: " + modelChannelValue.join("; ");
     QStringList fixtureChannelValue;
@@ -48,7 +48,7 @@ QString Raw::info() {
         for (int channel : fixtureSpecificChannelValues.value(fixture).keys()) {
             fixtureChannelValueValues.append(QString::number(channel) + " @ " + QString::number(fixtureSpecificChannelValues.value(fixture).value(channel)));
         }
-        fixtureChannelValue.append(fixture->id + ": " + fixtureChannelValueValues.join(", "));
+        fixtureChannelValue.append(fixture->name() + ": " + fixtureChannelValueValues.join(", "));
     }
     info += "\n    Fixture Exceptions: " + fixtureChannelValue.join("; ");
     return info;

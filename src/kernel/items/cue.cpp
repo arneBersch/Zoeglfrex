@@ -28,21 +28,21 @@ QString Cue::info() {
     QString info = Item::info();
     QStringList intensityValues;
     for (Group* group : intensities.keys()) {
-        intensityValues.append(group->id + " @ " + intensities.value(group)->id);
+        intensityValues.append(group->name() + " @ " + intensities.value(group)->name());
     }
     info += "\n" + kernel->cues->INTENSITIESATTRIBUTEID + " Intensities: " + intensityValues.join("; ");
     QStringList colorValues;
     for (Group* group : colors.keys()) {
-        colorValues.append(group->id + " @ " + colors.value(group)->id);
+        colorValues.append(group->name() + " @ " + colors.value(group)->name());
     }
     info += "\n" + kernel->cues->COLORSATTRIBUTEID + " Colors: " + colorValues.join("; ");
     QStringList rawValues;
     for (Group* group : raws.keys()) {
         QStringList rawValueItems;
         for (Raw* raw : raws.value(group)) {
-            rawValueItems.append(raw->id);
+            rawValueItems.append(raw->name());
         }
-        rawValues.append(group->id + " @ " + rawValueItems.join(", "));
+        rawValues.append(group->name() + " @ " + rawValueItems.join(" + "));
     }
     info += "\n" + kernel->cues->RAWSATTRIBUTEID + " Raws: " + rawValues.join("; ");
     info += "\n" + kernel->cues->FADEATTRIBUTEID + " Fade: " + QString::number(floatAttributes.value(kernel->cues->FADEATTRIBUTEID)) + "s";

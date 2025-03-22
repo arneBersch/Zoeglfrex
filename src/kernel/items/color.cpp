@@ -35,23 +35,23 @@ QString Color::info() {
     info += "\n" + kernel->colors->HUEATTRIBUTEID + " Hue: " + QString::number(angleAttributes.value(kernel->colors->HUEATTRIBUTEID)) + "°";
     QStringList modelHueValues;
     for (Model* model : modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).keys()) {
-        modelHueValues.append(model->id + " @ " + QString::number(modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(model)) + "°");
+        modelHueValues.append(model->name() + " @ " + QString::number(modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(model)) + "°");
     }
     info += "\n    Model Exceptions: " + modelHueValues.join("; ");
     QStringList fixtureHueValues;
     for (Fixture* fixture : fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).keys()) {
-        fixtureHueValues.append(fixture->id + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture)) + "°");
+        fixtureHueValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture)) + "°");
     }
     info += "\n    Fixture Exceptions: " + fixtureHueValues.join("; ");
     info += "\n" + kernel->colors->SATURATIONATTRIBUTEID + " Saturation: " + QString::number(floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID)) + "%";
     QStringList modelSaturationValues;
     for (Model* model : modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).keys()) {
-        modelSaturationValues.append(model->id + " @ " + QString::number(modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(model)) + "%");
+        modelSaturationValues.append(model->name() + " @ " + QString::number(modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(model)) + "%");
     }
     info += "\n    Model Exceptions: " + modelSaturationValues.join("; ");
     QStringList fixtureSaturationValues;
     for (Fixture* fixture : fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).keys()) {
-        fixtureSaturationValues.append(fixture->id + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture)) + "%");
+        fixtureSaturationValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture)) + "%");
     }
     info += "\n    Fixture Exceptions: " + fixtureSaturationValues.join("; ");
     return info;
