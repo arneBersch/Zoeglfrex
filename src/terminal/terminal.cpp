@@ -330,7 +330,23 @@ void Terminal::execute() {
             return;
         }
     }
-    bool standardAttribute = (!attributeMap.contains(Keys::Attribute) && !(attributeMap.isEmpty() && !value.isEmpty() && (((value.size() == 1) && (value.first() == Keys::Minus)) || (value.first() == selectionType))));
+    if (!attributeMap.contains(Keys::Attribute) && !(attributeMap.isEmpty() && !value.isEmpty() && (((value.size() == 1) && (value.first() == Keys::Minus)) || (value.first() == selectionType)))) {
+        if (selectionType == Keys::Model) {
+            attributeMap[Keys::Attribute] = kernel->models->CHANNELSATTRIBUTEID;
+        } else if (selectionType == Keys::Fixture) {
+            attributeMap[Keys::Attribute] = kernel->fixtures->ADDRESSATTRIBUTEID;
+        } else if (selectionType == Keys::Group) {
+            attributeMap[Keys::Attribute] = kernel->groups->FIXTURESATTRIBUTEID;
+        } else if (selectionType == Keys::Intensity) {
+            attributeMap[Keys::Attribute] = kernel->intensities->DIMMERATTRIBUTEID;
+        } else if (selectionType == Keys::Color) {
+            attributeMap[Keys::Attribute] = kernel->colors->HUEATTRIBUTEID;
+        } else if (selectionType == Keys::Raw) {
+            attributeMap[Keys::Attribute] = kernel->raws->CHANNELVALUEATTRIBUTEID;
+        } else if (selectionType == Keys::Cue) {
+            attributeMap[Keys::Attribute] = kernel->cues->FADEATTRIBUTEID;
+        }
+    }
     QString text;
     if (((selectionType == Keys::Model) && kernel->models->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Fixture) && kernel->fixtures->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
@@ -349,39 +365,18 @@ void Terminal::execute() {
         }
     }
     if (selectionType == Keys::Model) {
-        if (standardAttribute) {
-            attributeMap[Keys::Attribute] = kernel->models->CHANNELSATTRIBUTEID;
-        }
         kernel->models->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Fixture) {
-        if (standardAttribute) {
-            attributeMap[Keys::Attribute] = kernel->fixtures->ADDRESSATTRIBUTEID;
-        }
         kernel->fixtures->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Group) {
-        if (standardAttribute) {
-            attributeMap[Keys::Attribute] = kernel->groups->FIXTURESATTRIBUTEID;
-        }
         kernel->groups->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Intensity) {
-        if (standardAttribute) {
-            attributeMap[Keys::Attribute] = kernel->intensities->DIMMERATTRIBUTEID;
-        }
         kernel->intensities->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Color) {
-        if (standardAttribute) {
-            attributeMap[Keys::Attribute] = kernel->colors->HUEATTRIBUTEID;
-        }
         kernel->colors->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Raw) {
-        if (standardAttribute) {
-            attributeMap[Keys::Attribute] = kernel->raws->CHANNELVALUEATTRIBUTEID;
-        }
         kernel->raws->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Cue) {
-        if (standardAttribute) {
-            attributeMap[Keys::Attribute] = kernel->cues->FADEATTRIBUTEID;
-        }
         kernel->cues->setAttribute(ids, attributeMap, value, text);
     }
     QSet<int> channels;
