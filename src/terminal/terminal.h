@@ -13,6 +13,34 @@
 
 class Kernel;
 
+namespace Keys {
+enum {
+    Zero, // 0
+    One, // 1
+    Two, // 2
+    Three, // 3
+    Four, // 4
+    Five, // 5
+    Six, // 6
+    Seven, // 7
+    Eight, // 8
+    Nine, // 9
+    Plus, // +
+    Minus, // -
+    Period, // .
+    Thru, // T
+    Set, // S
+    Attribute, // A
+    Model, // M
+    Fixture, // F
+    Group, // G
+    Intensity, // I
+    Color, // C
+    Raw, // R
+    Cue, // Q
+};
+}
+
 class Terminal : public QWidget
 {
     Q_OBJECT
@@ -21,17 +49,22 @@ public:
     void write(int key);
     void backspace();
     void clear();
-    void execute(bool clear=true);
-    void execute(QString command, QString action);
+    void execute();
     void info(QString message);
     void success(QString message);
     void warning(QString message);
     void error(QString message);
+    bool printMessages = true;
+    bool isItem(int key);
+    bool isNumber(int key);
+    int keyToNumber(int key);
+    QString keysToId(QList<int> keys, bool removeTrailingZeros = true);
+    float keysToValue(QList<int> keys);
+    QStringList keysToSelection(QList<int> keys, int itemType);
 private:
     Kernel *kernel;
     QString promptText(QList<int> keys);
     QList<int> command;
-    QVBoxLayout *grid;
     QVBoxLayout *messages;
     QScrollArea *scrollArea;
     QLabel *prompt;

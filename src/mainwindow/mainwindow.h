@@ -12,7 +12,7 @@
 #include <QtWidgets>
 
 #include "kernel/kernel.h"
-#include "aboutwindow/aboutwindow.h"
+#include "mainwindow/aboutwindow.h"
 
 class MainWindow : public QMainWindow
 {
@@ -29,7 +29,7 @@ private:
     void closeEvent(QCloseEvent *event) override;
     void about();
     QString fileName;
-    const QString VERSION = "0.2.0";
-    const QString COPYRIGHT = "Copyright (c) 2024 Arne Bersch (zoeglfrex-dmx@web.de)";
+    const QString VERSION = "0.3.0";
+    const QString COPYRIGHT = "Copyright (c) 2025 Arne Bersch (zoeglfrex-dmx@web.de)";
 };
 #endif // MAINWINDOW_H

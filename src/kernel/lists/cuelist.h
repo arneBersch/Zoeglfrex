@@ -21,7 +21,12 @@ class CueList : public ItemList<Cue> {
     Q_OBJECT
 public:
     CueList(Kernel *core);
-    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
+    const QString INTENSITIESATTRIBUTEID = "2";
+    const QString COLORSATTRIBUTEID = "3";
+    const QString RAWSATTRIBUTEID = "4";
+    const QString FADEATTRIBUTEID = "5";
+    const QString BLOCKATTRIBUTEID = "6";
+    void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 
 #include "kernel/kernel.h"

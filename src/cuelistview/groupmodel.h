@@ -6,15 +6,33 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "colorlist.h"
+#ifndef GROUPMODEL_H
+#define GROUPMODEL_H
 
-ColorList::ColorList(Kernel *core) : ItemList(Keys::Color, "Color", "Colors") {
-    kernel = core;
-    angleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
-    modelSpecificAngleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
-    fixtureSpecificAngleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
-    floatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
-    modelSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
-    fixtureSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
-    floatAttributes[QUALITYATTRIBUTEID] = {"Quality", 100, 0, 100, "%"};
+#include <QtWidgets>
+
+class Kernel;
+
+namespace GroupModelColumns {
+enum {
+    cue,
+    intensity,
+    color,
+    raws,
+};
 }
+
+class GroupModel : public QAbstractTableModel {
+    Q_OBJECT
+public:
+    GroupModel(Kernel *core);
+    void loadGroup();
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, const int role) const override;
+    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
+private:
+    Kernel *kernel;
+};
+
+#endif // GROUPMODEL_H

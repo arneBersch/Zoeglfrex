@@ -8,22 +8,14 @@
 
 #include "fixturelist.h"
 
-FixtureList::FixtureList(Kernel *core) : ItemList("Fixture", "Fixtures") {
+FixtureList::FixtureList(Kernel *core) : ItemList(Keys::Fixture, "Fixture", "Fixtures") {
     kernel = core;
+    intAttributes[ADDRESSATTRIBUTEID] = {"Address", 0, 0, 512};
 }
 
-void FixtureList::deleteModel(Model *model)
-{
-    for (Fixture* fixture : items) {
-        if (fixture->model == model) {
-            fixture->model = nullptr;
-        }
-    }
-}
-
-void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    QString attributeString = attribute.value(Keys::Attribute);
-    if (attributeString == "2") {
+void FixtureList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+    QString attribute = attributes.value(Keys::Attribute);
+    if (attribute == MODELATTRIBUTEID) {
         if ((value.size() == 1) && (value.first() == Keys::Minus)) {
             for (QString id : ids) {
                 Fixture* fixture = getItem(id);
@@ -32,102 +24,42 @@ void FixtureList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attri
                 }
                 fixture->model = nullptr;
             }
-            kernel->terminal->success("Set Model of " + QString::number(ids.size()) + " Fixtures to None (Dimmer).");
-        } else if ((value.size() >= 2) && (value.first() == Keys::Model)) {
-            value.removeFirst();
-            QString modelId = kernel->keysToId(value);
+            if (ids.size() == 1) {
+                kernel->terminal->success("Set Model of Fixture " + getItem(ids.first())->name() + " to None (Dimmer).");
+            } else {
+                kernel->terminal->success("Set Model of " + QString::number(ids.size()) + " Fixtures to None (Dimmer).");
+            }
+        } else if (((value.size() >= 2) && (value.first() == Keys::Model)) || !text.isEmpty()) {
+            if (!value.isEmpty()) {
+                value.removeFirst();
+            }
+            QString modelId = kernel->terminal->keysToId(value);
+            if (!text.isEmpty()) {
+                modelId = text;
+            }
             Model *model = kernel->models->getItem(modelId);
             if (model == nullptr) {
                 kernel->terminal->error("Can't set Model of Fixtures because Model " + modelId + " doesn't exist.");
                 return;
             }
-            int fixtureCounter = 0;
             for (QString id : ids) {
                 Fixture* fixture = getItem(id);
-                Model* oldModel = nullptr;
                 if (fixture == nullptr) {
                     fixture = addItem(id);
-                } else {
-                    oldModel = fixture->model;
                 }
                 fixture->model = model;
-                if (channelsOkay()) {
-                    emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
-                    fixtureCounter++;
-                } else {
-                    fixture->model = oldModel; // don't change model if this would result in an address conflict
-                    kernel->terminal->warning("Can't set Model of Fixture " + id + " because this would result in an address conflict.");
-                }
+                emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
             }
-            kernel->terminal->success("Set Model of " + QString::number(fixtureCounter) + " Fixtures to Model " + model->name() + ".");
-        } else {
-            kernel->terminal->error("Can' set Fixture Attribute 2 because an invalid value was given.");
-            return;
-        }
-    } else if (attributeString == "3") {
-        int address = kernel->keysToValue(value);
-        if ((address < 0) || (address > 512)) {
-            kernel->terminal->error("Can't set Fixtures Address because Address has to be between 0 and 512.");
-            return;
-        }
-        QList<Fixture*> fixtures;
-        for (QString id : ids) {
-            Fixture *fixture = getItem(id);
-            if (fixture == nullptr) {
-                fixture = addItem(id);
-            }
-            fixtures.append(fixture);
-        }
-        QMap<Fixture*, int> oldAddresses = QMap<Fixture*, int>();
-        for (Fixture* fixture : fixtures) {
-            oldAddresses[fixture] = fixture->address;
-            if (address > 0) {
-                fixture->address = address;
-                if (fixture->model == nullptr) {
-                    address += 1;
-                } else {
-                    address += fixture->model->channels.length();
-                }
+            if (ids.size() == 1) {
+                kernel->terminal->success("Set Model of Fixture " + getItem(ids.first())->name() + " to Model " + model->name() + ".");
             } else {
-                fixture->address = 0;
+                kernel->terminal->success("Set Model of " + QString::number(ids.size()) + " Fixtures to Model " + model->name() + ".");
             }
-        }
-        if (!channelsOkay()) {
-            for (Fixture* fixture : fixtures) {
-                fixture->address = oldAddresses[fixture];
-            }
-            kernel->terminal->error("Didn't record Fixture Adresses because this would have resulted in an DMX address conflict.");
+        } else {
+            kernel->terminal->error("Can' set Fixture Model because an invalid value was given.");
             return;
         }
-        for (Fixture* fixture : fixtures) {
-            emit dataChanged(index(getItemRow(fixture->id), 0), index(getItemRow(fixture->id), 0), {Qt::DisplayRole, Qt::EditRole});
-        }
-        kernel->terminal->success("Set address of " + QString::number(fixtures.length()) + " Fixtures.");
     } else {
-        kernel->terminal->error("Can't set Fixture attribute " + attributeString + ".");
+        ItemList::setAttribute(ids, attributes, value, text);
     }
 }
-
-    bool FixtureList::channelsOkay() {
-        QSet<int> channels;
-        for (Fixture* fixture : items) {
-            if (fixture->address > 0) {
-                int fixtureChannels = 1;
-                if (fixture->model != nullptr) {
-                    fixtureChannels = fixture->model->channels.size();
-                }
-                for (int channel = fixture->address; channel < (fixture->address + fixtureChannels); channel++) {
-                    if (channel > 512) {
-                        kernel->terminal->warning("Fixture " + fixture->name() + " would have channels greater than 512.");
-                        return false;
-                    }
-                    if (channels.contains(channel)) {
-                        kernel->terminal->warning("Channel " + QString::number(channel) + " would be used twice.");
-                        return false;
-                    }
-                    channels.insert(channel);
-                }
-            }
-        }
-        return true;
-    }

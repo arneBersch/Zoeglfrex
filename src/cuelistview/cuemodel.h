@@ -12,7 +12,6 @@
 #include <QtWidgets>
 
 class Kernel;
-class Cue;
 
 namespace CueModelColumns {
 enum {

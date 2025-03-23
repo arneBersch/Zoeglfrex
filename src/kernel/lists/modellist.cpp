@@ -8,38 +8,7 @@
 
 #include "modellist.h"
 
-ModelList::ModelList(Kernel *core) : ItemList("Model", "Models") {
+ModelList::ModelList(Kernel *core) : ItemList(Keys::Model, "Model", "Models") {
     kernel = core;
-}
-
-void ModelList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    QString attributeString = attribute.value(Keys::Attribute);
-    if (attributeString == "2") {
-        if (!value.isEmpty()) {
-            kernel->terminal->error("Model Attribute 2 Set doesn't take a value.");
-            return;
-        }
-        if (!text.contains(QRegularExpression("^[01DRGBCMY]+$"))) {
-            kernel->terminal->error("Didn't record Models because channels \"" + text + "\" are not valid.");
-            return;
-        }
-        int modelCounter = 0;
-        for (QString id : ids) {
-            Model* model = getItem(id);
-            if (model == nullptr) {
-                model = addItem(id);
-            }
-            QString oldChannels = model->channels;
-            model->channels = text;
-            if (kernel->fixtures->channelsOkay()) {
-                emit dataChanged(index(getItemRow(model->id), 0), index(getItemRow(model->id), 0), {Qt::DisplayRole, Qt::EditRole});
-                modelCounter++;
-            } else {
-                model->channels = oldChannels; // do not change channels if this would result in DMX address conflicts
-            }
-        }
-        kernel->terminal->success("Recorded " + QString::number(modelCounter) + " Models with channels \"" + text + "\".");
-    } else {
-        kernel->terminal->error("Can't set Model Attribute " + attributeString + ".");
-    }
+    stringAttributes[CHANNELSATTRIBUTEID] = {"Channels", "D", "^[01DRGBWCMY]+$"};
 }

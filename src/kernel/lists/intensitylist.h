@@ -21,7 +21,7 @@ class IntensityList : public ItemList<Intensity> {
     Q_OBJECT
 public:
     IntensityList(Kernel *core);
-    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
+    const QString DIMMERATTRIBUTEID = "2";
 };
 
 #include "kernel/kernel.h"

@@ -6,31 +6,31 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "cuemodel.h"
+#include "groupmodel.h"
 #include "kernel/kernel.h"
 
-CueModel::CueModel(Kernel *core) {
+GroupModel::GroupModel(Kernel *core) {
     kernel = core;
 }
 
-void CueModel::loadCue() {
+void GroupModel::loadGroup() {
     beginResetModel();
     endResetModel();
 }
 
-int CueModel::rowCount(const QModelIndex &parent) const
+int GroupModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return kernel->groups->rowCount();
+    return kernel->cues->rowCount();
 }
 
-int CueModel::columnCount(const QModelIndex &parent) const
+int GroupModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return 4;
 }
 
-QVariant CueModel::data(const QModelIndex &index, const int role) const
+QVariant GroupModel::data(const QModelIndex &index, const int role) const
 {
     const int row = index.row();
     const int column = index.column();
@@ -45,23 +45,23 @@ QVariant CueModel::data(const QModelIndex &index, const int role) const
     }
     if (role == Qt::DisplayRole) {
         QMutexLocker locker(kernel->mutex);
-        Group *group = kernel->groups->items[row];
-        if (column == CueModelColumns::group) {
-            return group->name();
-        } else if (column == CueModelColumns::intensity) {
-            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->intensities.contains(group)) {
-                return kernel->cuelistView->currentCue->intensities.value(group)->name();
+        Cue *cue = kernel->cues->items[row];
+        if (column == GroupModelColumns::cue) {
+            return cue->name();
+        } else if (column == GroupModelColumns::intensity) {
+            if (cue->intensities.contains(kernel->cuelistView->currentGroup)) {
+                return cue->intensities.value(kernel->cuelistView->currentGroup)->name();
             }
             return QVariant();
-        } else if (column == CueModelColumns::color) {
-            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->colors.contains(group)) {
-                return kernel->cuelistView->currentCue->colors.value(group)->name();
+        } else if (column == GroupModelColumns::color) {
+            if (cue->colors.contains(kernel->cuelistView->currentGroup)) {
+                return cue->colors.value(kernel->cuelistView->currentGroup)->name();
             }
             return QVariant();
-        } else if (column == CueModelColumns::raws) {
-            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->raws.contains(group)) {
+        } else if (column == GroupModelColumns::raws) {
+            if (cue->raws.contains(kernel->cuelistView->currentGroup)) {
                 QStringList raws;
-                for (Raw* raw : kernel->cuelistView->currentCue->raws.value(group)) {
+                for (Raw* raw : cue->raws.value(kernel->cuelistView->currentGroup)) {
                     raws.append(raw->name());
                 }
                 return raws.join(" + ");
@@ -70,26 +70,26 @@ QVariant CueModel::data(const QModelIndex &index, const int role) const
             return QVariant();
         }
     } else if (role == Qt::BackgroundRole) {
-        if (kernel->groups->items[row] == kernel->cuelistView->currentGroup) {
+        if (kernel->cues->items[row] == kernel->cuelistView->currentCue) {
             return QColor(48, 48, 48);
         }
     }
     return QVariant();
 }
 
-QVariant CueModel::headerData(int column, Qt::Orientation orientation, int role) const
+QVariant GroupModel::headerData(int column, Qt::Orientation orientation, int role) const
 {
     if (role != Qt::DisplayRole) {
         return QVariant();
     }
     if (orientation == Qt::Horizontal) {
-        if (column == CueModelColumns::group) {
-            return "Group";
-        } else if (column == CueModelColumns::intensity) {
+        if (column == GroupModelColumns::cue) {
+            return "Cue";
+        } else if (column == GroupModelColumns::intensity) {
             return kernel->cues->INTENSITIESATTRIBUTEID + " Intensity";
-        } else if (column == CueModelColumns::color) {
+        } else if (column == GroupModelColumns::color) {
             return kernel->cues->COLORSATTRIBUTEID + " Color";
-        } else if (column == CueModelColumns::raws) {
+        } else if (column == GroupModelColumns::raws) {
             return kernel->cues->RAWSATTRIBUTEID + " Raws";
         } else {
             return QVariant();

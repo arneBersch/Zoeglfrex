@@ -12,7 +12,9 @@
 #include <QtWidgets>
 
 #include "cuelistview/cuemodel.h"
+#include "cuelistview/groupmodel.h"
 class Kernel;
+class Fixture;
 class Group;
 class Cue;
 class DmxEngine;
@@ -24,15 +26,25 @@ public:
     void loadCue();
     void nextCue();
     void previousCue();
-    bool validGroupAndCue();
+    void nextGroup();
+    void previousGroup();
+    void nextFixture();
+    void previousFixture();
+    Fixture* currentFixture = nullptr;
     Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;
     DmxEngine *dmxEngine;
 private:
+    void updateCuelistView();
     Kernel *kernel;
-    QTableView *cueView;
+    QComboBox *cueViewModeComboBox;
+    const QString CUEVIEWCUEMODE = "Cue Mode";
+    const QString CUEVIEWGROUPMODE = "Group Mode";
+    QTableView *cuelistTableView;
     CueModel *cueModel;
-    QLabel *cueLabel;
+    GroupModel *groupModel;
+    QLabel *cueOrGroupLabel;
+    QLabel *fixtureLabel;
 };
 
 #include "kernel/kernel.h"

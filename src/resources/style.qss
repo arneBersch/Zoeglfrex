@@ -33,3 +33,14 @@ QMenuBar {
     background-color: #303030;
     color: white;
 }
+
+QProgressBar {
+    background-color: #151515;
+    color: white;
+    text-align: center;
+    border-radius: 0px;
+}
+
+QProgressBar::chunk {
+    background-color: #303030;
+}

@@ -8,38 +8,38 @@
 
 #include "grouplist.h"
 
-GroupList::GroupList(Kernel *core) : ItemList("Group", "Groups") {
+GroupList::GroupList(Kernel *core) : ItemList(Keys::Group, "Group", "Groups") {
     kernel = core;
 }
 
-void GroupList::deleteFixture(Fixture *fixture) {
-    for (Group* group : items) {
-        group->fixtures.removeAll(fixture);
-    }
-}
-
-void GroupList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    QString attributeString = attribute.value(Keys::Attribute);
-    if (attributeString == "2") {
+void GroupList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+    QString attribute = attributes.value(Keys::Attribute);
+    if (attribute == FIXTURESATTRIBUTEID) {
         QList<Fixture*> fixtureSelection;
-        if (!value.isEmpty()) {
-            if (value[0] != Keys::Fixture) {
-                kernel->terminal->error("Group Attribute 2 Set requires Fixtures.");
-                return;
+        if (!value.isEmpty() || !text.isEmpty()) {
+            if (!value.isEmpty()) {
+                if (value.first() != Keys::Fixture) {
+                    kernel->terminal->error("Seting Group Fixtures requires Fixtures.");
+                    return;
+                }
+                value.removeFirst();
             }
-            value.removeFirst();
-            QList<QString> fixtureIds = kernel->keysToSelection(value, Keys::Fixture);
+            QStringList fixtureIds = kernel->terminal->keysToSelection(value, Keys::Fixture);
+            if (!text.isEmpty()) {
+                fixtureIds = text.split("+");
+            }
             if (fixtureIds.isEmpty()) {
-                kernel->terminal->error("Can't Set Group Fixtures because of invalid Fixture selection.");
+                kernel->terminal->error("Can't set Group Fixtures because of an invalid Fixture selection.");
                 return;
             }
             for (QString fixtureId : fixtureIds) {
                 Fixture* fixture = kernel->fixtures->getItem(fixtureId);
                 if (fixture == nullptr) {
                     kernel->terminal->warning("Can't add Fixture " + fixtureId + " to Group because it doesn't exist.");
-                    return;
                 } else {
-                    fixtureSelection.append(fixture);
+                    if (!fixtureSelection.contains(fixture)) {
+                        fixtureSelection.append(fixture);
+                    }
                 }
             }
         }
@@ -51,8 +51,15 @@ void GroupList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribu
             group->fixtures = fixtureSelection;
             emit dataChanged(index(getItemRow(group->id), 0), index(getItemRow(group->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
-        kernel->terminal->success("Set Fixtures of " + QString::number(ids.length()) + " Groups to " + QString::number(fixtureSelection.length()) + " Fixtures.");
+        if ((kernel->cuelistView->currentGroup != nullptr) && (kernel->cuelistView->currentFixture != nullptr) && !kernel->cuelistView->currentGroup->fixtures.contains(kernel->cuelistView->currentFixture)) {
+            kernel->cuelistView->currentGroup->fixtures.removeAll(kernel->cuelistView->currentFixture);
+        }
+        if (ids.size() == 1) {
+            kernel->terminal->success("Set Fixtures of Group " + getItem(ids.first())->name() + " to " + QString::number(fixtureSelection.length()) + " Fixtures.");
+        } else {
+            kernel->terminal->success("Set Fixtures of " + QString::number(ids.length()) + " Groups to " + QString::number(fixtureSelection.length()) + " Fixtures.");
+        }
     } else {
-        kernel->terminal->error("Can't set Group attribute " + attributeString + ".");
+        ItemList::setAttribute(ids, attributes, value, text);
     }
 }

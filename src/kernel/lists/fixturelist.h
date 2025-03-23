@@ -21,10 +21,9 @@ class FixtureList : public ItemList<Fixture> {
     Q_OBJECT
 public:
     FixtureList(Kernel *core);
-    void deleteModel(Model *model);
-    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
-    bool channelsOkay();
-private:
+    const QString MODELATTRIBUTEID = "2";
+    const QString ADDRESSATTRIBUTEID = "3";
+    void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 
 #include "kernel/kernel.h"

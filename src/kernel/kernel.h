@@ -22,39 +22,12 @@
 #include "inspector/inspector.h"
 #include "cuelistview/cuelistview.h"
 
-namespace Keys {
-enum {
-    Zero, // 0
-    One, // 1
-    Two, // 2
-    Three, // 3
-    Four, // 4
-    Five, // 5
-    Six, // 6
-    Seven, // 7
-    Eight, // 8
-    Nine, // 9
-    Plus, // +
-    Minus, // -
-    Period, // .
-    Thru, // T
-    Set, // S
-    Attribute, // A
-    Model, // M
-    Fixture, // F
-    Group, // G
-    Intensity, // I
-    Color, // C
-    Raw, // R
-    Cue, // Q
-};
-}
-
 class Kernel {
 public:
     Kernel();
-    void execute(QList<int> command, QString text = QString());
     void reset();
+    void saveFile(QString fileName, QString version);
+    void openFile(QString fileName, QString version);
     ModelList *models;
     FixtureList *fixtures;
     GroupList *groups;
@@ -66,13 +39,6 @@ public:
     Inspector *inspector;
     CuelistView *cuelistView;
     QMutex *mutex;
-    QString keysToId(QList<int> keys, bool removeTrailingZeros = true);
-    float keysToValue(QList<int> keys);
-    QList<QString> keysToSelection(QList<int> keys, int itemType);
-private:
-    bool isItem(int key);
-    bool isNumber(int key);
-    int keyToNumber(int key);
 };
 
 #endif // KERNEL_H

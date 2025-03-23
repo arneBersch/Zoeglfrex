@@ -20,6 +20,15 @@ DmxEngine::DmxEngine(Kernel *core, QWidget* parent) : QWidget(parent) {
     connect(highlightButton,&QPushButton::clicked, this, &DmxEngine::generateDmx);
     layout->addWidget(highlightButton);
 
+    fadeProgress = new QProgressBar();
+    fadeProgress->setRange(0, 1);
+    fadeProgress->setValue(1);
+    layout->addWidget(fadeProgress);
+
+    skipFadeButton = new QPushButton("Skip Fade");
+    skipFadeButton->setCheckable(true);
+    layout->addWidget(skipFadeButton);
+
     timer = new QTimer();
     connect(timer, &QTimer::timeout, this, &DmxEngine::sendDmx);
     timer->start(25);
@@ -39,7 +48,7 @@ void DmxEngine::generateDmx() {
         totalFadeFrames = 0;
     } else {
         if (kernel->cuelistView->currentCue != lastCue) {
-            float fade = kernel->cuelistView->currentCue->fade;
+            float fade = kernel->cuelistView->currentCue->floatAttributes[kernel->cues->FADEATTRIBUTEID];
             totalFadeFrames = 40 * fade + 0.5;
             remainingFadeFrames = totalFadeFrames;
             lastCue = kernel->cuelistView->currentCue;
@@ -48,7 +57,7 @@ void DmxEngine::generateDmx() {
         for (Group* group : kernel->groups->items) {
             if (lastCue->intensities.contains(group)) {
                 for (Fixture* fixture : group->fixtures) {
-                    fixtureIntensities[fixture] = lastCue->intensities[group];
+                    fixtureIntensities[fixture] = lastCue->intensities.value(group);
                 }
             }
             if (lastCue->colors.contains(group)) {
@@ -74,22 +83,39 @@ void DmxEngine::generateDmx() {
     for (Fixture* fixture : kernel->fixtures->items) {
         QString channels = "D";
         if (fixture->model != nullptr) {
-            channels = fixture->model->channels;
+            channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
         }
         float dimmer = 0.0;
         float red = 0.0;
         float green = 0.0;
         float blue = 0.0;
         if (fixtureIntensities.contains(fixture)) {
-            dimmer = fixtureIntensities.value(fixture)->dimmer;
+            dimmer = fixtureIntensities.value(fixture)->floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID);
+            if (fixtureIntensities.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture)) {
+                dimmer = fixtureIntensities.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture);
+            } else if (fixtureIntensities.value(fixture)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture->model)) {
+                dimmer = fixtureIntensities.value(fixture)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture->model);
+            }
         }
         if (fixtureColors.contains(fixture)) {
-            const double h = (fixtureColors.value(fixture)->hue / 60.0);
+            float hue = fixtureColors.value(fixture)->angleAttributes.value(kernel->colors->HUEATTRIBUTEID);
+            if (fixtureColors.value(fixture)->fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).contains(fixture)) {
+                hue = fixtureColors.value(fixture)->fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture);
+            } else if (fixtureColors.value(fixture)->modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).contains(fixture->model)) {
+                hue = fixtureColors.value(fixture)->modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture->model);
+            }
+            const double h = (hue / 60.0);
             const int i = (int)h;
             const double f = h - i;
-            const double p = (100.0 - fixtureColors.value(fixture)->saturation);
-            const double q = (100.0 - (fixtureColors.value(fixture)->saturation * f));
-            const double t = (100.0 - (fixtureColors.value(fixture)->saturation * (1.0 - f)));
+            float saturation = fixtureColors.value(fixture)->floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID);
+            if (fixtureColors.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).contains(fixture)) {
+                saturation = fixtureColors.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture);
+            } else if (fixtureColors.value(fixture)->modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).contains(fixture->model)) {
+                saturation = fixtureColors.value(fixture)->modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture->model);
+            }
+            const double p = (100.0 - saturation);
+            const double q = (100.0 - (saturation * f));
+            const double t = (100.0 - (saturation * (1.0 - f)));
             if (i == 0) {
                 red = 100.0;
                 green = t;
@@ -122,7 +148,7 @@ void DmxEngine::generateDmx() {
                 blue = 100.0;
             }
         }
-        if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) { // Highlight
+        if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (((kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) || (kernel->cuelistView->currentFixture == fixture))) { // Highlight
             dimmer = 100.0;
             red = 100.0;
             green = 100.0;
@@ -133,36 +159,67 @@ void DmxEngine::generateDmx() {
             green *= (dimmer / 100.0);
             blue *= (dimmer / 100.0);
         }
-        if (fixture->address > 0) {
-            for (int channel = fixture->address; channel < (fixture->address + channels.size()); channel++) {
+        const float white = std::min(std::min(red, green), blue);
+        float quality = 0.0;
+        if (fixtureColors.contains(fixture)) {
+            quality = fixtureColors.value(fixture)->floatAttributes.value(kernel->colors->QUALITYATTRIBUTEID);
+        }
+        if (channels.contains('W')) { // RGB to RGBW
+            red -= (white * quality / 100.0);
+            green -= (white * quality / 100.0);
+            blue -= (white * quality / 100.0);
+        }
+        int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
+        if (address > 0) {
+            for (int channel = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID); channel < (address + channels.size()); channel++) {
                 float value = 0.0;
-                if (channels.at(channel - fixture->address) == QChar('D')) { // DIMMER
+                QChar channelType = channels.at(channel - address);
+                if (channelType == QChar('D')) { // DIMMER
                     value = dimmer;
-                } else if (channels.at(channel - fixture->address) == QChar('R')) { // RED
+                } else if (channelType == QChar('R')) { // RED
                     value = red;
-                } else if (channels.at(channel - fixture->address) == QChar('G')) { // GREEN
+                } else if (channelType == QChar('G')) { // GREEN
                     value = green;
-                } else if (channels.at(channel - fixture->address) == QChar('B')) { // BLUE
+                } else if (channelType == QChar('B')) { // BLUE
                     value = blue;
-                } else if (channels.at(channel - fixture->address) == QChar('C')) { // CYAN
+                } else if (channelType == QChar('W')) { // WHITE
+                    value = white;
+                } else if (channelType == QChar('C')) { // CYAN
                     value = (100.0 - red);
-                } else if (channels.at(channel - fixture->address) == QChar('M')) { // MAGENTA
+                } else if (channelType == QChar('M')) { // MAGENTA
                     value = (100.0 - green);
-                } else if (channels.at(channel - fixture->address) == QChar('Y')) { // YELLOW
+                } else if (channelType == QChar('Y')) { // YELLOW
                     value = (100.0 - blue);
-                } else if (channels.at(channel - fixture->address) == QChar('0')) {
+                } else if (channelType == QChar('0')) {
                     value = 0.0;
-                } else if (channels.at(channel - fixture->address) == QChar('1')) {
+                } else if (channelType == QChar('1')) {
                     value = 100.0;
                 }
                 uint8_t raw = (value * 2.55 + 0.5);
-                currentCueValues[channel] = raw;
+                if (channel <= 512) {
+                    currentCueValues[channel] = raw;
+                }
             }
             if (fixtureRaws.contains(fixture)) {
                 for (Raw* raw : fixtureRaws[fixture]) {
-                    int channel = fixture->address + raw->channel - 1;
-                    if ((channel <= 512) && (raw->channel <= channels.size())) {
-                        currentCueValues[channel] = raw->value;
+                    for (int channel : raw->channelValues.keys()) {
+                        if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
+                            currentCueValues[address + channel - 1] = raw->channelValues.value(channel);
+                        }
+                    }
+                    if (raw->modelSpecificChannelValues.contains(fixture->model)) {
+                        for (int channel : raw->modelSpecificChannelValues.value(fixture->model).keys()) {
+                            if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
+                                currentCueValues[address + channel - 1] = raw->modelSpecificChannelValues.value(fixture->model).value(channel);
+                            }
+                        }
+                    }
+                    if (raw->fixtureSpecificChannelValues.contains(fixture)) {
+                        for (int channel : raw->fixtureSpecificChannelValues.value(fixture).keys()) {
+                            if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
+                                currentCueValues[address + channel - 1] = raw->fixtureSpecificChannelValues.value(fixture).value(channel);
+                            }
+                        }
                     }
                 }
             }
@@ -172,6 +229,9 @@ void DmxEngine::generateDmx() {
 
 void DmxEngine::sendDmx() {
     QMutexLocker(kernel->mutex);
+    if (skipFadeButton->isChecked()) {
+        remainingFadeFrames = 0;
+    }
     if (remainingFadeFrames > 0) {
         for (int channel = 1; channel <= 512; channel++) {
             float delta = ((float)currentCueValues[channel] - (float)lastCueValues[channel]);
@@ -185,4 +245,6 @@ void DmxEngine::sendDmx() {
         }
     }
     sacnServer->send();
+    fadeProgress->setValue(totalFadeFrames + 1 - remainingFadeFrames);
+    fadeProgress->setRange(0, totalFadeFrames + 1);
 }

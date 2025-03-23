@@ -21,8 +21,8 @@ class GroupList : public ItemList<Group> {
     Q_OBJECT
 public:
     GroupList(Kernel *core);
-    void deleteFixture(Fixture *fixture);
-    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
+    const QString FIXTURESATTRIBUTEID = "2";
+    void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 
 #include "kernel/kernel.h"

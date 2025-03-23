@@ -9,14 +9,14 @@ This is where we can see all our items.
 However, because there are no items added yet, it should be empty.
 
 The left column of the window consists of the **Cuelist View** and the **Terminal**.
-In the Cuelist View, we can step through our Cues using the GO and GO BACK buttons.
-Here we can also select the Interface we want to use for sending sACN and start or stop the output.
+In the Cuelist View, we can see our current Cue or Group, select Highlight or see the progress of the fade between two Cues.
+In the Terminal, we can insert commands and see their results.
 
 ## Setting up the rig
 In this tutorial, we want to patch the following lights:
-- 12 Dimmers: DMX 1-12
+- 12 dimmers: DMX 1-12
 - 8 RGB lamps: DMX 13-36
-- 4 Moving Heads (Pan, Tilt, Dimmer, Cyan, Magenta, Yellow): 37-55
+- 4 moving heads (pan, tilt, dimmer, cyan, magenta, yellow): 37-55
 
 ### Adding Models
 We first need to add the **Models** for our Fixtures.
@@ -30,7 +30,7 @@ Every command consists of several parts:
 - The **Item type**:
     In our case, this will be Model.
 - The **selection**:
-    In our case, this will be the ID of the Model we want to create.
+    In our case, this will be the ID of the Model we want to create, in our case 1.
 - The **Attribute**:
     Every Item has different Attributes.
     In our case, we want to set Model Attribute 2 (which are the Channels).
@@ -57,7 +57,7 @@ When you do this, a popup window will open asking you to insert the Model's chan
 Insert "D" and press the return key again.
 The popup should close.
 
-When you have a look into the inspector, you will see that a table appeared there.
+When you have a look into the Inspector, you will see that a table appeared there.
 It currently contains one Model - the one we've just created.
 
 We now create our second Model, the Generic RGB.
@@ -69,7 +69,7 @@ Model 2 Set
 ```
 After you've entered this, insert "RGB" into the Channel popup.
 
-No we also have to add a Model for the Moving Heads:
+No we also have to add a Model for the moving heads:
 ```
 Model 3 Set
 ```
@@ -83,7 +83,7 @@ Let's call it "Moving Head".
 ### Adding Fixtures
 **Fixtures** represent the physical devices in your rig.
 
-We'll first add our 12 Dimmers.
+We'll first add our 12 dimmers.
 However, we don't want the IDs of our 12 dimmer Fixtures to be 1 to 12.
 Instead, let's take IDs 1.1 to 1.12 which is possible because Zöglfrex allows stacking up multiple numbers behind another.
 So we could have also given our Models IDs like 158.518.264.541.123 (but I wouldn't recommend it).
@@ -100,25 +100,46 @@ You could have also typed `Fixture 1.1 + 1.2 + 1.3 + 1.4 + 1.5 + 1.6 + 1.7 + 1.8
 
 We still need to patch these Fixtures as they are currently patched to DMX address 0 (which means that they don't generate DMX output):
 ```
-Fixture 1. Set 1
+Fixture 1.1 Set 1
+Fixture 1.2 Set 2
+Fixture 1.3 Set 3
+Fixture 1.4 Set 4
+Fixture 1.5 Set 5
+Fixture 1.6 Set 6
+Fixture 1.7 Set 7
+Fixture 1.8 Set 8
+Fixture 1.9 Set 9
+Fixture 1.10 Set 10
+Fixture 1.11 Set 11
+Fixture 1.12 Set 12
 ```
 
 We can now also add the RGB fixtures and label them:
 ```
 Fixture 2.1 Thru .8 Attribute 2 Set Model 2
-Fixture 2. Set 13
+Fixture 2.1 Set 13
+Fixture 2.2 Set 16
+Fixture 2.3 Set 19
+Fixture 2.4 Set 22
+Fixture 2.5 Set 25
+Fixture 2.6 Set 28
+Fixture 2.7 Set 31
+Fixture 2.8 Set 34
 ```
 
-And we'll also add the Moving Heads:
+And we'll also add the moving heads:
 ```
 Fixture 3.1 Thru .4 Attribute 2 Set Model 2
-Fixture 3. Set 37
+Fixture 3.1 Set 37
+Fixture 3.2 Set 43
+Fixture 3.3 Set 49
+Fixture 3.4 Set 55
 ```
-In the Inspector, you should now see 12 dimmers, 8 RGBs and 4 Moving Heads.
+In the Inspector, you should now see 12 dimmers, 8 RGBs and 4 moving heads.
 
 ### Creating Groups
 In Zöglfrex, **Groups** are used to control multiple Fixtures at once.
-We need to create multiple Groups for our dimmers and RGBs.
+We need to create multiple Groups for our dimmers, RGBs and moving heads.
 For our first Group, we will select all dimmers:
 ```
 Group 1 Set Fixture 1.
@@ -129,7 +150,7 @@ However, we can also give it a custom name:
 Group 1 Attribute 1 Set
 ```
 This command will open a text input box where you can insert the new Label of these fixtures.
-You could call this group "all dimmers".
+You could call this group "all Dimmers".
 We now create some more groups for our dimmers:
 ```
 Group 1.1 Set Fixture 1.5 + 1.6 + 1.7 + 1.8
@@ -155,7 +176,7 @@ Group 2.2 Set Fixture 2.2 + 2.4 + 2.5 + 2.8
 Group 2.2 Attribute 1 Set
 ```
 
-And, last but not least, a Group for the Moving Heads:
+And, last but not least, a Group for the moving heads:
 ```
 Group 3 Set Fixture 3.
 Group 3 Attribute 1 Set
@@ -167,7 +188,7 @@ Especially in situations when your setup is very complex, this can help you find
 Now that we have finished setting up our rig, we have to add some values that we can add to our Cue.
 
 ### Adding Intensities
-An **Intensity** only holds one value, the dimmer which is given in percent:
+An **Intensity** only holds one value, the Dimmer which is given in percent:
 ```
 Intensity 1 Set 100
 ```
@@ -187,20 +208,18 @@ The three values represent the Hue of the Colors and are given in degree.
 We'll call these Colors "Red", "Green" and "Blue".
 
 ### Adding Raws
-We can manually set Channels which are not supported (yet) using Raws:
+We can manually set channels which are not supported (yet) using Raws:
 ```
-Raw 1 Attribute 2 Set 1
-Raw 1 Set 157
-Raw 2 Attribute 2 Set 2
-Raw 2 Set 128
+Raw 1 Attribute 2.1 Model 3 Set 157
+Raw 2 Attribute 2.2 Model 3 Set 128
 ```
-You can call these Items "Standard Pan" and "Standard Tilt".
+You can call this Raw "Standard Position".
 
 ## Adding Cues
 ### Adding Cues
 So let's finally generate some DMX output!
 Therefore, we need to add some **Cues** first.
-`Cue Set` takes the fade time of the Cue (in seconds) as an parameter:
+`Cue Set` takes the Fade time of the Cue (in seconds) as an parameter:
 ```
 Cue 0 Set 0
 Cue 1 Set 5
@@ -208,14 +227,15 @@ Cue 1.1 Set 0.5
 Cue 2 Set 10
 ```
 After you've done that, you should see that the Cuelist View now shows an Cue ID and a table.
-Using the Space bar keys, you can load the next or previous Cue.
+Using the space key, you can load the next Cue.
+By holding the shift key and pressing the space key, you can load the previous Cue. 
 
 Please note that Cues (and all other Items too) are automatically inserted in the right chronological order.
 For example, a new Cue with the ID 1.1 would be inserted between Cue 1 and 2.
 
 ### Editing Cues
 Let's finally add some values to our Cues.
-We could accomplish this with this commands:
+We could accomplish this with these commands:
 ```
 Cue 0 Attribute 2 Group 1.1 Set Intensity 2
 Cue 1 Attribute 2 Group 1 Set Intensity 1
@@ -232,7 +252,7 @@ Cue 2 Attribute 2 Group 2 Set Intensity 2
 Cue 2 Attribute 3 Group 2 Set Color 3
 Cue 2 Attribute 2 Group 3 Set Intensity 1
 Cue 2 Attribute 3 Group 3 Set Color 2
-Cue 2 Attribute 4 Group 3 Set Raw 1 + 2
+Cue 2 Attribute 4 Group 3 Set Raw 1
 ```
 But there's also a much simpler way:
 ```
@@ -265,7 +285,7 @@ Color 3
 Group 3
 Intensity 1
 Color 2
-Raw 1 + 2
+Raw 1
 ```
 
 ## Activate DMX
@@ -274,4 +294,4 @@ After that, you're ready to go.
 
 ## Final words
 This are the most important concepts and commands of Zöglfrex.
-For more information, I recommend the Zöglfrex reference.
+For more information, I recommend the [Zöglfrex Reference](reference.md).

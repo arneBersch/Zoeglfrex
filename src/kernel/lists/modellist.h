@@ -21,7 +21,7 @@ class ModelList : public ItemList<Model> {
     Q_OBJECT
 public:
     ModelList(Kernel *core);
-    void setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) override;
+    const QString CHANNELSATTRIBUTEID = "2";
 };
 
 #include "kernel/kernel.h"

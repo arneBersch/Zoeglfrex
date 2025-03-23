@@ -8,121 +8,190 @@
 
 #include "cuelist.h"
 
-CueList::CueList(Kernel *core) : ItemList("Cue", "Cues") {
+CueList::CueList(Kernel *core) : ItemList(Keys::Cue, "Cue", "Cues") {
     kernel = core;
+    floatAttributes[FADEATTRIBUTEID] = {"Fade", 0, 0, 60, "s"};
+    boolAttributes[BLOCKATTRIBUTEID] = {"Block", false};
 }
 
-void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute, QList<int> value, QString text) {
-    QString attributeString = attribute.value(Keys::Attribute);
-    if (attributeString == "2") {
-        if (value.isEmpty() || (value.first() != Keys::Intensity)) {
-            kernel->terminal->error("Cue Attribute 2 Group Set requires an Intensity.");
-            return;
-        }
-        value.removeFirst();
-        Group* group = kernel->groups->getItem(attribute.value(Keys::Group));
+void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+    QString attribute = attributes.value(Keys::Attribute);
+    if (attribute == INTENSITIESATTRIBUTEID) {
+        Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
-            kernel->terminal->error("Can't set Cue Attribute 2 because an invalid Group was given.");
+            kernel->terminal->error("Can't set Cue Intensities because an invalid Group was given.");
             return;
         }
         if ((value.size() == 1) && (value.first() == Keys::Minus)) {
-            int cueCounter = 0;
             for (QString id : ids) {
                 Cue *cue = getItem(id);
                 if (cue == nullptr) {
-                    kernel->terminal->warning("Can't delete Cue Intensity Entry because Cue " + id + " doesn't exist.");
-                } else {
-                    cue->intensities.remove(group);
-                    cueCounter++;
+                    cue = addItem(id);
+                }
+                if (cue->intensities.contains(group)) {
+                    Intensity* oldIntensity = cue->intensities.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->intensities.contains(group) && (items[cueRow]->intensities.value(group) == oldIntensity) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
+                        items[cueRow]->intensities.remove(group);
+                        cueRow++;
+                    }
                 }
             }
-            kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Intensity entries.");
+            if (ids.length() == 1) {
+                kernel->terminal->success("Deleted Cue Intensity entry of Cue " + getItem(ids.first())->name() + ".");
+            } else {
+                kernel->terminal->success("Deleted Cue Intensity entries of " + QString::number(ids.length()) + " Cues.");
+            }
         } else {
-            Intensity* intensity = kernel->intensities->getItem(kernel->keysToId(value));
+            if (text.isEmpty()) {
+                if (value.isEmpty() || (value.first() != Keys::Intensity)) {
+                    kernel->terminal->error("Can't set Cue Intensities because no Intensity was given.");
+                    return;
+                }
+                value.removeFirst();
+            }
+            Intensity* intensity = kernel->intensities->getItem(kernel->terminal->keysToId(value));
+            if (!text.isEmpty()) {
+                intensity = kernel->intensities->getItem(text);
+            }
             if (intensity == nullptr) {
-                kernel->terminal->error("Cue Attribute 2 Group Set received an invalid Intensity ID.");
+                kernel->terminal->error("Can't set Cue Intensities because Intensity " + kernel->terminal->keysToId(value) + " doesn't exist.");
                 return;
             }
-            int cueCounter = 0;
             for (QString id : ids) {
                 Cue* cue = getItem(id);
                 if (cue == nullptr) {
-                    kernel->terminal->warning("Can't set Attribute 3 of Cue " + id + " because it doesn't exist.");
+                    cue = addItem(id);
+                }
+                if (cue->intensities.contains(group)) {
+                    Intensity* oldIntensity = cue->intensities.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->intensities.contains(group) && (items[cueRow]->intensities.value(group) == oldIntensity) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
+                        items[cueRow]->intensities[group] = intensity;
+                        cueRow++;
+                    }
                 } else {
-                    cue->intensities[group] = intensity;
-                    cueCounter++;
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && !items[cueRow]->intensities.contains(group) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
+                        items[cueRow]->intensities[group] = intensity;
+                        cueRow++;
+                    }
                 }
             }
-            kernel->terminal->success("Set Attribute 2 of " + QString::number(cueCounter) + " Cues at Group " + group->name() + " to Intensity " + intensity->name() + ".");
+            if (ids.length()) {
+                kernel->terminal->success("Set Intensities of Cue " + getItem(ids.first())->name() + " at Group " + group->name() + " to Intensity " + intensity->name() + ".");
+            } else {
+                kernel->terminal->success("Set Intensities of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to Intensity " + intensity->name() + ".");
+            }
         }
-    } else if (attributeString == "3") {
-        if (value.isEmpty() || (value.first() != Keys::Color)) {
-            kernel->terminal->error("Cue Attribute 3 Group Set requires an Color.");
-            return;
-        }
-        value.removeFirst();
-        Group* group = kernel->groups->getItem(attribute.value(Keys::Group));
+    } else if (attribute == COLORSATTRIBUTEID) {
+        Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
-            kernel->terminal->error("Can't set Cue Attribute 3 because an invalid Group was given.");
+            kernel->terminal->error("Can't set Cue Colors because an invalid Group was given.");
             return;
         }
         if ((value.size() == 1) && (value.first() == Keys::Minus)) {
-            int cueCounter = 0;
             for (QString id : ids) {
                 Cue *cue = getItem(id);
                 if (cue == nullptr) {
-                    kernel->terminal->warning("Can't delete Cue Color Entry because Cue " + id + " doesn't exist.");
-                } else {
-                    cue->colors.remove(group);
-                    cueCounter++;
+                    cue = addItem(id);
+                }
+                if (cue->colors.contains(group)) {
+                    Color* oldColor = cue->colors.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->colors.contains(group) && (items[cueRow]->colors.value(group) == oldColor) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
+                        items[cueRow]->colors.remove(group);
+                        cueRow++;
+                    }
                 }
             }
-            kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Color entries.");
+            if (ids.length() == 1) {
+                kernel->terminal->success("Deleted Cue Color entry of Cue " + getItem(ids.first())->name() + ".");
+            } else {
+                kernel->terminal->success("Deleted Cue Color entries of " + QString::number(ids.length()) + " Cues.");
+            }
         } else {
-            Color* color = kernel->colors->getItem(kernel->keysToId(value));
+            if (text.isEmpty()) {
+                if (value.isEmpty() || (value.first() != Keys::Color)) {
+                    kernel->terminal->error("Can't set the Cue Colors because no Color was given.");
+                    return;
+                }
+                value.removeFirst();
+            }
+            Color* color = kernel->colors->getItem(kernel->terminal->keysToId(value));
+            if (!text.isEmpty()) {
+                color = kernel->colors->getItem(text);
+            }
             if (color == nullptr) {
-                kernel->terminal->error("Cue Attribute 3 Group Set received an invalid Color ID.");
+                kernel->terminal->error("Can't set Cue Colors because an invalid Color ID was given.");
                 return;
             }
-            int cueCounter = 0;
             for (QString id : ids) {
                 Cue* cue = getItem(id);
                 if (cue == nullptr) {
-                    kernel->terminal->warning("Can't set Attribute 3 of Cue " + id + " because it doesn't exist.");
+                    cue = addItem(id);
+                }
+                if (cue->colors.contains(group)) {
+                    Color* oldColor = cue->colors.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->colors.contains(group) && (items[cueRow]->colors.value(group) == oldColor) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
+                        items[cueRow]->colors[group] = color;
+                        cueRow++;
+                    }
                 } else {
-                    cue->colors[group] = color;
-                    cueCounter++;
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && !items[cueRow]->colors.contains(group) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
+                        items[cueRow]->colors[group] = color;
+                        cueRow++;
+                    }
                 }
             }
-            kernel->terminal->success("Set Attribute 3 of " + QString::number(cueCounter) + " Cues at Group " + group->name() + " to Color " + color->name() + ".");
+            if (ids.size() == 1) {
+                kernel->terminal->success("Set Colors of Cue " + getItem(ids.first())->name() + " at Group " + group->name() + " to Color " + color->name() + ".");
+            } else {
+                kernel->terminal->success("Set Colors of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to Color " + color->name() + ".");
+            }
         }
-    } else if (attributeString == "4") {
-        Group* group = kernel->groups->getItem(attribute.value(Keys::Group));
+    } else if (attribute == RAWSATTRIBUTEID) {
+        Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
-            kernel->terminal->error("Can't set Cue Attribute 4 because an invalid Group was given.");
+            kernel->terminal->error("Can't set Cue Raws because an invalid Group was given.");
             return;
         }
         if ((value.size() == 1) && (value.first() == Keys::Minus)) {
-            int cueCounter = 0;
             for (QString id : ids) {
                 Cue *cue = getItem(id);
                 if (cue == nullptr) {
-                    kernel->terminal->warning("Can't delete Cue Raw Entry because Cue " + id + " doesn't exist.");
-                } else {
-                    cue->raws.remove(group);
-                    cueCounter++;
+                    cue = addItem(id);
+                }
+                if (cue->raws.contains(group)) {
+                    QList<Raw*> oldRaws = cue->raws.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->raws.contains(group) && (items[cueRow]->raws.value(group) == oldRaws) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
+                        items[cueRow]->raws.remove(group);
+                        cueRow++;
+                    }
                 }
             }
-            kernel->terminal->success("Deleted " + QString::number(cueCounter) + " Cue Raw entries.");
-        } else {
-            if ((value.isEmpty()) || (value.first() != Keys::Raw)) {
-                kernel->terminal->error("Cue Attribute 4 Group Set requires no value or at least one Raw.");
-                return;
+            if (ids.length() == 1) {
+                kernel->terminal->success("Deleted Cue Raw entries of Cue " + getItem(ids.first())->name() + ".");
+            } else {
+                kernel->terminal->success("Deleted Cue Raw entries of " + QString::number(ids.length()) + " Cues.");
             }
-            value.removeFirst();
-            QList<QString> rawIds = kernel->keysToSelection(value, Keys::Raw);
+        } else {
+            if (text.isEmpty()) {
+                if ((value.isEmpty()) || (value.first() != Keys::Raw)) {
+                    kernel->terminal->error("Can't set Cue Raws because this requires no value or at least one Raw.");
+                    return;
+                }
+                value.removeFirst();
+            }
+            QStringList rawIds = kernel->terminal->keysToSelection(value, Keys::Raw);
+            if (!text.isEmpty()) {
+                rawIds = text.split("+");
+            }
             if (rawIds.isEmpty()) {
-                kernel->terminal->error("Cue Attribute 4 Group Set received invalid Raws.");
+                kernel->terminal->error("Can't set Cue Raws because an invalid Raw selection was given.");
                 return;
             }
             QList<Raw*> raws;
@@ -134,33 +203,33 @@ void CueList::setOtherAttribute(QList<QString> ids, QMap<int, QString> attribute
                     raws.append(raw);
                 }
             }
-            int cueCounter = 0;
             for (QString id : ids) {
                 Cue* cue = getItem(id);
                 if (cue == nullptr) {
-                    kernel->terminal->warning("Can't set Attribute 4 of Cue " + id + " because it doesn't exist.");
+                    cue = addItem(id);
+                }
+                if (cue->raws.contains(group)) {
+                    QList<Raw*> oldRaws = cue->raws.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->raws.contains(group) && (items[cueRow]->raws.value(group) == oldRaws) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
+                        items[cueRow]->raws[group] = raws;
+                        cueRow++;
+                    }
                 } else {
-                    cue->raws[group] = raws;
-                    cueCounter++;
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && !items[cueRow]->raws.contains(group) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
+                        items[cueRow]->raws[group] = raws;
+                        cueRow++;
+                    }
                 }
             }
-            kernel->terminal->success("Set Attribute 4 of " + QString::number(cueCounter) + " Cues at Group " + group->name() + " to " + QString::number(raws.length()) + " Raws.");
-        }
-    } else if (attributeString == "5") {
-        float fade = kernel->keysToValue(value);
-        if (fade < 0 || fade > 60) {
-            kernel->terminal->error("Can't set Cue Fade because Fade has to be between 0 and 60 seconds.");
-            return;
-        }
-        for (QString id : ids) {
-            Cue* cue = getItem(id);
-            if (cue == nullptr) {
-                cue = addItem(id);
+            if (ids.length() == 1) {
+                kernel->terminal->success("Set Raws of Cue " + getItem(ids.first())->name() + " at Group " + group->name() + " to " + QString::number(raws.length()) + " Raws.");
+            } else {
+                kernel->terminal->success("Set Raws of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to " + QString::number(raws.length()) + " Raws.");
             }
-            cue->fade = fade;
         }
-        kernel->terminal->success("Set Fade of " + QString::number(ids.length()) + " Cues to " + QString::number(fade) + "s.");
     } else {
-        kernel->terminal->error("Can't set Cue attribute " + attributeString + ".");
+        ItemList::setAttribute(ids, attributes, value, text);
     }
 }
