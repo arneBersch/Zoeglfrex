@@ -133,7 +133,11 @@ void Terminal::execute() {
             }
             attributeMap[Keys::Attribute] = kernel->cues->INTENSITIESATTRIBUTEID;
             attributeMap[Keys::Group] = kernel->cuelistView->currentGroup->id;
-            kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, command);
+            if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
+                kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, commandWithoutSelectionType);
+            } else {
+                kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, command);
+            }
         } else if (selectionType == Keys::Color) {
             if (kernel->cuelistView->currentGroup == nullptr) {
                 error("Can't set Color because no Group is currently selected.");
@@ -147,7 +151,11 @@ void Terminal::execute() {
             attributeMap[Keys::Group] = kernel->cuelistView->currentGroup->id;
             QStringList cueIds;
             cueIds.append(kernel->cuelistView->currentCue->id);
-            kernel->cues->setAttribute(cueIds, attributeMap, command);
+            if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
+                kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, commandWithoutSelectionType);
+            } else {
+                kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, command);
+            }
         } else if (selectionType == Keys::Raw) {
             if (kernel->cuelistView->currentGroup == nullptr) {
                 error("Can't set Raws because no Group is currently selected.");
@@ -159,7 +167,11 @@ void Terminal::execute() {
             }
             attributeMap[Keys::Attribute] = kernel->cues->RAWSATTRIBUTEID;
             attributeMap[Keys::Group] = kernel->cuelistView->currentGroup->id;
-            kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, command);
+            if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
+                kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, commandWithoutSelectionType);
+            } else {
+                kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, command);
+            }
         } else if (selectionType == Keys::Cue) {
             if (ids.size() != 1) {
                 error("Can't select Cue because Cue only allows one Cue ID.");
