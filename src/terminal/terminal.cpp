@@ -192,13 +192,19 @@ void Terminal::execute() {
             ids.append(kernel->cuelistView->currentFixture->model->id);
         } else if (selectionType == Keys::Fixture) {
             if (kernel->cuelistView->currentFixture == nullptr) {
-                error("Can't load the current Fixture because no Fixture is selected.");
-                return;
+                if (kernel->cuelistView->currentGroup == nullptr) {
+                    kernel->terminal->error("Can't load the Fixtures of the current Group because no Group is selected.");
+                    return;
+                }
+                for (Fixture* fixture : kernel->cuelistView->currentGroup->fixtures) {
+                    ids.append(fixture->id);
+                }
+            } else {
+                ids.append(kernel->cuelistView->currentFixture->id);
             }
-            ids.append(kernel->cuelistView->currentFixture->id);
         } else if (selectionType == Keys::Group) {
             if (kernel->cuelistView->currentGroup == nullptr) {
-                error("Can't load the Group because no Group is selected.");
+                error("Can't load the current Group because no Group is selected.");
                 return;
             }
             ids.append(kernel->cuelistView->currentGroup->id);
