@@ -270,6 +270,7 @@ You can remove the Intensity like this:
 ```
 Cue 1 + 2 Attribute 2 Group 4 Set -
 ```
+If you change this Attribute, it will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds a different Intensity.
 
 > [!TIP]
 > You can set the Intensity of the currently selected Group in the current Cue like this:
@@ -290,6 +291,7 @@ You can remove the Color like this:
 ```
 Cue 1 + 2 Attribute 3 Group 4 Set -
 ```
+If you change this Attribute, it will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds a different Color.
 
 > [!TIP]
 > You can set the Color of the currently selected Group in the current Cue like this:
@@ -311,6 +313,7 @@ You can remove all Raws like this:
 ```
 Cue 1 + 2 Attribute 4 Group 3 Set -
 ```
+If you change this Attribute, it will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds different Raws.
 
 > [!TIP]
 > You can set the Raws of the currently selected Group in the current Cue like this:
