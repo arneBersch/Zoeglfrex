@@ -58,7 +58,7 @@ void CuelistView::loadCue() {
     }
     fixtureLabel->setText("No Fixture selected.");
     if (currentFixture != nullptr) {
-        fixtureLabel->setText("Fixture " + currentFixture->id);
+        fixtureLabel->setText("Fixture " + currentFixture->name());
     }
     if (currentCue == nullptr) {
         if (!kernel->cues->items.isEmpty()) {
