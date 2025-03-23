@@ -6,7 +6,7 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "groupmodel.h".h"
+#include "groupmodel.h"
 #include "kernel/kernel.h"
 
 GroupModel::GroupModel(Kernel *core) {
@@ -60,13 +60,12 @@ QVariant GroupModel::data(const QModelIndex &index, const int role) const
             return QVariant();
         } else if (column == GroupModelColumns::raws) {
             if (cue->raws.contains(kernel->cuelistView->currentGroup)) {
-                QString raws;
+                QStringList raws;
                 for (Raw* raw : cue->raws.value(kernel->cuelistView->currentGroup)) {
-                    raws += raw->name();
-                    raws += ", ";
+                    raws.append(raw->name());
                 }
-                raws.chop(2);
-                return raws;
+                return raws.join(" + ");
+            }
             }
         } else {
             return QVariant();
