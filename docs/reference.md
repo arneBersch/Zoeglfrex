@@ -1,3 +1,4 @@
+# Zöglfrex Reference
 ## Keys and Shortcuts
 ### Item keys
 - Model: M
@@ -5,7 +6,7 @@
 - Group: G
 - Intensity: I
 - Color: C
-- Rat: R
+- Raw: R
 - Cue: Q
 
 ### Other keys
@@ -26,14 +27,18 @@
 
 > [!TIP]
 > You can also insert a period using the comma key (,).
-> This is very useful when inserting IDs using a numeric keypad.
+> This is very useful when inserting IDs using some numeric keypads.
 
 ### Keyboard Shortcuts
 - Go to next Cue: Space
 - Go to previous Cue: Shift + Space
+- Select next Group: Arrow down
+- Select previous Group: Arrow up
+- Select next Fixture in current Group: Arrow right
+- Select previous Fixture in current Group: Arrow left
 - Execute command and clear the Terminal: Return/Enter
 - Execute command without clearing the Terminal: Shift + Return/Enter
-- Undo the last keypress in the command input: Backspae
+- Undo the last keypress in the command input: Backspace
 - Clear command input: Shift + Backspace
 - New File: Ctrl + N
 - Open File: Ctrl + O
@@ -60,15 +65,12 @@ Model 1 + 2 Attribute 1 Set
 ```
 This command will open a popup window where you can insert the Label text for those Models.
 
-### Item Set Item
+### Item Set Item (Copy)
 This command can be used for copying Items, for example:
 ```
 Model 2 + 3 Set Model 1
 ```
-This command will copy the Attributes of Model 1 to Model 2 and 3.
-
-> [!NOTE]
-> Please note that when copying Fixtures, the ID of the Fixture won't be copied as this would result in a DMX address conflict.
+This command will copy all the Attributes of Model 1 to Model 2 and 3.
 
 ### Item Set - (Delete)
 This command deletes Items, for example:
@@ -80,30 +82,44 @@ This command will remove Model 1 and 2.
 > [!CAUTION]
 > Please note that deleting Items can affect other Items to:
 > - When deleting a Model, the Model Attribute of all Fixtures which used this Model are set to None (Dimmer).
+> - When deleting a Model, the Model Exceptions for these Model are deleted in all Attributes.
 > - When deleting a Fixture, the Fixture is removed from all Groups.
+> - When deleting a Fixture, the Fixture Exceptions for these Fixture are deleted in all Attributes.
 > - When deleting a Group, the Group will be removed from all Cues.
-> - When deleting an Intensity or Color, it will be removed from all Cues
+> - When deleting an Intensity, it will be removed from all Cues
+> - When deleting an Color, it will be removed from all Cues
+> - When deleting an Raw, it will be removed from all Cues
 
 ## Models
 If no Model Attribute is given, the standard Attribute 2 will be used.
 
-### Model Attribute 2 Set (channels)
+If no Model ID is given, the Model of the current Fixture will be used.
+
+### Model Attribute 2 Set (Channels)
 Model Attribute 2 Set doesn't take a value. Instead, it will open a popup where you can insert the Model's channels. These channels are currently supported:
 - D (Dimmer)
 - R (Red)
 - G (Green)
 - B (Blue)
+- W (White)
 - C (Cyan)
 - M (Magenta)
 - Y (Yellow)
-- 0 (DMX always DMX value 0)
-- 1 (DMX always DMX value 255)
+- 0 (DMX value 0)
+- 1 (DMX value 255)
 
-So, for example, if you want to add a generic RGB Model, you have to first need to type 'RGB' into the popup.
+So, for example, if you want to add a generic RGB Model, you need to type 'RGB' into the popup.
 
 ## Fixtures
 If no Fixture Attribute is given, the standard Attribute 3 will be used.
-If no Fixture IDs are given, the Fixtures in the currently selected Group will be used.
+
+If no Fixture ID is given, the Fixture in the currently selected Group will be used.
+You can select the current Fixture like this:
+```
+Fixture 1
+```
+When using this syntax, the Fixture will be automatically added to the current Group if necessary.
+If no Fixture is currently selected, all Fixtures of the current Group will be selected.
 
 ### Fixture Attribute 2 Set
 Fixture Attribute 2 Set sets the Model of the selected Fixtures:
@@ -126,12 +142,12 @@ This is great if you know your Fixture rig but not how it's patched.
 
 ## Groups
 If no Group Attribute is given, the standard Attribute 2 will be used.
+
 If no Group ID is given, the ID of the currently selected Group will be used.
 You can select the current Group like this:
 ```
 Group 1
 ```
-When using this syntax, the Group will be automatically created if it doesn't exist.
 
 ### Group Attribute 2 Set
 Group Attribute 2 Set takes the Fixtures which you want to add to the Group:
@@ -145,49 +161,89 @@ Group 1 Attribute 2 Set
 > [!WARNING]
 > Please note that Group Attribute 2 Set will first overwrite the Fixtures Attribute.
 
-> [!TIP]
-> You can set the Fixtures of the currently selected Group like this:
-> ```
-> Fixture 1 + 2 + 3
-> ```
-
 ## Intensities
 If no Itensity Attribute is given, the standard Attribute 2 will be used.
+
 If no Intensity ID is given, the ID of the Intensity of the currently selected Group in the current Cue will be used.
 
 ### Intensity Attribute 2 Set
-Intensity Attribute 2 Set sets the Dimmer attribute to the selected Intensities:
+Intensity Attribute 2 Set sets the Dimmer Attribute to the selected Intensities:
 ```
 Intensity 1 + 2 Attribute 2 Set 75
 ```
 Please note that the value is given in percent.
 
+You can also define exception values for Models and Fixtures:
+```
+Intensity 1 + 2 Attribute 2 Model 7 Set 80
+Intensity 1 + 2 Attribute 2 Fixture 5 Set 70
+```
+These values will replace the standard values if the Fixtures or the Models match.
+You can also remove exception values:
+```
+Intensity 1 + 2 Attribute 2 Model 7 Set -
+Intensity 1 + 2 Attribute 2 Fixture 5 Set -
+```
+
+It is also possible to set the difference of the Intensity:
+```
+Intensity 1 Attribute 2 Set + 10
+Intensity 2 Attribute 2 Set + - 5
+```
+The first command will increase the Dimmer value of Intensity 1 by 10 percent.
+The second command will reduce the Dimmer value of Intensity 2 by 5 percent.
+Please note that this command won't work as it tries to set the Dimmer to -10 percent instead of reducing it by 10 percent:
+```
+Intensity 2 Attribute 2 Set - 10
+```
+
 ## Colors
 If no Color Attribute is given, the standard Attribute 2 will be used.
+
 If no Color ID is given, the ID of the Color of the currently selected Group in the current Cue will be used.
 
 ### Color Attribute 2 Set
-Color Attribute 2 Set sets the Hue attribute of the selected Colors.
+Color Attribute 2 Set sets the Hue Attribute of the selected Colors.
 The value is given in degree.
+
+For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2
 
 ### Color Attribute 3 Set
 Color Attribute 3 Set sets the Saturation of the selected Colors.
 The value is given in percent.
 
+For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2
+
+### Color Attribute 4 Set
+
 ## Raws
-If no Raw Attribute is given, the standard Attribute 3 will be used.
+If no Raw Attribute is given, the standard Attribute 2 will be used.
 If no Raw IDs are given, the IDs of the Raws of the currently selected Group in the current Cue will be used.
 
-### Raw Attribute 2 Set
-Raw Attribute 2 Set sets the Channel of the selected Raws.
-The Channel has to be between 1 and 512.
+### Raw Attribute 2.x Set
+Raw Attribute 2.x Set sets the value of channel x in the selected Raws:
+```
+Raw 1 + 2 Attribute 2.7 Set 213
+```
+This example would set channel 7 to the DMX value 213.
 
-### Raw Attribute 3 Set
-Raw Attribute 3 Set sets the Value of the selected Raws.
-The Value has to be between 0 and 255.
+The channel x has to be between 1 and 512.
+The value has to be between 0 and 255.
+
+You can also give value exceptions for Models or Fixtures:
+```
+Raw 1 Attribute 2.4 Fixture 3 Set 200
+Raw 2 Attribute 2.6 Fixture 5 Set 150
+```
+It is also possible to remove one channel or all channels of a Fixture or Model again:
+```
+Raw 1 Attribute 2 Model 4 Set -
+Raw 2 Attribute 2.7 Fixture 5 Set -
+```
 
 ## Cues
 If no Cue Attribute is given, the standard Attribute 5 will be used.
+
 If no Cue ID is given, the ID of current Cue will be used.
 
 You can select the current Cue like this:
@@ -247,8 +303,19 @@ Cue 1 + 2 Attribute 4 Group 3 Set -
 > ```
 
 ### Cue Attribute 5 Set
-Cue Attribute 5 Set sets the Fade time of the selected Cues.
+Cue Attribute 5 Set sets the Fade time of the selected Cues:
+```
+Cue 1 Attribute 5 Set 17.4
+```
 The value is given in seconds.
+
+### Cue Attribute 6 Set
+Cue Attribute 6 sets if the selected Cues will be blocked Cues.
+This means that tracked values will not pass on to those Cues.
+```
+Cue 1 + 2 Attribute 6 Set 1
+```
+The accepted values are 0 (False / Block deactivated) and 1 (True / Block activated).
 
 ## Selecting Items
 There are some useful tricks for selecting items using IDs.

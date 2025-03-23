@@ -1,7 +1,7 @@
 # Zöglfrex
 Zöglfrex is a Free and Open Source stage lighting software.
 
-It currently only runs on Ubuntu Linux, however, Appimage and Windows support is planned, too.
+It currently only runs on Linux (via AppImage). However, Windows support is planned, too.
 
 See the [Releases page](https://github.com/arneBersch/Zoeglfrex/releases/) to download the latest version of Zöglfrex.
 
@@ -9,12 +9,11 @@ See the [Releases page](https://github.com/arneBersch/Zoeglfrex/releases/) to do
 - command line interface
 - sACN (ANSI E1.31) DMX output
 - included hardware abstraction
-- multi level IDs like 1.2.3.4.5
 
 As Zöglfrex is still a very young software, only the most basic functions are implemented yet.
 
 ## Documentation
-For documentation, you can find the complete [Zöglfrex reference](docs/reference.md) and also a [quick start guide](docs/quick_start_guide.md).
+For documentation, you can find the complete [Zöglfrex Reference](docs/reference.md) and also a [Quick Start Guide](docs/quick_start_guide.md).
 
 ## Known Limitations
 - only one DMX Universe
@@ -31,7 +30,7 @@ Please check this points before creating an Issue:
 1. First of all, make sure you're using the latest version of Zöglfrex.
     In case you haven't, upgrade Zöglfrex and check if the problem still occurs.
 2. Always check the Changelog and the open Issues.
-    Did somebody report this bug yet? 
+    Did someone report this bug yet? 
 3. Try to reduce the number of steps needed for recreating the bug to a minimal amount.
     If possible, provide step-by-step instructions.
 4. Open a new Issue and describe the problem as accurate as possible.
