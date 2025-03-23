@@ -60,13 +60,11 @@ QVariant CueModel::data(const QModelIndex &index, const int role) const
             return QVariant();
         } else if (column == CueModelColumns::raws) {
             if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->raws.contains(group)) {
-                QString raws;
+                QStringList raws;
                 for (Raw* raw : kernel->cuelistView->currentCue->raws.value(group)) {
-                    raws += raw->name();
-                    raws += ", ";
+                    raws.append(raw->name());
                 }
-                raws.chop(2);
-                return raws;
+                return raws.join(" + ");
             }
         } else {
             return QVariant();
