@@ -17,13 +17,6 @@ CueList::CueList(Kernel *core) : ItemList(Keys::Cue, "Cue", "Cues") {
 void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute == INTENSITIESATTRIBUTEID) {
-        if (text.isEmpty()) {
-            if (value.isEmpty() || (value.first() != Keys::Intensity)) {
-                kernel->terminal->error("Can't set Cue Intensities because no Intensity was given.");
-                return;
-            }
-            value.removeFirst();
-        }
         Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
             kernel->terminal->error("Can't set Cue Intensities because an invalid Group was given.");
@@ -50,6 +43,13 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                 kernel->terminal->success("Deleted Cue Intensity entries of " + QString::number(ids.length()) + " Cues.");
             }
         } else {
+            if (text.isEmpty()) {
+                if (value.isEmpty() || (value.first() != Keys::Intensity)) {
+                    kernel->terminal->error("Can't set Cue Intensities because no Intensity was given.");
+                    return;
+                }
+                value.removeFirst();
+            }
             Intensity* intensity = kernel->intensities->getItem(kernel->terminal->keysToId(value));
             if (!text.isEmpty()) {
                 intensity = kernel->intensities->getItem(text);
@@ -85,13 +85,6 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
             }
         }
     } else if (attribute == COLORSATTRIBUTEID) {
-        if (text.isEmpty()) {
-            if (value.isEmpty() || (value.first() != Keys::Color)) {
-                kernel->terminal->error("Can't set the Cue Colors because no Color was given.");
-                return;
-            }
-            value.removeFirst();
-        }
         Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
             kernel->terminal->error("Can't set Cue Colors because an invalid Group was given.");
@@ -118,6 +111,13 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                 kernel->terminal->success("Deleted Cue Color entries of " + QString::number(ids.length()) + " Cues.");
             }
         } else {
+            if (text.isEmpty()) {
+                if (value.isEmpty() || (value.first() != Keys::Color)) {
+                    kernel->terminal->error("Can't set the Cue Colors because no Color was given.");
+                    return;
+                }
+                value.removeFirst();
+            }
             Color* color = kernel->colors->getItem(kernel->terminal->keysToId(value));
             if (!text.isEmpty()) {
                 color = kernel->colors->getItem(text);
@@ -158,7 +158,7 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
             kernel->terminal->error("Can't set Cue Raws because an invalid Group was given.");
             return;
         }
-        if (value.isEmpty()) {
+        if ((value.size() == 1) && (value.first() == Keys::Minus)) {
             for (QString id : ids) {
                 Cue *cue = getItem(id);
                 if (cue == nullptr) {
