@@ -66,7 +66,6 @@ QVariant GroupModel::data(const QModelIndex &index, const int role) const
                 }
                 return raws.join(" + ");
             }
-            }
         } else {
             return QVariant();
         }
