@@ -180,7 +180,17 @@ void Terminal::execute() {
         return;
     }
     if (selection.isEmpty()) {
-        if (selectionType == Keys::Fixture) {
+        if (selectionType == Keys::Model) {
+            if (kernel->cuelistView->currentFixture == nullptr) {
+                error("Can't load the Model of the current Fixture because no Fixture is selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentFixture->model == nullptr) {
+                error("Can't load the Model of the current Fixture because the current Fixture holds no Model.");
+                return;
+            }
+            ids.append(kernel->cuelistView->currentFixture->model->id);
+        } else if (selectionType == Keys::Fixture) {
             if (kernel->cuelistView->currentFixture == nullptr) {
                 error("Can't load the current Fixture because no Fixture is selected.");
                 return;
@@ -242,9 +252,6 @@ void Terminal::execute() {
                 return;
             }
             ids.append(kernel->cuelistView->currentCue->id);
-        } else {
-            error("No selection given.");
-            return;
         }
     }
     if (ids.isEmpty()) {
@@ -260,7 +267,17 @@ void Terminal::execute() {
             if (!firstItem) {
                 QString currentIdString = keysToId(currentId);
                 if (currentId.isEmpty()) {
-                    if (currentItemType == Keys::Fixture) {
+                    if (currentItemType == Keys::Model) {
+                        if (kernel->cuelistView->currentFixture == nullptr) {
+                            error("Can't load the Model of the current Fixture because no Fixture is selected.");
+                            return;
+                        }
+                        if (kernel->cuelistView->currentFixture->model == nullptr) {
+                            error("Can't load the Model of the current Fixture because the current Fixture holds no Model.");
+                            return;
+                        }
+                        currentIdString = kernel->cuelistView->currentFixture->model->id;
+                    } else if (currentItemType == Keys::Fixture) {
                         if (kernel->cuelistView->currentFixture == nullptr) {
                             error("Can't load the current Fixture because no Fixture is selected.");
                             return;
@@ -300,9 +317,6 @@ void Terminal::execute() {
                             return;
                         }
                         currentIdString = kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id;
-                    } else if (currentItemType == Keys::Raw) {
-                        error("Can't load the current Raw.");
-                        return;
                     } else if (currentItemType == Keys::Cue) {
                         if (kernel->cuelistView->currentCue == nullptr) {
                             error("Can't load the Cue because no Cue is selected.");
@@ -310,7 +324,7 @@ void Terminal::execute() {
                         }
                         currentIdString = kernel->cuelistView->currentCue->id;
                     } else {
-                        error("No selection given.");
+                        error("Invalid Attributes given..");
                         return;
                     }
                 }
