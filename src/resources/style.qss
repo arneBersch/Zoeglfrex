@@ -6,11 +6,11 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-QLabel, QListView, QTableView, QHeaderView {
+QLabel, QListView, QTableView, QHeaderView, QMenu::item {
     color: white;
 }
 
-QWidget, QFrame, QInputDialog, QMessageBox, QDialog {
+QWidget, QFrame, QInputDialog, QMessageBox, QDialog, QMenu::item:selected {
     background-color: #151515;
 }
 
@@ -25,13 +25,8 @@ QPushButton::checked {
     border: 1px solid white;
 }
 
-QScrollBar {
+QScrollBar, QMenu {
     background-color: #303030;
-}
-
-QMenuBar {
-    background-color: #303030;
-    color: white;
 }
 
 QProgressBar {
