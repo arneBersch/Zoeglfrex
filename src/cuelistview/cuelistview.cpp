@@ -85,19 +85,6 @@ void CuelistView::loadCue(QString cueId) {
     }
 }
 
-void CuelistView::loadGroup(QString groupId) {
-    Group* group = kernel->groups->getItem(groupId);
-    if (group == nullptr) {
-        kernel->terminal->error("Can't select Group because Group " + groupId + " doesn't exist.");
-        return;
-    }
-    currentGroup = group;
-    currentFixture = nullptr;
-    if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE)) {
-        cuelistTableView->scrollTo(cueModel->index(kernel->groups->items.indexOf(currentGroup), CueModelColumns::group));
-    }
-}
-
 void CuelistView::previousCue() {
     QMutexLocker locker(kernel->mutex);
     if (currentCue == nullptr) {
@@ -105,11 +92,7 @@ void CuelistView::previousCue() {
         return;
     }
     if (kernel->cues->items.indexOf(currentCue) > 0) {
-        currentCue = kernel->cues->items[kernel->cues->items.indexOf(currentCue) - 1];
-        loadView();
-        if ((cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE)) {
-            cuelistTableView->scrollTo(groupModel->index(kernel->cues->items.indexOf(currentCue), GroupModelColumns::cue));
-        }
+        loadCue(kernel->cues->items[kernel->cues->items.indexOf(currentCue) - 1]->id);
     }
 }
 
@@ -120,11 +103,21 @@ void CuelistView::nextCue() {
         return;
     }
     if ((kernel->cues->items.indexOf(currentCue) + 1) < kernel->cues->items.length()) {
-        currentCue = kernel->cues->items[kernel->cues->items.indexOf(currentCue) + 1];
-        loadView();
-        if ((cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE)) {
-            cuelistTableView->scrollTo(groupModel->index(kernel->cues->items.indexOf(currentCue), GroupModelColumns::cue));
-        }
+        loadCue(kernel->cues->items[kernel->cues->items.indexOf(currentCue) + 1]->id);
+    }
+}
+
+void CuelistView::loadGroup(QString groupId) {
+    Group* group = kernel->groups->getItem(groupId);
+    if (group == nullptr) {
+        kernel->terminal->error("Can't select Group because Group " + groupId + " doesn't exist.");
+        return;
+    }
+    currentGroup = group;
+    currentFixture = nullptr;
+    loadView();
+    if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE)) {
+        cuelistTableView->scrollTo(cueModel->index(kernel->groups->items.indexOf(currentGroup), CueModelColumns::group));
     }
 }
 
@@ -135,12 +128,7 @@ void CuelistView::previousGroup() {
         return;
     }
     if (kernel->groups->items.indexOf(currentGroup) > 0) {
-        currentGroup = kernel->groups->items[kernel->groups->items.indexOf(currentGroup) - 1];
-        currentFixture = nullptr;
-        loadView();
-        if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE)) {
-            cuelistTableView->scrollTo(cueModel->index(kernel->groups->items.indexOf(currentGroup), CueModelColumns::group));
-        }
+        loadGroup(kernel->groups->items[kernel->groups->items.indexOf(currentGroup) - 1]->id);
     }
 }
 
@@ -151,12 +139,7 @@ void CuelistView::nextGroup() {
         return;
     }
     if ((kernel->groups->items.indexOf(currentGroup) + 1) < kernel->groups->items.length()) {
-        currentGroup = kernel->groups->items[kernel->groups->items.indexOf(currentGroup) + 1];
-        currentFixture = nullptr;
-        loadView();
-        if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE)) {
-            cuelistTableView->scrollTo(cueModel->index(kernel->groups->items.indexOf(currentGroup), CueModelColumns::group));
-        }
+        loadGroup(kernel->groups->items[kernel->groups->items.indexOf(currentGroup) + 1]->id);
     }
 }
 
@@ -199,8 +182,19 @@ void CuelistView::nextFixture() {
 void CuelistView::updateCuelistView() {
     if (cueViewModeComboBox->currentText() == CUEVIEWCUEMODE) {
         cuelistTableView->setModel(cueModel);
+        if (currentGroup != nullptr) {
+            cuelistTableView->scrollTo(cueModel->index(kernel->groups->items.indexOf(currentGroup), CueModelColumns::group));
+        }
     } else if (cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE) {
         cuelistTableView->setModel(groupModel);
+        if (currentCue != nullptr) {
+            cuelistTableView->scrollTo(groupModel->index(kernel->cues->items.indexOf(currentCue), GroupModelColumns::cue));
+        }
     }
     loadView();
+    if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE) && (currentGroup != nullptr)) {
+        cuelistTableView->scrollTo(cueModel->index(kernel->groups->items.indexOf(currentGroup), CueModelColumns::group));
+    } else if ((cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE) && (currentCue != nullptr)) {
+        cuelistTableView->scrollTo(groupModel->index(kernel->cues->items.indexOf(currentCue), GroupModelColumns::cue));
+    }
 }

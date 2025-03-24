@@ -25,9 +25,9 @@ public:
     CuelistView(Kernel *core, QWidget *parent = nullptr);
     void loadView();
     void loadCue(QString cueId);
-    void loadGroup(QString groupId);
     void nextCue();
     void previousCue();
+    void loadGroup(QString groupId);
     void nextGroup();
     void previousGroup();
     void nextFixture();
