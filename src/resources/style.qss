@@ -14,7 +14,7 @@ QWidget, QFrame, QInputDialog, QMessageBox, QDialog, QMenu::item:selected {
     background-color: #151515;
 }
 
-QPushButton, QComboBox, QTextEdit {
+QPushButton, QComboBox, QTextEdit, QSpinBox {
     background-color: #303030;
     color: white;
     border-radius: 0px;
