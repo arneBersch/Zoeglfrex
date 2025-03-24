@@ -104,24 +104,16 @@ void Terminal::execute() {
                 return;
             }
             if (!kernel->cuelistView->currentGroup->fixtures.contains(fixture)) {
-                kernel->cuelistView->currentGroup->fixtures.append(fixture);
-                success("Added Fixture " + fixture->id + " to Group " + kernel->cuelistView->currentGroup->id + ".");
+                success("Can't select Fixture " + fixture->name() + " because the current Group " + kernel->cuelistView->currentGroup->name() + " doesn't contain this Fixture.");
+                return;
             }
             kernel->cuelistView->currentFixture = fixture;
-            success("Selected Fixture " + fixture->id + ".");
         } else if (selectionType == Keys::Group) {
             if (ids.size() != 1) {
                 error("Can't select Group because Group only allows one Group ID.");
                 return;
             }
-            Group* group = kernel->groups->getItem(ids.first());
-            if (group == nullptr) {
-                error("Can't select Group because Group " + ids.first() + " doesn't exist.");
-                return;
-            }
-            kernel->cuelistView->currentGroup = group;
-            kernel->cuelistView->currentFixture = nullptr;
-            success("Selected Group " + group->id + ".");
+            kernel->cuelistView->loadGroup(ids.first());
         } else if (selectionType == Keys::Intensity) {
             if (kernel->cuelistView->currentGroup == nullptr) {
                 error("Can't set Intensity because no Group is currently selected.");
@@ -177,18 +169,12 @@ void Terminal::execute() {
                 error("Can't select Cue because Cue only allows one Cue ID.");
                 return;
             }
-            Cue* cue = kernel->cues->getItem(ids.first());
-            if (cue == nullptr) {
-                error("Can't select Cue because Cue " + ids.first() + " doesn't exist.");
-                return;
-            }
-            kernel->cuelistView->currentCue = cue;
-            success("Selected Cue " + cue->id + ".");
+            kernel->cuelistView->loadCue(ids.first());
         } else {
             error("No Attribute and Value were given.");
             return;
         }
-        kernel->cuelistView->loadCue();
+        kernel->cuelistView->loadView();
         return;
     }
     if (selection.isEmpty()) {
@@ -430,7 +416,7 @@ void Terminal::execute() {
             }
         }
     }
-    kernel->cuelistView->loadCue();
+    kernel->cuelistView->loadView();
     kernel->inspector->load({selectionType});
 }
 

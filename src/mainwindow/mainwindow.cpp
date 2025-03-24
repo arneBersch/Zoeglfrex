@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(openReferenceAction, &QAction::triggered, this, []{ QDesktopServices::openUrl(QUrl("https://github.com/arneBersch/Zoeglfrex/blob/main/docs/reference.md")); });
 
     kernel = new Kernel();
-    kernel->cuelistView->loadCue();
+    kernel->cuelistView->loadView();
 
     QSplitter *leftColumn = new QSplitter();
     leftColumn->setOrientation(Qt::Vertical);

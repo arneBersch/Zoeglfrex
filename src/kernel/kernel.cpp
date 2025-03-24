@@ -33,7 +33,7 @@ void Kernel::reset() {
     cues->reset();
     cuelistView->dmxEngine->sacnServer->universeSpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_UNIVERSE); // reset sACN universe
     cuelistView->dmxEngine->sacnServer->prioritySpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
-    cuelistView->loadCue();
+    cuelistView->loadView();
 }
 
 void Kernel::saveFile(QString fileName) {
@@ -191,5 +191,5 @@ void Kernel::openFile(QString fileName) {
         terminal->error("Can't open file because a XML parsing error occured in line " + QString::number(fileStream.lineNumber()) + ": " + fileStream.errorString() + " (" + QString::number(fileStream.error()) + ")");
         return;
     }
-    cuelistView->loadCue();
+    cuelistView->loadView();
 }

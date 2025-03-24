@@ -23,7 +23,9 @@ class CuelistView : public QWidget {
     Q_OBJECT
 public:
     CuelistView(Kernel *core, QWidget *parent = nullptr);
-    void loadCue();
+    void loadView();
+    void loadCue(QString cueId);
+    void loadGroup(QString groupId);
     void nextCue();
     void previousCue();
     void nextGroup();
