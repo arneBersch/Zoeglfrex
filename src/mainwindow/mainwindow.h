@@ -29,7 +29,6 @@ private:
     void closeEvent(QCloseEvent *event) override;
     void about();
     QString fileName;
-    const QString VERSION = "0.3.0";
     const QString COPYRIGHT = "Copyright (c) 2025 Arne Bersch (zoeglfrex-dmx@web.de)";
 };
 #endif // MAINWINDOW_H

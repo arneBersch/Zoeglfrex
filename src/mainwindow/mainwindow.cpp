@@ -9,12 +9,6 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-    qInfo() << "Zöglfrex" << VERSION;
-    qInfo() << COPYRIGHT;
-    qInfo() << "Zöglfrex is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.";
-    qInfo() << "Zöglfrex is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.";
-    qInfo() << "You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.";
-
     this->resize(1500, 1000);
     this->setWindowTitle("Zöglfrex");
 
@@ -123,6 +117,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S), this), &QShortcut::activated, this, [this]{ this->saveFileAs(); }); // Save File As
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q), this), &QShortcut::activated, this, [this]{ this->close(); }); // Quit Application
 
+    qInfo() << "Zöglfrex" << kernel->VERSION;
+    qInfo() << COPYRIGHT;
+    qInfo() << "Zöglfrex is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.";
+    qInfo() << "Zöglfrex is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.";
+    qInfo() << "You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.";
+
     this->show();
     about(); // Open about window
 }
@@ -137,7 +137,7 @@ void MainWindow::openFile() {
     }
     fileName = newFileName;
     kernel->terminal->printMessages = false;
-    kernel->openFile(fileName, VERSION);
+    kernel->openFile(fileName);
     kernel->terminal->printMessages = true;
     kernel->terminal->success("Opened File " + fileName);
 }
@@ -167,7 +167,7 @@ void MainWindow::saveFile() {
             fileName += ".zfr";
         }
     }
-    kernel->saveFile(fileName, VERSION);
+    kernel->saveFile(fileName);
 }
 
 void MainWindow::saveFileAs() {
@@ -188,6 +188,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 }
 
 void MainWindow::about() {
-    AboutWindow about(VERSION, COPYRIGHT);
+    AboutWindow about(kernel->VERSION, COPYRIGHT);
     about.exec();
 }

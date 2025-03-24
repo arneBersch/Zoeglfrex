@@ -36,7 +36,7 @@ void Kernel::reset() {
     cuelistView->loadCue();
 }
 
-void Kernel::saveFile(QString fileName, QString version) {
+void Kernel::saveFile(QString fileName) {
     QMutexLocker locker(mutex);
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly)) {
@@ -50,7 +50,7 @@ void Kernel::saveFile(QString fileName, QString version) {
 
     fileStream.writeStartElement("Creator");
     fileStream.writeTextElement("Name", "Zöglfrex");
-    fileStream.writeTextElement("Version", version);
+    fileStream.writeTextElement("Version", VERSION);
     fileStream.writeEndElement();
 
     fileStream.writeStartElement("Output");
@@ -72,7 +72,7 @@ void Kernel::saveFile(QString fileName, QString version) {
     terminal->success("Saved file as " + fileName);
 }
 
-void Kernel::openFile(QString fileName, QString version) {
+void Kernel::openFile(QString fileName) {
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         terminal->error("Can't open file.");
@@ -91,8 +91,8 @@ void Kernel::openFile(QString fileName, QString version) {
                             return;
                         }
                     } else if (fileStream.name().toString() == "Version") {
-                        if (fileStream.readElementText() != version) {
-                            terminal->error("Error reading file: This Zöglfrex version isn't compatible to the current version (" + version + ").");
+                        if (fileStream.readElementText() != VERSION) {
+                            terminal->error("Error reading file: This Zöglfrex version isn't compatible to the current version (" + VERSION + ").");
                             return;
                         }
                     } else {

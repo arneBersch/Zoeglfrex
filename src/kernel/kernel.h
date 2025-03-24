@@ -26,8 +26,8 @@ class Kernel {
 public:
     Kernel();
     void reset();
-    void saveFile(QString fileName, QString version);
-    void openFile(QString fileName, QString version);
+    void saveFile(QString fileName);
+    void openFile(QString fileName);
     ModelList *models;
     FixtureList *fixtures;
     GroupList *groups;
@@ -39,6 +39,7 @@ public:
     Inspector *inspector;
     CuelistView *cuelistView;
     QMutex *mutex;
+    const QString VERSION = "0.4.0";
 };
 
 #endif // KERNEL_H
