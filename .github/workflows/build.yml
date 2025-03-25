@@ -1,5 +1,5 @@
-name: dmxCanvas GitHub Actions CI Build
-on: [ push, pull_request, release ]
+name: Zöglfrex GitHub Actions CI Build
+on: [ push ]
 env:
   QT_VERSION: "6.8.0"
 
@@ -70,5 +70,13 @@ jobs:
           nmake
           cd release
           ls
-          windeployqt -h
           windeployqt Zoeglfrex.exe
+          ls
+          7z a C:\Zoeglfrex.zip *
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zoeglfrex.zip
+          path: C:\Zoeglfrex.zip
+          
