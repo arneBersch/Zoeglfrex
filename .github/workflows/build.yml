@@ -68,10 +68,11 @@ jobs:
           nmake clean
           qmake -config release
           nmake
+
+      - name: Deploy
+        run: |
           cd release
-          ls
           windeployqt Zoeglfrex.exe
-          ls
           7z a C:\Zoeglfrex.zip *
 
       - name: Upload executable
