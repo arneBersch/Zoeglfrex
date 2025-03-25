@@ -68,6 +68,7 @@ jobs:
           nmake clean
           qmake -config release
           nmake
+          cd release
           ls
           windeployqt -h
           windeployqt Zoeglfrex.exe
