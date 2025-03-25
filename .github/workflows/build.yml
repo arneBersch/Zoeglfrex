@@ -60,6 +60,9 @@ jobs:
         with:
           version: ${{ env.Qt_VERSION }}
 
+      - name: Install Visual C++
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Compile
         run: |
           nmake clean
