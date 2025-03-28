@@ -66,6 +66,14 @@ Model::~Model() {
             raw->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
         }
     }
+    for (Effect* effect : kernel->effects->items) {
+        for (QString modelSpecificFloatAttribute : effect->modelSpecificFloatAttributes.keys()) {
+            effect->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+        }
+        for (QString modelSpecificAngleAttribute : effect->modelSpecificAngleAttributes.keys()) {
+            effect->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
+        }
+    }
     for (Cue* cue : kernel->cues->items) {
         for (QString modelSpecificFloatAttribute : cue->modelSpecificFloatAttributes.keys()) {
             cue->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);

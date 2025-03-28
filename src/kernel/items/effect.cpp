@@ -6,10 +6,20 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "intensitylist.h"
+#include "effect.h"
+#include "kernel/kernel.h"
 
-IntensityList::IntensityList(Kernel *core) : ItemList(core, Keys::Intensity, "Intensity", "Intensities") {
-    floatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    modelSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    fixtureSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
+Effect::Effect(Kernel* core) : Item(core) {}
+
+Effect::Effect(const Effect* item) : Item(item) {}
+
+Effect::~Effect() {}
+
+QString Effect::info() {
+    QString info = Item::info();
+    return info;
+}
+
+void Effect::writeAttributesToFile(QXmlStreamWriter* fileStream) {
+    Item::writeAttributesToFile(fileStream);
 }

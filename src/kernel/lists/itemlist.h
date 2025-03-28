@@ -49,14 +49,13 @@ class Kernel;
 
 template <class T> class ItemList : public QAbstractTableModel {
 public:
-    ItemList(int key, QString singularName, QString pluralName);
+    ItemList(Kernel* core, int key, QString singularName, QString pluralName);
     T* getItem(QString id) const;
     int getItemRow(QString id) const;
     QStringList getIds() const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
-    Kernel *kernel;
     QList<T*> items;
     virtual void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> values, QString text = QString());
     void saveItemsToFile(QXmlStreamWriter* fileStream);
@@ -74,6 +73,7 @@ public:
     QMap<QString, BoolAttribute> boolAttributes;
 protected:
     T* addItem(QString id);
+    Kernel *kernel;
 private:
     int findRow(QString id);
     int itemKey;

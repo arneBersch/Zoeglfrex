@@ -37,6 +37,7 @@ enum {
     Intensity, // I
     Color, // C
     Raw, // R
+    Effect, // E
     Cue, // Q
 };
 }

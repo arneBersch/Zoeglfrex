@@ -15,6 +15,7 @@ Kernel::Kernel() {
     intensities = new IntensityList(this);
     colors = new ColorList(this);
     raws = new RawList(this);
+    effects = new EffectList(this);
     cues = new CueList(this);
     terminal = new Terminal(this);
     inspector = new Inspector(this);
@@ -30,6 +31,7 @@ void Kernel::reset() {
     intensities->reset();
     colors->reset();
     raws->reset();
+    effects->reset();
     cues->reset();
     cuelistView->dmxEngine->sacnServer->universeSpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_UNIVERSE); // reset sACN universe
     cuelistView->dmxEngine->sacnServer->prioritySpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
@@ -64,6 +66,7 @@ void Kernel::saveFile(QString fileName) {
     intensities->saveItemsToFile(&fileStream);
     colors->saveItemsToFile(&fileStream);
     raws->saveItemsToFile(&fileStream);
+    effects->saveItemsToFile(&fileStream);
     cues->saveItemsToFile(&fileStream);
 
     fileStream.writeEndElement();
@@ -157,6 +160,9 @@ void Kernel::openFile(QString fileName) {
                         if (fileStream.attributes().hasAttribute("Raw")) {
                             attributes[Keys::Raw] = fileStream.attributes().value("Raw").toString();
                         }
+                        if (fileStream.attributes().hasAttribute("Effect")) {
+                            attributes[Keys::Effect] = fileStream.attributes().value("Effect").toString();
+                        }
                         if (fileStream.attributes().hasAttribute("Cue")) {
                             attributes[Keys::Cue] = fileStream.attributes().value("Cue").toString();
                         }
@@ -173,6 +179,8 @@ void Kernel::openFile(QString fileName) {
                             colors->setAttribute(ids, attributes, QList<int>(), text);
                         } else if ((pluralName == "Raws") && (singularName == "Raw")) {
                             raws->setAttribute(ids, attributes, QList<int>(), text);
+                        } else if ((pluralName == "Effects") && (singularName == "Effect")) {
+                            effects->setAttribute(ids, attributes, QList<int>(), text);
                         } else if ((pluralName == "Cues") && (singularName == "Cue")) {
                             cues->setAttribute(ids, attributes, QList<int>(), text);
                         } else {

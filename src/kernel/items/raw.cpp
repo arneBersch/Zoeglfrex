@@ -11,7 +11,11 @@
 
 Raw::Raw(Kernel* core) : Item(core) {}
 
-Raw::Raw(const Raw* item) : Item(item) {}
+Raw::Raw(const Raw* item) : Item(item) {
+    channelValues = item->channelValues;
+    modelSpecificChannelValues = item->modelSpecificChannelValues;
+    fixtureSpecificChannelValues = item->fixtureSpecificChannelValues;
+}
 
 Raw::~Raw() {
     for (Cue *cue : kernel->cues->items) {

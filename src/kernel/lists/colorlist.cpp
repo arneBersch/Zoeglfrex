@@ -8,8 +8,7 @@
 
 #include "colorlist.h"
 
-ColorList::ColorList(Kernel *core) : ItemList(Keys::Color, "Color", "Colors") {
-    kernel = core;
+ColorList::ColorList(Kernel *core) : ItemList(core, Keys::Color, "Color", "Colors") {
     angleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
     modelSpecificAngleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
     fixtureSpecificAngleAttributes[HUEATTRIBUTEID] = {"Hue", 0};

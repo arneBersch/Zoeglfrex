@@ -191,7 +191,7 @@ void Terminal::execute() {
         } else if (selectionType == Keys::Fixture) {
             if (kernel->cuelistView->currentFixture == nullptr) {
                 if (kernel->cuelistView->currentGroup == nullptr) {
-                    kernel->terminal->error("Can't load the Fixtures of the current Group because no Group is selected.");
+                    error("Can't load the Fixtures of the current Group because no Group is selected.");
                     return;
                 }
                 for (Fixture* fixture : kernel->cuelistView->currentGroup->fixtures) {
@@ -256,6 +256,9 @@ void Terminal::execute() {
                 return;
             }
             ids.append(kernel->cuelistView->currentCue->id);
+        } else {
+            error("No standard selection for this Item type.");
+            return;
         }
     }
     if (ids.isEmpty()) {
@@ -361,6 +364,8 @@ void Terminal::execute() {
             attributeMap[Keys::Attribute] = kernel->colors->HUEATTRIBUTEID;
         } else if (selectionType == Keys::Raw) {
             attributeMap[Keys::Attribute] = kernel->raws->CHANNELVALUEATTRIBUTEID;
+        } else if (selectionType == Keys::Effect) {
+            attributeMap[Keys::Attribute] = kernel->effects->LABELATTRIBUTEID;
         } else if (selectionType == Keys::Cue) {
             attributeMap[Keys::Attribute] = kernel->cues->FADEATTRIBUTEID;
         }
@@ -372,6 +377,7 @@ void Terminal::execute() {
         || ((selectionType == Keys::Intensity) && kernel->intensities->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Color) && kernel->colors->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Raw) && kernel->raws->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
+        || ((selectionType == Keys::Effect) && kernel->effects->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Cue) && kernel->cues->stringAttributes.contains(attributeMap.value(Keys::Attribute)))) {
         bool ok = false;
         locker.unlock();
@@ -394,6 +400,8 @@ void Terminal::execute() {
         kernel->colors->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Raw) {
         kernel->raws->setAttribute(ids, attributeMap, value, text);
+    } else if (selectionType == Keys::Effect) {
+        kernel->effects->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Cue) {
         kernel->cues->setAttribute(ids, attributeMap, value, text);
     }
@@ -498,6 +506,8 @@ QString Terminal::promptText(QList<int> keys) {
             commandString += " Color ";
         } else if (key == Keys::Raw) {
             commandString += " Raw ";
+        } else if (key == Keys::Effect) {
+            commandString += " Effect ";
         } else if (key == Keys::Cue) {
             commandString += " Cue ";
         } else if (key == Keys::Set) {
@@ -573,6 +583,8 @@ QStringList Terminal::keysToSelection(QList<int> keys, int itemType) {
         allIds = kernel->colors->getIds();
     } else if (itemType == Keys::Raw) {
         allIds = kernel->raws->getIds();
+    } else if (itemType == Keys::Effect) {
+        allIds = kernel->effects->getIds();
     } else if (itemType == Keys::Cue) {
         allIds = kernel->cues->getIds();
     } else {
@@ -697,6 +709,7 @@ bool Terminal::isItem(int key) {
         (key == Keys::Intensity) ||
         (key == Keys::Color) ||
         (key == Keys::Raw) ||
+        (key == Keys::Effect) ||
         (key == Keys::Cue)
         );
 }

@@ -9,7 +9,8 @@
 #include "itemlist.h"
 #include "kernel/kernel.h"
 
-template <class T> ItemList<T>::ItemList(int key, QString singular, QString plural) {
+template <class T> ItemList<T>::ItemList(Kernel* core, int key, QString singular, QString plural) {
+    kernel = core;
     itemKey = key;
     singularItemName = singular;
     pluralItemName = plural;

@@ -8,7 +8,6 @@
 
 #include "modellist.h"
 
-ModelList::ModelList(Kernel *core) : ItemList(Keys::Model, "Model", "Models") {
-    kernel = core;
+ModelList::ModelList(Kernel *core) : ItemList(core, Keys::Model, "Model", "Models") {
     stringAttributes[CHANNELSATTRIBUTEID] = {"Channels", "D", "^[01DRGBWCMY]+$"};
 }

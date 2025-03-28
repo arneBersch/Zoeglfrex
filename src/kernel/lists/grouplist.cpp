@@ -8,9 +8,7 @@
 
 #include "grouplist.h"
 
-GroupList::GroupList(Kernel *core) : ItemList(Keys::Group, "Group", "Groups") {
-    kernel = core;
-}
+GroupList::GroupList(Kernel *core) : ItemList(core, Keys::Group, "Group", "Groups") {}
 
 void GroupList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);

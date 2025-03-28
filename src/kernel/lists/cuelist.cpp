@@ -8,8 +8,7 @@
 
 #include "cuelist.h"
 
-CueList::CueList(Kernel *core) : ItemList(Keys::Cue, "Cue", "Cues") {
-    kernel = core;
+CueList::CueList(Kernel *core) : ItemList(core, Keys::Cue, "Cue", "Cues") {
     floatAttributes[FADEATTRIBUTEID] = {"Fade", 0, 0, 60, "s"};
     boolAttributes[BLOCKATTRIBUTEID] = {"Block", false};
 }

@@ -80,6 +80,14 @@ void Inspector::load(QList<int> keys)
                 infos->setText(item->info());
             }
             return;
+        } else if (keys[keyIndex] == Keys::Effect) {
+            table->setModel(kernel->effects);
+            title->setText("Effects");
+            Effect* item = kernel->effects->getItem(id);
+            if (item != nullptr) {
+                infos->setText(item->info());
+            }
+            return;
         } else if (keys[keyIndex] == Keys::Cue) {
             table->setModel(kernel->cues);
             title->setText("Cues");

@@ -70,6 +70,14 @@ Fixture::~Fixture() {
             raw->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
         }
     }
+    for (Effect* effect : kernel->effects->items) {
+        for (QString fixtureSpecificFloatAttribute : effect->fixtureSpecificFloatAttributes.keys()) {
+            effect->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
+        }
+        for (QString fixtureSpecificAngleAttribute : effect->fixtureSpecificAngleAttributes.keys()) {
+            effect->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
+        }
+    }
     for (Cue* cue : kernel->cues->items) {
         for (QString fixtureSpecificFloatAttribute : cue->fixtureSpecificFloatAttributes.keys()) {
             cue->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);

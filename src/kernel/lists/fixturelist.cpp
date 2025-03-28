@@ -8,8 +8,7 @@
 
 #include "fixturelist.h"
 
-FixtureList::FixtureList(Kernel *core) : ItemList(Keys::Fixture, "Fixture", "Fixtures") {
-    kernel = core;
+FixtureList::FixtureList(Kernel *core) : ItemList(core, Keys::Fixture, "Fixture", "Fixtures") {
     intAttributes[ADDRESSATTRIBUTEID] = {"Address", 0, 0, 512};
 }
 

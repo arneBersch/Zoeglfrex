@@ -17,6 +17,7 @@
 #include "kernel/lists/intensitylist.h"
 #include "kernel/lists/colorlist.h"
 #include "kernel/lists/rawlist.h"
+#include "kernel/lists/effectlist.h"
 #include "kernel/lists/cuelist.h"
 #include "terminal/terminal.h"
 #include "inspector/inspector.h"
@@ -34,6 +35,7 @@ public:
     IntensityList *intensities;
     ColorList *colors;
     RawList *raws;
+    EffectList *effects;
     CueList *cues;
     Terminal *terminal;
     Inspector *inspector;

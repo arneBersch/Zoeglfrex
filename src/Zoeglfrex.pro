@@ -19,6 +19,7 @@ SOURCES += \
     inspector/inspector.cpp \
     kernel/items/color.cpp \
     kernel/items/cue.cpp \
+    kernel/items/effect.cpp \
     kernel/items/fixture.cpp \
     kernel/items/group.cpp \
     kernel/items/intensity.cpp \
@@ -28,6 +29,7 @@ SOURCES += \
     kernel/kernel.cpp \
     kernel/lists/colorlist.cpp \
     kernel/lists/cuelist.cpp \
+    kernel/lists/effectlist.cpp \
     kernel/lists/fixturelist.cpp \
     kernel/lists/grouplist.cpp \
     kernel/lists/intensitylist.cpp \
@@ -48,6 +50,7 @@ HEADERS += \
     inspector/inspector.h \
     kernel/items/color.h \
     kernel/items/cue.h \
+    kernel/items/effect.h \
     kernel/items/fixture.h \
     kernel/items/group.h \
     kernel/items/intensity.h \
@@ -57,6 +60,7 @@ HEADERS += \
     kernel/kernel.h \
     kernel/lists/colorlist.h \
     kernel/lists/cuelist.h \
+    kernel/lists/effectlist.h \
     kernel/lists/fixturelist.h \
     kernel/lists/grouplist.h \
     kernel/lists/intensitylist.h \
