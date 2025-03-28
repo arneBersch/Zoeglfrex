@@ -27,7 +27,7 @@ int GroupModel::rowCount(const QModelIndex &parent) const
 int GroupModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 4;
+    return 5;
 }
 
 QVariant GroupModel::data(const QModelIndex &index, const int role) const
@@ -66,6 +66,14 @@ QVariant GroupModel::data(const QModelIndex &index, const int role) const
                 }
                 return raws.join(" + ");
             }
+        } else if (column == GroupModelColumns::effects) {
+            if (cue->effects.contains(kernel->cuelistView->currentGroup)) {
+                QStringList effects;
+                for (Effect* effect : cue->effects.value(kernel->cuelistView->currentGroup)) {
+                    effects.append(effect->name());
+                }
+                return effects.join(" + ");
+            }
         } else {
             return QVariant();
         }
@@ -91,6 +99,8 @@ QVariant GroupModel::headerData(int column, Qt::Orientation orientation, int rol
             return kernel->cues->COLORSATTRIBUTEID + " Color";
         } else if (column == GroupModelColumns::raws) {
             return kernel->cues->RAWSATTRIBUTEID + " Raws";
+        } else if (column == GroupModelColumns::effects) {
+            return kernel->cues->EFFECTSATTRIBUTEID + " Effects";
         } else {
             return QVariant();
         }
