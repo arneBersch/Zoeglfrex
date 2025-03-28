@@ -164,6 +164,22 @@ void Terminal::execute() {
             } else {
                 kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, command);
             }
+        } else if (selectionType == Keys::Effect) {
+            if (kernel->cuelistView->currentGroup == nullptr) {
+                error("Can't set Effects because no Group is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCue == nullptr) {
+                error("Can't set Effects because no Cue is currently selected.");
+                return;
+            }
+            attributeMap[Keys::Attribute] = kernel->cues->EFFECTSATTRIBUTEID;
+            attributeMap[Keys::Group] = kernel->cuelistView->currentGroup->id;
+            if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
+                kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, commandWithoutSelectionType);
+            } else {
+                kernel->cues->setAttribute({kernel->cuelistView->currentCue->id}, attributeMap, command);
+            }
         } else if (selectionType == Keys::Cue) {
             if (ids.size() != 1) {
                 error("Can't select Cue because Cue only allows one Cue ID.");
