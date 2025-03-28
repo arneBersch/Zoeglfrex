@@ -228,6 +228,83 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                 kernel->terminal->success("Set Raws of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to " + QString::number(raws.length()) + " Raws.");
             }
         }
+    } else if (attribute == EFFECTSATTRIBUTEID) {
+        Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
+        if (group == nullptr) {
+            kernel->terminal->error("Can't set Cue Effects because an invalid Group was given.");
+            return;
+        }
+        if ((value.size() == 1) && (value.first() == Keys::Minus)) {
+            for (QString id : ids) {
+                Cue *cue = getItem(id);
+                if (cue == nullptr) {
+                    cue = addItem(id);
+                }
+                if (cue->effects.contains(group)) {
+                    QList<Effect*> oldEffects = cue->effects.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->effects.contains(group) && (items[cueRow]->effects.value(group) == oldEffects) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
+                        items[cueRow]->effects.remove(group);
+                        cueRow++;
+                    }
+                }
+            }
+            if (ids.length() == 1) {
+                kernel->terminal->success("Deleted Cue Effects entries of Cue " + getItem(ids.first())->name() + ".");
+            } else {
+                kernel->terminal->success("Deleted Cue Effects entries of " + QString::number(ids.length()) + " Cues.");
+            }
+        } else {
+            if (text.isEmpty()) {
+                if ((value.isEmpty()) || (value.first() != Keys::Effect)) {
+                    kernel->terminal->error("Can't set Cue Effects because this requires no value or at least one Effect.");
+                    return;
+                }
+                value.removeFirst();
+            }
+            QStringList effectIds = kernel->terminal->keysToSelection(value, Keys::Effect);
+            if (!text.isEmpty()) {
+                effectIds = text.split("+");
+            }
+            if (effectIds.isEmpty()) {
+                kernel->terminal->error("Can't set Cue Effects because an invalid Effect selection was given.");
+                return;
+            }
+            QList<Effect*> effects;
+            for (QString effectId : effectIds) {
+                Effect* effect = kernel->effects->getItem(effectId);
+                if (effect == nullptr) {
+                    kernel->terminal->warning("Can't add Effect " + effectId + " to Cues because it doesn't exist.");
+                } else {
+                    effects.append(effect);
+                }
+            }
+            for (QString id : ids) {
+                Cue* cue = getItem(id);
+                if (cue == nullptr) {
+                    cue = addItem(id);
+                }
+                if (cue->effects.contains(group)) {
+                    QList<Effect*> oldEffects = cue->effects.value(group);
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && items[cueRow]->effects.contains(group) && (items[cueRow]->effects.value(group) == oldEffects) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
+                        items[cueRow]->effects[group] = effects;
+                        cueRow++;
+                    }
+                } else {
+                    int cueRow = getItemRow(id);
+                    while ((cueRow < items.size()) && !items[cueRow]->effects.contains(group) && !items[cueRow]->boolAttributes.value(BLOCKATTRIBUTEID)) {
+                        items[cueRow]->effects[group] = effects;
+                        cueRow++;
+                    }
+                }
+            }
+            if (ids.length() == 1) {
+                kernel->terminal->success("Set Effects of Cue " + getItem(ids.first())->name() + " at Group " + group->name() + " to " + QString::number(effects.length()) + " Effectss.");
+            } else {
+                kernel->terminal->success("Set Effects of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to " + QString::number(effects.length()) + " Effects.");
+            }
+        }
     } else {
         ItemList::setAttribute(ids, attributes, value, text);
     }

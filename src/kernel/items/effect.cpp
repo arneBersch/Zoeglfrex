@@ -13,7 +13,18 @@ Effect::Effect(Kernel* core) : Item(core) {}
 
 Effect::Effect(const Effect* item) : Item(item) {}
 
-Effect::~Effect() {}
+Effect::~Effect() {
+    for (Cue *cue : kernel->cues->items) {
+        for (Group *group : cue->effects.keys()) {
+            if (cue->effects.contains(group)) {
+                cue->effects[group].removeAll(this);
+                if (cue->effects[group].isEmpty()) {
+                    cue->effects.remove(group);
+                }
+            }
+        }
+    }
+}
 
 QString Effect::info() {
     QString info = Item::info();

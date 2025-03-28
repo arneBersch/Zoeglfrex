@@ -15,6 +15,7 @@
 #include "group.h"
 #include "color.h"
 #include "raw.h"
+#include "effect.h"
 
 class Cue : public Item {
 public:
@@ -24,6 +25,7 @@ public:
     QMap<Group*, Intensity*> intensities;
     QMap<Group*, Color*> colors;
     QMap<Group*, QList<Raw*>> raws;
+    QMap<Group*, QList<Effect*>> effects;
     QString info() override;
     void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
 };
