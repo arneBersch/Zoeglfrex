@@ -25,7 +25,30 @@ Color::~Color() {
 
 QString Color::name() {
     if (stringAttributes.value(kernel->colors->LABELATTRIBUTEID).isEmpty()) {
-        return Item::name() + QString::number(angleAttributes.value(kernel->colors->HUEATTRIBUTEID)) + "°, " + QString::number(floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID)) + "%";
+        const float saturation = floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID);
+        if (saturation <= 10) {
+            return Item::name() + "White";
+        }
+        QString prefix = QString();
+        if (saturation <= 70) {
+            prefix = "light ";
+        }
+        const float hue = angleAttributes.value(kernel->colors->HUEATTRIBUTEID);
+        if ((hue <= 15) || (hue >= 345)) {
+            return prefix + "Red";
+        } else if (hue <= 40) {
+            return prefix + "Orange";
+        } else if (hue <= 70) {
+            return prefix + "Yellow";
+        } else if (hue <= 140) {
+            return prefix + "Green";
+        } else if (hue <= 200) {
+            return prefix + "Cyan";
+        } else if (hue <= 265) {
+            return prefix + "Blue";
+        } else  {
+            return prefix + "Magenta";
+        }
     }
     return Item::name();
 }
