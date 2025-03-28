@@ -266,6 +266,22 @@ void Terminal::execute() {
             for (Raw* raw : kernel->cuelistView->currentCue->raws.value(kernel->cuelistView->currentGroup)) {
                 ids.append(raw->id);
             }
+        } else if (selectionType == Keys::Effect) {
+            if (kernel->cuelistView->currentGroup == nullptr) {
+                error("Can't load the Effects because no Group is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCue == nullptr) {
+                error("Can't set Effects because no Cue is currently selected.");
+                return;
+            }
+            if (!kernel->cuelistView->currentCue->effects.contains(kernel->cuelistView->currentGroup)) {
+                error("Can't load the Effects because the selected Cue contains no Effects for this Group.");
+                return;
+            }
+            for (Effect* effect : kernel->cuelistView->currentCue->effects.value(kernel->cuelistView->currentGroup)) {
+                ids.append(effect->id);
+            }
         } else if (selectionType == Keys::Cue) {
             if (kernel->cuelistView->currentCue == nullptr) {
                 error("Can't load the Cue because no Cue is selected.");
