@@ -441,7 +441,7 @@ void Terminal::execute() {
     for (Fixture* fixture : kernel->fixtures->items) {
         int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
         if (address > 0) {
-            int fixtureChannels = 1;
+            int fixtureChannels = 0;
             if (fixture->model != nullptr) {
                 fixtureChannels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID).size();
             }

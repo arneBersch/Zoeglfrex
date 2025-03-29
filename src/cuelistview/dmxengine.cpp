@@ -81,7 +81,7 @@ void DmxEngine::generateDmx() {
         currentCueValues[channel] = 0; // reset current cue values
     }
     for (Fixture* fixture : kernel->fixtures->items) {
-        QString channels = "D";
+        QString channels = "";
         if (fixture->model != nullptr) {
             channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
         }

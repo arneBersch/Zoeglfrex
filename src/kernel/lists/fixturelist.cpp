@@ -24,9 +24,9 @@ void FixtureList::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
                 fixture->model = nullptr;
             }
             if (ids.size() == 1) {
-                kernel->terminal->success("Set Model of Fixture " + getItem(ids.first())->name() + " to None (Dimmer).");
+                kernel->terminal->success("Removed Model of Fixture " + getItem(ids.first())->name() + ".");
             } else {
-                kernel->terminal->success("Set Model of " + QString::number(ids.size()) + " Fixtures to None (Dimmer).");
+                kernel->terminal->success("Removed Model of " + QString::number(ids.size()) + " Fixtures.");
             }
         } else if (((value.size() >= 2) && (value.first() == Keys::Model)) || !text.isEmpty()) {
             if (!value.isEmpty()) {

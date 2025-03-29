@@ -89,7 +89,7 @@ Fixture::~Fixture() {
 }
 
 QString Fixture::name() {
-    QString channels = "Dimmer";
+    QString channels = "None";
     if (model != nullptr) {
         channels = model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
         if (!model->stringAttributes.value(kernel->models->LABELATTRIBUTEID).isEmpty()) {
@@ -106,7 +106,7 @@ QString Fixture::info() {
     QString info = Item::info();
     info += "\n" + kernel->fixtures->MODELATTRIBUTEID + " Model: ";
     if (model == nullptr) {
-        info += "None (Dimmer)";
+        info += "None";
     } else {
         info += model->name();
     }

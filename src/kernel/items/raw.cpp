@@ -36,7 +36,7 @@ QString Raw::info() {
     for (int channel : channelValues.keys()) {
         channelValue.append(QString::number(channel) + " @ " + QString::number(channelValues.value(channel)));
     }
-    info += "\n" + kernel->raws->CHANNELVALUEATTRIBUTEID + " Channel Values: " + channelValue.join(", ");
+    info += "\n" + kernel->raws->CHANNELVALUEATTRIBUTEID + ".x Channel Values: " + channelValue.join(", ");
     QStringList modelChannelValue;
     for (Model* model : modelSpecificChannelValues.keys()) {
         QStringList modelChannelValueValues;
