@@ -43,6 +43,7 @@ void DmxEngine::generateDmx() {
     QMap<Fixture*, Intensity*> fixtureIntensities;
     QMap<Fixture*, Color*> fixtureColors;
     QMap<Fixture*, QList<Raw*>> fixtureRaws;
+    QMap<Fixture*, QList<Effect*>> fixtureEffects;
     if (kernel->cuelistView->currentCue == nullptr) {
         remainingFadeFrames = 0;
         totalFadeFrames = 0;
@@ -72,6 +73,16 @@ void DmxEngine::generateDmx() {
                     }
                     for (Raw* raw : lastCue->raws[group]) {
                         fixtureRaws[fixture].append(raw);
+                    }
+                }
+            }
+            if (lastCue->effects.contains(group)) {
+                for (Fixture* fixture : group->fixtures) {
+                    if (!fixtureEffects.contains(fixture)) {
+                        fixtureEffects[fixture] = QList<Effect*>();
+                    }
+                    for (Effect* effect : lastCue->effects[group]) {
+                        fixtureEffects[fixture].append(effect);
                     }
                 }
             }
