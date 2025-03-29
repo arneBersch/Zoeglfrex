@@ -700,7 +700,7 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                 kernel->terminal->success("Set " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + "°.");
             }
         }
-    } else if (boolAttributes.contains(attribute)) {
+    } else if (boolAttributes.contains(attribute)) { // Bool Attribute
         BoolAttribute boolAttribute = boolAttributes.value(attribute);
         bool newValue;
         QString valueText = QString::number(kernel->terminal->keysToValue(value));
@@ -724,9 +724,9 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
             emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         if (ids.size() == 1) {
-            kernel->terminal->success("Set " + boolAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(newValue) + "°.");
+            kernel->terminal->success("Set " + boolAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(newValue) + ".");
         } else {
-            kernel->terminal->success("Set " + boolAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + "°.");
+            kernel->terminal->success("Set " + boolAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + ".");
         }
     } else {
         kernel->terminal->error("Can't set " + singularItemName + " Attribute " + attributes.value(Keys::Attribute) + ".");
