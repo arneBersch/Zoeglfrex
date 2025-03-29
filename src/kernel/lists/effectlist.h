@@ -21,6 +21,10 @@ class EffectList : public ItemList<Effect> {
     Q_OBJECT
 public:
     EffectList(Kernel *core);
+    const QString STEPSATTRIBUTEID = "2";
+    const QString INTENSITYSTEPSATTRIBUTEID = "3";
+    const QString COLORSTEPSATTRIBUTEID = "4";
+    const QString RAWSTEPSATTRIBUTEID = "5";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 

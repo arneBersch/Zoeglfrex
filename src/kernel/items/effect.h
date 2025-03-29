@@ -12,12 +12,19 @@
 #include <QtWidgets>
 
 #include "item.h"
+#include "intensity.h"
+#include "color.h"
+#include "raw.h"
 
 class Effect : public Item {
 public:
     Effect(Kernel* core);
     Effect(const Effect* item);
     ~Effect();
+    int steps = 2;
+    QMap<int, Intensity*> intensitySteps;
+    QMap<int, Color*> colorSteps;
+    QMap<int, QList<Raw*>> rawSteps;
     QString info() override;
     void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
 };

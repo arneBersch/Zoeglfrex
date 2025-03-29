@@ -11,7 +11,12 @@
 
 Effect::Effect(Kernel* core) : Item(core) {}
 
-Effect::Effect(const Effect* item) : Item(item) {}
+Effect::Effect(const Effect* item) : Item(item) {
+    steps = item->steps;
+    intensitySteps = item->intensitySteps;
+    colorSteps = item->colorSteps;
+    rawSteps = item->rawSteps;
+}
 
 Effect::~Effect() {
     for (Cue *cue : kernel->cues->items) {
@@ -28,9 +33,51 @@ Effect::~Effect() {
 
 QString Effect::info() {
     QString info = Item::info();
+    info += "\n" + kernel->effects->STEPSATTRIBUTEID + " Steps: " + QString::number(intAttributes.value(kernel->effects->STEPSATTRIBUTEID));
+    QStringList intensityStepValues;
+    for (int step : intensitySteps.keys()) {
+        intensityStepValues.append(QString::number(step) + ": " + intensitySteps.value(step)->name());
+    }
+    info += "\n" + kernel->effects->INTENSITYSTEPSATTRIBUTEID + " Intensities: " + intensityStepValues.join("; ");
+    QStringList colorStepValues;
+    for (int step : colorSteps.keys()) {
+        colorStepValues.append(QString::number(step) + ": " + colorSteps.value(step)->name());
+    }
+    info += "\n" + kernel->effects->COLORSTEPSATTRIBUTEID + " Colors: " + colorStepValues.join("; ");
+    QStringList rawStepValues;
+    for (int step : rawSteps.keys()) {
+        QStringList rawStepValueValues;
+        for (Raw* raw : rawSteps.value(step)) {
+            rawStepValueValues.append(raw->name());
+        }
+        rawStepValues.append(QString::number(step) + ": " + rawStepValueValues.join(", "));
+    }
+    info += "\n" + kernel->effects->RAWSTEPSATTRIBUTEID + " Raws: " + rawStepValues.join("; ");
     return info;
 }
 
 void Effect::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     Item::writeAttributesToFile(fileStream);
+    for (int step : intensitySteps.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", (kernel->effects->INTENSITYSTEPSATTRIBUTEID + "." + QString::number(step)));
+        fileStream->writeCharacters(intensitySteps.value(step)->id);
+        fileStream->writeEndElement();
+    }
+    for (int step : colorSteps.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", (kernel->effects->COLORSTEPSATTRIBUTEID + "." + QString::number(step)));
+        fileStream->writeCharacters(colorSteps.value(step)->id);
+        fileStream->writeEndElement();
+    }
+    for (int step : rawSteps.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", (kernel->effects->RAWSTEPSATTRIBUTEID + "." + QString::number(step)));
+        QStringList rawIds;
+        for (Raw* raw : rawSteps.value(step)) {
+            rawIds.append(raw->id);
+        }
+        fileStream->writeCharacters(rawIds.join("+"));
+        fileStream->writeEndElement();
+    }
 }

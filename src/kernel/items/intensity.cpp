@@ -14,6 +14,13 @@ Intensity::Intensity(Kernel* core) : Item(core) {}
 Intensity::Intensity(const Intensity* item) : Item(item) {}
 
 Intensity::~Intensity() {
+    for (Effect *effect : kernel->effects->items) {
+        for (int step : effect->intensitySteps.keys()) {
+            if (effect->intensitySteps.value(step) == this) {
+                effect->intensitySteps.remove(step);
+            }
+        }
+    }
     for (Cue *cue : kernel->cues->items) {
         for (Group *group : cue->intensities.keys()) {
             if (cue->intensities.value(group) == this) {

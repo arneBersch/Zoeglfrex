@@ -18,6 +18,16 @@ Raw::Raw(const Raw* item) : Item(item) {
 }
 
 Raw::~Raw() {
+    for (Effect *effect : kernel->effects->items) {
+        for (int step : effect->rawSteps.keys()) {
+            if (effect->rawSteps.contains(step)) {
+                effect->rawSteps[step].removeAll(this);
+                if (effect->rawSteps[step].isEmpty()) {
+                    effect->rawSteps.remove(step);
+                }
+            }
+        }
+    }
     for (Cue *cue : kernel->cues->items) {
         for (Group *group : cue->raws.keys()) {
             if (cue->raws.contains(group)) {

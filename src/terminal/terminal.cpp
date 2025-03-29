@@ -527,7 +527,7 @@ void Terminal::execute() {
         } else if (selectionType == Keys::Raw) {
             attributeMap[Keys::Attribute] = kernel->raws->CHANNELVALUEATTRIBUTEID;
         } else if (selectionType == Keys::Effect) {
-            attributeMap[Keys::Attribute] = kernel->effects->LABELATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->effects->STEPSATTRIBUTEID;
         } else if (selectionType == Keys::Cue) {
             attributeMap[Keys::Attribute] = kernel->cues->FADEATTRIBUTEID;
         }

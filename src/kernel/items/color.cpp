@@ -14,6 +14,13 @@ Color::Color(Kernel* core) : Item(core) {}
 Color::Color(const Color* item) : Item(item) {}
 
 Color::~Color() {
+    for (Effect *effect : kernel->effects->items) {
+        for (int step : effect->colorSteps.keys()) {
+            if (effect->colorSteps.value(step) == this) {
+                effect->colorSteps.remove(step);
+            }
+        }
+    }
     for (Cue *cue : kernel->cues->items) {
         for (Group *group : cue->colors.keys()) {
             if (cue->colors.value(group) == this) {
