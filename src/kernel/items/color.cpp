@@ -34,20 +34,18 @@ QString Color::name() {
             prefix = "light ";
         }
         const float hue = angleAttributes.value(kernel->colors->HUEATTRIBUTEID);
-        if ((hue <= 15) || (hue >= 345)) {
-            return prefix + "Red";
-        } else if (hue <= 40) {
-            return prefix + "Orange";
-        } else if (hue <= 70) {
-            return prefix + "Yellow";
-        } else if (hue <= 140) {
-            return prefix + "Green";
-        } else if (hue <= 200) {
-            return prefix + "Cyan";
-        } else if (hue <= 265) {
-            return prefix + "Blue";
+        if ((hue <= 30) || (hue > 330)) {
+            return Item::name() + prefix + "Red";
+        } else if (hue <= 90) {
+            return Item::name() + prefix + "Yellow";
+        } else if (hue <= 150) {
+            return Item::name() + prefix + "Green";
+        } else if (hue <= 210) {
+            return Item::name() + prefix + "Cyan";
+        } else if (hue <= 270) {
+            return Item::name() + prefix + "Blue";
         } else  {
-            return prefix + "Magenta";
+            return Item::name() + prefix + "Magenta";
         }
     }
     return Item::name();
