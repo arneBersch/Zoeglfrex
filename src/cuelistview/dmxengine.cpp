@@ -30,16 +30,12 @@ DmxEngine::DmxEngine(Kernel *core, QWidget* parent) : QWidget(parent) {
     layout->addWidget(skipFadeButton);
 
     timer = new QTimer();
-    connect(timer, &QTimer::timeout, this, &DmxEngine::sendDmx);
+    connect(timer, &QTimer::timeout, this, &DmxEngine::generateDmx);
     timer->start(25);
-
-    for (int channel=0; channel<=512; channel++) {
-        currentCueValues.append(0);
-        lastCueValues.append(0);
-    }
 }
 
 void DmxEngine::generateDmx() {
+    QMutexLocker(kernel->mutex);
     QMap<Fixture*, Intensity*> fixtureIntensities;
     QMap<Fixture*, Color*> fixtureColors;
     QMap<Fixture*, QList<Raw*>> fixtureRaws;
@@ -49,11 +45,12 @@ void DmxEngine::generateDmx() {
         totalFadeFrames = 0;
     } else {
         if (kernel->cuelistView->currentCue != lastCue) {
-            float fade = kernel->cuelistView->currentCue->floatAttributes[kernel->cues->FADEATTRIBUTEID];
-            totalFadeFrames = 40 * fade + 0.5;
+            totalFadeFrames = PROCESSINGRATE * kernel->cuelistView->currentCue->floatAttributes[kernel->cues->FADEATTRIBUTEID] + 0.5;
             remainingFadeFrames = totalFadeFrames;
             lastCue = kernel->cuelistView->currentCue;
-            lastCueValues = currentCueValues;
+        }
+        if (skipFadeButton->isChecked()) {
+            remainingFadeFrames = 0;
         }
         for (Group* group : kernel->groups->items) {
             if (lastCue->intensities.contains(group)) {
@@ -88,14 +85,7 @@ void DmxEngine::generateDmx() {
             }
         }
     }
-    for (int channel = 1; channel <= 512; channel++) {
-        currentCueValues[channel] = 0; // reset current cue values
-    }
     for (Fixture* fixture : kernel->fixtures->items) {
-        QString channels = "";
-        if (fixture->model != nullptr) {
-            channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
-        }
         float dimmer = 0.0;
         float red = 0.0;
         float green = 0.0;
@@ -159,29 +149,38 @@ void DmxEngine::generateDmx() {
                 blue = 100.0;
             }
         }
-        if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (((kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) || (kernel->cuelistView->currentFixture == fixture))) { // Highlight
-            dimmer = 100.0;
-            red = 100.0;
-            green = 100.0;
-            blue = 100.0;
+        fixture->dimmer += (dimmer - fixture->dimmer) * remainingFadeFrames / totalFadeFrames;
+        fixture->red += (red - fixture->red) * remainingFadeFrames / totalFadeFrames;
+        fixture->green += (green - fixture->green) * remainingFadeFrames / totalFadeFrames;
+        fixture->blue += (blue - fixture->blue) * remainingFadeFrames / totalFadeFrames;
+        fixture->raws.clear();
+        if (fixtureRaws.contains(fixture)) {
+            fixture->raws = fixtureRaws.value(fixture);
         }
-        if (!channels.contains('D')) {
-            red *= (dimmer / 100.0);
-            green *= (dimmer / 100.0);
-            blue *= (dimmer / 100.0);
+    }
+    QByteArray dmxData(512, 0);
+    for (Fixture* fixture : kernel->fixtures->items) {
+        const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
+        QString channels = "";
+        if (fixture->model != nullptr) {
+            channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
         }
-        const float white = std::min(std::min(red, green), blue);
-        float quality = 0.0;
-        if (fixtureColors.contains(fixture)) {
-            quality = fixtureColors.value(fixture)->floatAttributes.value(kernel->colors->QUALITYATTRIBUTEID);
-        }
-        if (channels.contains('W')) { // RGB to RGBW
-            red -= (white * quality / 100.0);
-            green -= (white * quality / 100.0);
-            blue -= (white * quality / 100.0);
-        }
-        int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
         if (address > 0) {
+            float dimmer = fixture->dimmer;
+            float red = fixture->red;
+            float green = fixture->green;
+            float blue = fixture->blue;
+            if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (((kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) || (kernel->cuelistView->currentFixture == fixture))) { // Highlight
+                dimmer = 100.0;
+                red = 100.0;
+                green = 100.0;
+                blue = 100.0;
+            }
+            if (!channels.contains('D')) {
+                red *= (dimmer / 100.0);
+                green *= (dimmer / 100.0);
+                blue *= (dimmer / 100.0);
+            }
             for (int channel = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID); channel < (address + channels.size()); channel++) {
                 float value = 0.0;
                 QChar channelType = channels.at(channel - address);
@@ -194,7 +193,7 @@ void DmxEngine::generateDmx() {
                 } else if (channelType == QChar('B')) { // BLUE
                     value = blue;
                 } else if (channelType == QChar('W')) { // WHITE
-                    value = white;
+                    value = 0.0;
                 } else if (channelType == QChar('C')) { // CYAN
                     value = (100.0 - red);
                 } else if (channelType == QChar('M')) { // MAGENTA
@@ -206,56 +205,38 @@ void DmxEngine::generateDmx() {
                 } else if (channelType == QChar('1')) {
                     value = 100.0;
                 }
-                uint8_t raw = (value * 2.55 + 0.5);
                 if (channel <= 512) {
-                    currentCueValues[channel] = raw;
+                    dmxData[channel] = (value * 2.55 + 0.5);
                 }
             }
-            if (fixtureRaws.contains(fixture)) {
-                for (Raw* raw : fixtureRaws[fixture]) {
-                    for (int channel : raw->channelValues.keys()) {
+            for (Raw* raw : fixture->raws) {
+                for (int channel : raw->channelValues.keys()) {
+                    if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
+                        dmxData[address + channel - 1] = raw->channelValues.value(channel);
+                    }
+                }
+                if (raw->modelSpecificChannelValues.contains(fixture->model)) {
+                    for (int channel : raw->modelSpecificChannelValues.value(fixture->model).keys()) {
                         if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
-                            currentCueValues[address + channel - 1] = raw->channelValues.value(channel);
+                            dmxData[address + channel - 1] = raw->modelSpecificChannelValues.value(fixture->model).value(channel);
                         }
                     }
-                    if (raw->modelSpecificChannelValues.contains(fixture->model)) {
-                        for (int channel : raw->modelSpecificChannelValues.value(fixture->model).keys()) {
-                            if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
-                                currentCueValues[address + channel - 1] = raw->modelSpecificChannelValues.value(fixture->model).value(channel);
-                            }
-                        }
-                    }
-                    if (raw->fixtureSpecificChannelValues.contains(fixture)) {
-                        for (int channel : raw->fixtureSpecificChannelValues.value(fixture).keys()) {
-                            if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
-                                currentCueValues[address + channel - 1] = raw->fixtureSpecificChannelValues.value(fixture).value(channel);
-                            }
+                }
+                if (raw->fixtureSpecificChannelValues.contains(fixture)) {
+                    for (int channel : raw->fixtureSpecificChannelValues.value(fixture).keys()) {
+                        if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
+                            dmxData[address + channel - 1] = raw->fixtureSpecificChannelValues.value(fixture).value(channel);
                         }
                     }
                 }
             }
-        }
-    }
-}
 
-void DmxEngine::sendDmx() {
-    QMutexLocker(kernel->mutex);
-    if (skipFadeButton->isChecked()) {
-        remainingFadeFrames = 0;
+        }
     }
     if (remainingFadeFrames > 0) {
-        for (int channel = 1; channel <= 512; channel++) {
-            float delta = ((float)currentCueValues[channel] - (float)lastCueValues[channel]);
-            delta *= (((float)totalFadeFrames - (float)remainingFadeFrames) / (float)totalFadeFrames);
-            sacnServer->setChannel(channel, lastCueValues[channel] + delta);
-        }
         remainingFadeFrames--;
-    } else {
-        for (int channel = 1; channel <= 512; channel++) {
-            sacnServer->setChannel(channel, currentCueValues[channel]);
-        }
     }
-    sacnServer->send();
+    sacnServer->send(dmxData);
     fadeProgress->setValue(totalFadeFrames + 1 - remainingFadeFrames);
     fadeProgress->setRange(0, totalFadeFrames + 1);
 }

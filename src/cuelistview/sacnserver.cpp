@@ -49,116 +49,107 @@ SacnServer::SacnServer(Kernel* core, QWidget* parent) : QWidget(parent, Qt::Wind
 
     // Root Layer
     // Preamble Size (Octet 0-1)
-    data.append((char)0x00);
-    data.append((char)0x10);
+    header.append((char)0x00);
+    header.append((char)0x10);
 
     //Post-amble Size (Octet 2-3)
-    data.append((char)0x00);
-    data.append((char)0x00);
+    header.append((char)0x00);
+    header.append((char)0x00);
 
     // ACN Packet Identifier (Octet 4-15)
-    data.append((char)0x41);
-    data.append((char)0x53);
-    data.append((char)0x43);
-    data.append((char)0x2d);
-    data.append((char)0x45);
-    data.append((char)0x31);
-    data.append((char)0x2e);
-    data.append((char)0x31);
-    data.append((char)0x37);
-    data.append((char)0x00);
-    data.append((char)0x00);
-    data.append((char)0x00);
+    header.append((char)0x41);
+    header.append((char)0x53);
+    header.append((char)0x43);
+    header.append((char)0x2d);
+    header.append((char)0x45);
+    header.append((char)0x31);
+    header.append((char)0x2e);
+    header.append((char)0x31);
+    header.append((char)0x37);
+    header.append((char)0x00);
+    header.append((char)0x00);
+    header.append((char)0x00);
 
     // Flags and Length (Octet 16-17)
-    data.append((char)0x72);
-    data.append((char)0x6e);
+    header.append((char)0x72);
+    header.append((char)0x6e);
 
     // Vector (Octet 18-21)
-    data.append((char)0x00);
-    data.append((char)0x00);
-    data.append((char)0x00);
-    data.append((char)0x04);
+    header.append((char)0x00);
+    header.append((char)0x00);
+    header.append((char)0x00);
+    header.append((char)0x04);
 
     // CID (Octet 22-37)
     QByteArray cid = QUuid::createUuid().toRfc4122();
-    data.append(cid);
+    header.append(cid);
 
     // Framing Layer
     // Flags and Length (Octet 38-39)
-    data.append((char)0x72);
-    data.append((char)0x58);
+    header.append((char)0x72);
+    header.append((char)0x58);
 
     // Vector (Octet 40-43)
-    data.append((char)0x00);
-    data.append((char)0x00);
-    data.append((char)0x00);
-    data.append((char)0x02);
+    header.append((char)0x00);
+    header.append((char)0x00);
+    header.append((char)0x00);
+    header.append((char)0x02);
 
     // Source Name (Octet 44-107)
     QByteArray source = QString("ZÖGLFREX").toUtf8();
-    data.append(source);
+    header.append(source);
     for (int i=0; i < 64-source.length(); i++) {
-        data.append((char)0x00);
+        header.append((char)0x00);
     }
 
     // Priority (Octet 108)
-    data.append((char)100); // 0-200, Default: 100
+    header.append((char)100); // 0-200, Default: 100
 
     // Synchronization Address (Octet 109-110)
-    data.append((char)0x00);
-    data.append((char)0x00);
+    header.append((char)0x00);
+    header.append((char)0x00);
 
     // Sequence Number (Octet 111)
-    data.append((char)0x00);
+    header.append((char)0x00);
 
     // Options (Octet 112)
-    data.append((char)0x00); // Select no options
+    header.append((char)0x00); // Select no options
 
     // Universe (Octet 113-114)
-    data.append((char)0x00);
-    data.append((char)0x01);
+    header.append((char)0x00);
+    header.append((char)0x01);
 
     // DMP Layer
     // Flags and Length (Octet 115-116)
-    data.append((char)0x72);
-    data.append((char)0x0b);
+    header.append((char)0x72);
+    header.append((char)0x0b);
 
     // Vector (Octet 117)
-    data.append((char)0x02);
+    header.append((char)0x02);
 
     // Address Type & Data Type (Octet 118)
-    data.append((char)0xa1);
+    header.append((char)0xa1);
 
     // First Property Address (Octet 119-120)
-    data.append((char)0x00);
-    data.append((char)0x00);
+    header.append((char)0x00);
+    header.append((char)0x00);
 
     // Address Increment (Octet 121-122)
-    data.append((char)0x00);
-    data.append((char)0x01);
+    header.append((char)0x00);
+    header.append((char)0x01);
 
     // Property Value Count (Octet 123-124)
-    data.append((char)0x02);
-    data.append((char)0x01);
+    header.append((char)0x02);
+    header.append((char)0x01);
 
     // Start Code (Octet 125)
-    data.append((char)0x00);
+    header.append((char)0x00);
 
     // Property Values (Octet 126-637)
-    for (int channel=0; channel<512; channel++) {
-        data.append((char)0x00);
-    }
 }
 
-void SacnServer::setChannel(int channel, uint8_t value) {
-    if (channel < 1 || channel > 512) {
-        return;
-    }
-    data[125 + channel] = (char)value;
-}
-
-void SacnServer::send() {
+void SacnServer::send(QByteArray data) {
+    Q_ASSERT(data.size() == 512);
     if (socket == nullptr) {
         return;
     }
@@ -167,15 +158,17 @@ void SacnServer::send() {
     } else {
         sequence++;
     }
-    data[108] = (char)prioritySpinBox->value(); // Update Priority
-    data[111] = sequence; // Update Sequence number
-    data[113] = (char)(universeSpinBox->value() / 256); // Update Universe number
-    data[114] = (char)(universeSpinBox->value() % 256); // Update Universe number
+    QByteArray dmx = header;
+    dmx.append(data);
+    dmx[108] = (char)prioritySpinBox->value(); // Update Priority
+    dmx[111] = sequence; // Update Sequence number
+    dmx[113] = (char)(universeSpinBox->value() / 256); // Update Universe number
+    dmx[114] = (char)(universeSpinBox->value() % 256); // Update Universe number
     QString address = "239.255.";
     address += QString::number(universeSpinBox->value() / 256);
     address += ".";
     address += QString::number(universeSpinBox->value() % 256);
-    qint64 result = socket->writeDatagram(data.data(), data.size(), QHostAddress(address), SACN_PORT);
+    qint64 result = socket->writeDatagram(dmx.data(), dmx.size(), QHostAddress(address), SACN_PORT);
     if (result < 0) {
         qWarning() << Q_FUNC_INFO <<"ERROR sending sACN: " << socket->error() << " (" << socket->errorString() << ")";
     }

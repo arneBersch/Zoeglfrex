@@ -43,7 +43,6 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
 void CuelistView::loadView() {
     cueModel->loadCue();
     groupModel->loadGroup();
-    dmxEngine->generateDmx();
     cueOrGroupLabel->setText(QString());
     if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE)) {
         cueOrGroupLabel->setText("No Cue selected.");

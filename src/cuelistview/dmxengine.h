@@ -19,14 +19,12 @@ class DmxEngine : public QWidget {
     Q_OBJECT
 public:
     DmxEngine(Kernel *core, QWidget *parent = nullptr);
-    void generateDmx();
     SacnServer *sacnServer;
 private:
-    void sendDmx();
+    void generateDmx();
+    const int PROCESSINGRATE = 40; // 40 FPS
     QTimer *timer;
     Cue* lastCue;
-    QList<uint8_t> lastCueValues;
-    QList<uint8_t> currentCueValues;
     int remainingFadeFrames = 0;
     int totalFadeFrames = 0;
     QPushButton *highlightButton;

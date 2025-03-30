@@ -17,15 +17,14 @@ class SacnServer : public QWidget {
     Q_OBJECT
 public:
     SacnServer(Kernel* core, QWidget *parent = nullptr);
-    void setChannel(int channel, uint8_t value);
-    void send();
+    void send(QByteArray data);
     QSpinBox *universeSpinBox;
     QSpinBox *prioritySpinBox;
     const int SACN_STANDARD_UNIVERSE = 1;
     const int SACN_STANDARD_PRIORITY = 100;
 private:
     void setNetworkInterface();
-    QByteArray data;
+    QByteArray header;
     uchar sequence = 1;
     QUdpSocket *socket = nullptr;
     QComboBox *interfaceComboBox;
