@@ -97,7 +97,7 @@ QString Fixture::name() {
         }
     }
     if (stringAttributes.value(kernel->fixtures->LABELATTRIBUTEID).isEmpty()) {
-        return Item::name() + channels + " (" + QString::number(intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID)) + ")";
+        return Item::name() + channels + " (" + QString::number(intAttributes.value(kernel->fixtures->UNIVERSEATTRIBUTEID)) + "." + QString::number(intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID)) + ")";
     }
     return Item::name();
 }
@@ -111,6 +111,7 @@ QString Fixture::info() {
         info += model->name();
     }
     info += "\n" + kernel->fixtures->ADDRESSATTRIBUTEID + " Address: " + QString::number(intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID));
+    info += "\n" + kernel->fixtures->UNIVERSEATTRIBUTEID + " Universe: " + QString::number(intAttributes.value(kernel->fixtures->UNIVERSEATTRIBUTEID));
     return info;
 }
 

@@ -31,21 +31,13 @@ SacnServer::SacnServer(Kernel* core, QWidget* parent) : QWidget(parent, Qt::Wind
     connect(interfaceComboBox, &QComboBox::currentIndexChanged, this, &SacnServer::setNetworkInterface);
     layout->addWidget(interfaceComboBox, 0, 1);
 
-    QLabel* universeLabel = new QLabel("Universe");
-    layout->addWidget(universeLabel, 1, 0);
-
-    universeSpinBox = new QSpinBox();
-    universeSpinBox->setRange(1, SACN_MAX_UNIVERSE);
-    universeSpinBox->setValue(SACN_STANDARD_UNIVERSE);
-    layout->addWidget(universeSpinBox, 1, 1);
-
     QLabel* priorityLabel = new QLabel("Priority");
-    layout->addWidget(priorityLabel, 2, 0);
+    layout->addWidget(priorityLabel, 1, 0);
 
     prioritySpinBox = new QSpinBox();
     prioritySpinBox->setRange(0, 200);
     prioritySpinBox->setValue(SACN_STANDARD_PRIORITY);
-    layout->addWidget(prioritySpinBox, 2, 1);
+    layout->addWidget(prioritySpinBox, 1, 1);
 
     // Root Layer
     // Preamble Size (Octet 0-1)
@@ -148,8 +140,10 @@ SacnServer::SacnServer(Kernel* core, QWidget* parent) : QWidget(parent, Qt::Wind
     // Property Values (Octet 126-637)
 }
 
-void SacnServer::send(QByteArray data) {
+void SacnServer::send(QByteArray data, int universe) {
     Q_ASSERT(data.size() == 512);
+    Q_ASSERT(universe <= SACN_MAX_UNIVERSE);
+    Q_ASSERT(universe >= 1);
     if (socket == nullptr) {
         return;
     }
@@ -162,12 +156,12 @@ void SacnServer::send(QByteArray data) {
     dmx.append(data);
     dmx[108] = (char)prioritySpinBox->value(); // Update Priority
     dmx[111] = sequence; // Update Sequence number
-    dmx[113] = (char)(universeSpinBox->value() / 256); // Update Universe number
-    dmx[114] = (char)(universeSpinBox->value() % 256); // Update Universe number
+    dmx[113] = (char)(universe / 256); // Update Universe number
+    dmx[114] = (char)(universe % 256); // Update Universe number
     QString address = "239.255.";
-    address += QString::number(universeSpinBox->value() / 256);
+    address += QString::number(universe / 256);
     address += ".";
-    address += QString::number(universeSpinBox->value() % 256);
+    address += QString::number(universe % 256);
     qint64 result = socket->writeDatagram(dmx.data(), dmx.size(), QHostAddress(address), SACN_PORT);
     if (result < 0) {
         qWarning() << Q_FUNC_INFO <<"ERROR sending sACN: " << socket->error() << " (" << socket->errorString() << ")";

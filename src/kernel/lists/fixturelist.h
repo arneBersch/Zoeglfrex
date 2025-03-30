@@ -23,6 +23,7 @@ public:
     FixtureList(Kernel *core);
     const QString MODELATTRIBUTEID = "2";
     const QString ADDRESSATTRIBUTEID = "3";
+    const QString UNIVERSEATTRIBUTEID = "4";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 

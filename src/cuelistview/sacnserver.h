@@ -17,10 +17,8 @@ class SacnServer : public QWidget {
     Q_OBJECT
 public:
     SacnServer(Kernel* core, QWidget *parent = nullptr);
-    void send(QByteArray data);
-    QSpinBox *universeSpinBox;
+    void send(QByteArray data, int universe);
     QSpinBox *prioritySpinBox;
-    const int SACN_STANDARD_UNIVERSE = 1;
     const int SACN_STANDARD_PRIORITY = 100;
 private:
     void setNetworkInterface();

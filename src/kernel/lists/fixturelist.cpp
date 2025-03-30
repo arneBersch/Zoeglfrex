@@ -10,6 +10,7 @@
 
 FixtureList::FixtureList(Kernel *core) : ItemList(core, Keys::Fixture, "Fixture", "Fixtures") {
     intAttributes[ADDRESSATTRIBUTEID] = {"Address", 0, 0, 512};
+    intAttributes[UNIVERSEATTRIBUTEID] = {"Universe", 1, 1, 63999};
 }
 
 void FixtureList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {

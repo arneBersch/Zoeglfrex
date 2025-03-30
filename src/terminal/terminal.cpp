@@ -567,9 +567,13 @@ void Terminal::execute() {
     } else if (selectionType == Keys::Cue) {
         kernel->cues->setAttribute(ids, attributeMap, value, text);
     }
-    QSet<int> channels;
+    QMap<int, QSet<int>> channels;
     for (Fixture* fixture : kernel->fixtures->items) {
-        int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
+        const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
+        const int universe = fixture->intAttributes.value(kernel->fixtures->UNIVERSEATTRIBUTEID);
+        if (!channels.contains(universe)) {
+            channels[universe] = QSet<int>();
+        }
         if (address > 0) {
             int fixtureChannels = 0;
             if (fixture->model != nullptr) {
@@ -579,10 +583,10 @@ void Terminal::execute() {
                 if (channel > 512) {
                     warning("Patch Conflict detected: Fixture " + fixture->name() + " would have channels greater than 512.");
                 }
-                if (channels.contains(channel)) {
-                    warning("Patch Conflict detected: Channel " + QString::number(channel) + " would be used twice.");
+                if (channels[universe].contains(channel)) {
+                    warning("Patch Conflict detected: Channel " + QString::number(channel) + " in Universe " + QString::number(universe) + " would be used twice.");
                 }
-                channels.insert(channel);
+                channels[universe].insert(channel);
             }
         }
     }

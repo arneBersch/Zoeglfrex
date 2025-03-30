@@ -33,7 +33,6 @@ void Kernel::reset() {
     raws->reset();
     effects->reset();
     cues->reset();
-    cuelistView->dmxEngine->sacnServer->universeSpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_UNIVERSE); // reset sACN universe
     cuelistView->dmxEngine->sacnServer->prioritySpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
     cuelistView->loadView();
 }
@@ -56,7 +55,6 @@ void Kernel::saveFile(QString fileName) {
     fileStream.writeEndElement();
 
     fileStream.writeStartElement("Output");
-    fileStream.writeTextElement("Universe", QString::number(cuelistView->dmxEngine->sacnServer->universeSpinBox->value()));
     fileStream.writeTextElement("Priority", QString::number(cuelistView->dmxEngine->sacnServer->prioritySpinBox->value()));
     fileStream.writeEndElement();
 
@@ -105,15 +103,7 @@ void Kernel::openFile(QString fileName) {
                 }
             } else if (fileStream.name().toString() == "Output") {
                 while (fileStream.readNextStartElement()) {
-                    if (fileStream.name().toString() == "Universe") {
-                        bool ok;
-                        int universe = fileStream.readElementText().toInt(&ok);
-                        if (!ok) {
-                            terminal->error("Error reading file: Invalid sACN universe given.");
-                            return;
-                        }
-                        cuelistView->dmxEngine->sacnServer->universeSpinBox->setValue(universe);
-                    } else if (fileStream.name().toString() == "Priority") {
+                    if (fileStream.name().toString() == "Priority") {
                         bool ok;
                         int priority = fileStream.readElementText().toInt(&ok);
                         if (!ok) {

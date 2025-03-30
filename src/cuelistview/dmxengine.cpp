@@ -158,7 +158,7 @@ void DmxEngine::generateDmx() {
             fixture->raws = fixtureRaws.value(fixture);
         }
     }
-    QByteArray dmxData(512, 0);
+    QMap<int, QByteArray> dmxUniverses;
     for (Fixture* fixture : kernel->fixtures->items) {
         const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
         QString channels = "";
@@ -166,6 +166,10 @@ void DmxEngine::generateDmx() {
             channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
         }
         if (address > 0) {
+            const int universe = fixture->intAttributes.value(kernel->fixtures->UNIVERSEATTRIBUTEID);
+            if (!dmxUniverses.contains(universe)) {
+                dmxUniverses[universe] = QByteArray(512, 0);
+            }
             float dimmer = fixture->dimmer;
             float red = fixture->red;
             float green = fixture->green;
@@ -206,26 +210,26 @@ void DmxEngine::generateDmx() {
                     value = 100.0;
                 }
                 if (channel <= 512) {
-                    dmxData[channel] = (value * 2.55 + 0.5);
+                    dmxUniverses[universe][channel] = (value * 2.55 + 0.5);
                 }
             }
             for (Raw* raw : fixture->raws) {
                 for (int channel : raw->channelValues.keys()) {
                     if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
-                        dmxData[address + channel - 1] = raw->channelValues.value(channel);
+                        dmxUniverses[universe][address + channel - 1] = raw->channelValues.value(channel);
                     }
                 }
                 if (raw->modelSpecificChannelValues.contains(fixture->model)) {
                     for (int channel : raw->modelSpecificChannelValues.value(fixture->model).keys()) {
                         if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
-                            dmxData[address + channel - 1] = raw->modelSpecificChannelValues.value(fixture->model).value(channel);
+                            dmxUniverses[universe][address + channel - 1] = raw->modelSpecificChannelValues.value(fixture->model).value(channel);
                         }
                     }
                 }
                 if (raw->fixtureSpecificChannelValues.contains(fixture)) {
                     for (int channel : raw->fixtureSpecificChannelValues.value(fixture).keys()) {
                         if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
-                            dmxData[address + channel - 1] = raw->fixtureSpecificChannelValues.value(fixture).value(channel);
+                            dmxUniverses[universe][address + channel - 1] = raw->fixtureSpecificChannelValues.value(fixture).value(channel);
                         }
                     }
                 }
@@ -236,7 +240,9 @@ void DmxEngine::generateDmx() {
     if (remainingFadeFrames > 0) {
         remainingFadeFrames--;
     }
-    sacnServer->send(dmxData);
+    for (int universe : dmxUniverses.keys()) {
+        sacnServer->send(dmxUniverses.value(universe), universe);
+    }
     fadeProgress->setValue(totalFadeFrames + 1 - remainingFadeFrames);
     fadeProgress->setRange(0, totalFadeFrames + 1);
 }
