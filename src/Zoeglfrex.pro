@@ -15,6 +15,7 @@ SOURCES += \
     cuelistview/cuemodel.cpp \
     cuelistview/dmxengine.cpp \
     cuelistview/groupmodel.cpp \
+    cuelistview/preview2d.cpp \
     cuelistview/sacnserver.cpp \
     inspector/inspector.cpp \
     kernel/items/color.cpp \
@@ -46,6 +47,7 @@ HEADERS += \
     cuelistview/cuemodel.h \
     cuelistview/dmxengine.h \
     cuelistview/groupmodel.h \
+    cuelistview/preview2d.h \
     cuelistview/sacnserver.h \
     inspector/inspector.h \
     kernel/items/color.h \

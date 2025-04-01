@@ -13,6 +13,7 @@
 
 #include "cuelistview/cuemodel.h"
 #include "cuelistview/groupmodel.h"
+#include "cuelistview/preview2d.h"
 class Kernel;
 class Fixture;
 class Group;
@@ -36,6 +37,7 @@ public:
     Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;
     DmxEngine *dmxEngine;
+    Preview2d *preview2d;
 private:
     void updateCuelistView();
     Kernel *kernel;

@@ -31,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(quitAction, &QAction::triggered, this, &MainWindow::close);
 
     QMenu *outputMenu = menuBar()->addMenu("Output");
+    QAction *preview2dAction = new QAction("2D Preview");
+    outputMenu->addAction(preview2dAction);
+    connect(preview2dAction, &QAction::triggered, this, [this]{ kernel->cuelistView->preview2d->view->show(); });
     QAction *outputSettingsAction = new QAction("DMX Output Settings");
     outputMenu->addAction(outputSettingsAction);
     connect(outputSettingsAction, &QAction::triggered, this, [this]{ kernel->cuelistView->dmxEngine->sacnServer->show(); });
@@ -128,8 +131,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     about(); // Open about window
 }
 
-MainWindow::~MainWindow() {
-}
+MainWindow::~MainWindow() {}
 
 void MainWindow::openFile() {
     QString newFileName = QFileDialog::getOpenFileName(this, "Open File", QString(), "zfr Files (*.zfr)");
@@ -184,6 +186,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     confirmBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     confirmBox.setDefaultButton(QMessageBox::Cancel);
     if (confirmBox.exec() == QMessageBox::Ok) {
+        kernel->cuelistView->dmxEngine->sacnServer->close();
+        kernel->cuelistView->preview2d->view->close();
         event->accept();
     }
 }

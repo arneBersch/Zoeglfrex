@@ -9,7 +9,9 @@
 #include "fixture.h"
 #include "kernel/kernel.h"
 
-Fixture::Fixture(Kernel* core) : Item(core) {}
+Fixture::Fixture(Kernel* core) : Item(core) {
+    kernel->cuelistView->preview2d->fixtureCircles[this] = new QGraphicsEllipseItem(0, 0, kernel->cuelistView->preview2d->FIXTURESIZE, kernel->cuelistView->preview2d->FIXTURESIZE);
+}
 
 Fixture::Fixture(const Fixture* item) : Item(item) {
     model = item->model;
@@ -86,6 +88,7 @@ Fixture::~Fixture() {
             cue->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
         }
     }
+    kernel->cuelistView->preview2d->fixtureCircles.remove(this);
 }
 
 QString Fixture::name() {
@@ -112,6 +115,8 @@ QString Fixture::info() {
     }
     info += "\n" + kernel->fixtures->ADDRESSATTRIBUTEID + " Address: " + QString::number(intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID));
     info += "\n" + kernel->fixtures->UNIVERSEATTRIBUTEID + " Universe: " + QString::number(intAttributes.value(kernel->fixtures->UNIVERSEATTRIBUTEID));
+    info += "\n" + kernel->fixtures->POSITIONXATTRIBUTEID + " X Position: " + QString::number(floatAttributes.value(kernel->fixtures->POSITIONXATTRIBUTEID));
+    info += "\n" + kernel->fixtures->POSITIONYATTRIBUTEID + " Y Position: " + QString::number(floatAttributes.value(kernel->fixtures->POSITIONYATTRIBUTEID));
     return info;
 }
 

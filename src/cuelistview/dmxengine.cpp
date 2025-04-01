@@ -245,4 +245,6 @@ void DmxEngine::generateDmx() {
     }
     fadeProgress->setValue(totalFadeFrames + 1 - remainingFadeFrames);
     fadeProgress->setRange(0, totalFadeFrames + 1);
+
+    kernel->cuelistView->preview2d->updateImage();
 }
