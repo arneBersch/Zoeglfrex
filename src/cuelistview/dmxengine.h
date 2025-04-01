@@ -13,6 +13,7 @@
 
 #include "sacnserver.h"
 class Kernel;
+class Effect;
 class Cue;
 
 class DmxEngine : public QWidget {
@@ -25,6 +26,7 @@ private:
     const int PROCESSINGRATE = 40; // 40 FPS
     QTimer *timer;
     Cue* lastCue;
+    QMap<Fixture*, QMap<Effect*, int>> fixtureEffectFrames;
     int remainingFadeFrames = 0;
     int totalFadeFrames = 0;
     QPushButton *highlightButton;

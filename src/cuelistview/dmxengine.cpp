@@ -86,6 +86,32 @@ void DmxEngine::generateDmx() {
         }
     }
     for (Fixture* fixture : kernel->fixtures->items) {
+        if (fixtureEffects.contains(fixture)) {
+            QMap<Effect*, int> oldFrames;
+            if (fixtureEffectFrames.contains(fixture)) {
+                oldFrames = fixtureEffectFrames.value(fixture);
+                fixtureEffectFrames.remove(fixture);
+            }
+            for (Effect* effect : fixtureEffects.value(fixture)) {
+                fixtureEffectFrames[fixture][effect] = 1;
+                if (oldFrames.contains(effect)) {
+                    fixtureEffectFrames[fixture][effect] = (oldFrames.value(effect) + 1);
+                }
+                int step = ((fixtureEffectFrames[fixture][effect] / 40) % effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID)) + 1;
+                if (effect->intensitySteps.contains(step)) {
+                    fixtureIntensities[fixture] = effect->intensitySteps.value(step);
+                }
+                if (effect->colorSteps.contains(step)) {
+                    fixtureColors[fixture] = effect->colorSteps.value(step);
+                }
+                if (effect->rawSteps.contains(step)) {
+                    if (!fixtureRaws.contains(fixture)) {
+                        fixtureRaws[fixture] = QList<Raw*>();
+                    }
+                    fixtureRaws[fixture].append(effect->rawSteps.value(step));
+                }
+            }
+        }
         float dimmer = 0.0;
         float red = 0.0;
         float green = 0.0;

@@ -14,7 +14,7 @@ Preview2d::Preview2d(Kernel* core) {
 void Preview2d::updateImage() {
     for (Fixture* fixture : fixtureCircles.keys()) {
         QGraphicsEllipseItem *ellipse = fixtureCircles.value(fixture);
-        ellipse->setPos(fixture->floatAttributes.value(kernel->fixtures->POSITIONXATTRIBUTEID), fixture->floatAttributes.value(kernel->fixtures->POSITIONYATTRIBUTEID));
+        ellipse->setPos(100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONXATTRIBUTEID), -100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONYATTRIBUTEID));
         const float red = fixture->red / 100 * fixture->dimmer / 100 * 255;
         const float green = fixture->green / 100 * fixture->dimmer / 100 * 255;
         const float blue = fixture->blue / 100 * fixture->dimmer / 100 * 255;
