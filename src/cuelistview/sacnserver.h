@@ -17,13 +17,13 @@ class SacnServer : public QWidget {
     Q_OBJECT
 public:
     SacnServer(Kernel* core, QWidget *parent = nullptr);
-    void send(QByteArray data, int universe);
+    void send(QMap<int, QByteArray> dmxUniverses);
     QSpinBox *prioritySpinBox;
     const int SACN_STANDARD_PRIORITY = 100;
 private:
     void setNetworkInterface();
     QByteArray header;
-    QMap<int, uchar> universeSequences;
+    uchar sequence = 0;
     QUdpSocket *socket = nullptr;
     QComboBox *interfaceComboBox;
     QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();

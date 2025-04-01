@@ -168,11 +168,8 @@ void DmxEngine::generateDmx() {
     QMap<int, QByteArray> dmxUniverses;
     for (Fixture* fixture : kernel->fixtures->items) {
         const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
-        QString channels = "";
-        if (fixture->model != nullptr) {
-            channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
-        }
-        if (address > 0) {
+        if ((address > 0) && (fixture->model != nullptr)) {
+            const QString channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
             const int universe = fixture->intAttributes.value(kernel->fixtures->UNIVERSEATTRIBUTEID);
             if (!dmxUniverses.contains(universe)) {
                 dmxUniverses[universe] = QByteArray(512, 0);
@@ -247,9 +244,7 @@ void DmxEngine::generateDmx() {
     if (remainingFadeFrames > 0) {
         remainingFadeFrames--;
     }
-    for (int universe : dmxUniverses.keys()) {
-        sacnServer->send(dmxUniverses.value(universe), universe);
-    }
+    sacnServer->send(dmxUniverses);
     fadeProgress->setValue(totalFadeFrames + 1 - remainingFadeFrames);
     fadeProgress->setRange(0, totalFadeFrames + 1);
 

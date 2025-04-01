@@ -140,35 +140,30 @@ SacnServer::SacnServer(Kernel* core, QWidget* parent) : QWidget(parent, Qt::Wind
     // Property Values (Octet 126-637)
 }
 
-void SacnServer::send(QByteArray data, int universe) {
-    Q_ASSERT(data.size() == 512);
-    Q_ASSERT(universe <= SACN_MAX_UNIVERSE);
-    Q_ASSERT(universe >= 1);
-    if (socket == nullptr) {
+void SacnServer::send(QMap<int, QByteArray> dmxUniverses) {
+    if ((socket == nullptr) || dmxUniverses.isEmpty()) {
         return;
     }
-    if (!universeSequences.contains(universe)) {
-        universeSequences[universe] = 1;
+    for (const int universe : dmxUniverses.keys()) {
+        Q_ASSERT(dmxUniverses.value(universe).size() == 512);
+        Q_ASSERT(universe <= SACN_MAX_UNIVERSE);
+        Q_ASSERT(universe >= 1);
+        QByteArray dmx = header;
+        dmx.append(dmxUniverses.value(universe));
+        dmx[108] = (char)prioritySpinBox->value(); // Update Priority
+        dmx[111] = sequence; // Update Sequence number
+        dmx[113] = (char)(universe / 256); // Update Universe number
+        dmx[114] = (char)(universe % 256); // Update Universe number
+        QString address = "239.255.";
+        address += QString::number(universe / 256);
+        address += ".";
+        address += QString::number(universe % 256);
+        qint64 result = socket->writeDatagram(dmx.data(), dmx.size(), QHostAddress(address), SACN_PORT);
+        if (result < 0) {
+            qWarning() << Q_FUNC_INFO <<"ERROR sending sACN: " << socket->error() << " (" << socket->errorString() << ")";
+        }
     }
-    if (universeSequences.value(universe) == 0xff) {
-        universeSequences[universe] = 1;
-    } else {
-        universeSequences[universe]++;
-    }
-    QByteArray dmx = header;
-    dmx.append(data);
-    dmx[108] = (char)prioritySpinBox->value(); // Update Priority
-    dmx[111] = universeSequences.value(universe); // Update Sequence number
-    dmx[113] = (char)(universe / 256); // Update Universe number
-    dmx[114] = (char)(universe % 256); // Update Universe number
-    QString address = "239.255.";
-    address += QString::number(universe / 256);
-    address += ".";
-    address += QString::number(universe % 256);
-    qint64 result = socket->writeDatagram(dmx.data(), dmx.size(), QHostAddress(address), SACN_PORT);
-    if (result < 0) {
-        qWarning() << Q_FUNC_INFO <<"ERROR sending sACN: " << socket->error() << " (" << socket->errorString() << ")";
-    }
+    sequence++;
 }
 
 void SacnServer::setNetworkInterface() {
