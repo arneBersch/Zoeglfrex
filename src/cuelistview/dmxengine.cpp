@@ -149,10 +149,17 @@ void DmxEngine::generateDmx() {
                 blue = 100.0;
             }
         }
-        fixture->dimmer += (dimmer - fixture->dimmer) * remainingFadeFrames / totalFadeFrames;
-        fixture->red += (red - fixture->red) * remainingFadeFrames / totalFadeFrames;
-        fixture->green += (green - fixture->green) * remainingFadeFrames / totalFadeFrames;
-        fixture->blue += (blue - fixture->blue) * remainingFadeFrames / totalFadeFrames;
+        if (remainingFadeFrames > 0) {
+            fixture->dimmer += (dimmer - fixture->dimmer) / remainingFadeFrames;
+            fixture->red += (red - fixture->red) / remainingFadeFrames;
+            fixture->green += (green - fixture->green) / remainingFadeFrames;
+            fixture->blue += (blue - fixture->blue) / remainingFadeFrames;
+        } else {
+            fixture->dimmer = dimmer;
+            fixture->red = red;
+            fixture->green = green;
+            fixture->blue = blue;
+        }
         fixture->raws.clear();
         if (fixtureRaws.contains(fixture)) {
             fixture->raws = fixtureRaws.value(fixture);
