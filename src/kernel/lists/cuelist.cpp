@@ -229,3 +229,15 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
         ItemList::setAttribute(ids, attributes, value, text);
     }
 }
+
+Cue* CueList::addItem(QString id) {
+    Cue* cue = ItemList<Cue>::addItem(id);
+    int cueRow = getItemRow(cue->id);
+    if (cueRow > 0) {
+        cue->intensities = items[cueRow - 1]->intensities;
+        cue->colors = items[cueRow - 1]->colors;
+        cue->raws = items[cueRow - 1]->raws;
+        cue->effects = items[cueRow - 1]->effects;
+    }
+    return cue;
+}

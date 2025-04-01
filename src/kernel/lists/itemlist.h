@@ -72,7 +72,7 @@ public:
     QMap<QString, AngleAttribute> fixtureSpecificAngleAttributes;
     QMap<QString, BoolAttribute> boolAttributes;
 protected:
-    T* addItem(QString id);
+    virtual T* addItem(QString id);
     Kernel *kernel;
 private:
     int findRow(QString id);

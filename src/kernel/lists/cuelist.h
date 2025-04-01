@@ -28,6 +28,8 @@ public:
     const QString FADEATTRIBUTEID = "6";
     const QString BLOCKATTRIBUTEID = "7";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
+private:
+    Cue* addItem(QString id) override;
 };
 
 #include "kernel/kernel.h"
