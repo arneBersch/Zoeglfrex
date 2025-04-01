@@ -5,11 +5,10 @@
 class Kernel;
 class Fixture;
 
-class Preview2d {
+class Preview2d : public QGraphicsView {
 public:
     Preview2d(Kernel* core);
     void updateImage();
-    QGraphicsView *view;
     QMap<Fixture*, QGraphicsEllipseItem*> fixtureCircles;
     const int FIXTURESIZE = 70;
 private:

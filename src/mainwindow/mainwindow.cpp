@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QMenu *outputMenu = menuBar()->addMenu("Output");
     QAction *preview2dAction = new QAction("2D Preview");
     outputMenu->addAction(preview2dAction);
-    connect(preview2dAction, &QAction::triggered, this, [this]{ kernel->cuelistView->preview2d->view->show(); });
+    connect(preview2dAction, &QAction::triggered, this, [this]{ kernel->cuelistView->preview2d->show(); });
     QAction *outputSettingsAction = new QAction("DMX Output Settings");
     outputMenu->addAction(outputSettingsAction);
     connect(outputSettingsAction, &QAction::triggered, this, [this]{ kernel->cuelistView->dmxEngine->sacnServer->show(); });
@@ -187,7 +187,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     confirmBox.setDefaultButton(QMessageBox::Cancel);
     if (confirmBox.exec() == QMessageBox::Ok) {
         kernel->cuelistView->dmxEngine->sacnServer->close();
-        kernel->cuelistView->preview2d->view->close();
+        kernel->cuelistView->preview2d->close();
         event->accept();
     }
 }

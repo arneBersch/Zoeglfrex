@@ -5,10 +5,9 @@ Preview2d::Preview2d(Kernel* core) {
     kernel = core;
 
     scene = new QGraphicsScene();
-    view = new QGraphicsView();
-    view->setWindowTitle("Zöglfrex 2D Preview");
-    view->setScene(scene);
-    view->resize(500, 300);
+    setWindowTitle("Zöglfrex 2D Preview");
+    setScene(scene);
+    resize(500, 300);
 }
 
 void Preview2d::updateImage() {
