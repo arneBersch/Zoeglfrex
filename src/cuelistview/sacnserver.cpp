@@ -147,15 +147,18 @@ void SacnServer::send(QByteArray data, int universe) {
     if (socket == nullptr) {
         return;
     }
-    if (sequence == 0xff) {
-        sequence = 1;
+    if (!universeSequences.contains(universe)) {
+        universeSequences[universe] = 1;
+    }
+    if (universeSequences.value(universe) == 0xff) {
+        universeSequences[universe] = 1;
     } else {
-        sequence++;
+        universeSequences[universe]++;
     }
     QByteArray dmx = header;
     dmx.append(data);
     dmx[108] = (char)prioritySpinBox->value(); // Update Priority
-    dmx[111] = sequence; // Update Sequence number
+    dmx[111] = universeSequences.value(universe); // Update Sequence number
     dmx[113] = (char)(universe / 256); // Update Universe number
     dmx[114] = (char)(universe % 256); // Update Universe number
     QString address = "239.255.";

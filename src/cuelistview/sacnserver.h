@@ -23,7 +23,7 @@ public:
 private:
     void setNetworkInterface();
     QByteArray header;
-    uchar sequence = 1;
+    QMap<int, uchar> universeSequences;
     QUdpSocket *socket = nullptr;
     QComboBox *interfaceComboBox;
     QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();

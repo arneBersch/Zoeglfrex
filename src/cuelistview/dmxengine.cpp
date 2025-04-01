@@ -217,7 +217,7 @@ void DmxEngine::generateDmx() {
                     value = 100.0;
                 }
                 if (channel <= 512) {
-                    dmxUniverses[universe][channel] = (value * 2.55 + 0.5);
+                    dmxUniverses[universe][channel - 1] = (uchar)(value * 2.55 + 0.5);
                 }
             }
             for (Raw* raw : fixture->raws) {
