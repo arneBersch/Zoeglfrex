@@ -54,6 +54,13 @@ QString Effect::info() {
     }
     info += "\n" + kernel->effects->RAWSTEPSATTRIBUTEID + " Raws: " + rawStepValues.join("; ");
     info += "\n" + kernel->effects->STEPDURATIONATTRIBUTEID + " Step Duration: " + QString::number(floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID));
+    info += "\n" + kernel->effects->STEPFADEATTRIBUTEID + " Step Fade: " + QString::number(floatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID));
+    info += "\n" + kernel->effects->PHASEATTRIBUTEID + " Phase: " + QString::number(angleAttributes.value(kernel->effects->PHASEATTRIBUTEID));
+    QStringList fixturePhaseValues;
+    for (Fixture* fixture : fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).keys()) {
+        fixturePhaseValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).value(fixture)) + "°");
+    }
+    info += "\n    Fixture Exceptions: " + fixturePhaseValues.join("; ");
     return info;
 }
 

@@ -26,6 +26,8 @@ public:
     const QString COLORSTEPSATTRIBUTEID = "4";
     const QString RAWSTEPSATTRIBUTEID = "5";
     const QString STEPDURATIONATTRIBUTEID = "6";
+    const QString STEPFADEATTRIBUTEID = "7";
+    const QString PHASEATTRIBUTEID = "8";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 

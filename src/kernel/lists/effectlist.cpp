@@ -11,6 +11,9 @@
 EffectList::EffectList(Kernel *core) : ItemList(core, Keys::Effect, "Effect", "Effects") {
     intAttributes[STEPSATTRIBUTEID] = {"Steps", 2, 2, 99};
     floatAttributes[STEPDURATIONATTRIBUTEID] = {"Step Duration", 1, 0, 60, "s"};
+    floatAttributes[STEPFADEATTRIBUTEID] = {"Step Fade", 0, 0, 60, "s"};
+    angleAttributes[PHASEATTRIBUTEID] = {"Phase", 0};
+    fixtureSpecificAngleAttributes[PHASEATTRIBUTEID] = {"Phase", 0};
 }
 
 void EffectList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
