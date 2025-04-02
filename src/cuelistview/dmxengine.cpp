@@ -97,7 +97,14 @@ void DmxEngine::generateDmx() {
                 if (oldFrames.contains(effect)) {
                     fixtureEffectFrames[fixture][effect] = (oldFrames.value(effect) + 1);
                 }
-                int step = ((int)((float)fixtureEffectFrames[fixture][effect] / (effect->floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID) * (float)PROCESSINGRATE)) % (effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) + 1;
+                const int totalEffectFrames = effect->floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID) * PROCESSINGRATE * effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID);
+                int phase = fixtureEffectFrames[fixture][effect];
+                if (effect->fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).contains(fixture)) {
+                    phase += effect->fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).value(fixture) * (float)totalEffectFrames / 360.0;
+                } else {
+                    phase += effect->angleAttributes.value(kernel->effects->PHASEATTRIBUTEID) * (float)totalEffectFrames / 360.0;
+                }
+                const int step = ((int)((float)phase / (effect->floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID) * (float)PROCESSINGRATE)) % (effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) + 1;
                 if (effect->intensitySteps.contains(step)) {
                     fixtureIntensities[fixture] = effect->intensitySteps.value(step);
                 }
