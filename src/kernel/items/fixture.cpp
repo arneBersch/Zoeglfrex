@@ -88,7 +88,9 @@ Fixture::~Fixture() {
             cue->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
         }
     }
+    QGraphicsEllipseItem *ellipse = kernel->cuelistView->preview2d->fixtureCircles.value(this);
     kernel->cuelistView->preview2d->fixtureCircles.remove(this);
+    delete ellipse;
 }
 
 QString Fixture::name() {

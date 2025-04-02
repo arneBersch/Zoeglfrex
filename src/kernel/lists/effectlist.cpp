@@ -10,6 +10,7 @@
 
 EffectList::EffectList(Kernel *core) : ItemList(core, Keys::Effect, "Effect", "Effects") {
     intAttributes[STEPSATTRIBUTEID] = {"Steps", 2, 2, 99};
+    floatAttributes[STEPDURATIONATTRIBUTEID] = {"Step Duration", 1, 0, 60, "s"};
 }
 
 void EffectList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {

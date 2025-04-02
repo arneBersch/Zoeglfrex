@@ -53,6 +53,7 @@ QString Effect::info() {
         rawStepValues.append(QString::number(step) + ": " + rawStepValueValues.join(", "));
     }
     info += "\n" + kernel->effects->RAWSTEPSATTRIBUTEID + " Raws: " + rawStepValues.join("; ");
+    info += "\n" + kernel->effects->STEPDURATIONATTRIBUTEID + " Step Duration: " + QString::number(floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID));
     return info;
 }
 

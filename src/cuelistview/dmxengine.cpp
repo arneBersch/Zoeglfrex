@@ -97,7 +97,7 @@ void DmxEngine::generateDmx() {
                 if (oldFrames.contains(effect)) {
                     fixtureEffectFrames[fixture][effect] = (oldFrames.value(effect) + 1);
                 }
-                int step = ((fixtureEffectFrames[fixture][effect] / 40) % effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID)) + 1;
+                int step = ((int)((float)fixtureEffectFrames[fixture][effect] / (effect->floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID) * (float)PROCESSINGRATE)) % (effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) + 1;
                 if (effect->intensitySteps.contains(step)) {
                     fixtureIntensities[fixture] = effect->intensitySteps.value(step);
                 }
