@@ -13,6 +13,12 @@
 
 #include "item.h"
 
+struct rgbColor {
+    float red;
+    float green;
+    float blue;
+};
+
 class Color : public Item {
 public:
     Color(Kernel* core);
@@ -20,6 +26,7 @@ public:
     ~Color();
     QString name() override;
     QString info() override;
+    rgbColor getRGB(Fixture* fixture);
 };
 
 #endif // COLOR_H

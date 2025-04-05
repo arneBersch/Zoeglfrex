@@ -85,3 +85,51 @@ QString Color::info() {
     info += "\n" + kernel->colors->QUALITYATTRIBUTEID + " Quality: " + QString::number(floatAttributes.value(kernel->colors->QUALITYATTRIBUTEID)) + "%";
     return info;
 }
+
+rgbColor Color::getRGB(Fixture* fixture) {
+    rgbColor color;
+    float hue = angleAttributes.value(kernel->colors->HUEATTRIBUTEID);
+    if (fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).contains(fixture)) {
+        hue = fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture);
+    } else if (modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).contains(fixture->model)) {
+        hue = modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture->model);
+    }
+    const double h = (hue / 60.0);
+    const int i = (int)h;
+    const double f = h - i;
+    float saturation = floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID);
+    if (fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).contains(fixture)) {
+        saturation = fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture);
+    } else if (modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).contains(fixture->model)) {
+        saturation = modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture->model);
+    }
+    const double p = (100.0 - saturation);
+    const double q = (100.0 - (saturation * f));
+    const double t = (100.0 - (saturation * (1.0 - f)));
+    if (i == 0) {
+        color.red = 100.0;
+        color.green = t;
+        color.blue = p;
+    } else if (i == 1) {
+        color.red = q;
+        color.green = 100.0;
+        color.blue = p;
+    } else if (i == 2) {
+        color.red = p;
+        color.green = 100.0;
+        color.blue = t;
+    } else if (i == 3) {
+        color.red = p;
+        color.green = q;
+        color.blue = 100.0;
+    } else if (i == 4) {
+        color.red = t;
+        color.green = p;
+        color.blue = 100.0;
+    } else if (i == 5) {
+        color.red = 100.0;
+        color.green = p;
+        color.blue = q;
+    }
+    return color;
+}

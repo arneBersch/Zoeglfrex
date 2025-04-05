@@ -36,9 +36,11 @@ DmxEngine::DmxEngine(Kernel *core, QWidget* parent) : QWidget(parent) {
 
 void DmxEngine::generateDmx() {
     QMutexLocker(kernel->mutex);
-    QMap<Fixture*, Intensity*> fixtureIntensities;
-    QMap<Fixture*, Color*> fixtureColors;
-    QMap<Fixture*, QList<Raw*>> fixtureRaws;
+    QMap<Fixture*, float> fixtureDimmer;
+    QMap<Fixture*, rgbColor> fixtureColor;
+    for (Fixture* fixture : kernel->fixtures->items) {
+        fixture->raws.clear();
+    }
     QMap<Fixture*, QList<Effect*>> fixtureEffects;
     if (kernel->cuelistView->currentCue == nullptr) {
         remainingFadeFrames = 0;
@@ -55,21 +57,24 @@ void DmxEngine::generateDmx() {
         for (Group* group : kernel->groups->items) {
             if (lastCue->intensities.contains(group)) {
                 for (Fixture* fixture : group->fixtures) {
-                    fixtureIntensities[fixture] = lastCue->intensities.value(group);
+                    float dimmer = lastCue->intensities.value(group)->floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID);
+                    if (lastCue->intensities.value(group)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture)) {
+                        dimmer = lastCue->intensities.value(group)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture);
+                    } else if (lastCue->intensities.value(group)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture->model)) {
+                        dimmer = lastCue->intensities.value(group)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture->model);
+                    }
+                    fixtureDimmer[fixture] = dimmer;
                 }
             }
             if (lastCue->colors.contains(group)) {
                 for (Fixture* fixture : group->fixtures) {
-                    fixtureColors[fixture] = lastCue->colors[group];
+                    fixtureColor[fixture] = lastCue->colors.value(group)->getRGB(fixture);
                 }
             }
             if (lastCue->raws.contains(group)) {
                 for (Fixture* fixture : group->fixtures) {
-                    if (!fixtureRaws.contains(fixture)) {
-                        fixtureRaws[fixture] = QList<Raw*>();
-                    }
                     for (Raw* raw : lastCue->raws[group]) {
-                        fixtureRaws[fixture].append(raw);
+                        fixture->raws.append(raw);
                     }
                 }
             }
@@ -106,16 +111,19 @@ void DmxEngine::generateDmx() {
                 }
                 const int step = ((int)((float)phase / (effect->floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID) * (float)PROCESSINGRATE)) % (effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) + 1;
                 if (effect->intensitySteps.contains(step)) {
-                    fixtureIntensities[fixture] = effect->intensitySteps.value(step);
+                    float dimmer = effect->intensitySteps.value(step)->floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID);
+                    if (effect->intensitySteps.value(step)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture)) {
+                        dimmer = effect->intensitySteps.value(step)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture);
+                    } else if (effect->intensitySteps.value(step)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture->model)) {
+                        dimmer = effect->intensitySteps.value(step)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture->model);
+                    }
+                    fixtureDimmer[fixture] = dimmer;
                 }
                 if (effect->colorSteps.contains(step)) {
-                    fixtureColors[fixture] = effect->colorSteps.value(step);
+                    fixtureColor[fixture] = effect->colorSteps.value(step)->getRGB(fixture);
                 }
                 if (effect->rawSteps.contains(step)) {
-                    if (!fixtureRaws.contains(fixture)) {
-                        fixtureRaws[fixture] = QList<Raw*>();
-                    }
-                    fixtureRaws[fixture].append(effect->rawSteps.value(step));
+                    fixture->raws.append(effect->rawSteps.value(step));
                 }
             }
         }
@@ -123,64 +131,17 @@ void DmxEngine::generateDmx() {
         float red = 0.0;
         float green = 0.0;
         float blue = 0.0;
-        if (fixtureIntensities.contains(fixture)) {
-            dimmer = fixtureIntensities.value(fixture)->floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID);
-            if (fixtureIntensities.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture)) {
-                dimmer = fixtureIntensities.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture);
-            } else if (fixtureIntensities.value(fixture)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture->model)) {
-                dimmer = fixtureIntensities.value(fixture)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture->model);
-            }
+        if (fixtureDimmer.contains(fixture)) {
+            dimmer = fixtureDimmer.value(fixture);
         }
-        if (fixtureColors.contains(fixture)) {
-            float hue = fixtureColors.value(fixture)->angleAttributes.value(kernel->colors->HUEATTRIBUTEID);
-            if (fixtureColors.value(fixture)->fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).contains(fixture)) {
-                hue = fixtureColors.value(fixture)->fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture);
-            } else if (fixtureColors.value(fixture)->modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).contains(fixture->model)) {
-                hue = fixtureColors.value(fixture)->modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture->model);
-            }
-            const double h = (hue / 60.0);
-            const int i = (int)h;
-            const double f = h - i;
-            float saturation = fixtureColors.value(fixture)->floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID);
-            if (fixtureColors.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).contains(fixture)) {
-                saturation = fixtureColors.value(fixture)->fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture);
-            } else if (fixtureColors.value(fixture)->modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).contains(fixture->model)) {
-                saturation = fixtureColors.value(fixture)->modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture->model);
-            }
-            const double p = (100.0 - saturation);
-            const double q = (100.0 - (saturation * f));
-            const double t = (100.0 - (saturation * (1.0 - f)));
-            if (i == 0) {
-                red = 100.0;
-                green = t;
-                blue = p;
-            } else if (i == 1) {
-                red = q;
-                green = 100.0;
-                blue = p;
-            } else if (i == 2) {
-                red = p;
-                green = 100.0;
-                blue = t;
-            } else if (i == 3) {
-                red = p;
-                green = q;
-                blue = 100.0;
-            } else if (i == 4) {
-                red = t;
-                green = p;
-                blue = 100.0;
-            } else if (i == 5) {
-                red = 100.0;
-                green = p;
-                blue = q;
-            }
-        } else {
-            if (fixtureIntensities.contains(fixture)) {
-                red = 100.0;
-                green = 100.0;
-                blue = 100.0;
-            }
+        if (fixtureColor.contains(fixture)) {
+            red = fixtureColor.value(fixture).red;
+            green = fixtureColor.value(fixture).green;
+            blue = fixtureColor.value(fixture).blue;
+        } else if (fixtureDimmer.contains(fixture)) {
+            red = 100.0;
+            green = 100.0;
+            blue = 100.0;
         }
         if (remainingFadeFrames > 0) {
             fixture->dimmer += (dimmer - fixture->dimmer) / remainingFadeFrames;
@@ -192,10 +153,6 @@ void DmxEngine::generateDmx() {
             fixture->red = red;
             fixture->green = green;
             fixture->blue = blue;
-        }
-        fixture->raws.clear();
-        if (fixtureRaws.contains(fixture)) {
-            fixture->raws = fixtureRaws.value(fixture);
         }
     }
     QMap<int, QByteArray> dmxUniverses;
