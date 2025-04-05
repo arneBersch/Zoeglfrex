@@ -26,7 +26,7 @@ private:
     const int PROCESSINGRATE = 40; // 40 FPS
     QTimer *timer;
     Cue* lastCue;
-    QMap<Fixture*, QMap<Effect*, int>> fixtureEffectFrames;
+    QMap<Group*, QMap<Effect*, int>> groupEffectFrames;
     int remainingFadeFrames = 0;
     int totalFadeFrames = 0;
     QPushButton *highlightButton;

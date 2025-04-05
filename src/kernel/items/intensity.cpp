@@ -52,3 +52,13 @@ QString Intensity::info() {
     info += "\n    Fixture Exceptions: " + fixtureDimmerValues.join("; ");
     return info;
 }
+
+float Intensity::getDimmer(Fixture* fixture) {
+    float dimmer = floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID);
+    if (fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture)) {
+        dimmer = fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture);
+    } else if (modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture->model)) {
+        dimmer = modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture->model);
+    }
+    return dimmer;
+}

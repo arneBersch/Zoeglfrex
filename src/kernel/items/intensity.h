@@ -21,6 +21,7 @@ public:
     ~Intensity();
     QString name() override;
     QString info() override;
+    float getDimmer(Fixture* fixture);
 };
 
 #endif // INTENSITY_H

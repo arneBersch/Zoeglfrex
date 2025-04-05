@@ -41,7 +41,6 @@ void DmxEngine::generateDmx() {
     for (Fixture* fixture : kernel->fixtures->items) {
         fixture->raws.clear();
     }
-    QMap<Fixture*, QList<Effect*>> fixtureEffects;
     if (kernel->cuelistView->currentCue == nullptr) {
         remainingFadeFrames = 0;
         totalFadeFrames = 0;
@@ -54,16 +53,12 @@ void DmxEngine::generateDmx() {
         if (skipFadeButton->isChecked()) {
             remainingFadeFrames = 0;
         }
+        QMap<Group*, QMap<Effect*, int>> oldGroupEffectFrames = groupEffectFrames;
+        groupEffectFrames.clear();
         for (Group* group : kernel->groups->items) {
             if (lastCue->intensities.contains(group)) {
                 for (Fixture* fixture : group->fixtures) {
-                    float dimmer = lastCue->intensities.value(group)->floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID);
-                    if (lastCue->intensities.value(group)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture)) {
-                        dimmer = lastCue->intensities.value(group)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture);
-                    } else if (lastCue->intensities.value(group)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture->model)) {
-                        dimmer = lastCue->intensities.value(group)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture->model);
-                    }
-                    fixtureDimmer[fixture] = dimmer;
+                    fixtureDimmer[fixture] = lastCue->intensities.value(group)->getDimmer(fixture);
                 }
             }
             if (lastCue->colors.contains(group)) {
@@ -79,54 +74,35 @@ void DmxEngine::generateDmx() {
                 }
             }
             if (lastCue->effects.contains(group)) {
-                for (Fixture* fixture : group->fixtures) {
-                    if (!fixtureEffects.contains(fixture)) {
-                        fixtureEffects[fixture] = QList<Effect*>();
+                for (Effect* effect : lastCue->effects.value(group)) {
+                    groupEffectFrames[group][effect] = 1;
+                    if (oldGroupEffectFrames.contains(group) && oldGroupEffectFrames.value(group).contains(effect)) {
+                        groupEffectFrames[group][effect] = (oldGroupEffectFrames.value(group).value(effect) + 1);
                     }
-                    for (Effect* effect : lastCue->effects[group]) {
-                        fixtureEffects[fixture].append(effect);
+                    const int totalEffectFrames = effect->floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID) * PROCESSINGRATE * effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID);
+                    for (Fixture* fixture : group->fixtures) {
+                        int phase = groupEffectFrames[group][effect];
+                        if (effect->fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).contains(fixture)) {
+                            phase += effect->fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).value(fixture) * (float)totalEffectFrames / 360.0;
+                        } else {
+                            phase += effect->angleAttributes.value(kernel->effects->PHASEATTRIBUTEID) * (float)totalEffectFrames / 360.0;
+                        }
+                        const int step = ((int)((float)phase / (effect->floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID) * (float)PROCESSINGRATE)) % (effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) + 1;
+                        if (effect->intensitySteps.contains(step)) {
+                            fixtureDimmer[fixture] = effect->intensitySteps.value(step)->getDimmer(fixture);
+                        }
+                        if (effect->colorSteps.contains(step)) {
+                            fixtureColor[fixture] = effect->colorSteps.value(step)->getRGB(fixture);
+                        }
+                        if (effect->rawSteps.contains(step)) {
+                            fixture->raws.append(effect->rawSteps.value(step));
+                        }
                     }
                 }
             }
         }
     }
     for (Fixture* fixture : kernel->fixtures->items) {
-        if (fixtureEffects.contains(fixture)) {
-            QMap<Effect*, int> oldFrames;
-            if (fixtureEffectFrames.contains(fixture)) {
-                oldFrames = fixtureEffectFrames.value(fixture);
-                fixtureEffectFrames.remove(fixture);
-            }
-            for (Effect* effect : fixtureEffects.value(fixture)) {
-                fixtureEffectFrames[fixture][effect] = 1;
-                if (oldFrames.contains(effect)) {
-                    fixtureEffectFrames[fixture][effect] = (oldFrames.value(effect) + 1);
-                }
-                const int totalEffectFrames = effect->floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID) * PROCESSINGRATE * effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID);
-                int phase = fixtureEffectFrames[fixture][effect];
-                if (effect->fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).contains(fixture)) {
-                    phase += effect->fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).value(fixture) * (float)totalEffectFrames / 360.0;
-                } else {
-                    phase += effect->angleAttributes.value(kernel->effects->PHASEATTRIBUTEID) * (float)totalEffectFrames / 360.0;
-                }
-                const int step = ((int)((float)phase / (effect->floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID) * (float)PROCESSINGRATE)) % (effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) + 1;
-                if (effect->intensitySteps.contains(step)) {
-                    float dimmer = effect->intensitySteps.value(step)->floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID);
-                    if (effect->intensitySteps.value(step)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture)) {
-                        dimmer = effect->intensitySteps.value(step)->fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture);
-                    } else if (effect->intensitySteps.value(step)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture->model)) {
-                        dimmer = effect->intensitySteps.value(step)->modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture->model);
-                    }
-                    fixtureDimmer[fixture] = dimmer;
-                }
-                if (effect->colorSteps.contains(step)) {
-                    fixtureColor[fixture] = effect->colorSteps.value(step)->getRGB(fixture);
-                }
-                if (effect->rawSteps.contains(step)) {
-                    fixture->raws.append(effect->rawSteps.value(step));
-                }
-            }
-        }
         float dimmer = 0.0;
         float red = 0.0;
         float green = 0.0;
