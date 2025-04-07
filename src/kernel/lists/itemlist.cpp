@@ -173,11 +173,11 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                 }
                 item->intAttributes[attribute] += newValue;
                 if (item->intAttributes.value(attribute) < intAttribute.min) {
-                    kernel->terminal->warning("Can't decrease " +  intAttribute.name + " of " + singularItemName + " " + item->name() + " because " + intAttribute.name + " must be at least " + QString::number(intAttribute.min) + intAttribute.unit + ".");
                     item->intAttributes[attribute] = intAttribute.min;
+                    kernel->terminal->warning("Can't decrease " +  intAttribute.name + " of " + singularItemName + " " + item->name() + " because " + intAttribute.name + " must be at least " + QString::number(intAttribute.min) + intAttribute.unit + ".");
                 } else if (item->intAttributes.value(attribute) > intAttribute.max) {
-                    kernel->terminal->warning("Can't increase " +  intAttribute.name + " of " + singularItemName + " " + item->name() + " because " + intAttribute.name + " must not exceed " + QString::number(intAttribute.max) + intAttribute.unit + ".");
                     item->intAttributes[attribute] = intAttribute.max;
+                    kernel->terminal->warning("Can't increase " +  intAttribute.name + " of " + singularItemName + " " + item->name() + " because " + intAttribute.name + " must not exceed " + QString::number(intAttribute.max) + intAttribute.unit + ".");
                 }
                 emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
             }
@@ -263,11 +263,11 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                     }
                     item->modelSpecificFloatAttributes[attribute][model] += newValue;
                     if (item->modelSpecificFloatAttributes.value(attribute).value(model) < floatAttribute.min) {
-                        kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                         item->modelSpecificFloatAttributes[attribute][model] = floatAttribute.min;
+                        kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                     } else if (item->modelSpecificFloatAttributes.value(attribute).value(model) > floatAttribute.max) {
-                        kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                         item->modelSpecificFloatAttributes[attribute][model] = floatAttribute.max;
+                        kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                     }
                     emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
                 }
@@ -357,11 +357,11 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                     }
                     item->fixtureSpecificFloatAttributes[attribute][fixture] += newValue;
                     if (item->fixtureSpecificFloatAttributes.value(attribute).value(fixture) < floatAttribute.min) {
-                        kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                         item->fixtureSpecificFloatAttributes[attribute][fixture] = floatAttribute.min;
+                        kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                     } else if (item->fixtureSpecificFloatAttributes.value(attribute).value(fixture) > floatAttribute.max) {
-                        kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                         item->fixtureSpecificFloatAttributes[attribute][fixture] = floatAttribute.max;
+                        kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                     }
                     emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
                 }
@@ -425,11 +425,11 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                 }
                 item->floatAttributes[attribute] += newValue;
                 if (item->floatAttributes.value(attribute) < floatAttribute.min) {
-                    kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                     item->floatAttributes[attribute] = floatAttribute.min;
+                    kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                 } else if (item->floatAttributes.value(attribute) > floatAttribute.max) {
-                    kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                     item->floatAttributes[attribute] = floatAttribute.max;
+                    kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                 }
                 emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
             }

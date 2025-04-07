@@ -9,5 +9,5 @@
 #include "modellist.h"
 
 ModelList::ModelList(Kernel *core) : ItemList(core, Keys::Model, "Model", "Models") {
-    stringAttributes[CHANNELSATTRIBUTEID] = {"Channels", "D", "^[01DRGBWCMY]+$"};
+    stringAttributes[CHANNELSATTRIBUTEID] = {"Channels", "D", "^[01DdRrGgBbWwCcMmYy]+$"};
 }

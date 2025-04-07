@@ -158,29 +158,47 @@ void DmxEngine::generateDmx() {
             for (int channel = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID); channel < (address + channels.size()); channel++) {
                 float value = 0.0;
                 QChar channelType = channels.at(channel - address);
-                if (channelType == QChar('D')) { // DIMMER
+                bool fine = (
+                    (channelType == QChar('d')) ||
+                    (channelType == QChar('r')) ||
+                    (channelType == QChar('g')) ||
+                    (channelType == QChar('b')) ||
+                    (channelType == QChar('w')) ||
+                    (channelType == QChar('c')) ||
+                    (channelType == QChar('m')) ||
+                    (channelType == QChar('y'))
+                );
+                if (fine) {
+                    channelType = channelType.toUpper();
+                }
+                if (channelType == QChar('D')) { // Dimmer
                     value = dimmer;
-                } else if (channelType == QChar('R')) { // RED
+                } else if (channelType == QChar('R')) { // Red
                     value = red;
-                } else if (channelType == QChar('G')) { // GREEN
+                } else if (channelType == QChar('G')) { // Green
                     value = green;
-                } else if (channelType == QChar('B')) { // BLUE
+                } else if (channelType == QChar('B')) { // Blue
                     value = blue;
-                } else if (channelType == QChar('W')) { // WHITE
+                } else if (channelType == QChar('W')) { // White
                     value = 0.0;
-                } else if (channelType == QChar('C')) { // CYAN
+                } else if (channelType == QChar('C')) { // Cyan
                     value = (100.0 - red);
-                } else if (channelType == QChar('M')) { // MAGENTA
+                } else if (channelType == QChar('M')) { // Magenta
                     value = (100.0 - green);
-                } else if (channelType == QChar('Y')) { // YELLOW
+                } else if (channelType == QChar('Y')) { // Yellow
                     value = (100.0 - blue);
-                } else if (channelType == QChar('0')) {
+                } else if (channelType == QChar('0')) { // DMX 0
                     value = 0.0;
-                } else if (channelType == QChar('1')) {
+                } else if (channelType == QChar('1')) { // DMX 255
                     value = 100.0;
                 }
                 if (channel <= 512) {
-                    dmxUniverses[universe][channel - 1] = (uchar)(value * 2.55 + 0.5);
+                    value *= 655.35;
+                    if (fine) {
+                        dmxUniverses[universe][channel - 1] = (uchar)((int)value % 256);
+                    } else {
+                        dmxUniverses[universe][channel - 1] = (uchar)((int)value / 256);
+                    }
                 }
             }
             for (Raw* raw : fixture->raws) {

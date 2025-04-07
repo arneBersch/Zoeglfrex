@@ -259,11 +259,11 @@ void EffectList::setAttribute(QStringList ids, QMap<int, QString> attributes, QL
                         }
                         effect->stepSpecificFloatAttributes[attribute][step] += newValue;
                         if (effect->stepSpecificFloatAttributes.value(attribute).value(step) < floatAttribute.min) {
-                            kernel->terminal->warning("Can't decrease " + floatAttribute.name + " of Step " + QString::number(step) + " in Effect " + effect->name() + " because value must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                             effect->stepSpecificFloatAttributes[attribute][step] = floatAttribute.min;
+                            kernel->terminal->warning("Can't decrease " + floatAttribute.name + " of Step " + QString::number(step) + " in Effect " + effect->name() + " because value must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                         } else if (effect->stepSpecificFloatAttributes.value(attribute).value(step) > floatAttribute.max) {
-                            kernel->terminal->warning("Can't increase " + floatAttribute.name + " of Step " + QString::number(step) + " in Effect " + effect->name() + " because value must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                             effect->stepSpecificFloatAttributes[attribute][step] = floatAttribute.max;
+                            kernel->terminal->warning("Can't increase " + floatAttribute.name + " of Step " + QString::number(step) + " in Effect " + effect->name() + " because value must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                         }
                         emit dataChanged(index(getItemRow(effect->id), 0), index(getItemRow(effect->id), 0), {Qt::DisplayRole, Qt::EditRole});
                     }

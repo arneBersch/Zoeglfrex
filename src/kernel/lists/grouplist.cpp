@@ -33,7 +33,7 @@ void GroupList::setAttribute(QStringList ids, QMap<int, QString> attributes, QLi
             for (QString fixtureId : fixtureIds) {
                 Fixture* fixture = kernel->fixtures->getItem(fixtureId);
                 if (fixture == nullptr) {
-                    kernel->terminal->warning("Can't add Fixture " + fixtureId + " to Group because it doesn't exist.");
+                    kernel->terminal->warning("Can't add Fixture " + fixtureId + " to Groups because it doesn't exist.");
                 } else {
                     if (!fixtureSelection.contains(fixture)) {
                         fixtureSelection.append(fixture);
