@@ -191,6 +191,102 @@ void EffectList::setAttribute(QStringList ids, QMap<int, QString> attributes, QL
             }
             kernel->terminal->success("Set Raw Step " + QString::number(step) + " of " + QString::number(effectCounter) + " Effects to " + QString::number(raws.length()) + " Raws.");
         }
+    } else if (attribute.startsWith(STEPDURATIONATTRIBUTEID + ".")) {
+        attribute.remove(0, QString(STEPDURATIONATTRIBUTEID + ".").length());
+        FloatAttribute floatAttribute = floatAttributes.value(STEPDURATIONATTRIBUTEID);
+        bool ok;
+        int step = attribute.toInt(&ok);
+        if (!ok) {
+            kernel->terminal->error("Can't set Effect Step Duration because no valid Attribute was given.");
+            return;
+        }
+        if (step < 1) {
+            kernel->terminal->error("Can't set Effect Step Duration because Step has to be at least 1.");
+            return;
+        }
+        if ((value.size() == 1) && (value.first() == Keys::Minus)) {
+            for (QString id : ids) {
+                Effect *effect = getItem(id);
+                if (effect == nullptr) {
+                    effect = addItem(id);
+                }
+                effect->stepDurations.remove(step);
+            }
+            if (ids.size() == 1) {
+                kernel->terminal->success("Removed Step Duration of Step " + QString::number(step) + " in Effect " + getItem(ids.first())->name() + ".");
+            } else {
+                kernel->terminal->success("Removed Step Duration of Step " + QString::number(step) + " in " + QString::number(ids.length()) + " Effects.");
+            }
+        } else {
+            bool difference = (!value.isEmpty() && (value.first() == Keys::Plus));
+            if (difference) {
+                value.removeFirst();
+            }
+            bool negativeValue = (!value.isEmpty() && (value.first() == Keys::Minus));
+            if (negativeValue) {
+                value.removeFirst();
+            }
+            float newValue = kernel->terminal->keysToValue(value);
+            if (text.isEmpty()) {
+                if (newValue < 0) {
+                    kernel->terminal->error("Can't set Effect Step Duration of Step " + QString::number(step) + " because no valid Duration was given.");
+                    return;
+                }
+                if (negativeValue) {
+                    newValue *= -1;
+                }
+            } else {
+                bool ok = true;
+                newValue = text.toFloat(&ok);
+                if (!ok) {
+                    kernel->terminal->error("Can't set Effect Step Duration of Step " + QString::number(step) + " because no valid Duration was given.");
+                    return;
+                }
+            }
+            if (difference) {
+                for (QString id : ids) {
+                    Effect* effect = getItem(id);
+                    if (effect == nullptr) {
+                        effect = addItem(id);
+                    }
+                    if (!effect->stepDurations.contains(step)) {
+                        effect->stepDurations[step] = effect->floatAttributes.value(STEPDURATIONATTRIBUTEID);
+                    }
+                    effect->stepDurations[step] += newValue;
+                    if (effect->stepDurations.value(step) < floatAttribute.min) {
+                        kernel->terminal->warning("Can't decrease Step Duration of Step " + QString::number(step) + " in Effect " + effect->name() + " because Duration must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
+                        effect->stepDurations[step] = floatAttribute.min;
+                    } else if (effect->stepDurations.value(step) > floatAttribute.max) {
+                        kernel->terminal->warning("Can't increase Step Duration of Step " + QString::number(step) + " in Effect " + effect->name() + " because Duration must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
+                        effect->stepDurations[step] = floatAttribute.max;
+                    }
+                    emit dataChanged(index(getItemRow(effect->id), 0), index(getItemRow(effect->id), 0), {Qt::DisplayRole, Qt::EditRole});
+                }
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Set Step Duration of Effect " + getItem(ids.first())->name() + " at Step " + QString::number(step) + + " to " + QString::number(getItem(ids.first())->stepDurations.value(step)) + floatAttribute.unit + ".");
+                } else {
+                    kernel->terminal->success("Changed Step Duration of Step " + QString::number(step) + "at " + QString::number(ids.length()) + " Effects.");
+                }
+            } else {
+                if ((newValue < floatAttribute.min) || (newValue > floatAttribute.max)) {
+                    kernel->terminal->error("Can't set Effect Step Duration of Step " + QString::number(step) + " because Step Duration has to be a number between " + QString::number(floatAttribute.min) + floatAttribute.unit + " and " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
+                    return;
+                }
+                for (QString id : ids) {
+                    Effect* effect = getItem(id);
+                    if (effect == nullptr) {
+                        effect = addItem(id);
+                    }
+                    effect->stepDurations[step] = newValue;
+                    emit dataChanged(index(getItemRow(effect->id), 0), index(getItemRow(effect->id), 0), {Qt::DisplayRole, Qt::EditRole});
+                }
+                if (ids.size() == 1) {
+                    kernel->terminal->success("Set Step Duration of Step " + QString::number(step) + " in Effect " + getItem(ids.first())->name() + " to " + QString::number(newValue) + floatAttribute.unit + ".");
+                } else {
+                    kernel->terminal->success("Set Step Duration of Step " + QString::number(step) + " in " + QString::number(ids.length()) + " Effects to " + QString::number(newValue) + floatAttribute.unit + ".");
+                }
+            }
+        }
     } else {
         ItemList::setAttribute(ids, attributes, value, text);
         for (Effect* effect : items) {
@@ -207,6 +303,16 @@ void EffectList::setAttribute(QStringList ids, QMap<int, QString> attributes, QL
             for (int rawStep : effect->rawSteps.keys()) {
                 if (rawStep > effect->intAttributes.value(STEPSATTRIBUTEID)) {
                     effect->rawSteps.remove(rawStep);
+                }
+            }
+            for (int durationStep : effect->stepDurations.keys()) {
+                if (durationStep > effect->intAttributes.value(STEPSATTRIBUTEID)) {
+                    effect->stepDurations.remove(durationStep);
+                }
+            }
+            for (int fadeStep : effect->stepFades.keys()) {
+                if (fadeStep > effect->intAttributes.value(STEPSATTRIBUTEID)) {
+                    effect->stepFades.remove(fadeStep);
                 }
             }
         }

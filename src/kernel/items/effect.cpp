@@ -54,7 +54,17 @@ QString Effect::info() {
     }
     info += "\n" + kernel->effects->RAWSTEPSATTRIBUTEID + " Raws: " + rawStepValues.join("; ");
     info += "\n" + kernel->effects->STEPDURATIONATTRIBUTEID + " Step Duration: " + QString::number(floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID));
+    QStringList stepDurationValues;
+    for (int step : stepDurations.keys()) {
+        stepDurationValues.append(QString::number(step) + ": " + QString::number(stepDurations.value(step)));
+    }
+    info += "\n    Step Exceptions: " + stepDurationValues.join("; ");
     info += "\n" + kernel->effects->STEPFADEATTRIBUTEID + " Step Fade: " + QString::number(floatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID));
+    QStringList stepFadeValues;
+    for (int step : stepFades.keys()) {
+        stepFadeValues.append(QString::number(step) + ": " + QString::number(stepFades.value(step)));
+    }
+    info += "\n    Step Exceptions: " + stepFadeValues.join("; ");
     info += "\n" + kernel->effects->PHASEATTRIBUTEID + " Phase: " + QString::number(angleAttributes.value(kernel->effects->PHASEATTRIBUTEID));
     QStringList fixturePhaseValues;
     for (Fixture* fixture : fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).keys()) {
@@ -86,6 +96,18 @@ void Effect::writeAttributesToFile(QXmlStreamWriter* fileStream) {
             rawIds.append(raw->id);
         }
         fileStream->writeCharacters(rawIds.join("+"));
+        fileStream->writeEndElement();
+    }
+    for (int step : stepDurations.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", (kernel->effects->STEPDURATIONATTRIBUTEID + "." + QString::number(step)));
+        fileStream->writeCharacters(QString::number(stepDurations.value(step)));
+        fileStream->writeEndElement();
+    }
+    for (int step : stepFades.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", (kernel->effects->STEPFADEATTRIBUTEID + "." + QString::number(step)));
+        fileStream->writeCharacters(QString::number(stepFades.value(step)));
         fileStream->writeEndElement();
     }
 }

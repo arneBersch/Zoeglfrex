@@ -25,6 +25,8 @@ public:
     QMap<int, Intensity*> intensitySteps;
     QMap<int, Color*> colorSteps;
     QMap<int, QList<Raw*>> rawSteps;
+    QMap<int, float> stepDurations;
+    QMap<int, float> stepFades;
     QString info() override;
     void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
 };
