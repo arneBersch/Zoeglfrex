@@ -35,40 +35,46 @@ QString Effect::info() {
     QString info = Item::info();
     info += "\n" + kernel->effects->STEPSATTRIBUTEID + " Steps: " + QString::number(intAttributes.value(kernel->effects->STEPSATTRIBUTEID));
     QStringList intensityStepValues;
-    for (int step : intensitySteps.keys()) {
-        intensityStepValues.append(QString::number(step) + ": " + intensitySteps.value(step)->name());
+    QStringList colorStepValues;
+    QStringList rawStepValues;
+    QStringList stepDurationValues;
+    QStringList stepFadeValues;
+    for (int step = 1; step <= intAttributes.value(kernel->effects->STEPSATTRIBUTEID); step++) {
+        if (intensitySteps.contains(step)) {
+            intensityStepValues.append(QString::number(step) + ": " + intensitySteps.value(step)->name());
+        }
+        if (colorSteps.contains(step)) {
+            colorStepValues.append(QString::number(step) + ": " + colorSteps.value(step)->name());
+        }
+        if (rawSteps.contains(step)) {
+            QStringList rawStepValueValues;
+            for (Raw* raw : kernel->raws->items) {
+                if (rawSteps.value(step).contains(raw)) {
+                    rawStepValueValues.append(raw->name());
+                }
+            }
+            rawStepValues.append(QString::number(step) + ": " + rawStepValueValues.join(", "));
+        }
+        if (stepSpecificFloatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID).contains(step)) {
+            stepDurationValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID).value(step)) + "s");
+        }
+        if (stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).contains(step)) {
+            stepFadeValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).value(step)) + "s");
+        }
     }
     info += "\n" + kernel->effects->INTENSITYSTEPSATTRIBUTEID + " Intensities: " + intensityStepValues.join("; ");
-    QStringList colorStepValues;
-    for (int step : colorSteps.keys()) {
-        colorStepValues.append(QString::number(step) + ": " + colorSteps.value(step)->name());
-    }
     info += "\n" + kernel->effects->COLORSTEPSATTRIBUTEID + " Colors: " + colorStepValues.join("; ");
-    QStringList rawStepValues;
-    for (int step : rawSteps.keys()) {
-        QStringList rawStepValueValues;
-        for (Raw* raw : rawSteps.value(step)) {
-            rawStepValueValues.append(raw->name());
-        }
-        rawStepValues.append(QString::number(step) + ": " + rawStepValueValues.join(", "));
-    }
     info += "\n" + kernel->effects->RAWSTEPSATTRIBUTEID + " Raws: " + rawStepValues.join("; ");
     info += "\n" + kernel->effects->STEPDURATIONATTRIBUTEID + " Step Duration: " + QString::number(floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID)) + "s";
-    QStringList stepDurationValues;
-    for (int step : stepSpecificFloatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID).keys()) {
-        stepDurationValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID).value(step)) + "s");
-    }
     info += "\n    Step Exceptions: " + stepDurationValues.join("; ");
     info += "\n" + kernel->effects->STEPFADEATTRIBUTEID + " Step Fade: " + QString::number(floatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID)) + "s";
-    QStringList stepFadeValues;
-    for (int step : stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).keys()) {
-        stepFadeValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).value(step)) + "s");
-    }
     info += "\n    Step Exceptions: " + stepFadeValues.join("; ");
     info += "\n" + kernel->effects->PHASEATTRIBUTEID + " Phase: " + QString::number(angleAttributes.value(kernel->effects->PHASEATTRIBUTEID)) + "°";
     QStringList fixturePhaseValues;
-    for (Fixture* fixture : fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).keys()) {
-        fixturePhaseValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).value(fixture)) + "°");
+    for (Fixture* fixture : kernel->fixtures->items) {
+        if (fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).contains(fixture)) {
+            fixturePhaseValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).value(fixture)) + "°");
+        }
     }
     info += "\n    Fixture Exceptions: " + fixturePhaseValues.join("; ");
     return info;

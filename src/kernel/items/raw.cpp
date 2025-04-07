@@ -46,26 +46,36 @@ Raw::~Raw() {
 QString Raw::info() {
     QString info = Item::info();
     QStringList channelValue;
-    for (int channel : channelValues.keys()) {
-        channelValue.append(QString::number(channel) + " @ " + QString::number(channelValues.value(channel)));
+    for (int channel = 1; channel <= 512; channel++) {
+        if (channelValues.contains(channel)) {
+            channelValue.append(QString::number(channel) + " @ " + QString::number(channelValues.value(channel)));
+        }
     }
     info += "\n" + kernel->raws->CHANNELVALUEATTRIBUTEID + ".x Channel Values: " + channelValue.join(", ");
     QStringList modelChannelValue;
-    for (Model* model : modelSpecificChannelValues.keys()) {
-        QStringList modelChannelValueValues;
-        for (int channel : modelSpecificChannelValues.value(model).keys()) {
-            modelChannelValueValues.append(QString::number(channel) + " @ " + QString::number(modelSpecificChannelValues.value(model).value(channel)));
+    for (Model* model : kernel->models->items) {
+        if (modelSpecificChannelValues.contains(model)) {
+            QStringList modelChannelValueValues;
+            for (int channel = 1; channel <= 512; channel++) {
+                if (modelSpecificChannelValues.value(model).contains(channel)) {
+                    modelChannelValueValues.append(QString::number(channel) + " @ " + QString::number(modelSpecificChannelValues.value(model).value(channel)));
+                }
+            }
+            modelChannelValue.append(model->name() + ": " + modelChannelValueValues.join(", "));
         }
-        modelChannelValue.append(model->name() + ": " + modelChannelValueValues.join(", "));
     }
     info += "\n    Model Exceptions: " + modelChannelValue.join("; ");
     QStringList fixtureChannelValue;
-    for (Fixture* fixture : fixtureSpecificChannelValues.keys()) {
-        QStringList fixtureChannelValueValues;
-        for (int channel : fixtureSpecificChannelValues.value(fixture).keys()) {
-            fixtureChannelValueValues.append(QString::number(channel) + " @ " + QString::number(fixtureSpecificChannelValues.value(fixture).value(channel)));
+    for (Fixture* fixture : kernel->fixtures->items) {
+        if (fixtureSpecificChannelValues.contains(fixture)) {
+            QStringList fixtureChannelValueValues;
+            for (int channel = 1; channel <= 512; channel++) {
+                if (fixtureSpecificChannelValues.value(fixture).contains(channel)) {
+                    fixtureChannelValueValues.append(QString::number(channel) + " @ " + QString::number(fixtureSpecificChannelValues.value(fixture).value(channel)));
+                }
+            }
+            fixtureChannelValue.append(fixture->name() + ": " + fixtureChannelValueValues.join(", "));
         }
-        fixtureChannelValue.append(fixture->name() + ": " + fixtureChannelValueValues.join(", "));
     }
     info += "\n    Fixture Exceptions: " + fixtureChannelValue.join("; ");
     return info;

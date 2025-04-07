@@ -28,31 +28,39 @@ Cue::~Cue() {
 QString Cue::info() {
     QString info = Item::info();
     QStringList intensityValues;
-    for (Group* group : intensities.keys()) {
-        intensityValues.append(group->name() + " @ " + intensities.value(group)->name());
+    for (Group* group : kernel->groups->items) {
+        if (intensities.contains(group)) {
+            intensityValues.append(group->name() + " @ " + intensities.value(group)->name());
+        }
     }
     info += "\n" + kernel->cues->INTENSITIESATTRIBUTEID + " Intensities: " + intensityValues.join("; ");
     QStringList colorValues;
-    for (Group* group : colors.keys()) {
-        colorValues.append(group->name() + " @ " + colors.value(group)->name());
+    for (Group* group : kernel->groups->items) {
+        if (colors.contains(group)) {
+            colorValues.append(group->name() + " @ " + colors.value(group)->name());
+        }
     }
     info += "\n" + kernel->cues->COLORSATTRIBUTEID + " Colors: " + colorValues.join("; ");
     QStringList rawValues;
-    for (Group* group : raws.keys()) {
-        QStringList rawValueItems;
-        for (Raw* raw : raws.value(group)) {
-            rawValueItems.append(raw->name());
+    for (Group* group : kernel->groups->items) {
+        if (raws.contains(group)) {
+            QStringList rawValueItems;
+            for (Raw* raw : raws.value(group)) {
+                rawValueItems.append(raw->name());
+            }
+            rawValues.append(group->name() + " @ " + rawValueItems.join(" + "));
         }
-        rawValues.append(group->name() + " @ " + rawValueItems.join(" + "));
     }
     info += "\n" + kernel->cues->RAWSATTRIBUTEID + " Raws: " + rawValues.join("; ");
     QStringList effectValues;
-    for (Group* group : effects.keys()) {
-        QStringList effectValueItems;
-        for (Effect* effect : effects.value(group)) {
-            effectValueItems.append(effect->name());
+    for (Group* group : kernel->groups->items) {
+        if (effects.contains(group)) {
+            QStringList effectValueItems;
+            for (Effect* effect : effects.value(group)) {
+                effectValueItems.append(effect->name());
+            }
+            effectValues.append(group->name() + " @ " + effectValueItems.join(" + "));
         }
-        effectValues.append(group->name() + " @ " + effectValueItems.join(" + "));
     }
     info += "\n" + kernel->cues->EFFECTSATTRIBUTEID + " Effects: " + effectValues.join("; ");
     info += "\n" + kernel->cues->FADEATTRIBUTEID + " Fade: " + QString::number(floatAttributes.value(kernel->cues->FADEATTRIBUTEID)) + "s";
