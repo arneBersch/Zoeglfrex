@@ -79,15 +79,29 @@ void DmxEngine::generateDmx() {
                     if (oldGroupEffectFrames.contains(group) && oldGroupEffectFrames.value(group).contains(effect)) {
                         groupEffectFrames[group][effect] = (oldGroupEffectFrames.value(group).value(effect) + 1);
                     }
-                    const int totalEffectFrames = effect->floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID) * PROCESSINGRATE * effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID);
-                    for (Fixture* fixture : group->fixtures) {
-                        int phase = groupEffectFrames[group][effect];
-                        if (effect->fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).contains(fixture)) {
-                            phase += effect->fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).value(fixture) * (float)totalEffectFrames / 360.0;
+                    QList<int> stepFrames;
+                    int totalFrames = 0;
+                    for (int step = 1; step <= effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID); step++) {
+                        if (effect->stepSpecificFloatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID).contains(step)) {
+                            stepFrames.append(PROCESSINGRATE * effect->stepSpecificFloatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID).value(step));
                         } else {
-                            phase += effect->angleAttributes.value(kernel->effects->PHASEATTRIBUTEID) * (float)totalEffectFrames / 360.0;
+                            stepFrames.append(PROCESSINGRATE * effect->floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID));
                         }
-                        const int step = ((int)((float)phase / (effect->floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID) * (float)PROCESSINGRATE)) % (effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) + 1;
+                        totalFrames += stepFrames[step - 1];
+                    }
+                    for (Fixture* fixture : group->fixtures) {
+                        int frame = groupEffectFrames[group][effect];
+                        if (effect->fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).contains(fixture)) {
+                            frame += effect->fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).value(fixture) * (float)totalFrames / 360.0;
+                        } else {
+                            frame += effect->angleAttributes.value(kernel->effects->PHASEATTRIBUTEID) * (float)totalFrames / 360.0;
+                        }
+                        frame %= totalFrames;
+                        int step = 1;
+                        while (frame > stepFrames[step - 1]) {
+                            frame -= stepFrames[step - 1];
+                            step++;
+                        }
                         if (effect->intensitySteps.contains(step)) {
                             fixtureDimmer[fixture] = effect->intensitySteps.value(step)->getDimmer(fixture);
                         }
