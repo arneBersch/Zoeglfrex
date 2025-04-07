@@ -53,19 +53,19 @@ QString Effect::info() {
         rawStepValues.append(QString::number(step) + ": " + rawStepValueValues.join(", "));
     }
     info += "\n" + kernel->effects->RAWSTEPSATTRIBUTEID + " Raws: " + rawStepValues.join("; ");
-    info += "\n" + kernel->effects->STEPDURATIONATTRIBUTEID + " Step Duration: " + QString::number(floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID));
+    info += "\n" + kernel->effects->STEPDURATIONATTRIBUTEID + " Step Duration: " + QString::number(floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID)) + "s";
     QStringList stepDurationValues;
-    for (int step : stepDurations.keys()) {
-        stepDurationValues.append(QString::number(step) + ": " + QString::number(stepDurations.value(step)));
+    for (int step : stepSpecificFloatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID).keys()) {
+        stepDurationValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID).value(step)) + "s");
     }
     info += "\n    Step Exceptions: " + stepDurationValues.join("; ");
-    info += "\n" + kernel->effects->STEPFADEATTRIBUTEID + " Step Fade: " + QString::number(floatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID));
+    info += "\n" + kernel->effects->STEPFADEATTRIBUTEID + " Step Fade: " + QString::number(floatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID)) + "s";
     QStringList stepFadeValues;
-    for (int step : stepFades.keys()) {
-        stepFadeValues.append(QString::number(step) + ": " + QString::number(stepFades.value(step)));
+    for (int step : stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).keys()) {
+        stepFadeValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).value(step)) + "s");
     }
     info += "\n    Step Exceptions: " + stepFadeValues.join("; ");
-    info += "\n" + kernel->effects->PHASEATTRIBUTEID + " Phase: " + QString::number(angleAttributes.value(kernel->effects->PHASEATTRIBUTEID));
+    info += "\n" + kernel->effects->PHASEATTRIBUTEID + " Phase: " + QString::number(angleAttributes.value(kernel->effects->PHASEATTRIBUTEID)) + "°";
     QStringList fixturePhaseValues;
     for (Fixture* fixture : fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).keys()) {
         fixturePhaseValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).value(fixture)) + "°");
@@ -98,16 +98,12 @@ void Effect::writeAttributesToFile(QXmlStreamWriter* fileStream) {
         fileStream->writeCharacters(rawIds.join("+"));
         fileStream->writeEndElement();
     }
-    for (int step : stepDurations.keys()) {
-        fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", (kernel->effects->STEPDURATIONATTRIBUTEID + "." + QString::number(step)));
-        fileStream->writeCharacters(QString::number(stepDurations.value(step)));
-        fileStream->writeEndElement();
-    }
-    for (int step : stepFades.keys()) {
-        fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", (kernel->effects->STEPFADEATTRIBUTEID + "." + QString::number(step)));
-        fileStream->writeCharacters(QString::number(stepFades.value(step)));
-        fileStream->writeEndElement();
+    for (QString attribute : stepSpecificFloatAttributes.keys()) {
+        for (int step : stepSpecificFloatAttributes.value(attribute).keys()) {
+            fileStream->writeStartElement("Attribute");
+            fileStream->writeAttribute("ID", (attribute + "." + QString::number(step)));
+            fileStream->writeCharacters(QString::number(stepSpecificFloatAttributes.value(attribute).value(step)));
+            fileStream->writeEndElement();
+        }
     }
 }

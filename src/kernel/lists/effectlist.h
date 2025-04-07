@@ -29,6 +29,9 @@ public:
     const QString STEPFADEATTRIBUTEID = "7";
     const QString PHASEATTRIBUTEID = "8";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
+private:
+    Effect* addItem(QString id) override;
+    QMap<QString, FloatAttribute> stepSpecificFloatAttributes;
 };
 
 #include "kernel/kernel.h"
