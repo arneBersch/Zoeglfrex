@@ -493,7 +493,7 @@ void Terminal::execute() {
                         }
                         currentIdString = kernel->cuelistView->currentCue->id;
                     } else {
-                        error("Invalid Attributes given..");
+                        error("Invalid Attributes given.");
                         return;
                     }
                 }

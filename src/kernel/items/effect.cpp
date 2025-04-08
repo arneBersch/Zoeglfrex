@@ -37,7 +37,7 @@ QString Effect::info() {
     QStringList intensityStepValues;
     QStringList colorStepValues;
     QStringList rawStepValues;
-    QStringList stepDurationValues;
+    QStringList stepHoldValues;
     QStringList stepFadeValues;
     for (int step = 1; step <= intAttributes.value(kernel->effects->STEPSATTRIBUTEID); step++) {
         if (intensitySteps.contains(step)) {
@@ -55,8 +55,8 @@ QString Effect::info() {
             }
             rawStepValues.append(QString::number(step) + ": " + rawStepValueValues.join(", "));
         }
-        if (stepSpecificFloatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID).contains(step)) {
-            stepDurationValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID).value(step)) + "s");
+        if (stepSpecificFloatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID).contains(step)) {
+            stepHoldValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID).value(step)) + "s");
         }
         if (stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).contains(step)) {
             stepFadeValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).value(step)) + "s");
@@ -65,8 +65,8 @@ QString Effect::info() {
     info += "\n" + kernel->effects->INTENSITYSTEPSATTRIBUTEID + " Intensities: " + intensityStepValues.join("; ");
     info += "\n" + kernel->effects->COLORSTEPSATTRIBUTEID + " Colors: " + colorStepValues.join("; ");
     info += "\n" + kernel->effects->RAWSTEPSATTRIBUTEID + " Raws: " + rawStepValues.join("; ");
-    info += "\n" + kernel->effects->STEPDURATIONATTRIBUTEID + " Step Duration: " + QString::number(floatAttributes.value(kernel->effects->STEPDURATIONATTRIBUTEID)) + "s";
-    info += "\n    Step Exceptions: " + stepDurationValues.join("; ");
+    info += "\n" + kernel->effects->STEPHOLDATTRIBUTEID + " Step Hold: " + QString::number(floatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID)) + "s";
+    info += "\n    Step Exceptions: " + stepHoldValues.join("; ");
     info += "\n" + kernel->effects->STEPFADEATTRIBUTEID + " Step Fade: " + QString::number(floatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID)) + "s";
     info += "\n    Step Exceptions: " + stepFadeValues.join("; ");
     info += "\n" + kernel->effects->PHASEATTRIBUTEID + " Phase: " + QString::number(angleAttributes.value(kernel->effects->PHASEATTRIBUTEID)) + "°";
