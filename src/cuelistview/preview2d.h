@@ -5,7 +5,7 @@
 class Kernel;
 class Fixture;
 
-class Preview2d : public QGraphicsView {
+class Preview2d : public QWidget {
 public:
     Preview2d(Kernel* core);
     void updateImage();
@@ -13,6 +13,7 @@ public:
     const int FIXTURESIZE = 70;
 private:
     QGraphicsScene *scene;
+    QGraphicsView *view;
     Kernel* kernel;
 };
 
