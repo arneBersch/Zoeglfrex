@@ -13,8 +13,10 @@
 
 #include "sacnserver.h"
 class Kernel;
+class Fixture;
 class Effect;
 class Cue;
+struct rgbColor;
 
 class DmxEngine : public QWidget {
     Q_OBJECT
@@ -23,9 +25,10 @@ public:
     SacnServer *sacnServer;
 private:
     void generateDmx();
+    QMap<Group*, QMap<Effect*, int>> renderCue(Cue* cue, QMap<Fixture*, float>* dimmerValues, QMap<Fixture*, rgbColor>* colorValues, QMap<Fixture*, QList<Raw*>>* rawValues);
     const int PROCESSINGRATE = 40; // 40 FPS
     QTimer *timer;
-    Cue* lastCue;
+    Cue* currentCue;
     QMap<Group*, QMap<Effect*, int>> groupEffectFrames;
     int remainingFadeFrames = 0;
     int totalFadeFrames = 0;
