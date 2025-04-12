@@ -110,7 +110,6 @@ void DmxEngine::generateDmx() {
             fixture->red = currentCueRed + (lastCueRed - currentCueRed) * (float)remainingFadeFrames / (float)totalFadeFrames;
             fixture->green = currentCueGreen + (lastCueGreen - currentCueGreen) * (float)remainingFadeFrames / (float)totalFadeFrames;
             fixture->blue = currentCueBlue + (lastCueBlue - currentCueBlue) * (float)remainingFadeFrames / (float)totalFadeFrames;
-            qInfo() << remainingFadeFrames << "of" << totalFadeFrames << "Frames left: Fadeing from" << lastCueDimmer << "to" << currentCueDimmer << "gets" << fixture->dimmer;
         } else {
             fixture->dimmer = currentCueDimmer;
             fixture->red = currentCueRed;
