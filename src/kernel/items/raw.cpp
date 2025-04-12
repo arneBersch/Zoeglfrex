@@ -18,9 +18,6 @@ Raw::Raw(const Raw* item) : Item(item) {
 }
 
 Raw::~Raw() {
-    for (Fixture *fixture : kernel->fixtures->items) {
-        fixture->raws.removeAll(this);
-    }
     for (Effect *effect : kernel->effects->items) {
         for (int step : effect->rawSteps.keys()) {
             if (effect->rawSteps.contains(step)) {

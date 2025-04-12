@@ -76,22 +76,19 @@ void DmxEngine::generateDmx() {
             }
         }
     }
+    QMap<int, QByteArray> dmxUniverses;
     for (Fixture* fixture : kernel->fixtures->items) {
-        float currentCueDimmer = 0.0;
-        float currentCueRed = 100.0;
-        float currentCueGreen = 100.0;
-        float currentCueBlue = 100.0;
+        float dimmer = 0.0;
+        float red = 100.0;
+        float green = 100.0;
+        float blue = 100.0;
         if (currentCueFixtureDimmer.contains(fixture)) {
-            currentCueDimmer = currentCueFixtureDimmer.value(fixture);
+            dimmer = currentCueFixtureDimmer.value(fixture);
         }
         if (currentCueFixtureColor.contains(fixture)) {
-            currentCueRed = currentCueFixtureColor.value(fixture).red;
-            currentCueGreen = currentCueFixtureColor.value(fixture).green;
-            currentCueBlue = currentCueFixtureColor.value(fixture).blue;
-        }
-        fixture->raws.clear();
-        if (currentCueFixtureRaws.contains(fixture)) {
-            fixture->raws = currentCueFixtureRaws.value(fixture);
+            red = currentCueFixtureColor.value(fixture).red;
+            green = currentCueFixtureColor.value(fixture).green;
+            blue = currentCueFixtureColor.value(fixture).blue;
         }
         if (remainingFadeFrames > 0) {
             float lastCueDimmer = 0.0;
@@ -106,19 +103,11 @@ void DmxEngine::generateDmx() {
                 lastCueGreen = lastCueFixtureColor.value(fixture).green;
                 lastCueBlue = lastCueFixtureColor.value(fixture).blue;
             }
-            fixture->dimmer = currentCueDimmer + (lastCueDimmer - currentCueDimmer) * (float)remainingFadeFrames / (float)totalFadeFrames;
-            fixture->red = currentCueRed + (lastCueRed - currentCueRed) * (float)remainingFadeFrames / (float)totalFadeFrames;
-            fixture->green = currentCueGreen + (lastCueGreen - currentCueGreen) * (float)remainingFadeFrames / (float)totalFadeFrames;
-            fixture->blue = currentCueBlue + (lastCueBlue - currentCueBlue) * (float)remainingFadeFrames / (float)totalFadeFrames;
-        } else {
-            fixture->dimmer = currentCueDimmer;
-            fixture->red = currentCueRed;
-            fixture->green = currentCueGreen;
-            fixture->blue = currentCueBlue;
+            dimmer += (lastCueDimmer - dimmer) * (float)remainingFadeFrames / (float)totalFadeFrames;
+            red += (lastCueRed - red) * (float)remainingFadeFrames / (float)totalFadeFrames;
+            green += (lastCueGreen - green) * (float)remainingFadeFrames / (float)totalFadeFrames;
+            blue += (lastCueBlue - blue) * (float)remainingFadeFrames / (float)totalFadeFrames;
         }
-    }
-    QMap<int, QByteArray> dmxUniverses;
-    for (Fixture* fixture : kernel->fixtures->items) {
         const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
         if ((address > 0) && (fixture->model != nullptr)) {
             const QString channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
@@ -126,16 +115,13 @@ void DmxEngine::generateDmx() {
             if (!dmxUniverses.contains(universe)) {
                 dmxUniverses[universe] = QByteArray(512, 0);
             }
-            float dimmer = fixture->dimmer;
-            float red = fixture->red;
-            float green = fixture->green;
-            float blue = fixture->blue;
             if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (((kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) || (kernel->cuelistView->currentFixture == fixture))) { // Highlight
-                dimmer = 100.0;
-                red = 100.0;
-                green = 100.0;
-                blue = 100.0;
+                dimmer = 100;
+                red = 100;
+                green = 100;
+                blue = 100;
             }
+            kernel->cuelistView->preview2d->fixtureCircles[fixture]->setBrush(QBrush(QColor((red / 100 * dimmer / 100 * 255), (green / 100 * dimmer / 100 * 255), (blue / 100 * dimmer / 100 * 255))));
             if (!channels.contains('D')) {
                 red *= (dimmer / 100.0);
                 green *= (dimmer / 100.0);
@@ -153,7 +139,7 @@ void DmxEngine::generateDmx() {
                     (channelType == QChar('c')) ||
                     (channelType == QChar('m')) ||
                     (channelType == QChar('y'))
-                );
+                    );
                 if (fine) {
                     channelType = channelType.toUpper();
                 }
@@ -190,28 +176,29 @@ void DmxEngine::generateDmx() {
                     }
                 }
             }
-            for (Raw* raw : fixture->raws) {
-                for (int channel : raw->channelValues.keys()) {
-                    if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
-                        dmxUniverses[universe][address + channel - 1] = raw->channelValues.value(channel);
-                    }
-                }
-                if (raw->modelSpecificChannelValues.contains(fixture->model)) {
-                    for (int channel : raw->modelSpecificChannelValues.value(fixture->model).keys()) {
+            if (currentCueFixtureRaws.contains(fixture)) {
+                for (Raw* raw : currentCueFixtureRaws.value(fixture)) {
+                    for (int channel : raw->channelValues.keys()) {
                         if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
-                            dmxUniverses[universe][address + channel - 1] = raw->modelSpecificChannelValues.value(fixture->model).value(channel);
+                            dmxUniverses[universe][address + channel - 1] = raw->channelValues.value(channel);
                         }
                     }
-                }
-                if (raw->fixtureSpecificChannelValues.contains(fixture)) {
-                    for (int channel : raw->fixtureSpecificChannelValues.value(fixture).keys()) {
-                        if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
-                            dmxUniverses[universe][address + channel - 1] = raw->fixtureSpecificChannelValues.value(fixture).value(channel);
+                    if (raw->modelSpecificChannelValues.contains(fixture->model)) {
+                        for (int channel : raw->modelSpecificChannelValues.value(fixture->model).keys()) {
+                            if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
+                                dmxUniverses[universe][address + channel - 1] = raw->modelSpecificChannelValues.value(fixture->model).value(channel);
+                            }
+                        }
+                    }
+                    if (raw->fixtureSpecificChannelValues.contains(fixture)) {
+                        for (int channel : raw->fixtureSpecificChannelValues.value(fixture).keys()) {
+                            if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
+                                dmxUniverses[universe][address + channel - 1] = raw->fixtureSpecificChannelValues.value(fixture).value(channel);
+                            }
                         }
                     }
                 }
             }
-
         }
     }
     if (remainingFadeFrames > 0) {

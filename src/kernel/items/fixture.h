@@ -21,11 +21,6 @@ public:
     Fixture(const Fixture* item);
     ~Fixture();
     Model* model = nullptr;
-    float dimmer = 0.0;
-    float red = 0.0;
-    float green = 0.0;
-    float blue = 0.0;
-    QList<Raw*> raws;
     QString name() override;
     QString info() override;
     void writeAttributesToFile(QXmlStreamWriter* fileStream) override;

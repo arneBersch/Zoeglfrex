@@ -29,15 +29,7 @@ void Preview2d::updateImage() {
     for (Fixture* fixture : fixtureCircles.keys()) {
         QGraphicsEllipseItem *ellipse = fixtureCircles.value(fixture);
         ellipse->setPos(100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONXATTRIBUTEID), -100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONYATTRIBUTEID));
-        const float red = fixture->red / 100 * fixture->dimmer / 100 * 255;
-        const float green = fixture->green / 100 * fixture->dimmer / 100 * 255;
-        const float blue = fixture->blue / 100 * fixture->dimmer / 100 * 255;
-        ellipse->setBrush(QBrush(QColor(red, green, blue)));
-        if ((kernel->cuelistView->currentGroup != nullptr) && (((kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) || (kernel->cuelistView->currentFixture == fixture))) { // Highlight
-            ellipse->setPen(QPen(QBrush(Qt::white), 5));
-        } else {
-            ellipse->setPen(Qt::NoPen);
-        }
+        ellipse->setPen(Qt::NoPen);
         if (!scene->items().contains(ellipse)) {
             scene->addItem(ellipse);
         }
