@@ -28,7 +28,8 @@ private:
     QMap<Group*, QMap<Effect*, int>> renderCue(Cue* cue, QMap<Fixture*, float>* dimmerValues, QMap<Fixture*, rgbColor>* colorValues, QMap<Fixture*, QList<Raw*>>* rawValues);
     const int PROCESSINGRATE = 40; // 40 FPS
     QTimer *timer;
-    Cue* currentCue;
+    Cue* currentCue = nullptr;
+    Cue* lastCue = nullptr;
     QMap<Group*, QMap<Effect*, int>> groupEffectFrames;
     int remainingFadeFrames = 0;
     int totalFadeFrames = 0;
