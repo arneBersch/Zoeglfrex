@@ -92,21 +92,27 @@ void DmxEngine::generateDmx() {
         }
         if (remainingFadeFrames > 0) {
             float lastCueDimmer = 0.0;
-            float lastCueRed = 100.0;
-            float lastCueGreen = 100.0;
-            float lastCueBlue = 100.0;
             if (lastCueFixtureDimmer.contains(fixture)) {
                 lastCueDimmer = lastCueFixtureDimmer.value(fixture);
             }
+            dimmer += (lastCueDimmer - dimmer) * (float)remainingFadeFrames / (float)totalFadeFrames;
+            float lastCueRed = 100.0;
+            float lastCueGreen = 100.0;
+            float lastCueBlue = 100.0;
             if (lastCueFixtureColor.contains(fixture)) {
                 lastCueRed = lastCueFixtureColor.value(fixture).red;
                 lastCueGreen = lastCueFixtureColor.value(fixture).green;
                 lastCueBlue = lastCueFixtureColor.value(fixture).blue;
             }
-            dimmer += (lastCueDimmer - dimmer) * (float)remainingFadeFrames / (float)totalFadeFrames;
-            red += (lastCueRed - red) * (float)remainingFadeFrames / (float)totalFadeFrames;
-            green += (lastCueGreen - green) * (float)remainingFadeFrames / (float)totalFadeFrames;
-            blue += (lastCueBlue - blue) * (float)remainingFadeFrames / (float)totalFadeFrames;
+            if (currentCueFixtureDimmer.contains(fixture)) {
+                red += (lastCueRed - red) * (float)remainingFadeFrames / (float)totalFadeFrames;
+                green += (lastCueGreen - green) * (float)remainingFadeFrames / (float)totalFadeFrames;
+                blue += (lastCueBlue - blue) * (float)remainingFadeFrames / (float)totalFadeFrames;
+            } else {
+                red = lastCueRed;
+                green = lastCueGreen;
+                blue = lastCueBlue;
+            }
         }
         const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
         if ((address > 0) && (fixture->model != nullptr)) {
@@ -201,17 +207,20 @@ void DmxEngine::generateDmx() {
             }
         }
     }
+    sacnServer->send(dmxUniverses);
     if (remainingFadeFrames > 0) {
         remainingFadeFrames--;
+        fadeProgress->setValue(totalFadeFrames - remainingFadeFrames);
+        fadeProgress->setRange(0, totalFadeFrames);
+    } else {
+        fadeProgress->setValue(1);
+        fadeProgress->setRange(0, 1);
     }
-    sacnServer->send(dmxUniverses);
-    fadeProgress->setValue(totalFadeFrames + 1 - remainingFadeFrames);
-    fadeProgress->setRange(0, totalFadeFrames + 1);
-
     kernel->cuelistView->preview2d->updateImage();
 }
 
 QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, float>* fixtureDimmers, QMap<Fixture*, rgbColor>* fixtureColors, QMap<Fixture*, QList<Raw*>>* fixtureRaws) {
+    Q_ASSERT(cue != nullptr);
     QMap<Group*, QMap<Effect*, int>> newGroupEffectFrames;
     for (Group* group : kernel->groups->items) {
         if (cue->intensities.contains(group)) {
@@ -329,6 +338,25 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                         }
                     }
                 }
+            }
+        }
+    }
+    for (Fixture* fixture : kernel->fixtures->items) {
+        if (!fixtureDimmers->contains(fixture)) {
+            int cueRow = kernel->cues->getItemRow(cue->id);
+            while ((cueRow < kernel->cues->items.length()) && !fixtureColors->contains(fixture)) {
+                Cue* cue = kernel->cues->items[cueRow];
+                for (Group* group : kernel->groups->items) {
+                    if (group->fixtures.contains(fixture)) {
+                        if (cue->intensities.contains(group)) {
+                            (*fixtureColors)[fixture] = {100, 100, 100};
+                        }
+                        if (cue->colors.contains(group)) {
+                            (*fixtureColors)[fixture] = cue->colors.value(group)->getRGB(fixture);
+                        }
+                    }
+                }
+                cueRow++;
             }
         }
     }
