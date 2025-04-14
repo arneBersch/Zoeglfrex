@@ -28,6 +28,11 @@ public:
     QMap<QString, QMap<int, float>> stepSpecificFloatAttributes;
     QString info() override;
     void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
+    float getDimmer(Fixture* fixture, int frame);
+    rgbColor getRGB(Fixture* fixture, int frame);
+    QList<Raw*> getRaws(Fixture* fixture, int frame);
+private:
+    int getStep(Fixture* fixture, int frame, float* fade);
 };
 
 #endif // EFFECT_H

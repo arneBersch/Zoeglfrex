@@ -78,40 +78,32 @@ void DmxEngine::generateDmx() {
     }
     QMap<int, QByteArray> dmxUniverses;
     for (Fixture* fixture : kernel->fixtures->items) {
-        float dimmer = 0.0;
-        float red = 100.0;
-        float green = 100.0;
-        float blue = 100.0;
+        float dimmer = 0;
+        rgbColor color = {100, 100, 100};
         if (currentCueFixtureDimmer.contains(fixture)) {
             dimmer = currentCueFixtureDimmer.value(fixture);
         }
         if (currentCueFixtureColor.contains(fixture)) {
-            red = currentCueFixtureColor.value(fixture).red;
-            green = currentCueFixtureColor.value(fixture).green;
-            blue = currentCueFixtureColor.value(fixture).blue;
+            color = currentCueFixtureColor.value(fixture);
         }
         if (remainingFadeFrames > 0) {
-            float lastCueDimmer = 0.0;
+            float lastCueDimmer = 0;
+            rgbColor lastCueColor = {100, 100, 100};
             if (lastCueFixtureDimmer.contains(fixture)) {
                 lastCueDimmer = lastCueFixtureDimmer.value(fixture);
+            } else {
+                lastCueColor = color;
             }
             dimmer += (lastCueDimmer - dimmer) * (float)remainingFadeFrames / (float)totalFadeFrames;
-            float lastCueRed = 100.0;
-            float lastCueGreen = 100.0;
-            float lastCueBlue = 100.0;
             if (lastCueFixtureColor.contains(fixture)) {
-                lastCueRed = lastCueFixtureColor.value(fixture).red;
-                lastCueGreen = lastCueFixtureColor.value(fixture).green;
-                lastCueBlue = lastCueFixtureColor.value(fixture).blue;
+                lastCueColor = lastCueFixtureColor.value(fixture);
             }
             if (currentCueFixtureDimmer.contains(fixture)) {
-                red += (lastCueRed - red) * (float)remainingFadeFrames / (float)totalFadeFrames;
-                green += (lastCueGreen - green) * (float)remainingFadeFrames / (float)totalFadeFrames;
-                blue += (lastCueBlue - blue) * (float)remainingFadeFrames / (float)totalFadeFrames;
+                color.red += (lastCueColor.red - color.red) * (float)remainingFadeFrames / (float)totalFadeFrames;
+                color.green += (lastCueColor.green - color.green) * (float)remainingFadeFrames / (float)totalFadeFrames;
+                color.blue += (lastCueColor.blue - color.blue) * (float)remainingFadeFrames / (float)totalFadeFrames;
             } else {
-                red = lastCueRed;
-                green = lastCueGreen;
-                blue = lastCueBlue;
+                color = lastCueColor;
             }
         }
         const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
@@ -123,15 +115,13 @@ void DmxEngine::generateDmx() {
             }
             if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (((kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) || (kernel->cuelistView->currentFixture == fixture))) { // Highlight
                 dimmer = 100;
-                red = 100;
-                green = 100;
-                blue = 100;
+                color = {100, 100, 100};
             }
-            kernel->cuelistView->preview2d->fixtureCircles[fixture]->setBrush(QBrush(QColor((red / 100 * dimmer / 100 * 255), (green / 100 * dimmer / 100 * 255), (blue / 100 * dimmer / 100 * 255))));
+            kernel->cuelistView->preview2d->fixtureCircles[fixture]->setBrush(QBrush(QColor((color.red / 100 * dimmer / 100 * 255), (color.green / 100 * dimmer / 100 * 255), (color.blue / 100 * dimmer / 100 * 255))));
             if (!channels.contains('D')) {
-                red *= (dimmer / 100.0);
-                green *= (dimmer / 100.0);
-                blue *= (dimmer / 100.0);
+                color.red *= (dimmer / 100.0);
+                color.green *= (dimmer / 100.0);
+                color.blue *= (dimmer / 100.0);
             }
             for (int channel = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID); channel < (address + channels.size()); channel++) {
                 float value = 0.0;
@@ -152,19 +142,19 @@ void DmxEngine::generateDmx() {
                 if (channelType == QChar('D')) { // Dimmer
                     value = dimmer;
                 } else if (channelType == QChar('R')) { // Red
-                    value = red;
+                    value = color.red;
                 } else if (channelType == QChar('G')) { // Green
-                    value = green;
+                    value = color.green;
                 } else if (channelType == QChar('B')) { // Blue
-                    value = blue;
+                    value = color.blue;
                 } else if (channelType == QChar('W')) { // White
                     value = 0.0;
                 } else if (channelType == QChar('C')) { // Cyan
-                    value = (100.0 - red);
+                    value = (100.0 - color.red);
                 } else if (channelType == QChar('M')) { // Magenta
-                    value = (100.0 - green);
+                    value = (100.0 - color.green);
                 } else if (channelType == QChar('Y')) { // Yellow
-                    value = (100.0 - blue);
+                    value = (100.0 - color.blue);
                 } else if (channelType == QChar('0')) { // DMX 0
                     value = 0.0;
                 } else if (channelType == QChar('1')) { // DMX 255
@@ -249,93 +239,22 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                 if (groupEffectFrames.contains(group) && groupEffectFrames.value(group).contains(effect)) {
                     newGroupEffectFrames[group][effect] = (groupEffectFrames.value(group).value(effect) + 1);
                 }
-                QList<int> stepFrames = QList<int>(effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID), 0);
-                QList<int> fadeFrames = QList<int>(effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID), 0);
-                int totalFrames = 0;
-                for (int step = 1; step <= effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID); step++) {
-                    if (effect->stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).contains(step)) {
-                        fadeFrames[step - 1] = (PROCESSINGRATE * effect->stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).value(step));
-                    } else {
-                        fadeFrames[step - 1] = (PROCESSINGRATE * effect->floatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID));
-                    }
-                    stepFrames[step - 1] = fadeFrames[step - 1];
-                    if (effect->stepSpecificFloatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID).contains(step)) {
-                        stepFrames[step - 1] += (PROCESSINGRATE * effect->stepSpecificFloatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID).value(step));
-                    } else {
-                        stepFrames[step - 1] += (PROCESSINGRATE * effect->floatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID));
-                    }
-                    totalFrames += stepFrames[step - 1];
-                }
-                if (totalFrames > 0) {
+                if (!effect->intensitySteps.isEmpty()) {
                     for (Fixture* fixture : group->fixtures) {
-                        int frame = groupEffectFrames[group][effect];
-                        if (effect->fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).contains(fixture)) {
-                            frame += effect->fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).value(fixture) * (float)totalFrames / 360.0;
-                        } else {
-                            frame += effect->angleAttributes.value(kernel->effects->PHASEATTRIBUTEID) * (float)totalFrames / 360.0;
+                        (*fixtureDimmers)[fixture] = effect->getDimmer(fixture, newGroupEffectFrames[group][effect]);
+                    }
+                }
+                if (!effect->colorSteps.isEmpty()) {
+                    for (Fixture* fixture : group->fixtures) {
+                        (*fixtureColors)[fixture] = effect->getRGB(fixture, newGroupEffectFrames[group][effect]);
+                    }
+                }
+                if (!effect->rawSteps.isEmpty()) {
+                    for (Fixture* fixture : group->fixtures) {
+                        if (!fixtureRaws->contains(fixture)) {
+                            (*fixtureRaws)[fixture] = QList<Raw*>();
                         }
-                        frame %= totalFrames;
-                        int step = 1;
-                        while (frame >= stepFrames[step - 1]) {
-                            frame -= stepFrames[step - 1];
-                            step++;
-                        }
-                        int stepFadeFrames = 0;
-                        if (frame < fadeFrames[step - 1]) {
-                            stepFadeFrames = fadeFrames[step - 1] - frame;
-                        }
-                        if (stepFadeFrames > 0) {
-                            if (!effect->intensitySteps.isEmpty()) {
-                                float formerDimmer = 0.0;
-                                if ((step > 1) && effect->intensitySteps.contains(step - 1)) {
-                                    formerDimmer = effect->intensitySteps.value(step - 1)->getDimmer(fixture);
-                                } else if ((step == 1) && effect->intensitySteps.contains(effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) {
-                                    formerDimmer = effect->intensitySteps.value(effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID))->getDimmer(fixture);
-                                }
-                                if (effect->intensitySteps.contains(step)) {
-                                    (*fixtureDimmers)[fixture] = formerDimmer + (effect->intensitySteps.value(step)->getDimmer(fixture) - formerDimmer) * (1- ((float)stepFadeFrames / (float)fadeFrames[step - 1]));
-                                } else {
-                                    (*fixtureDimmers)[fixture] = formerDimmer * (float)stepFadeFrames / (float)fadeFrames[step - 1];
-                                }
-                            }
-                            if (!effect->colorSteps.isEmpty()) {
-                                rgbColor formerColor = {100, 100, 100};
-                                if ((step > 1) && effect->colorSteps.contains(step - 1)) {
-                                    formerColor = effect->colorSteps.value(step - 1)->getRGB(fixture);
-                                } else if ((step == 1) && effect->colorSteps.contains(effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) {
-                                    formerColor = effect->colorSteps.value(effect->intAttributes.value(kernel->effects->STEPSATTRIBUTEID))->getRGB(fixture);
-                                }
-                                (*fixtureColors)[fixture] = {0, 0, 0};
-                                if (effect->colorSteps.contains(step)) {
-                                    (*fixtureColors)[fixture].red = formerColor.red + (effect->colorSteps.value(step)->getRGB(fixture).red - formerColor.red) * (1- ((float)stepFadeFrames / (float)fadeFrames[step - 1]));
-                                    (*fixtureColors)[fixture].green = formerColor.green + (effect->colorSteps.value(step)->getRGB(fixture).green - formerColor.green) * (1- ((float)stepFadeFrames / (float)fadeFrames[step - 1]));
-                                    (*fixtureColors)[fixture].blue = formerColor.blue + (effect->colorSteps.value(step)->getRGB(fixture).blue - formerColor.blue) * (1- ((float)stepFadeFrames / (float)fadeFrames[step - 1]));
-                                } else {
-                                    (*fixtureColors)[fixture].red = formerColor.red * (float)stepFadeFrames / (float)fadeFrames[step - 1];
-                                    (*fixtureColors)[fixture].green = formerColor.green * (float)stepFadeFrames / (float)fadeFrames[step - 1];
-                                    (*fixtureColors)[fixture].blue = formerColor.blue * (float)stepFadeFrames / (float)fadeFrames[step - 1];
-                                }
-                            }
-                        } else {
-                            if (!effect->intensitySteps.isEmpty()) {
-                                (*fixtureDimmers)[fixture] = 0.0;
-                                if (effect->intensitySteps.contains(step)) {
-                                    (*fixtureDimmers)[fixture] = effect->intensitySteps.value(step)->getDimmer(fixture);
-                                }
-                            }
-                            if (!effect->colorSteps.isEmpty()) {
-                                (*fixtureColors)[fixture] = {100, 100, 100};
-                                if (effect->colorSteps.contains(step)) {
-                                    (*fixtureColors)[fixture] = effect->colorSteps.value(step)->getRGB(fixture);
-                                }
-                            }
-                        }
-                        if (effect->rawSteps.contains(step)) {
-                            if (!fixtureRaws->contains(fixture)) {
-                                (*fixtureRaws)[fixture] = QList<Raw*>();
-                            }
-                            (*fixtureRaws)[fixture].append(effect->rawSteps.value(step));
-                        }
+                        (*fixtureRaws)[fixture].append(effect->getRaws(fixture, newGroupEffectFrames[group][effect]));
                     }
                 }
             }
@@ -348,11 +267,21 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                 Cue* cue = kernel->cues->items[cueRow];
                 for (Group* group : kernel->groups->items) {
                     if (group->fixtures.contains(fixture)) {
-                        if (cue->intensities.contains(group)) {
+                        if (cue->intensities.contains(group) && !fixtureColors->contains(fixture)) {
                             (*fixtureColors)[fixture] = {100, 100, 100};
                         }
                         if (cue->colors.contains(group)) {
                             (*fixtureColors)[fixture] = cue->colors.value(group)->getRGB(fixture);
+                        }
+                        if (cue->effects.contains(group)) {
+                            for (Effect* effect : cue->effects.value(group)) {
+                                if (!effect->intensitySteps.isEmpty() && !fixtureColors->contains(fixture)) {
+                                    (*fixtureColors)[fixture] = {100, 100, 100};
+                                }
+                                if (!effect->colorSteps.isEmpty()) {
+                                    (*fixtureColors)[fixture] = effect->getRGB(fixture, 0);
+                                }
+                            }
                         }
                     }
                 }

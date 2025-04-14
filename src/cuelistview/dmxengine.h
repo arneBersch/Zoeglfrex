@@ -23,10 +23,10 @@ class DmxEngine : public QWidget {
 public:
     DmxEngine(Kernel *core, QWidget *parent = nullptr);
     SacnServer *sacnServer;
+    const int PROCESSINGRATE = 40; // 40 FPS
 private:
     void generateDmx();
     QMap<Group*, QMap<Effect*, int>> renderCue(Cue* cue, QMap<Fixture*, float>* dimmerValues, QMap<Fixture*, rgbColor>* colorValues, QMap<Fixture*, QList<Raw*>>* rawValues);
-    const int PROCESSINGRATE = 40; // 40 FPS
     QTimer *timer;
     Cue* currentCue = nullptr;
     Cue* lastCue = nullptr;
