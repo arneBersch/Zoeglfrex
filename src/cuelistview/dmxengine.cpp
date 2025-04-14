@@ -91,12 +91,13 @@ void DmxEngine::generateDmx() {
             rgbColor lastCueColor = {100, 100, 100};
             if (lastCueFixtureDimmer.contains(fixture)) {
                 lastCueDimmer = lastCueFixtureDimmer.value(fixture);
-            } else {
-                lastCueColor = color;
             }
             dimmer += (lastCueDimmer - dimmer) * (float)remainingFadeFrames / (float)totalFadeFrames;
             if (lastCueFixtureColor.contains(fixture)) {
                 lastCueColor = lastCueFixtureColor.value(fixture);
+            }
+            if (!lastCueFixtureDimmer.contains(fixture)) {
+                lastCueColor = color;
             }
             if (currentCueFixtureDimmer.contains(fixture)) {
                 color.red += (lastCueColor.red - color.red) * (float)remainingFadeFrames / (float)totalFadeFrames;
@@ -106,6 +107,11 @@ void DmxEngine::generateDmx() {
                 color = lastCueColor;
             }
         }
+        if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (((kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) || (kernel->cuelistView->currentFixture == fixture))) { // Highlight
+            dimmer = 100;
+            color = {100, 100, 100};
+        }
+        kernel->cuelistView->preview2d->fixtureCircles[fixture]->setBrush(QBrush(QColor((color.red / 100 * dimmer / 100 * 255), (color.green / 100 * dimmer / 100 * 255), (color.blue / 100 * dimmer / 100 * 255))));
         const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
         if ((address > 0) && (fixture->model != nullptr)) {
             const QString channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
@@ -113,11 +119,6 @@ void DmxEngine::generateDmx() {
             if (!dmxUniverses.contains(universe)) {
                 dmxUniverses[universe] = QByteArray(512, 0);
             }
-            if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (((kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) || (kernel->cuelistView->currentFixture == fixture))) { // Highlight
-                dimmer = 100;
-                color = {100, 100, 100};
-            }
-            kernel->cuelistView->preview2d->fixtureCircles[fixture]->setBrush(QBrush(QColor((color.red / 100 * dimmer / 100 * 255), (color.green / 100 * dimmer / 100 * 255), (color.blue / 100 * dimmer / 100 * 255))));
             if (!channels.contains('D')) {
                 color.red *= (dimmer / 100.0);
                 color.green *= (dimmer / 100.0);

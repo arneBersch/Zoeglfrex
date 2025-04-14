@@ -144,11 +144,10 @@ int Effect::getStep(Fixture* fixture, int frame, float* fade) {
             frame -= stepFrames[step - 1];
             step++;
         }
-        int stepFadeFrames = 0;
+        (*fade) = 1;
         if (frame < fadeFrames[step - 1]) {
-            stepFadeFrames = fadeFrames[step - 1] - frame;
+            (*fade) = 1 - ((float)(fadeFrames[step - 1] - frame) / (float)fadeFrames[step - 1]);
         }
-        (*fade) = (float)stepFadeFrames / (float)fadeFrames[step - 1];
     }
     return step;
 }
@@ -158,23 +157,16 @@ float Effect::getDimmer(Fixture* fixture, int frame) {
     if (!intensitySteps.isEmpty()) {
         float fade = 0;
         int step = getStep(fixture, frame, &fade);
-        if (fade > 0) {
-            float formerDimmer = 0.0;
-            if ((step > 1) && intensitySteps.contains(step - 1)) {
-                formerDimmer = intensitySteps.value(step - 1)->getDimmer(fixture);
-            } else if ((step == 1) && intensitySteps.contains(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) {
-                formerDimmer = intensitySteps.value(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))->getDimmer(fixture);
-            }
-            if (intensitySteps.contains(step)) {
-                dimmer = formerDimmer + (intensitySteps.value(step)->getDimmer(fixture) - formerDimmer) * fade;
-            } else {
-                dimmer = formerDimmer * (1 - fade);
-            }
-        } else {
-            if (intensitySteps.contains(step)) {
-                dimmer = intensitySteps.value(step)->getDimmer(fixture);
-            }
+        float formerDimmer = 0.0;
+        if ((step > 1) && intensitySteps.contains(step - 1)) {
+            formerDimmer = intensitySteps.value(step - 1)->getDimmer(fixture);
+        } else if ((step == 1) && intensitySteps.contains(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) {
+            formerDimmer = intensitySteps.value(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))->getDimmer(fixture);
         }
+        if (intensitySteps.contains(step)) {
+            dimmer = intensitySteps.value(step)->getDimmer(fixture);
+        }
+        dimmer = formerDimmer + (dimmer - formerDimmer) * fade;
     }
     return dimmer;
 }
@@ -184,27 +176,18 @@ rgbColor Effect::getRGB(Fixture* fixture, int frame) {
     if (!colorSteps.isEmpty()) {
         float fade = 0;
         int step = getStep(fixture, frame, &fade);
-        if (fade > 0) {
-            rgbColor formerColor = {100, 100, 100};
-            if ((step > 1) && colorSteps.contains(step - 1)) {
-                formerColor = colorSteps.value(step - 1)->getRGB(fixture);
-            } else if ((step == 1) && colorSteps.contains(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) {
-                formerColor = colorSteps.value(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))->getRGB(fixture);
-            }
-            if (colorSteps.contains(step)) {
-                color.red = formerColor.red + (colorSteps.value(step)->getRGB(fixture).red - formerColor.red) * fade;
-                color.green = formerColor.green + (colorSteps.value(step)->getRGB(fixture).green - formerColor.green) * fade;
-                color.blue = formerColor.blue + (colorSteps.value(step)->getRGB(fixture).blue - formerColor.blue) * fade;
-            } else {
-                color.red = formerColor.red * (1 - fade);
-                color.green = formerColor.green * (1 - fade);
-                color.blue = formerColor.blue * (1 - fade);
-            }
-        } else {
-            if (colorSteps.contains(step)) {
-                color = colorSteps.value(step)->getRGB(fixture);
-            }
+        rgbColor formerColor = {100, 100, 100};
+        if ((step > 1) && colorSteps.contains(step - 1)) {
+            formerColor = colorSteps.value(step - 1)->getRGB(fixture);
+        } else if ((step == 1) && colorSteps.contains(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) {
+            formerColor = colorSteps.value(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))->getRGB(fixture);
         }
+        if (colorSteps.contains(step)) {
+            color = colorSteps.value(step)->getRGB(fixture);
+        }
+        color.red = formerColor.red + (color.red - formerColor.red) * fade;
+        color.green = formerColor.green + (color.green - formerColor.green) * fade;
+        color.blue = formerColor.blue + (color.blue - formerColor.blue) * fade;
     }
     return color;
 }
