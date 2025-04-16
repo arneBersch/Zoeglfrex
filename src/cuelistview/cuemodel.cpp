@@ -27,7 +27,7 @@ int CueModel::rowCount(const QModelIndex &parent) const
 int CueModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 5;
+    return 6;
 }
 
 QVariant CueModel::data(const QModelIndex &index, const int role) const
@@ -56,6 +56,11 @@ QVariant CueModel::data(const QModelIndex &index, const int role) const
         } else if (column == CueModelColumns::color) {
             if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->colors.contains(group)) {
                 return kernel->cuelistView->currentCue->colors.value(group)->name();
+            }
+            return QVariant();
+        } else if (column == CueModelColumns::position) {
+            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->positions.contains(group)) {
+                return kernel->cuelistView->currentCue->positions.value(group)->name();
             }
             return QVariant();
         } else if (column == CueModelColumns::raws) {
@@ -97,6 +102,8 @@ QVariant CueModel::headerData(int column, Qt::Orientation orientation, int role)
             return kernel->cues->INTENSITIESATTRIBUTEID + " Intensity";
         } else if (column == CueModelColumns::color) {
             return kernel->cues->COLORSATTRIBUTEID + " Color";
+        } else if (column == CueModelColumns::position) {
+            return kernel->cues->POSITIONSATTRIBUTEID + " Position";
         } else if (column == CueModelColumns::raws) {
             return kernel->cues->RAWSATTRIBUTEID + " Raws";
         } else if (column == CueModelColumns::effects) {

@@ -23,10 +23,11 @@ public:
     CueList(Kernel *core);
     const QString INTENSITIESATTRIBUTEID = "2";
     const QString COLORSATTRIBUTEID = "3";
-    const QString RAWSATTRIBUTEID = "4";
-    const QString EFFECTSATTRIBUTEID = "5";
-    const QString FADEATTRIBUTEID = "6";
-    const QString BLOCKATTRIBUTEID = "7";
+    const QString POSITIONSATTRIBUTEID = "4";
+    const QString RAWSATTRIBUTEID = "5";
+    const QString EFFECTSATTRIBUTEID = "6";
+    const QString FADEATTRIBUTEID = "7";
+    const QString BLOCKATTRIBUTEID = "8";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 private:
     Cue* addItem(QString id) override;

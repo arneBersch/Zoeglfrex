@@ -18,6 +18,7 @@ enum {
     group,
     intensity,
     color,
+    position,
     raws,
     effects,
 };

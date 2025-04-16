@@ -111,6 +111,54 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                 kernel->terminal->success("Set Colors of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to Color " + color->name() + ".");
             }
         }
+    } else if (attribute == POSITIONSATTRIBUTEID) { // Positions
+        Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
+        if (group == nullptr) {
+            kernel->terminal->error("Can't set Cue Positions because an invalid Group was given.");
+            return;
+        }
+        if ((value.size() == 1) && (value.first() == Keys::Minus)) {
+            for (QString id : ids) {
+                Cue *cue = getItem(id);
+                if (cue == nullptr) {
+                    cue = addItem(id);
+                }
+                cue->positions.remove(group);
+            }
+            if (ids.length() == 1) {
+                kernel->terminal->success("Removed Position entry of Cue " + getItem(ids.first())->name() + " at Group " + group->name() + ".");
+            } else {
+                kernel->terminal->success("Removed Position entries of " + QString::number(ids.length()) + " Cues at Group " + group->name() + ".");
+            }
+        } else {
+            if (text.isEmpty()) {
+                if (value.isEmpty() || (value.first() != Keys::Position)) {
+                    kernel->terminal->error("Can't set the Cue Positions because no Position was given.");
+                    return;
+                }
+                value.removeFirst();
+            }
+            Position* position = kernel->positions->getItem(kernel->terminal->keysToId(value));
+            if (!text.isEmpty()) {
+                position = kernel->positions->getItem(text);
+            }
+            if (position == nullptr) {
+                kernel->terminal->error("Can't set Cue Positions because an invalid Position ID was given.");
+                return;
+            }
+            for (QString id : ids) {
+                Cue* cue = getItem(id);
+                if (cue == nullptr) {
+                    cue = addItem(id);
+                }
+                cue->positions[group] = position;
+            }
+            if (ids.size() == 1) {
+                kernel->terminal->success("Set Positions of Cue " + getItem(ids.first())->name() + " at Group " + group->name() + " to Position " + position->name() + ".");
+            } else {
+                kernel->terminal->success("Set Positions of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to Position " + position->name() + ".");
+            }
+        }
     } else if (attribute == RAWSATTRIBUTEID) { // Raws
         Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
@@ -236,6 +284,7 @@ Cue* CueList::addItem(QString id) {
     if (cueRow > 0) {
         cue->intensities = items[cueRow - 1]->intensities;
         cue->colors = items[cueRow - 1]->colors;
+        cue->positions = items[cueRow - 1]->positions;
         cue->raws = items[cueRow - 1]->raws;
         cue->effects = items[cueRow - 1]->effects;
     }

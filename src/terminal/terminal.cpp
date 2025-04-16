@@ -212,6 +212,55 @@ void Terminal::execute() {
                 }
                 kernel->cues->setAttribute(cueIds, attributeMap, command);
             }
+        } else if (selectionType == Keys::Position) {
+            if (kernel->cuelistView->currentGroup == nullptr) {
+                error("Can't set Position because no Group is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCue == nullptr) {
+                error("Can't set Position because no Cue is currently selected.");
+                return;
+            }
+            attributeMap[Keys::Attribute] = kernel->cues->POSITIONSATTRIBUTEID;
+            attributeMap[Keys::Group] = kernel->cuelistView->currentGroup->id;
+            QStringList cueIds;
+            cueIds.append(kernel->cuelistView->currentCue->id);
+            int cueRow = kernel->cues->getItemRow(kernel->cuelistView->currentCue->id) + 1;
+            if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
+                if (kernel->cuelistView->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
+                    Position* oldPosition = kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup);
+                    while ((cueRow < kernel->cues->items.size())
+                           && kernel->cues->items[cueRow]->positions.contains(kernel->cuelistView->currentGroup)
+                           && (kernel->cues->items[cueRow]->positions.value(kernel->cuelistView->currentGroup) == oldPosition)
+                           && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                           ) {
+                        cueIds.append(kernel->cues->items[cueRow]->id);
+                        cueRow++;
+                    }
+                }
+                kernel->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
+            } else {
+                if (kernel->cuelistView->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
+                    Position* oldPosition = kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup);
+                    while ((cueRow < kernel->cues->items.size())
+                           && kernel->cues->items[cueRow]->positions.contains(kernel->cuelistView->currentGroup)
+                           && (kernel->cues->items[cueRow]->positions.value(kernel->cuelistView->currentGroup) == oldPosition)
+                           && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                           ) {
+                        cueIds.append(kernel->cues->items[cueRow]->id);
+                        cueRow++;
+                    }
+                } else {
+                    while ((cueRow < kernel->cues->items.size())
+                           && !kernel->cues->items[cueRow]->positions.contains(kernel->cuelistView->currentGroup)
+                           && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                           ) {
+                        cueIds.append(kernel->cues->items[cueRow]->id);
+                        cueRow++;
+                    }
+                }
+                kernel->cues->setAttribute(cueIds, attributeMap, command);
+            }
         } else if (selectionType == Keys::Raw) {
             if (kernel->cuelistView->currentGroup == nullptr) {
                 error("Can't set Raws because no Group is currently selected.");
@@ -380,6 +429,20 @@ void Terminal::execute() {
                 return;
             }
             ids.append(kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id);
+        } else if (selectionType == Keys::Position) {
+            if (kernel->cuelistView->currentGroup == nullptr) {
+                error("Can't load the Position because no Group is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCue == nullptr) {
+                error("Can't set Position because no Cue is currently selected.");
+                return;
+            }
+            if (!kernel->cuelistView->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
+                error("Can't load the Position because the selected Cue contains no Position for this Group.");
+                return;
+            }
+            ids.append(kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup)->id);
         } else if (selectionType == Keys::Raw) {
             if (kernel->cuelistView->currentGroup == nullptr) {
                 error("Can't load the Raws because no Group is currently selected.");
@@ -486,6 +549,20 @@ void Terminal::execute() {
                             return;
                         }
                         currentIdString = kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id;
+                    } else if (currentItemType == Keys::Position) {
+                        if (kernel->cuelistView->currentGroup == nullptr) {
+                            error("Can't load the current Position because no Group is currently selected.");
+                            return;
+                        }
+                        if (kernel->cuelistView->currentCue == nullptr) {
+                            error("Can't load the current Position because no Cue is currently selected.");
+                            return;
+                        }
+                        if (!kernel->cuelistView->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
+                            error("Can't load the current Position because the current Cue contains no Color for the current Group.");
+                            return;
+                        }
+                        currentIdString = kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup)->id;
                     } else if (currentItemType == Keys::Cue) {
                         if (kernel->cuelistView->currentCue == nullptr) {
                             error("Can't load the Cue because no Cue is selected.");
@@ -676,7 +753,7 @@ QString Terminal::promptText(QList<int> keys) {
         } else if (key == Keys::Color) {
             commandString += " Color ";
         } else if (key == Keys::Position) {
-            commandString += " Position";
+            commandString += " Position ";
         } else if (key == Keys::Raw) {
             commandString += " Raw ";
         } else if (key == Keys::Effect) {

@@ -20,14 +20,14 @@ Position::~Position() {
                 effect->colorSteps.remove(step);
             }
         }
-    }
+    }*/
     for (Cue *cue : kernel->cues->items) {
-        for (Group *group : cue->colors.keys()) {
-            if (cue->colors.value(group) == this) {
-                cue->colors.remove(group);
+        for (Group *group : cue->positions.keys()) {
+            if (cue->positions.value(group) == this) {
+                cue->positions.remove(group);
             }
         }
-    }*/
+    }
 }
 
 QString Position::name() {

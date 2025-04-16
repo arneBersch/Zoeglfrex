@@ -27,7 +27,7 @@ int GroupModel::rowCount(const QModelIndex &parent) const
 int GroupModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 5;
+    return 6;
 }
 
 QVariant GroupModel::data(const QModelIndex &index, const int role) const
@@ -58,6 +58,12 @@ QVariant GroupModel::data(const QModelIndex &index, const int role) const
                 return cue->colors.value(kernel->cuelistView->currentGroup)->name();
             }
             return QVariant();
+        } else if (column == GroupModelColumns::position) {
+            if (cue->positions.contains(kernel->cuelistView->currentGroup)) {
+                return cue->positions.value(kernel->cuelistView->currentGroup)->name();
+            }
+            return QVariant();
+
         } else if (column == GroupModelColumns::raws) {
             if (cue->raws.contains(kernel->cuelistView->currentGroup)) {
                 QStringList raws;
@@ -97,6 +103,8 @@ QVariant GroupModel::headerData(int column, Qt::Orientation orientation, int rol
             return kernel->cues->INTENSITIESATTRIBUTEID + " Intensity";
         } else if (column == GroupModelColumns::color) {
             return kernel->cues->COLORSATTRIBUTEID + " Color";
+        } else if (column == GroupModelColumns::position) {
+            return kernel->cues->POSITIONSATTRIBUTEID + " Position";
         } else if (column == GroupModelColumns::raws) {
             return kernel->cues->RAWSATTRIBUTEID + " Raws";
         } else if (column == GroupModelColumns::effects) {
