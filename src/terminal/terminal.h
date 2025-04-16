@@ -36,6 +36,7 @@ enum {
     Group, // G
     Intensity, // I
     Color, // C
+    Position, // P
     Raw, // R
     Effect, // E
     Cue, // Q

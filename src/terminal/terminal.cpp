@@ -524,6 +524,8 @@ void Terminal::execute() {
             attributeMap[Keys::Attribute] = kernel->intensities->DIMMERATTRIBUTEID;
         } else if (selectionType == Keys::Color) {
             attributeMap[Keys::Attribute] = kernel->colors->HUEATTRIBUTEID;
+        } else if (selectionType == Keys::Position) {
+            attributeMap[Keys::Attribute] = kernel->positions->PANATTRIBUTEID;
         } else if (selectionType == Keys::Raw) {
             attributeMap[Keys::Attribute] = kernel->raws->CHANNELVALUEATTRIBUTEID;
         } else if (selectionType == Keys::Effect) {
@@ -538,6 +540,7 @@ void Terminal::execute() {
         || ((selectionType == Keys::Group) && kernel->groups->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Intensity) && kernel->intensities->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Color) && kernel->colors->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
+        || ((selectionType == Keys::Position) && kernel->positions->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Raw) && kernel->raws->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Effect) && kernel->effects->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Cue) && kernel->cues->stringAttributes.contains(attributeMap.value(Keys::Attribute)))) {
@@ -560,6 +563,8 @@ void Terminal::execute() {
         kernel->intensities->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Color) {
         kernel->colors->setAttribute(ids, attributeMap, value, text);
+    } else if (selectionType == Keys::Position) {
+        kernel->positions->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Raw) {
         kernel->raws->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Effect) {
@@ -670,6 +675,8 @@ QString Terminal::promptText(QList<int> keys) {
             commandString += " Intensity ";
         } else if (key == Keys::Color) {
             commandString += " Color ";
+        } else if (key == Keys::Position) {
+            commandString += " Position";
         } else if (key == Keys::Raw) {
             commandString += " Raw ";
         } else if (key == Keys::Effect) {
@@ -681,7 +688,7 @@ QString Terminal::promptText(QList<int> keys) {
         } else if (key == Keys::Attribute) {
             commandString += " Attribute ";
         } else {
-            error("Unknown key pressed: " + QString::number(key));
+            Q_ASSERT(false);
         }
     }
     commandString.replace("  ", " "); // Remove double whitespaces
@@ -747,6 +754,8 @@ QStringList Terminal::keysToSelection(QList<int> keys, int itemType) {
         allIds = kernel->intensities->getIds();
     } else if (itemType == Keys::Color) {
         allIds = kernel->colors->getIds();
+    } else if (itemType == Keys::Position) {
+        allIds = kernel->positions->getIds();
     } else if (itemType == Keys::Raw) {
         allIds = kernel->raws->getIds();
     } else if (itemType == Keys::Effect) {
@@ -874,6 +883,7 @@ bool Terminal::isItem(int key) {
         (key == Keys::Group) ||
         (key == Keys::Intensity) ||
         (key == Keys::Color) ||
+        (key == Keys::Position) ||
         (key == Keys::Raw) ||
         (key == Keys::Effect) ||
         (key == Keys::Cue)

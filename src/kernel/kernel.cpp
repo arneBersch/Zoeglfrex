@@ -14,6 +14,7 @@ Kernel::Kernel() {
     groups = new GroupList(this);
     intensities = new IntensityList(this);
     colors = new ColorList(this);
+    positions = new PositionList(this);
     raws = new RawList(this);
     effects = new EffectList(this);
     cues = new CueList(this);
@@ -30,6 +31,7 @@ void Kernel::reset() {
     groups->reset();
     intensities->reset();
     colors->reset();
+    positions->reset();
     raws->reset();
     effects->reset();
     cues->reset();
@@ -63,6 +65,7 @@ void Kernel::saveFile(QString fileName) {
     groups->saveItemsToFile(&fileStream);
     intensities->saveItemsToFile(&fileStream);
     colors->saveItemsToFile(&fileStream);
+    positions->saveItemsToFile(&fileStream);
     raws->saveItemsToFile(&fileStream);
     effects->saveItemsToFile(&fileStream);
     cues->saveItemsToFile(&fileStream);
@@ -147,6 +150,9 @@ void Kernel::openFile(QString fileName) {
                         if (fileStream.attributes().hasAttribute("Color")) {
                             attributes[Keys::Color] = fileStream.attributes().value("Color").toString();
                         }
+                        if (fileStream.attributes().hasAttribute("Position")) {
+                            attributes[Keys::Position] = fileStream.attributes().value("Position").toString();
+                        }
                         if (fileStream.attributes().hasAttribute("Raw")) {
                             attributes[Keys::Raw] = fileStream.attributes().value("Raw").toString();
                         }
@@ -167,6 +173,8 @@ void Kernel::openFile(QString fileName) {
                             intensities->setAttribute(ids, attributes, QList<int>(), text);
                         } else if ((pluralName == "Colors") && (singularName == "Color")) {
                             colors->setAttribute(ids, attributes, QList<int>(), text);
+                        } else if ((pluralName == "Positions") && (singularName == "Position")) {
+                            positions->setAttribute(ids, attributes, QList<int>(), text);
                         } else if ((pluralName == "Raws") && (singularName == "Raw")) {
                             raws->setAttribute(ids, attributes, QList<int>(), text);
                         } else if ((pluralName == "Effects") && (singularName == "Effect")) {

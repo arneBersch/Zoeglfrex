@@ -16,6 +16,7 @@
 #include "kernel/lists/grouplist.h"
 #include "kernel/lists/intensitylist.h"
 #include "kernel/lists/colorlist.h"
+#include "kernel/lists/positionlist.h"
 #include "kernel/lists/rawlist.h"
 #include "kernel/lists/effectlist.h"
 #include "kernel/lists/cuelist.h"
@@ -34,6 +35,7 @@ public:
     GroupList *groups;
     IntensityList *intensities;
     ColorList *colors;
+    PositionList *positions;
     RawList *raws;
     EffectList *effects;
     CueList *cues;
