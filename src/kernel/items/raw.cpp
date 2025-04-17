@@ -75,6 +75,11 @@ QString Raw::info() {
         }
     }
     info += "\n    Fixture Exceptions: " + fixtureChannelValue.join("; ");
+    if (boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
+        info += "\n" + kernel->raws->MOVEINBLACKATTRIBUTEID + " MiB (Move in Black): True";
+    } else {
+        info += "\n" + kernel->raws->MOVEINBLACKATTRIBUTEID + " MiB (Move in Black): False";
+    }
     return info;
 }
 

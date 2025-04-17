@@ -8,7 +8,9 @@
 
 #include "rawlist.h"
 
-RawList::RawList(Kernel *core) : ItemList(core, Keys::Raw, "Raw", "Raws") {}
+RawList::RawList(Kernel *core) : ItemList(core, Keys::Raw, "Raw", "Raws") {
+    boolAttributes[MOVEINBLACKATTRIBUTEID] = {"MiB", true};
+}
 
 void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);

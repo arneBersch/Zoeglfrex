@@ -288,6 +288,45 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                 }
                 cueRow++;
             }
+            cueRow = kernel->cues->getItemRow(cue->id);
+            while ((cueRow < kernel->cues->items.length()) && !fixtureRaws->contains(fixture)) {
+                Cue* cue = kernel->cues->items[cueRow];
+                for (Group* group : kernel->groups->items) {
+                    if (group->fixtures.contains(fixture)) {
+                        if (cue->intensities.contains(group) && !fixtureRaws->contains(fixture)) {
+                            (*fixtureRaws)[fixture] = QList<Raw*>();
+                        }
+                        if (cue->raws.contains(group)) {
+                            for (Raw* raw : cue->raws.value(group)) {
+                                if (raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
+                                    if (!fixtureRaws->contains(fixture)) {
+                                        (*fixtureRaws)[fixture] = QList<Raw*>();
+                                    }
+                                    (*fixtureRaws)[fixture].append(raw);
+                                }
+                            }
+                        }
+                        if (cue->effects.contains(group)) {
+                            for (Effect* effect : cue->effects.value(group)) {
+                                if (!effect->intensitySteps.isEmpty() && !fixtureRaws->contains(fixture)) {
+                                    (*fixtureRaws)[fixture] = QList<Raw*>();
+                                }
+                                if (!effect->rawSteps.isEmpty()) {
+                                    for (Raw* raw : effect->getRaws(fixture, 0)) {
+                                        if (raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
+                                            if (!fixtureRaws->contains(fixture)) {
+                                                (*fixtureRaws)[fixture] = QList<Raw*>();
+                                            }
+                                            (*fixtureRaws)[fixture].append(raw);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                cueRow++;
+            }
         }
     }
     return newGroupEffectFrames;
