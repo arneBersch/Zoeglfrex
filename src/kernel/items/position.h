@@ -14,8 +14,8 @@
 #include "item.h"
 
 struct positionAngles {
-    float pan;
-    float tilt;
+    float pan = 0;
+    float tilt = 0;
 };
 
 class Position : public Item {

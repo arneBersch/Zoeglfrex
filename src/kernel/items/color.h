@@ -14,9 +14,9 @@
 #include "item.h"
 
 struct rgbColor {
-    float red;
-    float green;
-    float blue;
+    float red = 100;
+    float green = 100;
+    float blue = 100;
 };
 
 class Color : public Item {
