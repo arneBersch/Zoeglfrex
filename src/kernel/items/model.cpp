@@ -94,5 +94,7 @@ QString Model::name() {
 QString Model::info() {
     QString info = Item::info();
     info += "\n" + kernel->models->CHANNELSATTRIBUTEID + " Channels: " + stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
+    info += "\n" + kernel->models->PANRANGEATTRIBUTEID + " Pan Range: " + QString::number(floatAttributes.value(kernel->models->PANRANGEATTRIBUTEID)) + "°";
+    info += "\n" + kernel->models->TILTRANGEATTRIBUTEID + " Tilt Range: " + QString::number(floatAttributes.value(kernel->models->TILTRANGEATTRIBUTEID)) + "°";
     return info;
 }

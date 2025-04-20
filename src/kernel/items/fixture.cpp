@@ -119,6 +119,12 @@ QString Fixture::info() {
     info += "\n" + kernel->fixtures->UNIVERSEATTRIBUTEID + " Universe: " + QString::number(intAttributes.value(kernel->fixtures->UNIVERSEATTRIBUTEID));
     info += "\n" + kernel->fixtures->POSITIONXATTRIBUTEID + " X Position: " + QString::number(floatAttributes.value(kernel->fixtures->POSITIONXATTRIBUTEID));
     info += "\n" + kernel->fixtures->POSITIONYATTRIBUTEID + " Y Position: " + QString::number(floatAttributes.value(kernel->fixtures->POSITIONYATTRIBUTEID));
+    info += "\n" + kernel->fixtures->ROTATIONATTRIBUTEID + " Rotation: " + QString::number(angleAttributes.value(kernel->fixtures->ROTATIONATTRIBUTEID));
+    if (boolAttributes.value(kernel->fixtures->INVERTPANATTRIBUTE)) {
+        info += "\n" + kernel->fixtures->INVERTPANATTRIBUTE + " Invert Pan: True";
+    } else {
+        info += "\n" + kernel->fixtures->INVERTPANATTRIBUTE + " Invert Pan: False";
+    }
     return info;
 }
 

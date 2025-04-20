@@ -12,7 +12,7 @@ PositionList::PositionList(Kernel *core) : ItemList(core, Keys::Position, "Posit
     angleAttributes[PANATTRIBUTEID] = {"Pan", 0};
     modelSpecificAngleAttributes[PANATTRIBUTEID] = {"Pan", 0};
     fixtureSpecificAngleAttributes[PANATTRIBUTEID] = {"Pan", 0};
-    angleAttributes[TILTATTRIBUTEID] = {"Tilt", 0};
-    modelSpecificAngleAttributes[TILTATTRIBUTEID] = {"Tilt", 0};
-    fixtureSpecificAngleAttributes[TILTATTRIBUTEID] = {"Tilt", 0};
+    floatAttributes[TILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
+    modelSpecificFloatAttributes[TILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
+    fixtureSpecificFloatAttributes[TILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
 }

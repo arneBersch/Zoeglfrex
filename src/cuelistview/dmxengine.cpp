@@ -134,12 +134,12 @@ void DmxEngine::generateDmx() {
                 dmxUniverses[universe] = QByteArray(512, 0);
             }
             if (!channels.contains('D')) {
-                color.red *= (dimmer / 100.0);
-                color.green *= (dimmer / 100.0);
-                color.blue *= (dimmer / 100.0);
+                color.red *= (dimmer / 100);
+                color.green *= (dimmer / 100);
+                color.blue *= (dimmer / 100);
             }
             for (int channel = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID); channel < (address + channels.size()); channel++) {
-                float value = 0.0;
+                float value = 0;
                 QChar channelType = channels.at(channel - address);
                 bool fine = (
                     (channelType == QChar('d')) ||
@@ -149,8 +149,10 @@ void DmxEngine::generateDmx() {
                     (channelType == QChar('w')) ||
                     (channelType == QChar('c')) ||
                     (channelType == QChar('m')) ||
-                    (channelType == QChar('y'))
-                    );
+                    (channelType == QChar('y')) ||
+                    (channelType == QChar('p')) ||
+                    (channelType == QChar('t'))
+                );
                 if (fine) {
                     channelType = channelType.toUpper();
                 }
@@ -163,21 +165,25 @@ void DmxEngine::generateDmx() {
                 } else if (channelType == QChar('B')) { // Blue
                     value = color.blue;
                 } else if (channelType == QChar('W')) { // White
-                    value = 0.0;
+                    value = 0;
                 } else if (channelType == QChar('C')) { // Cyan
-                    value = (100.0 - color.red);
+                    value = (100 - color.red);
                 } else if (channelType == QChar('M')) { // Magenta
-                    value = (100.0 - color.green);
+                    value = (100 - color.green);
                 } else if (channelType == QChar('Y')) { // Yellow
-                    value = (100.0 - color.blue);
+                    value = (100 - color.blue);
+                } else if (channelType == QChar('P')) { // Pan
+                    value = position.pan;
+                } else if (channelType == QChar('T')) { // Tilt
+                    value = position.tilt;
                 } else if (channelType == QChar('0')) { // DMX 0
-                    value = 0.0;
+                    value = 0;
                 } else if (channelType == QChar('1')) { // DMX 255
-                    value = 100.0;
+                    value = 100;
                 } else {
                     Q_ASSERT(false);
                 }
-                Q_ASSERT(value <= 100.0);;
+                Q_ASSERT((value <= 100) && (value >= 0));;
                 if (channel <= 512) {
                     value *= 655.35;
                     if (fine) {

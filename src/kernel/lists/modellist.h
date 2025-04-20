@@ -22,6 +22,8 @@ class ModelList : public ItemList<Model> {
 public:
     ModelList(Kernel *core);
     const QString CHANNELSATTRIBUTEID = "2";
+    const QString PANRANGEATTRIBUTEID = "3.1";
+    const QString TILTRANGEATTRIBUTEID = "3.2";
 };
 
 #include "kernel/kernel.h"

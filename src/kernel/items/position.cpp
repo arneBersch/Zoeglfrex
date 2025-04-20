@@ -32,7 +32,7 @@ Position::~Position() {
 
 QString Position::name() {
     if (stringAttributes.value(kernel->positions->LABELATTRIBUTEID).isEmpty()) {
-        return Item::name() + QString::number(angleAttributes.value(kernel->positions->PANATTRIBUTEID)) + "°, " + QString::number(angleAttributes.value(kernel->positions->TILTATTRIBUTEID)) + "°";
+        return Item::name() + QString::number(angleAttributes.value(kernel->positions->PANATTRIBUTEID)) + "°, " + QString::number(floatAttributes.value(kernel->positions->TILTATTRIBUTEID)) + "°";
     }
     return Item::name();
 }
@@ -46,8 +46,8 @@ QString Position::info() {
         if (modelSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).contains(model)) {
             modelPanValues.append(model->name() + " @ " + QString::number(modelSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).value(model)) + "°");
         }
-        if (modelSpecificAngleAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(model)) {
-            modelTiltValues.append(model->name() + " @ " + QString::number(modelSpecificAngleAttributes.value(kernel->positions->TILTATTRIBUTEID).value(model)) + "%");
+        if (modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(model)) {
+            modelTiltValues.append(model->name() + " @ " + QString::number(modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(model)) + "%");
         }
     }
     info += "\n    Model Exceptions: " + modelPanValues.join("; ");
@@ -57,12 +57,12 @@ QString Position::info() {
         if (fixtureSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).contains(fixture)) {
             fixturePanValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).value(fixture)) + "°");
         }
-        if (fixtureSpecificAngleAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(fixture)) {
-            fixtureTiltValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture)) + "%");
+        if (fixtureSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(fixture)) {
+            fixtureTiltValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture)) + "%");
         }
     }
     info += "\n    Fixture Exceptions: " + fixturePanValues.join("; ");
-    info += "\n" + kernel->positions->TILTATTRIBUTEID + " Tilt: " + QString::number(angleAttributes.value(kernel->positions->TILTATTRIBUTEID)) + "%";
+    info += "\n" + kernel->positions->TILTATTRIBUTEID + " Tilt: " + QString::number(floatAttributes.value(kernel->positions->TILTATTRIBUTEID)) + "%";
     info += "\n    Model Exceptions: " + modelTiltValues.join("; ");
     info += "\n    Fixture Exceptions: " + fixtureTiltValues.join("; ");
     return info;
@@ -70,17 +70,36 @@ QString Position::info() {
 
 positionAngles Position::getAngles(Fixture* fixture) {
     positionAngles angles;
-    angles.pan = angleAttributes.value(kernel->positions->PANATTRIBUTEID);
-    if (fixtureSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).contains(fixture)) {
-        angles.pan = fixtureSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).value(fixture);
-    } else if (modelSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).contains(fixture->model)) {
-        angles.pan = modelSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).value(fixture->model);
-    }
-    angles.tilt = angleAttributes.value(kernel->positions->TILTATTRIBUTEID);
-    if (fixtureSpecificAngleAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(fixture)) {
-        angles.tilt = fixtureSpecificAngleAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture);
-    } else if (modelSpecificAngleAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(fixture->model)) {
-        angles.tilt = modelSpecificAngleAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture->model);
+    if (fixture->model != nullptr) {
+        float pan = angleAttributes.value(kernel->positions->PANATTRIBUTEID);
+        if (fixtureSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).contains(fixture)) {
+            pan = fixtureSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).value(fixture);
+        } else if (modelSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).contains(fixture->model)) {
+            pan = modelSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).value(fixture->model);
+        }
+        if (!fixture->boolAttributes.value(kernel->fixtures->INVERTPANATTRIBUTE)) {
+            pan = fixture->angleAttributes.value(kernel->fixtures->ROTATIONATTRIBUTEID) + pan;
+        } else {
+            pan = fixture->angleAttributes.value(kernel->fixtures->ROTATIONATTRIBUTEID) - pan;
+        }
+        while (pan >= 360) {
+            pan -= 360;
+        }
+        while (pan < 0) {
+            pan += 360;
+        }
+        angles.pan = pan / fixture->model->floatAttributes.value(kernel->models->PANRANGEATTRIBUTEID) * 100;
+        angles.pan = std::min<float>(angles.pan, 100);
+        angles.pan = std::max<float>(angles.pan, 0);
+        float tilt = floatAttributes.value(kernel->positions->TILTATTRIBUTEID);
+        if (fixtureSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(fixture)) {
+            tilt = fixtureSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture);
+        } else if (modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(fixture->model)) {
+            tilt = modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture->model);
+        }
+        angles.tilt = 50 + (tilt / (fixture->model->floatAttributes.value(kernel->models->TILTRANGEATTRIBUTEID) / 2) * 50);
+        angles.tilt = std::min<float>(angles.tilt, 100);
+        angles.tilt = std::max<float>(angles.tilt, 0);
     }
     return angles;
 }

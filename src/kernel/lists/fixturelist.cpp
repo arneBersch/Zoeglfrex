@@ -13,6 +13,8 @@ FixtureList::FixtureList(Kernel *core) : ItemList(core, Keys::Fixture, "Fixture"
     intAttributes[UNIVERSEATTRIBUTEID] = {"Universe", 1, 1, 63999};
     floatAttributes[POSITIONXATTRIBUTEID] = {"X Position", 0, -100, 100};
     floatAttributes[POSITIONYATTRIBUTEID] = {"Y Position", 0, -100, 100};
+    angleAttributes[ROTATIONATTRIBUTEID] = {"Rotation", 0};
+    boolAttributes[INVERTPANATTRIBUTE] = {"Invert Pan", false};
 }
 
 void FixtureList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {

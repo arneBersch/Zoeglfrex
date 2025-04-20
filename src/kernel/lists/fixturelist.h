@@ -26,6 +26,8 @@ public:
     const QString UNIVERSEATTRIBUTEID = "4";
     const QString POSITIONXATTRIBUTEID = "5.1";
     const QString POSITIONYATTRIBUTEID = "5.2";
+    const QString ROTATIONATTRIBUTEID = "5.3";
+    const QString INVERTPANATTRIBUTE = "6";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 
