@@ -36,6 +36,7 @@ QString Effect::info() {
     info += "\n" + kernel->effects->STEPSATTRIBUTEID + " Steps: " + QString::number(intAttributes.value(kernel->effects->STEPSATTRIBUTEID));
     QStringList intensityStepValues;
     QStringList colorStepValues;
+    QStringList positionStepValues;
     QStringList rawStepValues;
     QStringList stepHoldValues;
     QStringList stepFadeValues;
@@ -45,6 +46,9 @@ QString Effect::info() {
         }
         if (colorSteps.contains(step)) {
             colorStepValues.append(QString::number(step) + ": " + colorSteps.value(step)->name());
+        }
+        if (positionSteps.contains(step)) {
+            positionStepValues.append(QString::number(step) + ": " + positionSteps.value(step)->name());
         }
         if (rawSteps.contains(step)) {
             QStringList rawStepValueValues;
@@ -64,6 +68,7 @@ QString Effect::info() {
     }
     info += "\n" + kernel->effects->INTENSITYSTEPSATTRIBUTEID + " Intensities: " + intensityStepValues.join("; ");
     info += "\n" + kernel->effects->COLORSTEPSATTRIBUTEID + " Colors: " + colorStepValues.join("; ");
+    info += "\n" + kernel->effects->POSITIONSTEPSATTRIBUTEID + " Positions: " + positionStepValues.join("; ");
     info += "\n" + kernel->effects->RAWSTEPSATTRIBUTEID + " Raws: " + rawStepValues.join("; ");
     info += "\n" + kernel->effects->STEPHOLDATTRIBUTEID + " Step Hold: " + QString::number(floatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID)) + "s";
     info += "\n    Step Exceptions: " + stepHoldValues.join("; ");
@@ -92,6 +97,12 @@ void Effect::writeAttributesToFile(QXmlStreamWriter* fileStream) {
         fileStream->writeStartElement("Attribute");
         fileStream->writeAttribute("ID", (kernel->effects->COLORSTEPSATTRIBUTEID + "." + QString::number(step)));
         fileStream->writeCharacters(colorSteps.value(step)->id);
+        fileStream->writeEndElement();
+    }
+    for (int step : positionSteps.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", (kernel->effects->POSITIONSTEPSATTRIBUTEID + "." + QString::number(step)));
+        fileStream->writeCharacters(positionSteps.value(step)->id);
         fileStream->writeEndElement();
     }
     for (int step : rawSteps.keys()) {
@@ -172,11 +183,11 @@ float Effect::getDimmer(Fixture* fixture, int frame) {
 }
 
 rgbColor Effect::getRGB(Fixture* fixture, int frame) {
-    rgbColor color = {100, 100, 100};
+    rgbColor color = {};
     if (!colorSteps.isEmpty()) {
         float fade = 0;
         int step = getStep(fixture, frame, &fade);
-        rgbColor formerColor = {100, 100, 100};
+        rgbColor formerColor = {};
         if ((step > 1) && colorSteps.contains(step - 1)) {
             formerColor = colorSteps.value(step - 1)->getRGB(fixture);
         } else if ((step == 1) && colorSteps.contains(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) {
@@ -190,6 +201,26 @@ rgbColor Effect::getRGB(Fixture* fixture, int frame) {
         color.blue = formerColor.blue + (color.blue - formerColor.blue) * fade;
     }
     return color;
+}
+
+positionAngles Effect::getPosition(Fixture* fixture, int frame) {
+    positionAngles position = {};
+    if (!colorSteps.isEmpty()) {
+        float fade = 0;
+        int step = getStep(fixture, frame, &fade);
+        positionAngles formerPosition = {};
+        if ((step > 1) && positionSteps.contains(step - 1)) {
+            formerPosition = positionSteps.value(step - 1)->getAngles(fixture);
+        } else if ((step == 1) && positionSteps.contains(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) {
+            formerPosition = positionSteps.value(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))->getAngles(fixture);
+        }
+        if (positionSteps.contains(step)) {
+            position = positionSteps.value(step)->getAngles(fixture);
+        }
+        position.pan = formerPosition.pan + (position.pan - formerPosition.pan) * fade;
+        position.tilt = formerPosition.tilt + (position.tilt - formerPosition.tilt) * fade;
+    }
+    return position;
 }
 
 QList<Raw*> Effect::getRaws(Fixture* fixture, int frame) {

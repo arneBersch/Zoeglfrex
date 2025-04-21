@@ -14,6 +14,7 @@
 #include "item.h"
 #include "intensity.h"
 #include "color.h"
+#include "position.h"
 #include "raw.h"
 
 class Effect : public Item {
@@ -24,12 +25,14 @@ public:
     int steps = 2;
     QMap<int, Intensity*> intensitySteps;
     QMap<int, Color*> colorSteps;
+    QMap<int, Position*> positionSteps;
     QMap<int, QList<Raw*>> rawSteps;
     QMap<QString, QMap<int, float>> stepSpecificFloatAttributes;
     QString info() override;
     void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
     float getDimmer(Fixture* fixture, int frame);
     rgbColor getRGB(Fixture* fixture, int frame);
+    positionAngles getPosition(Fixture* fixture, int frame);
     QList<Raw*> getRaws(Fixture* fixture, int frame);
 private:
     int getStep(Fixture* fixture, int frame, float* fade);

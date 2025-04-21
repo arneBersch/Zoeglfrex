@@ -132,6 +132,62 @@ void EffectList::setAttribute(QStringList ids, QMap<int, QString> attributes, QL
             }
             kernel->terminal->success("Set Color Step " + QString::number(step) + " of " + QString::number(effectCounter) + " Effects to Color " + color->name() + ".");
         }
+    } else if (attribute.startsWith(POSITIONSTEPSATTRIBUTEID + ".")) {
+        attribute.remove(0, QString(POSITIONSTEPSATTRIBUTEID + ".").length());
+        bool ok;
+        int step = attribute.toInt(&ok);
+        if (!ok) {
+            kernel->terminal->error("Can't set Effect Position Step because no valid Attribute was given.");
+            return;
+        }
+        if (step < 1) {
+            kernel->terminal->error("Can't set Effect Position Step because Step has to be at least 1.");
+            return;
+        }
+        if ((value.size() == 1) && (value.first() == Keys::Minus)) {
+            for (QString id : ids) {
+                Effect *effect = getItem(id);
+                if (effect == nullptr) {
+                    effect = addItem(id);
+                }
+                effect->positionSteps.remove(step);
+            }
+            if (ids.size() == 1) {
+                kernel->terminal->success("Removed Position Step " + QString::number(step) + " of Effect " + getItem(ids.first())->name() + ".");
+            } else {
+                kernel->terminal->success("Removed Position Step " + QString::number(step) + " of " + QString::number(ids.length()) + " Effects.");
+            }
+        } else {
+            if (text.isEmpty()) {
+                if (value.isEmpty() || (value.first() != Keys::Position)) {
+                    kernel->terminal->error("Can't set Effect Position Steps because no Position was given.");
+                    return;
+                }
+                value.removeFirst();
+            }
+            Position* position = kernel->positions->getItem(kernel->terminal->keysToId(value));
+            if (!text.isEmpty()) {
+                position = kernel->positions->getItem(text);
+            }
+            if (position == nullptr) {
+                kernel->terminal->error("Can't set Effect Position Steps because Position " + kernel->terminal->keysToId(value) + " doesn't exist.");
+                return;
+            }
+            int effectCounter = 0;
+            for (QString id : ids) {
+                Effect *effect = getItem(id);
+                if (effect == nullptr) {
+                    effect = addItem(id);
+                }
+                if (step > effect->intAttributes.value(STEPSATTRIBUTEID)) {
+                    kernel->terminal->warning("Can't set Position Step " + QString::number(step) + " of Effect " + effect->name() + " because this Effect only has " + QString::number(effect->intAttributes.value(STEPSATTRIBUTEID)) + " Steps.");
+                } else {
+                    effect->positionSteps[step] = position;
+                    effectCounter++;
+                }
+            }
+            kernel->terminal->success("Set Position Step " + QString::number(step) + " of " + QString::number(effectCounter) + " Effects to Position " + position->name() + ".");
+        }
     } else if (attribute.startsWith(RAWSTEPSATTRIBUTEID + ".")) {
         attribute.remove(0, QString(RAWSTEPSATTRIBUTEID + ".").length());
         bool ok;

@@ -14,13 +14,13 @@ Position::Position(Kernel* core) : Item(core) {}
 Position::Position(const Position* item) : Item(item) {}
 
 Position::~Position() {
-    /*for (Effect *effect : kernel->effects->items) {
-        for (int step : effect->colorSteps.keys()) {
-            if (effect->colorSteps.value(step) == this) {
-                effect->colorSteps.remove(step);
+    for (Effect *effect : kernel->effects->items) {
+        for (int step : effect->positionSteps.keys()) {
+            if (effect->positionSteps.value(step) == this) {
+                effect->positionSteps.remove(step);
             }
         }
-    }*/
+    }
     for (Cue *cue : kernel->cues->items) {
         for (Group *group : cue->positions.keys()) {
             if (cue->positions.value(group) == this) {
