@@ -275,6 +275,11 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                         (*fixtureColors)[fixture] = effect->getRGB(fixture, newGroupEffectFrames[group][effect]);
                     }
                 }
+                if (!effect->positionSteps.isEmpty()) {
+                    for (Fixture* fixture : group->fixtures) {
+                        (*fixturePositions)[fixture] = effect->getPosition(fixture, newGroupEffectFrames[group][effect]);
+                    }
+                }
                 if (!effect->rawSteps.isEmpty()) {
                     for (Fixture* fixture : group->fixtures) {
                         if (!fixtureRaws->contains(fixture)) {
@@ -328,6 +333,9 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                             for (Effect* effect : cue->effects.value(group)) {
                                 if (!effect->intensitySteps.isEmpty() && !fixturePositions->contains(fixture)) {
                                     (*fixturePositions)[fixture] = {};
+                                }
+                                if (!effect->colorSteps.isEmpty()) {
+                                    (*fixturePositions)[fixture] = effect->getPosition(fixture, 0);
                                 }
                             }
                         }
