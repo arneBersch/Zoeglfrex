@@ -363,7 +363,7 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                                     if (!fixtureRaws->contains(fixture)) {
                                         (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
                                     }
-                                    const QMap<int, uint8_t> channels = effect->getRaws(fixture, 0);
+                                    const QMap<int, uint8_t> channels = effect->getRaws(fixture, 0, false);
                                     for (int channel : channels.keys()) {
                                         (*fixtureRaws)[fixture][channel] = channels.value(channel);
                                     }

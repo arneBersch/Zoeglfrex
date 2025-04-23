@@ -223,15 +223,28 @@ positionAngles Effect::getPosition(Fixture* fixture, int frame) {
     return position;
 }
 
-QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame) {
+QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMiBRaws) {
     QMap<int, uint8_t> channels;
+    for (int step = 1; step <= intAttributes.value(kernel->effects->STEPSATTRIBUTEID); step++) {
+        if (rawSteps.contains(step)) {
+            for (Raw* raw : rawSteps.value(step)) {
+                if (renderMiBRaws || raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
+                    for (int channel : raw->getChannels(fixture).keys()) {
+                        channels[channel] = 0;
+                    }
+                }
+            }
+        }
+    }
     if (!rawSteps.isEmpty()) {
         float fade = 0;
         int step = getStep(fixture, frame, &fade);
         if (rawSteps.contains(step)) {
             for (Raw* raw : rawSteps.value(step)) {
-                for (int channel : raw->getChannels(fixture).keys()) {
-                    channels[channel] = raw->getChannels(fixture).value(channel);
+                if (renderMiBRaws || raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
+                    for (int channel : raw->getChannels(fixture).keys()) {
+                        channels[channel] = raw->getChannels(fixture).value(channel);
+                    }
                 }
             }
         }
