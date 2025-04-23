@@ -33,7 +33,7 @@ public:
     float getDimmer(Fixture* fixture, int frame);
     rgbColor getRGB(Fixture* fixture, int frame);
     positionAngles getPosition(Fixture* fixture, int frame);
-    QList<Raw*> getRaws(Fixture* fixture, int frame);
+    QMap<int, uint8_t> getRaws(Fixture* fixture, int frame);
 private:
     int getStep(Fixture* fixture, int frame, float* fade);
 };

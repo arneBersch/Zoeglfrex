@@ -223,14 +223,18 @@ positionAngles Effect::getPosition(Fixture* fixture, int frame) {
     return position;
 }
 
-QList<Raw*> Effect::getRaws(Fixture* fixture, int frame) {
-    QList<Raw*> raws;
+QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame) {
+    QMap<int, uint8_t> channels;
     if (!rawSteps.isEmpty()) {
         float fade = 0;
         int step = getStep(fixture, frame, &fade);
         if (rawSteps.contains(step)) {
-            raws = rawSteps.value(step);
+            for (Raw* raw : rawSteps.value(step)) {
+                for (int channel : raw->getChannels(fixture).keys()) {
+                    channels[channel] = raw->getChannels(fixture).value(channel);
+                }
+            }
         }
     }
-    return raws;
+    return channels;
 }

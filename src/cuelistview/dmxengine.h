@@ -26,7 +26,7 @@ public:
     const int PROCESSINGRATE = 40; // 40 FPS
 private:
     void generateDmx();
-    QMap<Group*, QMap<Effect*, int>> renderCue(Cue* cue, QMap<Fixture*, float>* dimmerValues, QMap<Fixture*, rgbColor>* colorValues, QMap<Fixture*, positionAngles>* positionValues, QMap<Fixture*, QList<Raw*>>* rawValues);
+    QMap<Group*, QMap<Effect*, int>> renderCue(Cue* cue, QMap<Fixture*, float>* dimmerValues, QMap<Fixture*, rgbColor>* colorValues, QMap<Fixture*, positionAngles>* positionValues, QMap<Fixture*, QMap<int, uint8_t>>* rawValues);
     QTimer *timer;
     Cue* currentCue = nullptr;
     Cue* lastCue = nullptr;

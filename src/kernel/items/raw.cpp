@@ -110,3 +110,21 @@ void Raw::writeAttributesToFile(QXmlStreamWriter* fileStream) {
         }
     }
 }
+
+QMap<int, uint8_t> Raw::getChannels(Fixture* fixture) {
+    QMap<int, uint8_t> channels;
+    for (int channel : channelValues.keys()) {
+        channels[channel] = channelValues.value(channel);
+    }
+    if (modelSpecificChannelValues.contains(fixture->model)) {
+        for (int channel : modelSpecificChannelValues.value(fixture->model).keys()) {
+            channels[channel] = modelSpecificChannelValues.value(fixture->model).value(channel);
+        }
+    }
+    if (fixtureSpecificChannelValues.contains(fixture)) {
+        for (int channel : fixtureSpecificChannelValues.value(fixture).keys()) {
+            channels[channel] = fixtureSpecificChannelValues.value(fixture).value(channel);
+        }
+    }
+    return channels;
+}

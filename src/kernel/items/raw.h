@@ -23,6 +23,7 @@ public:
     QMap<Fixture*, QMap<int, uint8_t>> fixtureSpecificChannelValues;
     QString info() override;
     void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
+    QMap<int, uint8_t> getChannels(Fixture* fixture);
 };
 
 #endif // RAW_H
