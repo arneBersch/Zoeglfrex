@@ -159,6 +159,7 @@ int Effect::getStep(Fixture* fixture, int frame, float* fade) {
         if (frame < fadeFrames[step - 1]) {
             (*fade) = 1 - ((float)(fadeFrames[step - 1] - frame) / (float)fadeFrames[step - 1]);
         }
+        Q_ASSERT((*fade) <= 1);
     }
     return step;
 }
@@ -236,17 +237,33 @@ QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMiBRa
             }
         }
     }
-    if (!rawSteps.isEmpty()) {
+    if (!channels.keys().isEmpty()) {
         float fade = 0;
         int step = getStep(fixture, frame, &fade);
-        if (rawSteps.contains(step)) {
-            for (Raw* raw : rawSteps.value(step)) {
-                if (renderMiBRaws || raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
-                    for (int channel : raw->getChannels(fixture).keys()) {
-                        channels[channel] = raw->getChannels(fixture).value(channel);
+        QList<Raw*> formerRaws;
+        if ((step > 1) && rawSteps.contains(step - 1)) {
+            formerRaws = rawSteps.value(step - 1);
+        } else if ((step == 1) && rawSteps.contains(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) {
+            formerRaws = rawSteps.value(intAttributes.value(kernel->effects->STEPSATTRIBUTEID));
+        }
+        for (int channel : channels.keys()) {
+            uint8_t formerValue = 0;
+            for (Raw* raw : formerRaws) {
+                if ((renderMiBRaws || raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) && raw->getChannels(fixture).contains(channel)) {
+                    formerValue = raw->getChannels(fixture).value(channel);
+                }
+            }
+            uint8_t value = 0;
+            if (rawSteps.contains(step)) {
+                for (Raw* raw : rawSteps.value(step)) {
+                    if (renderMiBRaws || raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
+                        if (raw->getChannels(fixture).contains(channel)) {
+                            value = raw->getChannels(fixture).value(channel);
+                        }
                     }
                 }
             }
+            channels[channel] = formerValue + (uint8_t)((float)(value - formerValue) * fade);
         }
     }
     return channels;
