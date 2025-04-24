@@ -80,6 +80,11 @@ QString Raw::info() {
     } else {
         info += "\n" + kernel->raws->MOVEINBLACKATTRIBUTEID + " MiB (Move in Black): False";
     }
+    if (boolAttributes.value(kernel->raws->FADEATTRIBUTEID)) {
+        info += "\n" + kernel->raws->FADEATTRIBUTEID + " Fade: True";
+    } else {
+        info += "\n" + kernel->raws->FADEATTRIBUTEID + " Fade: False";
+    }
     return info;
 }
 

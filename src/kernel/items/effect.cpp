@@ -254,16 +254,20 @@ QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMiBRa
                 }
             }
             uint8_t value = 0;
+            bool fadeThisChannel = true;
             if (rawSteps.contains(step)) {
                 for (Raw* raw : rawSteps.value(step)) {
-                    if (renderMiBRaws || raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
-                        if (raw->getChannels(fixture).contains(channel)) {
-                            value = raw->getChannels(fixture).value(channel);
-                        }
+                    if ((renderMiBRaws || raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) && raw->getChannels(fixture).contains(channel)) {
+                        fadeThisChannel = raw->boolAttributes.value(kernel->raws->FADEATTRIBUTEID);
+                        value = raw->getChannels(fixture).value(channel);
                     }
                 }
             }
-            channels[channel] = formerValue + (uint8_t)((float)(value - formerValue) * fade);
+            if (fadeThisChannel) {
+                channels[channel] = formerValue + (uint8_t)((float)(value - formerValue) * fade);
+            } else {
+                channels[channel] = value;
+            }
         }
     }
     return channels;
