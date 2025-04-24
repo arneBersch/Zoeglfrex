@@ -40,10 +40,12 @@ void DmxEngine::generateDmx() {
     QMap<Fixture*, rgbColor> currentCueFixtureColor;
     QMap<Fixture*, positionAngles> currentCueFixturePosition;
     QMap<Fixture*, QMap<int, uint8_t>> currentCueFixtureRaws;
+    QMap<Fixture*, QMap<int, bool>> currentCueFixtureRawFade;
     QMap<Fixture*, float> lastCueFixtureDimmer;
     QMap<Fixture*, rgbColor> lastCueFixtureColor;
     QMap<Fixture*, positionAngles> lastCueFixturePosition;
     QMap<Fixture*, QMap<int, uint8_t>> lastCueFixtureRaws;
+    QMap<Fixture*, QMap<int, bool>> lastCueFixtureRawFade;
     if (kernel->cuelistView->currentCue == nullptr) {
         currentCue = nullptr;
         remainingFadeFrames = 0;
@@ -61,10 +63,10 @@ void DmxEngine::generateDmx() {
         if (skipFadeButton->isChecked()) {
             remainingFadeFrames = 0;
         }
-        QMap<Group*, QMap<Effect*, int>> newGroupEffectFrames = renderCue(currentCue, &currentCueFixtureDimmer, &currentCueFixtureColor, &currentCueFixturePosition, &currentCueFixtureRaws);
+        QMap<Group*, QMap<Effect*, int>> newGroupEffectFrames = renderCue(currentCue, &currentCueFixtureDimmer, &currentCueFixtureColor, &currentCueFixturePosition, &currentCueFixtureRaws, &currentCueFixtureRawFade);
         QMap<Group*, QMap<Effect*, int>> fadeGroupEffectFrames;
         if ((lastCue != nullptr) && (remainingFadeFrames > 0)) {
-            fadeGroupEffectFrames = renderCue(lastCue, &lastCueFixtureDimmer, &lastCueFixtureColor, &lastCueFixturePosition, &lastCueFixtureRaws);
+            fadeGroupEffectFrames = renderCue(lastCue, &lastCueFixtureDimmer, &lastCueFixtureColor, &lastCueFixturePosition, &lastCueFixtureRaws, &lastCueFixtureRawFade);
         }
         groupEffectFrames.clear();
         for (Group* group : fadeGroupEffectFrames.keys()) {
@@ -194,9 +196,13 @@ void DmxEngine::generateDmx() {
                 }
             }
             if (currentCueFixtureRaws.contains(fixture)) {
-                for (int channel : currentCueFixtureRaws.value(fixture).keys()) {
-                    if (((address + channel - 1) <= 512) && (channel <= channels.size())) {
-                        dmxUniverses[universe][address + channel - 1] = currentCueFixtureRaws.value(fixture).value(channel);
+                for (int channel = 1; ((channel <= channels.size()) && ((address + channel - 1) <= 512)); channel++) {
+                    if (currentCueFixtureRaws.value(fixture).contains(channel)) {
+                        if (currentCueFixtureRawFade.value(fixture).value(channel)) {
+                            dmxUniverses[universe][address + channel - 2] = currentCueFixtureRaws.value(fixture).value(channel);
+                        } else {
+                            dmxUniverses[universe][address + channel - 2] += (dmxUniverses[universe][address + channel - 2] - currentCueFixtureRaws.value(fixture).value(channel)) * (float)remainingFadeFrames / (float)totalFadeFrames;
+                        }
                     }
                 }
             }
@@ -214,7 +220,7 @@ void DmxEngine::generateDmx() {
     kernel->preview2d->updateImage();
 }
 
-QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, float>* fixtureDimmers, QMap<Fixture*, rgbColor>* fixtureColors, QMap<Fixture*, positionAngles>* fixturePositions, QMap<Fixture*, QMap<int, uint8_t>>* fixtureRaws) {
+QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, float>* fixtureDimmers, QMap<Fixture*, rgbColor>* fixtureColors, QMap<Fixture*, positionAngles>* fixturePositions, QMap<Fixture*, QMap<int, uint8_t>>* fixtureRaws, QMap<Fixture*, QMap<int, bool>>* fixtureRawFade) {
     Q_ASSERT(cue != nullptr);
     QMap<Group*, QMap<Effect*, int>> newGroupEffectFrames;
     for (Group* group : kernel->groups->items) {
@@ -238,10 +244,12 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                 for (Fixture* fixture : group->fixtures) {
                     if (!(*fixtureRaws).contains(fixture)) {
                         (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
+                        (*fixtureRawFade)[fixture] = QMap<int, bool>();
                     }
                     const QMap<int, uint8_t> channels = raw->getChannels(fixture);
                     for (int channel : channels.keys()) {
                         (*fixtureRaws)[fixture][channel] = channels.value(channel);
+                        (*fixtureRawFade)[fixture][channel] = raw->boolAttributes.value(kernel->raws->FADEATTRIBUTEID);
                     }
                 }
             }
@@ -271,10 +279,12 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                     for (Fixture* fixture : group->fixtures) {
                         if (!fixtureRaws->contains(fixture)) {
                             (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
+                            (*fixtureRawFade)[fixture] = QMap<int, bool>();
                         }
                         const QMap<int, uint8_t> channels = effect->getRaws(fixture, newGroupEffectFrames[group][effect]);
                         for (int channel : channels.keys()) {
                             (*fixtureRaws)[fixture][channel] = channels.value(channel);
+                            (*fixtureRawFade)[fixture][channel] = false;
                         }
                     }
                 }
@@ -340,16 +350,19 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                     if (group->fixtures.contains(fixture)) {
                         if (cue->intensities.contains(group) && !fixtureRaws->contains(fixture)) {
                             (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
+                            (*fixtureRawFade)[fixture] = QMap<int, bool>();
                         }
                         if (cue->raws.contains(group)) {
                             for (Raw* raw : cue->raws.value(group)) {
                                 if (raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
                                     if (!fixtureRaws->contains(fixture)) {
                                         (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
+                                        (*fixtureRawFade)[fixture] = QMap<int, bool>();
                                     }
                                     const QMap<int, uint8_t> channels = raw->getChannels(fixture);
                                     for (int channel : channels.keys()) {
                                         (*fixtureRaws)[fixture][channel] = channels.value(channel);
+                                        (*fixtureRawFade)[fixture][channel] = raw->boolAttributes.value(kernel->raws->FADEATTRIBUTEID);
                                     }
                                 }
                             }
@@ -358,14 +371,17 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                             for (Effect* effect : cue->effects.value(group)) {
                                 if (!effect->intensitySteps.isEmpty() && !fixtureRaws->contains(fixture)) {
                                     (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
+                                    (*fixtureRawFade)[fixture] = QMap<int, bool>();
                                 }
                                 if (!effect->rawSteps.isEmpty()) {
                                     if (!fixtureRaws->contains(fixture)) {
                                         (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
+                                        (*fixtureRawFade)[fixture] = QMap<int, bool>();
                                     }
                                     const QMap<int, uint8_t> channels = effect->getRaws(fixture, 0, false);
                                     for (int channel : channels.keys()) {
                                         (*fixtureRaws)[fixture][channel] = channels.value(channel);
+                                        (*fixtureRawFade)[fixture][channel] = false;
                                     }
                                 }
                             }
