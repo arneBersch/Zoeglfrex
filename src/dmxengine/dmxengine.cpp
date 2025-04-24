@@ -125,7 +125,7 @@ void DmxEngine::generateDmx() {
             dimmer = 100;
             color = {100, 100, 100};
         }
-        kernel->cuelistView->preview2d->fixtureCircles[fixture]->setBrush(QBrush(QColor((color.red / 100 * dimmer / 100 * 255), (color.green / 100 * dimmer / 100 * 255), (color.blue / 100 * dimmer / 100 * 255))));
+        kernel->preview2d->fixtureCircles[fixture]->setBrush(QBrush(QColor((color.red / 100 * dimmer / 100 * 255), (color.green / 100 * dimmer / 100 * 255), (color.blue / 100 * dimmer / 100 * 255))));
         const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
         if ((address > 0) && (fixture->model != nullptr)) {
             const QString channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
@@ -211,7 +211,7 @@ void DmxEngine::generateDmx() {
         fadeProgress->setValue(1);
         fadeProgress->setRange(0, 1);
     }
-    kernel->cuelistView->preview2d->updateImage();
+    kernel->preview2d->updateImage();
 }
 
 QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, float>* fixtureDimmers, QMap<Fixture*, rgbColor>* fixtureColors, QMap<Fixture*, positionAngles>* fixturePositions, QMap<Fixture*, QMap<int, uint8_t>>* fixtureRaws) {

@@ -10,7 +10,7 @@
 #include "kernel/kernel.h"
 
 Fixture::Fixture(Kernel* core) : Item(core) {
-    kernel->cuelistView->preview2d->fixtureCircles[this] = new QGraphicsEllipseItem(0, 0, kernel->cuelistView->preview2d->FIXTURESIZE, kernel->cuelistView->preview2d->FIXTURESIZE);
+    kernel->preview2d->fixtureCircles[this] = new QGraphicsEllipseItem(0, 0, kernel->preview2d->FIXTURESIZE, kernel->preview2d->FIXTURESIZE);
 }
 
 Fixture::Fixture(const Fixture* item) : Item(item) {
@@ -88,8 +88,8 @@ Fixture::~Fixture() {
             cue->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
         }
     }
-    QGraphicsEllipseItem *ellipse = kernel->cuelistView->preview2d->fixtureCircles.value(this);
-    kernel->cuelistView->preview2d->fixtureCircles.remove(this);
+    QGraphicsEllipseItem *ellipse = kernel->preview2d->fixtureCircles.value(this);
+    kernel->preview2d->fixtureCircles.remove(this);
     delete ellipse;
 }
 

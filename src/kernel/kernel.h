@@ -23,6 +23,8 @@
 #include "terminal/terminal.h"
 #include "inspector/inspector.h"
 #include "cuelistview/cuelistview.h"
+#include "dmxengine/dmxengine.h"
+#include "preview2d/preview2d.h"
 
 class Kernel {
 public:
@@ -42,6 +44,8 @@ public:
     Terminal *terminal;
     Inspector *inspector;
     CuelistView *cuelistView;
+    DmxEngine *dmxEngine;
+    Preview2d *preview2d;
     QMutex *mutex;
     const QString VERSION = "0.4.0";
 };

@@ -131,15 +131,15 @@ int Effect::getStep(Fixture* fixture, int frame, float* fade) {
     int totalFrames = 0;
     for (int step = 1; step <= intAttributes.value(kernel->effects->STEPSATTRIBUTEID); step++) {
         if (stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).contains(step)) {
-            fadeFrames[step - 1] = (kernel->cuelistView->dmxEngine->PROCESSINGRATE * stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).value(step));
+            fadeFrames[step - 1] = (kernel->dmxEngine->PROCESSINGRATE * stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).value(step));
         } else {
-            fadeFrames[step - 1] = (kernel->cuelistView->dmxEngine->PROCESSINGRATE * floatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID));
+            fadeFrames[step - 1] = (kernel->dmxEngine->PROCESSINGRATE * floatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID));
         }
         stepFrames[step - 1] = fadeFrames[step - 1];
         if (stepSpecificFloatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID).contains(step)) {
-            stepFrames[step - 1] += (kernel->cuelistView->dmxEngine->PROCESSINGRATE * stepSpecificFloatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID).value(step));
+            stepFrames[step - 1] += (kernel->dmxEngine->PROCESSINGRATE * stepSpecificFloatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID).value(step));
         } else {
-            stepFrames[step - 1] += (kernel->cuelistView->dmxEngine->PROCESSINGRATE * floatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID));
+            stepFrames[step - 1] += (kernel->dmxEngine->PROCESSINGRATE * floatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID));
         }
         totalFrames += stepFrames[step - 1];
     }

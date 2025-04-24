@@ -36,9 +36,7 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
     cuelistTableView->setModel(cueModel);
     layout->addWidget(cuelistTableView);
 
-    dmxEngine = new DmxEngine(kernel);
-    preview2d = new Preview2d(kernel);
-    layout->addWidget(dmxEngine);
+    layout->addWidget(kernel->dmxEngine);
 }
 
 void CuelistView::loadView() {

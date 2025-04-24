@@ -7,6 +7,7 @@
 */
 
 #include "sacnserver.h"
+#include "kernel/kernel.h"
 
 SacnServer::SacnServer(Kernel* core, QWidget* parent) : QWidget(parent, Qt::Window) {
     kernel = core;

@@ -33,10 +33,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QMenu *outputMenu = menuBar()->addMenu("Output");
     QAction *preview2dAction = new QAction("2D Preview");
     outputMenu->addAction(preview2dAction);
-    connect(preview2dAction, &QAction::triggered, this, [this]{ kernel->cuelistView->preview2d->show(); });
+    connect(preview2dAction, &QAction::triggered, this, [this]{ kernel->preview2d->show(); });
     QAction *outputSettingsAction = new QAction("DMX Output Settings");
     outputMenu->addAction(outputSettingsAction);
-    connect(outputSettingsAction, &QAction::triggered, this, [this]{ kernel->cuelistView->dmxEngine->sacnServer->show(); });
+    connect(outputSettingsAction, &QAction::triggered, this, [this]{ kernel->dmxEngine->sacnServer->show(); });
     outputMenu->addSeparator();
     QAction *goAction = new QAction("Go to next Cue (Space)");
     outputMenu->addAction(goAction);
@@ -187,8 +187,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     confirmBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     confirmBox.setDefaultButton(QMessageBox::Cancel);
     if (confirmBox.exec() == QMessageBox::Ok) {
-        kernel->cuelistView->dmxEngine->sacnServer->close();
-        kernel->cuelistView->preview2d->close();
+        kernel->dmxEngine->sacnServer->close();
+        kernel->preview2d->close();
         event->accept();
     }
 }

@@ -14,9 +14,11 @@
 #include "sacnserver.h"
 class Kernel;
 class Fixture;
+class Group;
 class Effect;
 class Cue;
 struct rgbColor;
+struct positionAngles;
 
 class DmxEngine : public QWidget {
     Q_OBJECT

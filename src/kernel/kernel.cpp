@@ -20,7 +20,9 @@ Kernel::Kernel() {
     cues = new CueList(this);
     terminal = new Terminal(this);
     inspector = new Inspector(this);
+    dmxEngine = new DmxEngine(this);
     cuelistView = new CuelistView(this);
+    preview2d = new Preview2d(this);
     mutex = new QMutex();
 }
 
@@ -35,7 +37,7 @@ void Kernel::reset() {
     raws->reset();
     effects->reset();
     cues->reset();
-    cuelistView->dmxEngine->sacnServer->prioritySpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
+    dmxEngine->sacnServer->prioritySpinBox->setValue(dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
     cuelistView->loadView();
 }
 
@@ -57,7 +59,7 @@ void Kernel::saveFile(QString fileName) {
     fileStream.writeEndElement();
 
     fileStream.writeStartElement("Output");
-    fileStream.writeTextElement("Priority", QString::number(cuelistView->dmxEngine->sacnServer->prioritySpinBox->value()));
+    fileStream.writeTextElement("Priority", QString::number(dmxEngine->sacnServer->prioritySpinBox->value()));
     fileStream.writeEndElement();
 
     models->saveItemsToFile(&fileStream);
@@ -113,7 +115,7 @@ void Kernel::openFile(QString fileName) {
                             terminal->error("Error reading file: Invalid sACN priority given.");
                             return;
                         }
-                        cuelistView->dmxEngine->sacnServer->prioritySpinBox->setValue(priority);
+                        dmxEngine->sacnServer->prioritySpinBox->setValue(priority);
                     } else {
                         terminal->error("Error reading file: Received unknown Output attribute " + fileStream.name().toString());
                         return;

@@ -33,6 +33,4 @@ private:
     const int SACN_MAX_UNIVERSE = 63999;
 };
 
-#include "kernel/kernel.h"
-
 #endif // SACNSERVER_H

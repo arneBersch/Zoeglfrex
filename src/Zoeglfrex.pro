@@ -11,12 +11,12 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    aboutwindow/aboutwindow.cpp \
     cuelistview/cuelistview.cpp \
     cuelistview/cuemodel.cpp \
-    cuelistview/dmxengine.cpp \
     cuelistview/groupmodel.cpp \
-    cuelistview/preview2d.cpp \
-    cuelistview/sacnserver.cpp \
+    dmxengine/dmxengine.cpp \
+    dmxengine/sacnserver.cpp \
     inspector/inspector.cpp \
     kernel/items/color.cpp \
     kernel/items/cue.cpp \
@@ -40,17 +40,17 @@ SOURCES += \
     kernel/lists/positionlist.cpp \
     kernel/lists/rawlist.cpp \
     main.cpp \
-    mainwindow/aboutwindow.cpp \
     mainwindow/mainwindow.cpp \
+    preview2d/preview2d.cpp \
     terminal/terminal.cpp
 
 HEADERS += \
+    aboutwindow/aboutwindow.h \
     cuelistview/cuelistview.h \
     cuelistview/cuemodel.h \
-    cuelistview/dmxengine.h \
     cuelistview/groupmodel.h \
-    cuelistview/preview2d.h \
-    cuelistview/sacnserver.h \
+    dmxengine/dmxengine.h \
+    dmxengine/sacnserver.h \
     inspector/inspector.h \
     kernel/items/color.h \
     kernel/items/cue.h \
@@ -73,8 +73,8 @@ HEADERS += \
     kernel/lists/modellist.h \
     kernel/lists/positionlist.h \
     kernel/lists/rawlist.h \
-    mainwindow/aboutwindow.h \
     mainwindow/mainwindow.h \
+    preview2d/preview2d.h \
     terminal/terminal.h
 
 # Default rules for deployment.

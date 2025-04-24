@@ -13,12 +13,10 @@
 
 #include "cuelistview/cuemodel.h"
 #include "cuelistview/groupmodel.h"
-#include "cuelistview/preview2d.h"
 class Kernel;
 class Fixture;
 class Group;
 class Cue;
-class DmxEngine;
 
 class CuelistView : public QWidget {
     Q_OBJECT
@@ -36,8 +34,6 @@ public:
     Fixture* currentFixture = nullptr;
     Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;
-    DmxEngine *dmxEngine;
-    Preview2d *preview2d;
 private:
     void updateCuelistView();
     Kernel *kernel;
@@ -52,6 +48,5 @@ private:
 };
 
 #include "kernel/kernel.h"
-#include "cuelistview/dmxengine.h"
 
 #endif // CUELISTVIEW_H
