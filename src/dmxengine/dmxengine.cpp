@@ -195,16 +195,21 @@ void DmxEngine::generateDmx() {
                     }
                 }
             }
-            if (currentCueFixtureRaws.contains(fixture)) {
-                for (int channel = 1; ((channel <= channels.size()) && ((address + channel - 1) <= 512)); channel++) {
-                    if (currentCueFixtureRaws.value(fixture).contains(channel)) {
-                        if (currentCueFixtureRawFade.value(fixture).value(channel)) {
-                            dmxUniverses[universe][address + channel - 2] = currentCueFixtureRaws.value(fixture).value(channel);
-                        } else {
-                            dmxUniverses[universe][address + channel - 2] += (dmxUniverses[universe][address + channel - 2] - currentCueFixtureRaws.value(fixture).value(channel)) * (float)remainingFadeFrames / (float)totalFadeFrames;
+            for (int channel = 1; ((channel <= channels.size()) && ((address + channel - 1) <= 512)); channel++) {
+                uint8_t value = dmxUniverses.value(universe)[address + channel - 2];
+                if (currentCueFixtureRaws.contains(fixture) && currentCueFixtureRaws.value(fixture).contains(channel)) {
+                    if (!currentCueFixtureRawFade.value(fixture).value(channel)) {
+                        value = currentCueFixtureRaws.value(fixture).value(channel);
+                    } else {
+                        if (lastCueFixtureRaws.contains(fixture) && lastCueFixtureRaws.value(fixture).contains(channel)) {
+                            value = lastCueFixtureRaws.value(fixture).value(channel);
                         }
+                        value += (value - currentCueFixtureRaws.value(fixture).value(channel)) * (float)remainingFadeFrames / (float)totalFadeFrames;
                     }
+                } else if (!currentCueFixtureDimmer.contains(fixture) && lastCueFixtureRaws.contains(fixture) && lastCueFixtureRaws.value(fixture).contains(channel)) {
+                    value = lastCueFixtureRaws.value(fixture).value(channel);
                 }
+                dmxUniverses[universe][address + channel - 2] = value;
             }
         }
     }
@@ -362,7 +367,7 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                                     const QMap<int, uint8_t> channels = raw->getChannels(fixture);
                                     for (int channel : channels.keys()) {
                                         (*fixtureRaws)[fixture][channel] = channels.value(channel);
-                                        (*fixtureRawFade)[fixture][channel] = raw->boolAttributes.value(kernel->raws->FADEATTRIBUTEID);
+                                        (*fixtureRawFade)[fixture][channel] = false;
                                     }
                                 }
                             }
