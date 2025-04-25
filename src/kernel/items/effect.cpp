@@ -200,6 +200,7 @@ rgbColor Effect::getRGB(Fixture* fixture, int frame) {
         color.red = formerColor.red + (color.red - formerColor.red) * fade;
         color.green = formerColor.green + (color.green - formerColor.green) * fade;
         color.blue = formerColor.blue + (color.blue - formerColor.blue) * fade;
+        color.quality = formerColor.quality + (color.quality - formerColor.quality) * fade;
     }
     return color;
 }

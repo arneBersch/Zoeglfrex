@@ -135,5 +135,6 @@ rgbColor Color::getRGB(Fixture* fixture) {
         color.green = p;
         color.blue = q;
     }
+    color.quality = floatAttributes.value(kernel->colors->QUALITYATTRIBUTEID);
     return color;
 }

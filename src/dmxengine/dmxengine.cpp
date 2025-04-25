@@ -95,13 +95,14 @@ void DmxEngine::generateDmx() {
             position = currentCueFixturePosition.value(fixture);
         }
         if (remainingFadeFrames > 0) {
+            const float fade = (float)remainingFadeFrames / (float)totalFadeFrames;
             float lastCueDimmer = 0;
             rgbColor lastCueColor = {};
             positionAngles lastCuePosition = {};
             if (lastCueFixtureDimmer.contains(fixture)) {
                 lastCueDimmer = lastCueFixtureDimmer.value(fixture);
             }
-            dimmer += (lastCueDimmer - dimmer) * (float)remainingFadeFrames / (float)totalFadeFrames;
+            dimmer += (lastCueDimmer - dimmer) * fade;
             if (lastCueFixtureColor.contains(fixture)) {
                 lastCueColor = lastCueFixtureColor.value(fixture);
             }
@@ -113,11 +114,12 @@ void DmxEngine::generateDmx() {
                 lastCuePosition = position;
             }
             if (currentCueFixtureDimmer.contains(fixture)) {
-                color.red += (lastCueColor.red - color.red) * (float)remainingFadeFrames / (float)totalFadeFrames;
-                color.green += (lastCueColor.green - color.green) * (float)remainingFadeFrames / (float)totalFadeFrames;
-                color.blue += (lastCueColor.blue - color.blue) * (float)remainingFadeFrames / (float)totalFadeFrames;
-                position.pan += (lastCuePosition.pan - position.pan) * (float)remainingFadeFrames / (float)totalFadeFrames;
-                position.tilt += (lastCuePosition.tilt - position.tilt) * (float)remainingFadeFrames / (float)totalFadeFrames;
+                color.red += (lastCueColor.red - color.red) * fade;
+                color.green += (lastCueColor.green - color.green) * fade;
+                color.blue += (lastCueColor.blue - color.blue) * fade;
+                color.quality += (lastCueColor.quality - color.quality) * fade;
+                position.pan += (lastCuePosition.pan - position.pan) * fade;
+                position.tilt += (lastCuePosition.tilt - position.tilt) * fade;
             } else {
                 color = lastCueColor;
                 position = lastCuePosition;
@@ -125,7 +127,7 @@ void DmxEngine::generateDmx() {
         }
         if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (((kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) || (kernel->cuelistView->currentFixture == fixture))) { // Highlight
             dimmer = 100;
-            color = {100, 100, 100};
+            color = {100, 100, 100, 0};
         }
         kernel->preview2d->fixtureCircles[fixture]->setBrush(QBrush(QColor((color.red / 100 * dimmer / 100 * 255), (color.green / 100 * dimmer / 100 * 255), (color.blue / 100 * dimmer / 100 * 255))));
         const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
@@ -139,6 +141,12 @@ void DmxEngine::generateDmx() {
                 color.red *= (dimmer / 100);
                 color.green *= (dimmer / 100);
                 color.blue *= (dimmer / 100);
+            }
+            const float white = std::min(std::min(color.red, color.green), color.blue);
+            if (channels.contains('W')) {
+                color.red -= (white * color.quality / 100);
+                color.green -= (white * color.quality / 100);
+                color.blue -= (white * color.quality / 100);
             }
             for (int channel = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID); channel < (address + channels.size()); channel++) {
                 float value = 0;
@@ -167,7 +175,7 @@ void DmxEngine::generateDmx() {
                 } else if (channelType == QChar('B')) { // Blue
                     value = color.blue;
                 } else if (channelType == QChar('W')) { // White
-                    value = 0;
+                    value = white;
                 } else if (channelType == QChar('C')) { // Cyan
                     value = (100 - color.red);
                 } else if (channelType == QChar('M')) { // Magenta

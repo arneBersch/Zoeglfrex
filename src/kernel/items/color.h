@@ -17,6 +17,7 @@ struct rgbColor {
     float red = 100;
     float green = 100;
     float blue = 100;
+    float quality = 100;
 };
 
 class Color : public Item {
