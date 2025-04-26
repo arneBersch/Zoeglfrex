@@ -118,7 +118,17 @@ void DmxEngine::generateDmx() {
                 color.green += (lastCueColor.green - color.green) * fade;
                 color.blue += (lastCueColor.blue - color.blue) * fade;
                 color.quality += (lastCueColor.quality - color.quality) * fade;
+                if (std::abs(lastCuePosition.pan - position.pan) > 180) {
+                    if (lastCuePosition.pan > position.pan) {
+                        position.pan += 360;
+                    } else if (lastCuePosition.pan < position.pan) {
+                        lastCuePosition.pan += 360;
+                    }
+                }
                 position.pan += (lastCuePosition.pan - position.pan) * fade;
+                while (position.pan >= 360) {
+                    position.pan -= 360;
+                }
                 position.tilt += (lastCuePosition.tilt - position.tilt) * fade;
             } else {
                 color = lastCueColor;
@@ -150,6 +160,22 @@ void DmxEngine::generateDmx() {
                 color.green -= (white * color.quality / 100);
                 color.blue -= (white * color.quality / 100);
             }
+            if (!fixture->boolAttributes.value(kernel->fixtures->INVERTPANATTRIBUTE)) {
+                position.pan = fixture->angleAttributes.value(kernel->fixtures->ROTATIONATTRIBUTEID) + position.pan;
+            } else {
+                position.pan = fixture->angleAttributes.value(kernel->fixtures->ROTATIONATTRIBUTEID) - position.pan;
+            }
+            while (position.pan >= 360) {
+                position.pan -= 360;
+            }
+            while (position.pan < 0) {
+                position.pan += 360;
+            }
+            float pan = position.pan / fixture->model->floatAttributes.value(kernel->models->PANRANGEATTRIBUTEID) * 100;
+            pan = std::min<float>(pan, 100);
+            float tilt = 50 + (position.tilt / (fixture->model->floatAttributes.value(kernel->models->TILTRANGEATTRIBUTEID) / 2) * 50);
+            tilt = std::min<float>(tilt, 100);
+            tilt = std::max<float>(tilt, 0);
             for (int channel = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID); channel < (address + channels.size()); channel++) {
                 float value = 0;
                 QChar channelType = channels.at(channel - address);
@@ -185,9 +211,9 @@ void DmxEngine::generateDmx() {
                 } else if (channelType == QChar('Y')) { // Yellow
                     value = (100 - color.blue);
                 } else if (channelType == QChar('P')) { // Pan
-                    value = position.pan;
+                    value = pan;
                 } else if (channelType == QChar('T')) { // Tilt
-                    value = position.tilt;
+                    value = tilt;
                 } else if (channelType == QChar('0')) { // DMX 0
                     value = 0;
                 } else if (channelType == QChar('1')) { // DMX 255

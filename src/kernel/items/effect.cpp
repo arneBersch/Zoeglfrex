@@ -207,7 +207,7 @@ rgbColor Effect::getRGB(Fixture* fixture, int frame) {
 
 positionAngles Effect::getPosition(Fixture* fixture, int frame) {
     positionAngles position = {};
-    if (!colorSteps.isEmpty()) {
+    if (!positionSteps.isEmpty()) {
         float fade = 0;
         int step = getStep(fixture, frame, &fade);
         positionAngles formerPosition = {};
@@ -219,7 +219,17 @@ positionAngles Effect::getPosition(Fixture* fixture, int frame) {
         if (positionSteps.contains(step)) {
             position = positionSteps.value(step)->getAngles(fixture);
         }
+        if (std::abs(formerPosition.pan - position.pan) > 180) {
+            if (formerPosition.pan > position.pan) {
+                position.pan += 360;
+            } else if (formerPosition.pan < position.pan) {
+                formerPosition.pan += 360;
+            }
+        }
         position.pan = formerPosition.pan + (position.pan - formerPosition.pan) * fade;
+        while (position.pan >= 360) {
+            position.pan -= 360;
+        }
         position.tilt = formerPosition.tilt + (position.tilt - formerPosition.tilt) * fade;
     }
     return position;
