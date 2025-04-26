@@ -15,6 +15,7 @@ public:
     int tilt = 0;
 private:
     const int ellipseWidth = 50;
+    const int maxBeamLength = 120;
 };
 
 #endif // FIXTUREGRAPHICSITEM_H
