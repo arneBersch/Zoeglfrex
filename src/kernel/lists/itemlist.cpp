@@ -753,13 +753,11 @@ template <class T> void ItemList<T>::reset() {
     }
 }
 
-template <class T> int ItemList<T>::rowCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
+template <class T> int ItemList<T>::rowCount(const QModelIndex&) const {
     return items.size();
 }
 
-template <class T> int ItemList<T>::columnCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
+template <class T> int ItemList<T>::columnCount(const QModelIndex&) const {
     return 1;
 }
 

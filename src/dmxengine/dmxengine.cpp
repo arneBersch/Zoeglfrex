@@ -139,9 +139,11 @@ void DmxEngine::generateDmx() {
             dimmer = 100;
             color = {100, 100, 100, 0};
         }
-        kernel->preview2d->fixtureCircles[fixture]->red = (color.red / 100 * dimmer / 100 * 255);
-        kernel->preview2d->fixtureCircles[fixture]->green = (color.green / 100 * dimmer / 100 * 255);
-        kernel->preview2d->fixtureCircles[fixture]->blue = (color.blue / 100 * dimmer / 100 * 255);
+        kernel->preview2d->fixtureCircles.value(fixture)->red = (color.red / 100 * dimmer / 100 * 255);
+        kernel->preview2d->fixtureCircles.value(fixture)->green = (color.green / 100 * dimmer / 100 * 255);
+        kernel->preview2d->fixtureCircles.value(fixture)->blue = (color.blue / 100 * dimmer / 100 * 255);
+        kernel->preview2d->fixtureCircles.value(fixture)->pan = position.pan;
+        kernel->preview2d->fixtureCircles.value(fixture)->tilt = position.tilt;
         const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
         if ((address > 0) && (fixture->model != nullptr)) {
             const QString channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);

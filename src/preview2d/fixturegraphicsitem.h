@@ -11,8 +11,10 @@ public:
     int red = 0;
     int green = 0;
     int blue = 0;
-    int x = 0;
-    int y = 0;
+    int pan = 0;
+    int tilt = 0;
+private:
+    const int ellipseWidth = 50;
 };
 
 #endif // FIXTUREGRAPHICSITEM_H

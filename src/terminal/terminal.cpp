@@ -1008,7 +1008,6 @@ int Terminal::keyToNumber(int key) {
     }
 }
 
-void Terminal::scrollToLastMessage(int min, int max) {
-    Q_UNUSED(min);
+void Terminal::scrollToLastMessage(int, int max) {
     scrollArea->verticalScrollBar()->setValue(max);
 }

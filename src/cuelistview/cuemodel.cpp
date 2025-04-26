@@ -18,15 +18,13 @@ void CueModel::loadCue() {
     endResetModel();
 }
 
-int CueModel::rowCount(const QModelIndex &parent) const
+int CueModel::rowCount(const QModelIndex&) const
 {
-    Q_UNUSED(parent);
     return kernel->groups->rowCount();
 }
 
-int CueModel::columnCount(const QModelIndex &parent) const
+int CueModel::columnCount(const QModelIndex&) const
 {
-    Q_UNUSED(parent);
     return 6;
 }
 

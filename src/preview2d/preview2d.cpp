@@ -28,8 +28,7 @@ Preview2d::Preview2d(Kernel* core) {
 void Preview2d::updateImage() {
     for (Fixture* fixture : fixtureCircles.keys()) {
         FixtureGraphicsItem *fixtureGraphicsItem = fixtureCircles.value(fixture);
-        fixtureGraphicsItem->x = 100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONXATTRIBUTEID);
-        fixtureGraphicsItem->y = -100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONYATTRIBUTEID);
+        fixtureGraphicsItem->setPos(100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONXATTRIBUTEID), -100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONYATTRIBUTEID));
         if (!scene->items().contains(fixtureGraphicsItem)) {
             scene->addItem(fixtureGraphicsItem);
         }

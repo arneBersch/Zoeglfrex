@@ -76,11 +76,11 @@ positionAngles Position::getAngles(Fixture* fixture) {
     } else if (modelSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).contains(fixture->model)) {
         angles.pan = modelSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).value(fixture->model);
     }
-    angles.pan = floatAttributes.value(kernel->positions->TILTATTRIBUTEID);
+    angles.tilt = floatAttributes.value(kernel->positions->TILTATTRIBUTEID);
     if (fixtureSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(fixture)) {
-        angles.pan = fixtureSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture);
+        angles.tilt = fixtureSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture);
     } else if (modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(fixture->model)) {
-        angles.pan = modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture->model);
+        angles.tilt = modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture->model);
     }
     return angles;
 }

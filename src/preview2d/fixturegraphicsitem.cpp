@@ -3,13 +3,20 @@
 FixtureGraphicsItem::FixtureGraphicsItem() {}
 
 QRectF FixtureGraphicsItem::boundingRect() const {
-    return QRectF(x, y, 50, 50);
+    return QRectF(-ellipseWidth / 2, -ellipseWidth / 2, ellipseWidth, ellipseWidth);
 }
 
-void FixtureGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+void FixtureGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) {
     painter->setPen(Qt::NoPen);
     painter->setBrush(QColor(red, green, blue));
-    painter->drawEllipse(x, y, 50, 50);
+
+    QPainterPath path;
+    path.lineTo(-20, 100);
+    path.lineTo(20, 100);
+    path.closeSubpath();
+    painter->rotate(pan);
+    painter->drawPath(path);
+    painter->rotate(-pan);
+
+    painter->drawEllipse(-ellipseWidth / 2, -ellipseWidth / 2, ellipseWidth, ellipseWidth);
 }

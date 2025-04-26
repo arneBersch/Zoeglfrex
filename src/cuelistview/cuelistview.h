@@ -31,6 +31,7 @@ public:
     void previousGroup();
     void nextFixture();
     void previousFixture();
+    void noFixture();
     Fixture* currentFixture = nullptr;
     Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;

@@ -159,6 +159,12 @@ void CuelistView::previousFixture() {
     }
 }
 
+void CuelistView::noFixture() {
+    QMutexLocker locker(kernel->mutex);
+    currentFixture = nullptr;
+    loadView();
+}
+
 void CuelistView::nextFixture() {
     QMutexLocker locker(kernel->mutex);
     if (currentGroup == nullptr) {

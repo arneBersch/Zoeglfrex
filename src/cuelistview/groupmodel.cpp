@@ -18,15 +18,13 @@ void GroupModel::loadGroup() {
     endResetModel();
 }
 
-int GroupModel::rowCount(const QModelIndex &parent) const
+int GroupModel::rowCount(const QModelIndex&) const
 {
-    Q_UNUSED(parent);
     return kernel->cues->rowCount();
 }
 
-int GroupModel::columnCount(const QModelIndex &parent) const
+int GroupModel::columnCount(const QModelIndex&) const
 {
-    Q_UNUSED(parent);
     return 6;
 }
 
