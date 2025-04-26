@@ -41,6 +41,7 @@ SOURCES += \
     kernel/lists/rawlist.cpp \
     main.cpp \
     mainwindow/mainwindow.cpp \
+    preview2d/fixturegraphicsitem.cpp \
     preview2d/preview2d.cpp \
     terminal/terminal.cpp
 
@@ -74,6 +75,7 @@ HEADERS += \
     kernel/lists/positionlist.h \
     kernel/lists/rawlist.h \
     mainwindow/mainwindow.h \
+    preview2d/fixturegraphicsitem.h \
     preview2d/preview2d.h \
     terminal/terminal.h
 

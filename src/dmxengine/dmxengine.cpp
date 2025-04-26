@@ -129,7 +129,9 @@ void DmxEngine::generateDmx() {
             dimmer = 100;
             color = {100, 100, 100, 0};
         }
-        kernel->preview2d->fixtureCircles[fixture]->setBrush(QBrush(QColor((color.red / 100 * dimmer / 100 * 255), (color.green / 100 * dimmer / 100 * 255), (color.blue / 100 * dimmer / 100 * 255))));
+        kernel->preview2d->fixtureCircles[fixture]->red = (color.red / 100 * dimmer / 100 * 255);
+        kernel->preview2d->fixtureCircles[fixture]->green = (color.green / 100 * dimmer / 100 * 255);
+        kernel->preview2d->fixtureCircles[fixture]->blue = (color.blue / 100 * dimmer / 100 * 255);
         const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
         if ((address > 0) && (fixture->model != nullptr)) {
             const QString channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
@@ -214,7 +216,7 @@ void DmxEngine::generateDmx() {
                         }
                         value += (value - currentCueFixtureRaws.value(fixture).value(channel)) * (float)remainingFadeFrames / (float)totalFadeFrames;
                     }
-                } else if (!currentCueFixtureDimmer.contains(fixture) && lastCueFixtureRaws.contains(fixture) && lastCueFixtureRaws.value(fixture).contains(channel)) {
+                } else if (!currentCueFixtureDimmer.contains(fixture) && lastCueFixtureDimmer.contains(fixture) && (remainingFadeFrames > 0) && lastCueFixtureRaws.contains(fixture) && lastCueFixtureRaws.value(fixture).contains(channel)) {
                     value = lastCueFixtureRaws.value(fixture).value(channel);
                 }
                 dmxUniverses[universe][address + channel - 2] = value;

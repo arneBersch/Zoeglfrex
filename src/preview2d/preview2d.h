@@ -2,6 +2,8 @@
 #define PREVIEW2D_H
 
 #include <QtWidgets>
+
+#include "fixturegraphicsitem.h"
 class Kernel;
 class Fixture;
 
@@ -9,11 +11,10 @@ class Preview2d : public QWidget {
 public:
     Preview2d(Kernel* core);
     void updateImage();
-    QMap<Fixture*, QGraphicsEllipseItem*> fixtureCircles;
-    const int FIXTURESIZE = 70;
+    QMap<Fixture*, FixtureGraphicsItem*> fixtureCircles;
 private:
-    QGraphicsScene *scene;
-    QGraphicsView *view;
+    QGraphicsView* view;
+    QGraphicsScene* scene;
     Kernel* kernel;
 };
 
