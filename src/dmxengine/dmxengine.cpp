@@ -81,6 +81,8 @@ void DmxEngine::generateDmx() {
         }
     }
     QMap<int, QByteArray> dmxUniverses;
+    QMap<Fixture*, float> lastFrameFixturePan = fixturePan;
+    fixturePan.clear();
     for (Fixture* fixture : kernel->fixtures->items) {
         float dimmer = 0;
         rgbColor color = {};
@@ -173,8 +175,17 @@ void DmxEngine::generateDmx() {
             while (position.pan < 0) {
                 position.pan += 360;
             }
+            if (!lastFrameFixturePan.contains(fixture)) {
+                lastFrameFixturePan[fixture] = 0;
+            }
             float pan = position.pan / fixture->model->floatAttributes.value(kernel->models->PANRANGEATTRIBUTEID) * 100;
             pan = std::min<float>(pan, 100);
+            for (float angle = position.pan; angle <= fixture->model->floatAttributes.value(kernel->models->PANRANGEATTRIBUTEID); angle += 360) {
+                if (std::abs(lastFrameFixturePan.value(fixture) - (angle / fixture->model->floatAttributes.value(kernel->models->PANRANGEATTRIBUTEID) * 100)) < std::abs(lastFrameFixturePan.value(fixture) - pan)) {
+                    pan = angle / fixture->model->floatAttributes.value(kernel->models->PANRANGEATTRIBUTEID) * 100;
+                }
+            }
+            fixturePan[fixture] = pan;
             float tilt = 50 + (position.tilt / (fixture->model->floatAttributes.value(kernel->models->TILTRANGEATTRIBUTEID) / 2) * 50);
             tilt = std::min<float>(tilt, 100);
             tilt = std::max<float>(tilt, 0);

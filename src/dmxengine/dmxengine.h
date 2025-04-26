@@ -33,6 +33,7 @@ private:
     Cue* currentCue = nullptr;
     Cue* lastCue = nullptr;
     QMap<Group*, QMap<Effect*, int>> groupEffectFrames;
+    QMap<Fixture*, float> fixturePan;
     int remainingFadeFrames = 0;
     int totalFadeFrames = 0;
     QPushButton *highlightButton;
