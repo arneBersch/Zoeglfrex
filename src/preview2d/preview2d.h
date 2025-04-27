@@ -13,6 +13,7 @@ public:
     void updateImage();
     QMap<Fixture*, FixtureGraphicsItem*> fixtureCircles;
 private:
+    int fixtureCirclesAmount = 0;
     QGraphicsView* view;
     QGraphicsScene* scene;
     Kernel* kernel;

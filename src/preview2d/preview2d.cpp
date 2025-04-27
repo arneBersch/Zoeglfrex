@@ -10,6 +10,7 @@ Preview2d::Preview2d(Kernel* core) {
     view = new QGraphicsView();
     scene = new QGraphicsScene();
     view->setScene(scene);
+    view->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
     layout->addWidget(view);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -26,12 +27,25 @@ Preview2d::Preview2d(Kernel* core) {
 }
 
 void Preview2d::updateImage() {
+    bool sceneRectChanged = false;
+    if (fixtureCirclesAmount != fixtureCircles.size()) {
+        fixtureCirclesAmount = fixtureCircles.size();
+        sceneRectChanged = true;
+    }
     for (Fixture* fixture : fixtureCircles.keys()) {
         FixtureGraphicsItem *fixtureGraphicsItem = fixtureCircles.value(fixture);
-        fixtureGraphicsItem->setPos(100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONXATTRIBUTEID), -100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONYATTRIBUTEID));
+        QPointF position(100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONXATTRIBUTEID), -100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONYATTRIBUTEID));
+        if (position != fixtureGraphicsItem->pos()) {
+            sceneRectChanged = true;
+            fixtureGraphicsItem->setPos(position);
+        }
         if (!scene->items().contains(fixtureGraphicsItem)) {
+            sceneRectChanged = true;
             scene->addItem(fixtureGraphicsItem);
         }
     }
     scene->update();
+    if (sceneRectChanged) {
+        view->setSceneRect(scene->itemsBoundingRect());
+    }
 }
