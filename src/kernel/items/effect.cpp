@@ -12,10 +12,11 @@
 Effect::Effect(Kernel* core) : Item(core) {}
 
 Effect::Effect(const Effect* item) : Item(item) {
-    steps = item->steps;
     intensitySteps = item->intensitySteps;
     colorSteps = item->colorSteps;
+    positionSteps = item->positionSteps;
     rawSteps = item->rawSteps;
+    stepSpecificFloatAttributes = item->stepSpecificFloatAttributes;
 }
 
 Effect::~Effect() {

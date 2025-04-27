@@ -16,7 +16,19 @@ class Kernel;
 class ControlPanel : public QWidget {
 public:
     ControlPanel(Kernel* core);
+    void reload();
 private:
+    bool reloading = false;
+    QDial* dimmerDial;
+    void setDimmer(int dimmer);
+    QDial* hueDial;
+    void setHue(int hue);
+    QDial* saturationDial;
+    void setSaturation(int saturation);
+    QDial* panDial;
+    void setPan(int pan);
+    QDial* tiltDial;
+    void setTilt(int tilt);
     Kernel* kernel;
 };
 

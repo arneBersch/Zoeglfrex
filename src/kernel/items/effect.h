@@ -22,7 +22,6 @@ public:
     Effect(Kernel* core);
     Effect(const Effect* item);
     ~Effect();
-    int steps = 2;
     QMap<int, Intensity*> intensitySteps;
     QMap<int, Color*> colorSteps;
     QMap<int, Position*> positionSteps;
