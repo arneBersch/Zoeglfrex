@@ -63,10 +63,10 @@ public:
     QString keysToId(QList<int> keys, bool removeTrailingZeros = true);
     float keysToValue(QList<int> keys);
     QStringList keysToSelection(QList<int> keys, int itemType);
+    QList<int> command;
 private:
     Kernel *kernel;
     QString promptText(QList<int> keys);
-    QList<int> command;
     QVBoxLayout *messages;
     QScrollArea *scrollArea;
     QLabel *prompt;

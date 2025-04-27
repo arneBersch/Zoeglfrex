@@ -26,84 +26,103 @@ Inspector::Inspector(Kernel *core, QWidget *parent) : QWidget{parent}
 
 void Inspector::load(QList<int> keys)
 {
-    infos->setText(QString()); // reset Info label
-    for (int keyIndex = (keys.length() - 1); keyIndex >= 0; keyIndex--) {
-        QString id = QString();
-        if (keyIndex < (keys.length() - 1)) {
-            id = kernel->terminal->keysToId(keys.mid((keyIndex + 1), (keys.length() - keyIndex)));
-        }
-        if (keys[keyIndex] == Keys::Model) {
-            table->setModel(kernel->models);
-            title->setText("Models");
-            Model* item = kernel->models->getItem(id);
-            if (item != nullptr) {
-                infos->setText(item->info());
-            }
-            return;
-        } else if (keys[keyIndex] == Keys::Fixture) {
-            table->setModel(kernel->fixtures);
-            title->setText("Fixtures");
-            Fixture* item = kernel->fixtures->getItem(id);
-            if (item != nullptr) {
-                infos->setText(item->info());
-            }
-            return;
-        } else if (keys[keyIndex] == Keys::Group) {
-            table->setModel(kernel->groups);
-            title->setText("Groups");
-            Group* item = kernel->groups->getItem(id);
-            if (item != nullptr) {
-                infos->setText(item->info());
-            }
-            return;
-        } else if (keys[keyIndex] == Keys::Intensity) {
-            table->setModel(kernel->intensities);
-            title->setText("Intensities");
-            Intensity* item = kernel->intensities->getItem(id);
-            if (item != nullptr) {
-                infos->setText(item->info());
-            }
-            return;
-        } else if (keys[keyIndex] == Keys::Color) {
-            table->setModel(kernel->colors);
-            title->setText("Colors");
-            Color* item = kernel->colors->getItem(id);
-            if (item != nullptr) {
-                infos->setText(item->info());
-            }
-            return;
-        } else if (keys[keyIndex] == Keys::Position) {
-            table->setModel(kernel->positions);
-            title->setText("Positions");
-            Position* item = kernel->positions->getItem(id);
-            if (item != nullptr) {
-                infos->setText(item->info());
-            }
-            return;
-        } else if (keys[keyIndex] == Keys::Raw) {
-            table->setModel(kernel->raws);
-            title->setText("Raws");
-            Raw* item = kernel->raws->getItem(id);
-            if (item != nullptr) {
-                infos->setText(item->info());
-            }
-            return;
-        } else if (keys[keyIndex] == Keys::Effect) {
-            table->setModel(kernel->effects);
-            title->setText("Effects");
-            Effect* item = kernel->effects->getItem(id);
-            if (item != nullptr) {
-                infos->setText(item->info());
-            }
-            return;
-        } else if (keys[keyIndex] == Keys::Cue) {
-            table->setModel(kernel->cues);
-            title->setText("Cues");
-            Cue* item = kernel->cues->getItem(id);
-            if (item != nullptr) {
-                infos->setText(item->info());
-            }
-            return;
+    infos->setText(QString());
+    int itemType = Keys::Zero;
+    QList<int> itemIdKeys;
+    bool addToId = true;
+    for (int key : keys) {
+        if (kernel->terminal->isItem(key)) {
+            itemIdKeys.clear();
+            addToId = true;
+            itemType = key;
+        } else if ((key == Keys::Attribute) || (key == Keys::Set)) {
+            addToId = false;
+        } else if (addToId) {
+            itemIdKeys.append(key);
         }
     }
+    QString id = QString();
+    if (!kernel->terminal->keysToSelection(itemIdKeys, itemType).isEmpty()) {
+        id = kernel->terminal->keysToSelection(itemIdKeys, itemType).last();
+    }
+    Item* item = nullptr;
+    if (itemType == Keys::Model) {
+        title->setText("Models");
+        table->setModel(kernel->models);
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentFixture != nullptr) && (kernel->cuelistView->currentFixture->model != nullptr)) {
+            item = kernel->cuelistView->currentFixture->model;
+        } else {
+            item = kernel->models->getItem(id);
+        }
+    } else if (itemType == Keys::Fixture) {
+        title->setText("Fixtures");
+        table->setModel(kernel->fixtures);
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentFixture != nullptr)) {
+            item = kernel->cuelistView->currentFixture;
+        } else {
+            item = kernel->fixtures->getItem(id);
+        }
+    } else if (itemType == Keys::Group) {
+        title->setText("Groups");
+        table->setModel(kernel->groups);
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentGroup != nullptr)) {
+            item = kernel->cuelistView->currentGroup;
+        } else {
+            item = kernel->groups->getItem(id);
+        }
+    } else if (itemType == Keys::Intensity) {
+        title->setText("Intensities");
+        table->setModel(kernel->intensities);
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup);
+        } else {
+            item = kernel->intensities->getItem(id);
+        }
+    } else if (itemType == Keys::Color) {
+        title->setText("Colors");
+        table->setModel(kernel->colors);
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup);
+        } else {
+            item = kernel->colors->getItem(id);
+        }
+    } else if (itemType == Keys::Position) {
+        title->setText("Positions");
+        table->setModel(kernel->positions);
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup);
+        } else {
+            item = kernel->positions->getItem(id);
+        }
+    } else if (itemType == Keys::Raw) {
+        title->setText("Raws");
+        table->setModel(kernel->raws);
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->raws.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCue->raws.value(kernel->cuelistView->currentGroup).last();
+        } else {
+            item = kernel->raws->getItem(id);
+        }
+    } else if (itemType == Keys::Effect) {
+        title->setText("Effects");
+        table->setModel(kernel->effects);
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->effects.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCue->effects.value(kernel->cuelistView->currentGroup).last();
+        } else {
+            item = kernel->effects->getItem(id);
+        }
+    } else if (itemType == Keys::Cue) {
+        title->setText("Cues");
+        table->setModel(kernel->cues);
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCue != nullptr)) {
+            item = kernel->cuelistView->currentCue;
+        } else {
+            item = kernel->cues->getItem(id);
+        }
+    } else {
+        return;
+    }
+    if (item == nullptr) {
+        return;
+    }
+    infos->setText(item->info());
 }

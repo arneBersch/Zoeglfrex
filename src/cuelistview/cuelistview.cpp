@@ -43,6 +43,7 @@ void CuelistView::loadView() {
     cueModel->loadCue();
     groupModel->loadGroup();
     cueOrGroupLabel->setText(QString());
+    kernel->inspector->load(kernel->terminal->command);
     if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE)) {
         cueOrGroupLabel->setText("No Cue selected.");
         if (currentCue != nullptr) {
