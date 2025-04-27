@@ -30,10 +30,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     fileMenu->addAction(quitAction);
     connect(quitAction, &QAction::triggered, this, &MainWindow::close);
 
-    QMenu *outputMenu = menuBar()->addMenu("Output");
+    QMenu *programmingMenu = menuBar()->addMenu("Programming");
+    QAction *controlPanelAction = new QAction("Control Panel");
+    programmingMenu->addAction(controlPanelAction);
+    connect(controlPanelAction, &QAction::triggered, this, [this]{ kernel->controlPanel->show(); });
     QAction *preview2dAction = new QAction("2D Preview");
-    outputMenu->addAction(preview2dAction);
+    programmingMenu->addAction(preview2dAction);
     connect(preview2dAction, &QAction::triggered, this, [this]{ kernel->preview2d->show(); });
+
+    QMenu *outputMenu = menuBar()->addMenu("Output");
     QAction *outputSettingsAction = new QAction("DMX Output Settings");
     outputMenu->addAction(outputSettingsAction);
     connect(outputSettingsAction, &QAction::triggered, this, [this]{ kernel->dmxEngine->sacnServer->show(); });
@@ -57,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(openReferenceAction, &QAction::triggered, this, []{ QDesktopServices::openUrl(QUrl("https://github.com/arneBersch/Zoeglfrex/blob/main/docs/reference.md")); });
 
     kernel = new Kernel();
-    kernel->cuelistView->loadView();
+    kernel->cuelistView->reload();
 
     QSplitter *leftColumn = new QSplitter();
     leftColumn->setOrientation(Qt::Vertical);
@@ -190,6 +195,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     if (confirmBox.exec() == QMessageBox::Ok) {
         kernel->dmxEngine->sacnServer->close();
         kernel->preview2d->close();
+        kernel->controlPanel->close();
         event->accept();
     }
 }

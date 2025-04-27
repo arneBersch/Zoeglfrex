@@ -388,7 +388,7 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                                 if (!effect->intensitySteps.isEmpty() && !fixturePositions->contains(fixture)) {
                                     (*fixturePositions)[fixture] = {};
                                 }
-                                if (!effect->colorSteps.isEmpty()) {
+                                if (!effect->positionSteps.isEmpty()) {
                                     (*fixturePositions)[fixture] = effect->getPosition(fixture, 0);
                                 }
                             }

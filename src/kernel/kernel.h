@@ -25,6 +25,7 @@
 #include "cuelistview/cuelistview.h"
 #include "dmxengine/dmxengine.h"
 #include "preview2d/preview2d.h"
+#include "controlpanel/controlpanel.h"
 
 class Kernel {
 public:
@@ -46,6 +47,7 @@ public:
     CuelistView *cuelistView;
     DmxEngine *dmxEngine;
     Preview2d *preview2d;
+    ControlPanel *controlPanel;
     QMutex *mutex;
     const QString VERSION = "0.4.0";
 };

@@ -6,24 +6,18 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef FIXTUREGRAPHICSITEM_H
-#define FIXTUREGRAPHICSITEM_H
+#ifndef CONTROLPANEL_H
+#define CONTROLPANEL_H
 
 #include <QtWidgets>
 
-class FixtureGraphicsItem : public QGraphicsItem {
+class Kernel;
+
+class ControlPanel : public QWidget {
 public:
-    FixtureGraphicsItem();
-    QRectF boundingRect() const override;
-    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
-    int red = 0;
-    int green = 0;
-    int blue = 0;
-    int pan = 0;
-    int tilt = 0;
+    ControlPanel(Kernel* core);
 private:
-    const int ellipseWidth = 50;
-    const int maxBeamLength = 120;
+    Kernel* kernel;
 };
 
-#endif // FIXTUREGRAPHICSITEM_H
+#endif // CONTROLPANEL_H

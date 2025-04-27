@@ -19,7 +19,7 @@ Group::~Group() {
     if (kernel->cuelistView->currentGroup == this) {
         kernel->cuelistView->currentGroup = nullptr;
         kernel->cuelistView->currentFixture = nullptr;
-        kernel->cuelistView->loadView();
+        kernel->cuelistView->reload();
     }
     for (Cue *cue : kernel->cues->items) {
         cue->intensities.remove(this);

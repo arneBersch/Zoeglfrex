@@ -22,7 +22,7 @@ class CuelistView : public QWidget {
     Q_OBJECT
 public:
     CuelistView(Kernel *core, QWidget *parent = nullptr);
-    void loadView();
+    void reload();
     void loadCue(QString cueId);
     void nextCue();
     void previousCue();

@@ -1,9 +1,19 @@
+/*
+    Copyright (c) Arne Bersch
+    This file is part of Zöglfrex.
+    Zöglfrex is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+    Zöglfrex is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "preview2d.h"
 #include "kernel/kernel.h"
 
 Preview2d::Preview2d(Kernel* core) {
     kernel = core;
 
+    setWindowTitle("Zöglfrex 2D Preview");
+    resize(500, 300);
     QVBoxLayout *layout = new QVBoxLayout();
     setLayout(layout);
 
@@ -21,9 +31,6 @@ Preview2d::Preview2d(Kernel* core) {
     connect(zoomInButton, &QPushButton::clicked, view, [this]{ view->scale(1.25, 1.25); });
     buttonLayout->addWidget(zoomInButton);
     layout->addLayout(buttonLayout);
-
-    setWindowTitle("Zöglfrex 2D Preview");
-    resize(500, 300);
 }
 
 void Preview2d::updateImage() {

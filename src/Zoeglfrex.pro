@@ -12,6 +12,7 @@ CONFIG += c++11
 
 SOURCES += \
     aboutwindow/aboutwindow.cpp \
+    controlpanel/controlpanel.cpp \
     cuelistview/cuelistview.cpp \
     cuelistview/cuemodel.cpp \
     cuelistview/groupmodel.cpp \
@@ -47,6 +48,7 @@ SOURCES += \
 
 HEADERS += \
     aboutwindow/aboutwindow.h \
+    controlpanel/controlpanel.h \
     cuelistview/cuelistview.h \
     cuelistview/cuemodel.h \
     cuelistview/groupmodel.h \

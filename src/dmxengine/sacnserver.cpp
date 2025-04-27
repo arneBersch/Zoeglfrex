@@ -12,7 +12,7 @@
 SacnServer::SacnServer(Kernel* core, QWidget* parent) : QWidget(parent, Qt::Window) {
     kernel = core;
 
-    setWindowTitle("DMX Output Settings");
+    setWindowTitle("Zöglfrex DMX Output Settings");
     QGridLayout *layout = new QGridLayout(this);
 
     QLabel* interfaceLabel = new QLabel("Network Interface");

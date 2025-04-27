@@ -20,7 +20,7 @@ Fixture::Fixture(const Fixture* item) : Item(item) {
 Fixture::~Fixture() {
     if (kernel->cuelistView->currentFixture == this) {
         kernel->cuelistView->currentFixture = nullptr;
-        kernel->cuelistView->loadView();
+        kernel->cuelistView->reload();
     }
     for (Model* currentModel : kernel->models->items) {
         for (QString fixtureSpecificFloatAttribute : currentModel->fixtureSpecificFloatAttributes.keys()) {

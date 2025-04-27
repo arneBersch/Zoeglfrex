@@ -369,7 +369,7 @@ void Terminal::execute() {
             error("No Attribute and Value were given.");
             return;
         }
-        kernel->cuelistView->loadView();
+        kernel->cuelistView->reload();
         return;
     }
     if (selection.isEmpty()) {
@@ -672,7 +672,7 @@ void Terminal::execute() {
             }
         }
     }
-    kernel->cuelistView->loadView();
+    kernel->cuelistView->reload();
     kernel->inspector->load({selectionType});
 }
 

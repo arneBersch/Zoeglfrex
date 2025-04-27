@@ -23,6 +23,7 @@ Kernel::Kernel() {
     dmxEngine = new DmxEngine(this);
     cuelistView = new CuelistView(this);
     preview2d = new Preview2d(this);
+    controlPanel = new ControlPanel(this);
     mutex = new QMutex();
 }
 
@@ -38,7 +39,7 @@ void Kernel::reset() {
     effects->reset();
     cues->reset();
     dmxEngine->sacnServer->prioritySpinBox->setValue(dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
-    cuelistView->loadView();
+    cuelistView->reload();
 }
 
 void Kernel::saveFile(QString fileName) {
@@ -199,5 +200,5 @@ void Kernel::openFile(QString fileName) {
         terminal->error("Can't open file because a XML parsing error occured in line " + QString::number(fileStream.lineNumber()) + ": " + fileStream.errorString() + " (" + QString::number(fileStream.error()) + ")");
         return;
     }
-    cuelistView->loadView();
+    cuelistView->reload();
 }
