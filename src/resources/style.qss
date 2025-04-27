@@ -25,10 +25,6 @@ QPushButton::checked {
     border: 1px solid white;
 }
 
-QScrollBar, QMenu {
-    background-color: #303030;
-}
-
 QProgressBar {
     background-color: #151515;
     color: white;
@@ -36,6 +32,6 @@ QProgressBar {
     border-radius: 0px;
 }
 
-QProgressBar::chunk {
+QScrollBar, QMenu, QProgressBar::chunk, QDial {
     background-color: #303030;
 }
