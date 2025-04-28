@@ -36,16 +36,12 @@ public:
     ControlPanel(Kernel* core);
     void reload();
 private:
-    void setupColumn(int column, int dialMinValue, int dialMaxValue, bool dialWrapping, QString labelText);
+    void setupColumn(int column, int dialMinValue, int dialMaxValue, bool dialWrapping, int itemKey, QString attributeId, QString labelText);
+    void setValue(int column, int itemType, QString attribute);
     bool reloading = false;
     QGridLayout *layout;
     QList<QLabel*> valueLabels = QList<QLabel*>(5, nullptr);
     QList<QDial*> dials = QList<QDial*>(5, nullptr);
-    void setDimmer(int dimmer);
-    void setHue(int hue);
-    void setSaturation(int saturation);
-    void setPan(int pan);
-    void setTilt(int tilt);
     Kernel* kernel;
 };
 

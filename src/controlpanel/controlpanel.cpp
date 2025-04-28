@@ -18,23 +18,14 @@ ControlPanel::ControlPanel(Kernel* core) {
     layout = new QGridLayout();
     setLayout(layout);
 
-    setupColumn(ControlPanelColumns::dimmer, 0, 100, false, "Dimmer");
-    connect(dials[ControlPanelColumns::dimmer], &QDial::valueChanged, this, &ControlPanel::setDimmer);
-
-    setupColumn(ControlPanelColumns::hue, 0, 359, true, "Hue");
-    connect(dials[ControlPanelColumns::hue], &QDial::valueChanged, this, &ControlPanel::setHue);
-
-    setupColumn(ControlPanelColumns::saturation, 0, 100, false, "Saturation");
-    connect(dials[ControlPanelColumns::saturation], &QDial::valueChanged, this, &ControlPanel::setSaturation);
-
-    setupColumn(ControlPanelColumns::pan, 0, 359, true, "Pan");
-    connect(dials[ControlPanelColumns::pan], &QDial::valueChanged, this, &ControlPanel::setPan);
-
-    setupColumn(ControlPanelColumns::tilt, -180, 180, false, "Tilt");
-    connect(dials[ControlPanelColumns::tilt], &QDial::valueChanged, this, &ControlPanel::setTilt);
+    setupColumn(ControlPanelColumns::dimmer, 0, 100, false, Keys::Intensity, kernel->intensities->DIMMERATTRIBUTEID, "Dimmer");
+    setupColumn(ControlPanelColumns::hue, 0, 359, true, Keys::Color, kernel->colors->HUEATTRIBUTEID, "Hue");
+    setupColumn(ControlPanelColumns::saturation, 0, 100, false, Keys::Color, kernel->colors->SATURATIONATTRIBUTEID, "Saturation");
+    setupColumn(ControlPanelColumns::pan, 0, 359, true, Keys::Position, kernel->positions->PANATTRIBUTEID, "Pan");
+    setupColumn(ControlPanelColumns::tilt, -180, 180, false, Keys::Position, kernel->positions->TILTATTRIBUTEID, "Tilt");
 }
 
-void ControlPanel::setupColumn(int column, int dialMinValue, int dialMaxValue, bool dialWrapping, QString labelText) {
+void ControlPanel::setupColumn(int column, int dialMinValue, int dialMaxValue, bool dialWrapping, int itemKey, QString attributeId, QString labelText) {
     QLabel* label = new QLabel(labelText);
     label->setAlignment(Qt::AlignCenter);
     layout->addWidget(label, ControlPanelRows::label, column);
@@ -45,7 +36,7 @@ void ControlPanel::setupColumn(int column, int dialMinValue, int dialMaxValue, b
     QDial* dial = new QDial();
     dial->setRange(dialMinValue, dialMaxValue);
     dial->setWrapping(dialWrapping);
-    //connect(dial, &QDial::valueChanged, this, &ControlPanel::setValue);
+    connect(dial, &QDial::valueChanged, this, [this, column, itemKey, attributeId] { setValue(column, itemKey, attributeId); });
     layout->addWidget(dial, ControlPanelRows::dial, column);
     dials[column] = dial;
 }
@@ -94,56 +85,21 @@ void ControlPanel::reload() {
     reloading = false;
 }
 
-void ControlPanel::setDimmer(int dimmer) {
+void ControlPanel::setValue(int column, int itemType, QString attribute) {
     if (!reloading) {
         QMap<int, QString> attributes = {};
-        attributes[Keys::Attribute] = kernel->intensities->DIMMERATTRIBUTEID;
+        attributes[Keys::Attribute] = attribute;
         kernel->terminal->printMessages = false;
-        kernel->intensities->setAttribute({kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, QString::number(dimmer));
-        kernel->terminal->printMessages = true;
-        kernel->cuelistView->reload();
-    }
-}
-
-void ControlPanel::setHue(int hue) {
-    if (!reloading) {
-        QMap<int, QString> attributes = {};
-        attributes[Keys::Attribute] = kernel->colors->HUEATTRIBUTEID;
-        kernel->terminal->printMessages = false;
-        kernel->colors->setAttribute({kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, QString::number(hue));
-        kernel->terminal->printMessages = true;
-        kernel->cuelistView->reload();
-    }
-}
-
-void ControlPanel::setSaturation(int saturation) {
-    if (!reloading) {
-        QMap<int, QString> attributes = {};
-        attributes[Keys::Attribute] = kernel->colors->SATURATIONATTRIBUTEID;
-        kernel->terminal->printMessages = false;
-        kernel->colors->setAttribute({kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, QString::number(saturation));
-        kernel->terminal->printMessages = true;
-        kernel->cuelistView->reload();
-    }
-}
-
-void ControlPanel::setPan(int pan) {
-    if (!reloading) {
-        QMap<int, QString> attributes = {};
-        attributes[Keys::Attribute] = kernel->positions->PANATTRIBUTEID;
-        kernel->terminal->printMessages = false;
-        kernel->positions->setAttribute({kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, QString::number(pan));
-        kernel->terminal->printMessages = true;
-        kernel->cuelistView->reload();
-    }
-}
-
-void ControlPanel::setTilt(int tilt) {
-    if (!reloading) {
-        QMap<int, QString> attributes = {};
-        attributes[Keys::Attribute] = kernel->positions->TILTATTRIBUTEID;
-        kernel->terminal->printMessages = false;
-        kernel->positions->setAttribute({kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, QString::number(tilt));
+        QString value = QString::number(dials[column]->value());
+        if (itemType == Keys::Intensity) {
+            kernel->intensities->setAttribute({kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
+        } else if (itemType == Keys::Color) {
+            kernel->colors->setAttribute({kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
+        } else if (itemType == Keys::Position) {
+            kernel->positions->setAttribute({kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
+        } else {
+            Q_ASSERT(false);
+        }
         kernel->terminal->printMessages = true;
         kernel->cuelistView->reload();
     }
