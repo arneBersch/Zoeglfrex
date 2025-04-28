@@ -36,7 +36,6 @@ public:
     ControlPanel(Kernel* core);
     void reload();
 private:
-    void setValue(int column, int itemType, QString attribute);
     bool reloading = false;
     QGridLayout *layout;
     QList<QLabel*> valueLabels = QList<QLabel*>(5, nullptr);

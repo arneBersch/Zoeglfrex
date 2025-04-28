@@ -8,7 +8,8 @@
 
 #include "kernel.h"
 
-Kernel::Kernel() {
+Kernel::Kernel(MainWindow* window) {
+    mainWindow = window;
     models = new ModelList(this);
     fixtures = new FixtureList(this);
     groups = new GroupList(this);

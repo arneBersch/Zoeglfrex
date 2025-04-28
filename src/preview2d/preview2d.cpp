@@ -12,6 +12,7 @@
 Preview2d::Preview2d(Kernel* core) {
     kernel = core;
 
+    kernel->mainWindow->setupShortcuts(this);
     setWindowTitle("Zöglfrex 2D Preview");
     resize(500, 300);
     QVBoxLayout *layout = new QVBoxLayout();

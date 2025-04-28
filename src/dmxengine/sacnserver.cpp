@@ -12,6 +12,7 @@
 SacnServer::SacnServer(Kernel* core, QWidget* parent) : QWidget(parent, Qt::Window) {
     kernel = core;
 
+    kernel->mainWindow->setupShortcuts(this);
     setWindowTitle("Zöglfrex DMX Output Settings");
     QGridLayout *layout = new QGridLayout(this);
 

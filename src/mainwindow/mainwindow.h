@@ -11,8 +11,8 @@
 
 #include <QtWidgets>
 
-#include "kernel/kernel.h"
 #include "aboutwindow/aboutwindow.h"
+class Kernel;
 
 class MainWindow : public QMainWindow
 {
@@ -20,13 +20,14 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void setupShortcuts(QWidget* widget);
 private:
     Kernel *kernel;
+    void closeEvent(QCloseEvent *event) override;
     void openFile();
     void newFile();
     void saveFile();
     void saveFileAs();
-    void closeEvent(QCloseEvent *event) override;
     void about();
     QString fileName;
     const QString COPYRIGHT = "Copyright (c) 2025 Arne Bersch (zoeglfrex-dmx@web.de)";

@@ -7,6 +7,7 @@
 */
 
 #include "mainwindow.h"
+#include "kernel/kernel.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     this->resize(1500, 1000);
@@ -61,7 +62,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     helpMenu->addAction(openReferenceAction);
     connect(openReferenceAction, &QAction::triggered, this, []{ QDesktopServices::openUrl(QUrl("https://github.com/arneBersch/Zoeglfrex/blob/main/docs/reference.md")); });
 
-    kernel = new Kernel();
+    kernel = new Kernel(this);
+    setupShortcuts(this);
     kernel->cuelistView->reload();
 
     QSplitter *leftColumn = new QSplitter();
@@ -83,51 +85,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     mainColumns->setSizes(QList<int>() << 1000 << 500);
     this->setCentralWidget(mainColumns);
 
-    connect(new QShortcut(QKeySequence(Qt::Key_Plus), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Plus); }); // +
-    connect(new QShortcut(QKeySequence(Qt::Key_Minus), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Minus); }); // -
-    connect(new QShortcut(QKeySequence(Qt::Key_Comma), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Period); }); // , (appends .)
-    connect(new QShortcut(QKeySequence(Qt::Key_Period), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Period); }); // .
-    connect(new QShortcut(QKeySequence(Qt::Key_T), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Thru); }); // Thru
-    connect(new QShortcut(QKeySequence(Qt::Key_0), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Zero); }); // 0
-    connect(new QShortcut(QKeySequence(Qt::Key_1), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::One); }); // 1
-    connect(new QShortcut(QKeySequence(Qt::Key_2), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Two); }); // 2
-    connect(new QShortcut(QKeySequence(Qt::Key_3), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Three); }); // 3
-    connect(new QShortcut(QKeySequence(Qt::Key_4), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Four); }); // 4
-    connect(new QShortcut(QKeySequence(Qt::Key_5), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Five); }); // 5
-    connect(new QShortcut(QKeySequence(Qt::Key_6), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Six); }); // 6
-    connect(new QShortcut(QKeySequence(Qt::Key_7), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Seven); }); // 7
-    connect(new QShortcut(QKeySequence(Qt::Key_8), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Eight); }); // 8
-    connect(new QShortcut(QKeySequence(Qt::Key_9), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Nine); }); // 9
-    connect(new QShortcut(QKeySequence(Qt::Key_A), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Attribute); }); // Attribute
-    connect(new QShortcut(QKeySequence(Qt::Key_C), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Color); }); // Color
-    connect(new QShortcut(QKeySequence(Qt::Key_E), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Effect); }); // Effect
-    connect(new QShortcut(QKeySequence(Qt::Key_F), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Fixture); }); // Fixture
-    connect(new QShortcut(QKeySequence(Qt::Key_G), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Group); }); // Group
-    connect(new QShortcut(QKeySequence(Qt::Key_I), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Intensity); }); // Intensity
-    connect(new QShortcut(QKeySequence(Qt::Key_M), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Model); }); // Model
-    connect(new QShortcut(QKeySequence(Qt::Key_P), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Position); }); // Model
-    connect(new QShortcut(QKeySequence(Qt::Key_Q), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Cue); }); // Cue
-    connect(new QShortcut(QKeySequence(Qt::Key_R), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Raw); }); // Raw
-    connect(new QShortcut(QKeySequence(Qt::Key_S), this), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Set); }); // Set
-    connect(new QShortcut(QKeySequence(Qt::Key_Return), this), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); kernel->terminal->clear(); }); // Enter Command (via Return key)
-    connect(new QShortcut(QKeySequence(Qt::Key_Enter), this), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); kernel->terminal->clear(); }); // Enter Command (via Keypad Enter key)
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Return), this), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Shift + Return key)
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Enter), this), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Shift + Enter key)
-    connect(new QShortcut(QKeySequence(Qt::Key_Backspace), this), &QShortcut::activated, this, [this]{ kernel->terminal->backspace(); }); // Backspace (Remove last keypress)
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Backspace), this), &QShortcut::activated, this, [this]{ kernel->terminal->clear(); }); // Clear Terminal
-    connect(new QShortcut(QKeySequence(Qt::Key_Space), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextCue(); }); // Go to next Cue
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Space), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousCue(); }); // Go to previous Cue
-    connect(new QShortcut(QKeySequence(Qt::Key_Down), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextGroup(); }); // Go to next Group
-    connect(new QShortcut(QKeySequence(Qt::Key_Up), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousGroup(); }); // Go to previous Group
-    connect(new QShortcut(QKeySequence(Qt::Key_Right), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextFixture(); }); // Go to next Fixture
-    connect(new QShortcut(QKeySequence(Qt::Key_Left), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousFixture(); }); // Go to previous Fixture
-    connect(new QShortcut(QKeySequence(Qt::Key_Escape), this), &QShortcut::activated, this, [this]{ kernel->cuelistView->noFixture(); });
-    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_N), this), &QShortcut::activated, this, [this]{ this->newFile(); }); // New File
-    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_O), this), &QShortcut::activated, this, [this]{ this->openFile(); }); // Open File
-    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), this), &QShortcut::activated, this, [this]{ this->saveFile(); }); // Save File
-    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S), this), &QShortcut::activated, this, [this]{ this->saveFileAs(); }); // Save File As
-    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q), this), &QShortcut::activated, this, [this]{ this->close(); }); // Quit Application
-
     qInfo() << "Zöglfrex" << kernel->VERSION;
     qInfo() << COPYRIGHT;
     qInfo() << "Zöglfrex is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.";
@@ -139,6 +96,53 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 }
 
 MainWindow::~MainWindow() {}
+
+void MainWindow::setupShortcuts(QWidget* widget) {
+    QObject::connect(new QShortcut(QKeySequence(Qt::Key_Plus), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Plus); }); // +
+    connect(new QShortcut(QKeySequence(Qt::Key_Minus), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Minus); }); // -
+    connect(new QShortcut(QKeySequence(Qt::Key_Comma), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Period); }); // , (appends .)
+    connect(new QShortcut(QKeySequence(Qt::Key_Period), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Period); }); // .
+    connect(new QShortcut(QKeySequence(Qt::Key_T), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Thru); }); // Thru
+    connect(new QShortcut(QKeySequence(Qt::Key_0), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Zero); }); // 0
+    connect(new QShortcut(QKeySequence(Qt::Key_1), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::One); }); // 1
+    connect(new QShortcut(QKeySequence(Qt::Key_2), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Two); }); // 2
+    connect(new QShortcut(QKeySequence(Qt::Key_3), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Three); }); // 3
+    connect(new QShortcut(QKeySequence(Qt::Key_4), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Four); }); // 4
+    connect(new QShortcut(QKeySequence(Qt::Key_5), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Five); }); // 5
+    connect(new QShortcut(QKeySequence(Qt::Key_6), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Six); }); // 6
+    connect(new QShortcut(QKeySequence(Qt::Key_7), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Seven); }); // 7
+    connect(new QShortcut(QKeySequence(Qt::Key_8), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Eight); }); // 8
+    connect(new QShortcut(QKeySequence(Qt::Key_9), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Nine); }); // 9
+    connect(new QShortcut(QKeySequence(Qt::Key_A), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Attribute); }); // Attribute
+    connect(new QShortcut(QKeySequence(Qt::Key_C), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Color); }); // Color
+    connect(new QShortcut(QKeySequence(Qt::Key_E), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Effect); }); // Effect
+    connect(new QShortcut(QKeySequence(Qt::Key_F), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Fixture); }); // Fixture
+    connect(new QShortcut(QKeySequence(Qt::Key_G), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Group); }); // Group
+    connect(new QShortcut(QKeySequence(Qt::Key_I), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Intensity); }); // Intensity
+    connect(new QShortcut(QKeySequence(Qt::Key_M), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Model); }); // Model
+    connect(new QShortcut(QKeySequence(Qt::Key_P), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Position); }); // Model
+    connect(new QShortcut(QKeySequence(Qt::Key_Q), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Cue); }); // Cue
+    connect(new QShortcut(QKeySequence(Qt::Key_R), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Raw); }); // Raw
+    connect(new QShortcut(QKeySequence(Qt::Key_S), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Set); }); // Set
+    connect(new QShortcut(QKeySequence(Qt::Key_Return), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); kernel->terminal->clear(); }); // Enter Command (via Return key)
+    connect(new QShortcut(QKeySequence(Qt::Key_Enter), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); kernel->terminal->clear(); }); // Enter Command (via Keypad Enter key)
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Return), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Shift + Return key)
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Enter), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Shift + Enter key)
+    connect(new QShortcut(QKeySequence(Qt::Key_Backspace), widget), &QShortcut::activated, this, [this]{ kernel->terminal->backspace(); }); // Backspace (Remove last keypress)
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Backspace), widget), &QShortcut::activated, this, [this]{ kernel->terminal->clear(); }); // Clear Terminal
+    connect(new QShortcut(QKeySequence(Qt::Key_Space), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextCue(); }); // Go to next Cue
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Space), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousCue(); }); // Go to previous Cue
+    connect(new QShortcut(QKeySequence(Qt::Key_Down), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextGroup(); }); // Go to next Group
+    connect(new QShortcut(QKeySequence(Qt::Key_Up), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousGroup(); }); // Go to previous Group
+    connect(new QShortcut(QKeySequence(Qt::Key_Right), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextFixture(); }); // Go to next Fixture
+    connect(new QShortcut(QKeySequence(Qt::Key_Left), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousFixture(); }); // Go to previous Fixture
+    connect(new QShortcut(QKeySequence(Qt::Key_Escape), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->noFixture(); }); // Deselect Fixture
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_N), widget), &QShortcut::activated, this, &MainWindow::newFile); // New File
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_O), widget), &QShortcut::activated, this, &MainWindow::openFile); // Open File
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), widget), &QShortcut::activated, this, &MainWindow::saveFile); // Save File
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S), widget), &QShortcut::activated, this, &MainWindow::saveFileAs); // Save File As
+    connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q), widget), &QShortcut::activated, this, &MainWindow::close); // Quit Application
+}
 
 void MainWindow::openFile() {
     QString newFileName = QFileDialog::getOpenFileName(this, "Open File", QString(), "zfr Files (*.zfr)");

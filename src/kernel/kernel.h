@@ -26,13 +26,15 @@
 #include "dmxengine/dmxengine.h"
 #include "preview2d/preview2d.h"
 #include "controlpanel/controlpanel.h"
+#include "mainwindow/mainwindow.h"
 
 class Kernel {
 public:
-    Kernel();
+    Kernel(MainWindow* mainWindow);
     void reset();
     void saveFile(QString fileName);
     void openFile(QString fileName);
+    MainWindow* mainWindow;
     ModelList *models;
     FixtureList *fixtures;
     GroupList *groups;

@@ -12,6 +12,7 @@
 ControlPanel::ControlPanel(Kernel* core) {
     kernel = core;
 
+    kernel->mainWindow->setupShortcuts(this);
     setWindowTitle("Zöglfrex Control Panel");
     resize(500, 300);
 
@@ -29,7 +30,25 @@ ControlPanel::ControlPanel(Kernel* core) {
         QDial* dial = new QDial();
         dial->setRange(dialMinValue, dialMaxValue);
         dial->setWrapping(dialWrapping);
-        connect(dial, &QDial::valueChanged, this, [this, column, itemKey, attributeId] { setValue(column, itemKey, attributeId); });
+        connect(dial, &QDial::valueChanged, this, [this, column, itemKey, attributeId] {
+            if (!reloading) {
+                QMap<int, QString> attributes = {};
+                attributes[Keys::Attribute] = attributeId;
+                kernel->terminal->printMessages = false;
+                QString value = QString::number(dials[column]->value());
+                if (itemKey == Keys::Intensity) {
+                    kernel->intensities->setAttribute({kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
+                } else if (itemKey == Keys::Color) {
+                    kernel->colors->setAttribute({kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
+                } else if (itemKey == Keys::Position) {
+                    kernel->positions->setAttribute({kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
+                } else {
+                    Q_ASSERT(false);
+                }
+                kernel->terminal->printMessages = true;
+                kernel->cuelistView->reload();
+            }
+        });
         layout->addWidget(dial, ControlPanelRows::dial, column);
         dials[column] = dial;
     };
@@ -75,24 +94,4 @@ void ControlPanel::reload() {
         emptyColumn(ControlPanelColumns::tilt, "No Position");
     }
     reloading = false;
-}
-
-void ControlPanel::setValue(int column, int itemType, QString attribute) {
-    if (!reloading) {
-        QMap<int, QString> attributes = {};
-        attributes[Keys::Attribute] = attribute;
-        kernel->terminal->printMessages = false;
-        QString value = QString::number(dials[column]->value());
-        if (itemType == Keys::Intensity) {
-            kernel->intensities->setAttribute({kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
-        } else if (itemType == Keys::Color) {
-            kernel->colors->setAttribute({kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
-        } else if (itemType == Keys::Position) {
-            kernel->positions->setAttribute({kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
-        } else {
-            Q_ASSERT(false);
-        }
-        kernel->terminal->printMessages = true;
-        kernel->cuelistView->reload();
-    }
 }
