@@ -47,7 +47,7 @@ QString Position::info() {
             modelPanValues.append(model->name() + " @ " + QString::number(modelSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).value(model)) + "°");
         }
         if (modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(model)) {
-            modelTiltValues.append(model->name() + " @ " + QString::number(modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(model)) + "%");
+            modelTiltValues.append(model->name() + " @ " + QString::number(modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(model)) + "°");
         }
     }
     info += "\n    Model Exceptions: " + modelPanValues.join("; ");
@@ -58,11 +58,11 @@ QString Position::info() {
             fixturePanValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).value(fixture)) + "°");
         }
         if (fixtureSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(fixture)) {
-            fixtureTiltValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture)) + "%");
+            fixtureTiltValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture)) + "°");
         }
     }
     info += "\n    Fixture Exceptions: " + fixturePanValues.join("; ");
-    info += "\n" + kernel->positions->TILTATTRIBUTEID + " Tilt: " + QString::number(floatAttributes.value(kernel->positions->TILTATTRIBUTEID)) + "%";
+    info += "\n" + kernel->positions->TILTATTRIBUTEID + " Tilt: " + QString::number(floatAttributes.value(kernel->positions->TILTATTRIBUTEID)) + "°";
     info += "\n    Model Exceptions: " + modelTiltValues.join("; ");
     info += "\n    Fixture Exceptions: " + fixtureTiltValues.join("; ");
     return info;

@@ -13,20 +13,43 @@
 
 class Kernel;
 
+namespace ControlPanelColumns {
+enum {
+    dimmer,
+    hue,
+    saturation,
+    pan,
+    tilt,
+};
+}
+
+namespace ControlPanelRows {
+enum {
+    label,
+    valueLabel,
+    dial,
+};
+}
+
 class ControlPanel : public QWidget {
 public:
     ControlPanel(Kernel* core);
     void reload();
 private:
     bool reloading = false;
+    QLabel* dimmerValueLabel;
     QDial* dimmerDial;
     void setDimmer(int dimmer);
+    QLabel* hueValueLabel;
     QDial* hueDial;
     void setHue(int hue);
+    QLabel* saturationValueLabel;
     QDial* saturationDial;
     void setSaturation(int saturation);
+    QLabel* panValueLabel;
     QDial* panDial;
     void setPan(int pan);
+    QLabel* tiltValueLabel;
     QDial* tiltDial;
     void setTilt(int tilt);
     Kernel* kernel;
