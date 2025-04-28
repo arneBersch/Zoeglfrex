@@ -36,7 +36,6 @@ public:
     ControlPanel(Kernel* core);
     void reload();
 private:
-    void setupColumn(int column, int dialMinValue, int dialMaxValue, bool dialWrapping, int itemKey, QString attributeId, QString labelText);
     void setValue(int column, int itemType, QString attribute);
     bool reloading = false;
     QGridLayout *layout;
