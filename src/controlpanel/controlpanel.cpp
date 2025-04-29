@@ -27,6 +27,14 @@ ControlPanel::ControlPanel(Kernel* core) {
         valueLabel->setAlignment(Qt::AlignCenter);
         layout->addWidget(valueLabel, ControlPanelRows::valueLabel, column);
         valueLabels[column] = valueLabel;
+        QLabel* modelValueLabel = new QLabel();
+        modelValueLabel->setAlignment(Qt::AlignCenter);
+        layout->addWidget(modelValueLabel, ControlPanelRows::modelValueLabel, column);
+        modelValueLabels[column] = modelValueLabel;
+        QLabel* fixtureValueLabel = new QLabel();
+        fixtureValueLabel->setAlignment(Qt::AlignCenter);
+        layout->addWidget(fixtureValueLabel, ControlPanelRows::fixtureValueLabel, column);
+        fixtureValueLabels[column] = fixtureValueLabel;
         QDial* dial = new QDial();
         dial->setRange(dialMinValue, dialMaxValue);
         dial->setWrapping(dialWrapping);
@@ -63,35 +71,49 @@ ControlPanel::ControlPanel(Kernel* core) {
 void ControlPanel::reload() {
     reloading = true;
 
-    auto setColumn = [this] (int column, float value, QString unit) {
-        valueLabels[column]->setText(QString::number(value) + unit);
-        dials[column]->setDisabled(false);
-        dials[column]->setValue(value);
-    };
-    auto emptyColumn = [this] (int column, QString valueMessage) {
-        valueLabels[column]->setText(valueMessage);
-        dials[column]->setDisabled(true);
+    auto setColumn = [this] (int column, int itemKey, QString attribute, bool angle, QString unit, QString noValueMessage) {
+        Item* item = nullptr;
+        if ((itemKey == Keys::Intensity) && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup);
+        } else if ((itemKey == Keys::Color) && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup);
+        } else if ((itemKey == Keys::Position) && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup);
+        }
+        valueLabels[column]->setText(noValueMessage);
+        modelValueLabels[column]->setText(QString());
+        fixtureValueLabels[column]->setText(QString());
         dials[column]->setValue(0);
+        if (item == nullptr) {
+            dials[column]->setDisabled(true);
+        } else {
+            dials[column]->setDisabled(false);
+            if (angle) {
+                valueLabels[column]->setText(QString::number(item->angleAttributes.value(attribute)) + unit);
+                if ((kernel->cuelistView->currentFixture != nullptr) && item->modelSpecificAngleAttributes.value(attribute).contains(kernel->cuelistView->currentFixture->model)) {
+                    modelValueLabels[column]->setText("Model:\n" + QString::number(item->modelSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model)) + unit);
+                }
+                if (item->fixtureSpecificAngleAttributes.value(attribute).contains(kernel->cuelistView->currentFixture)) {
+                    fixtureValueLabels[column]->setText("Fixture:\n" + QString::number(item->fixtureSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture)) + unit);
+                }
+                dials[column]->setValue(item->angleAttributes.value(attribute));
+            } else {
+                valueLabels[column]->setText(QString::number(item->floatAttributes.value(attribute)) + unit);
+                if ((kernel->cuelistView->currentFixture != nullptr) && item->modelSpecificFloatAttributes.value(attribute).contains(kernel->cuelistView->currentFixture->model)) {
+                    modelValueLabels[column]->setText("Model:\n" + QString::number(item->modelSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model)) + unit);
+                }
+                if (item->fixtureSpecificFloatAttributes.value(attribute).contains(kernel->cuelistView->currentFixture)) {
+                    fixtureValueLabels[column]->setText("Fixture:\n" + QString::number(item->fixtureSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture)) + unit);
+                }
+                dials[column]->setValue(item->floatAttributes.value(attribute));
+            }
+        }
     };
 
-    if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
-        setColumn(ControlPanelColumns::dimmer, kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup)->floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID), "%");
-    } else {
-        emptyColumn(ControlPanelColumns::dimmer, "No Intensity");
-    }
-    if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
-        setColumn(ControlPanelColumns::hue, kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->angleAttributes.value(kernel->colors->HUEATTRIBUTEID), "°");
-        setColumn(ControlPanelColumns::saturation, kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID), "%");
-    } else {
-        emptyColumn(ControlPanelColumns::hue, "No Color");
-        emptyColumn(ControlPanelColumns::saturation, "No Color");
-    }
-    if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
-        setColumn(ControlPanelColumns::pan, kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup)->angleAttributes.value(kernel->positions->PANATTRIBUTEID), "°");;
-        setColumn(ControlPanelColumns::tilt, kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup)->floatAttributes.value(kernel->positions->TILTATTRIBUTEID), "°");
-    } else {
-        emptyColumn(ControlPanelColumns::pan, "No Position");
-        emptyColumn(ControlPanelColumns::tilt, "No Position");
-    }
+    setColumn(ControlPanelColumns::dimmer, Keys::Intensity, kernel->intensities->DIMMERATTRIBUTEID, false, "%", "No Intensity");
+    setColumn(ControlPanelColumns::hue, Keys::Color, kernel->colors->HUEATTRIBUTEID, true, "°", "No Color");
+    setColumn(ControlPanelColumns::saturation, Keys::Color, kernel->colors->SATURATIONATTRIBUTEID, false, "%", "No Color");
+    setColumn(ControlPanelColumns::pan, Keys::Position, kernel->positions->PANATTRIBUTEID, true, "°", "No Position");;
+    setColumn(ControlPanelColumns::tilt, Keys::Position, kernel->positions->TILTATTRIBUTEID, false, "°", "No Position");
     reloading = false;
 }

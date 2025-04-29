@@ -27,6 +27,8 @@ namespace ControlPanelRows {
 enum {
     label,
     valueLabel,
+    modelValueLabel,
+    fixtureValueLabel,
     dial,
 };
 }
@@ -39,6 +41,8 @@ private:
     bool reloading = false;
     QGridLayout *layout;
     QList<QLabel*> valueLabels = QList<QLabel*>(5, nullptr);
+    QList<QLabel*> modelValueLabels = QList<QLabel*>(5, nullptr);
+    QList<QLabel*> fixtureValueLabels = QList<QLabel*>(5, nullptr);
     QList<QDial*> dials = QList<QDial*>(5, nullptr);
     Kernel* kernel;
 };
