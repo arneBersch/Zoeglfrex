@@ -42,6 +42,11 @@ ControlPanel::ControlPanel(Kernel* core) {
             if (!reloading) {
                 QMap<int, QString> attributes = {};
                 attributes[Keys::Attribute] = attributeId;
+                if (!fixtureValueLabels[column]->text().isEmpty()) {
+                    attributes[Keys::Fixture] = kernel->cuelistView->currentFixture->id;
+                } else if (!modelValueLabels[column]->text().isEmpty()) {
+                    attributes[Keys::Model] = kernel->cuelistView->currentFixture->model->id;
+                }
                 kernel->terminal->printMessages = false;
                 QString value = QString::number(dials[column]->value());
                 if (itemKey == Keys::Intensity) {
@@ -96,7 +101,13 @@ void ControlPanel::reload() {
                 if (item->fixtureSpecificAngleAttributes.value(attribute).contains(kernel->cuelistView->currentFixture)) {
                     fixtureValueLabels[column]->setText("Fixture:\n" + QString::number(item->fixtureSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture)) + unit);
                 }
-                dials[column]->setValue(item->angleAttributes.value(attribute));
+                if (!fixtureValueLabels[column]->text().isEmpty()) {
+                    dials[column]->setValue(item->fixtureSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture));
+                } else if (!modelValueLabels[column]->text().isEmpty()) {
+                    dials[column]->setValue(item->modelSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model));
+                } else {
+                    dials[column]->setValue(item->angleAttributes.value(attribute));
+                }
             } else {
                 valueLabels[column]->setText(QString::number(item->floatAttributes.value(attribute)) + unit);
                 if ((kernel->cuelistView->currentFixture != nullptr) && item->modelSpecificFloatAttributes.value(attribute).contains(kernel->cuelistView->currentFixture->model)) {
@@ -105,7 +116,13 @@ void ControlPanel::reload() {
                 if (item->fixtureSpecificFloatAttributes.value(attribute).contains(kernel->cuelistView->currentFixture)) {
                     fixtureValueLabels[column]->setText("Fixture:\n" + QString::number(item->fixtureSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture)) + unit);
                 }
-                dials[column]->setValue(item->floatAttributes.value(attribute));
+                if (!fixtureValueLabels[column]->text().isEmpty()) {
+                    dials[column]->setValue(item->fixtureSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture));
+                } else if (!modelValueLabels[column]->text().isEmpty()) {
+                    dials[column]->setValue(item->modelSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model));
+                } else {
+                    dials[column]->setValue(item->floatAttributes.value(attribute));
+                }
             }
         }
     };
