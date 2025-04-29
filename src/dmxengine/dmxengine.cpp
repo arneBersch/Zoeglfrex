@@ -247,16 +247,18 @@ void DmxEngine::generateDmx() {
             for (int channel = 1; ((channel <= channels.size()) && ((address + channel - 1) <= 512)); channel++) {
                 uint8_t value = dmxUniverses.value(universe)[address + channel - 2];
                 if (currentCueFixtureRaws.contains(fixture) && currentCueFixtureRaws.value(fixture).contains(channel)) {
-                    if (!currentCueFixtureRawFade.value(fixture).value(channel)) {
-                        value = currentCueFixtureRaws.value(fixture).value(channel);
+                    if (lastCueFixtureRaws.contains(fixture) && lastCueFixtureRaws.value(fixture).contains(channel)) {
+                        value = lastCueFixtureRaws.value(fixture).value(channel);
+                    }
+                    if (currentCueFixtureRawFade.value(fixture).value(channel) && (remainingFadeFrames > 0)) {
+                        value = currentCueFixtureRaws.value(fixture).value(channel) + (value - currentCueFixtureRaws.value(fixture).value(channel)) * (float)remainingFadeFrames / (float)totalFadeFrames;
                     } else {
-                        if (lastCueFixtureRaws.contains(fixture) && lastCueFixtureRaws.value(fixture).contains(channel)) {
-                            value = lastCueFixtureRaws.value(fixture).value(channel);
-                        }
-                        value += (value - currentCueFixtureRaws.value(fixture).value(channel)) * (float)remainingFadeFrames / (float)totalFadeFrames;
+                        value = currentCueFixtureRaws.value(fixture).value(channel);
                     }
                 } else if (!currentCueFixtureDimmer.contains(fixture) && lastCueFixtureDimmer.contains(fixture) && (remainingFadeFrames > 0) && lastCueFixtureRaws.contains(fixture) && lastCueFixtureRaws.value(fixture).contains(channel)) {
                     value = lastCueFixtureRaws.value(fixture).value(channel);
+                } else if (lastCueFixtureRaws.contains(fixture) && lastCueFixtureRaws.value(fixture).contains(channel) && (remainingFadeFrames > 0) && lastCueFixtureRawFade.value(fixture).value(channel)) {
+                    value += (lastCueFixtureRaws.value(fixture).value(channel) - value) * (float)remainingFadeFrames / (float)totalFadeFrames;
                 }
                 dmxUniverses[universe][address + channel - 2] = value;
             }

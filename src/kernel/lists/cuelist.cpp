@@ -203,6 +203,9 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                     raws.append(raw);
                 }
             }
+            if (raws.isEmpty()) {
+                return;
+            }
             for (QString id : ids) {
                 Cue* cue = getItem(id);
                 if (cue == nullptr) {
@@ -259,6 +262,9 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                 } else {
                     effects.append(effect);
                 }
+            }
+            if (effects.isEmpty()) {
+                return;
             }
             for (QString id : ids) {
                 Cue* cue = getItem(id);
