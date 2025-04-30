@@ -84,12 +84,12 @@ Model 1 + 2 Set -
 This command will remove Model 1 and 2.
 
 > [!CAUTION]
-> Please note that deleting Items can affect other Items to:
-> - When deleting a Model, the Model Attribute of all Fixtures which used this Model are set to None (Dimmer).
+> Please note that deleting Items can affect other Items too:
+> - When deleting a Model, the Model Attribute of all Fixtures which used this Model are set to None.
 > - When deleting a Model, the Model Exceptions for these Model are deleted in all Attributes.
 > - When deleting a Fixture, the Fixture is removed from all Groups.
 > - When deleting a Fixture, the Fixture Exceptions for these Fixture are deleted in all Attributes.
-> - When deleting a Group, the Group will be removed from all Cues.
+> - When deleting a Group, the Group values will be removed from all Cues.
 > - When deleting an Intensity, it will be removed from all Effects and Cues.
 > - When deleting a Color, it will be removed from all Effects and Cues.
 > - When deleting a Position, it will be removed from all Effects and Cues.
@@ -130,11 +130,11 @@ So, for example, if you want to add a generic RGB Model, you need to type 'RGB' 
 
 ### Model Attribute 3.1 Set (Pan Range)
 If your Model supports the Pan Attribute, you should set its Pan Range so that Positions are rendered correctly.
-The Pan Range is given in Degree.
+The Pan Range is given in degree.
 
 ### Model Attribute 3.2 Set (Tilt Range)
 If your Model supports the Tilt Attribute, you should set its Tilt Range so that Positions are rendered correctly.
-The Tilt Range is given in Degree.
+The Tilt Range is given in degree.
 
 ## Fixtures
 If no Fixture Attribute is given, the standard Attribute 3 will be used.
@@ -152,8 +152,9 @@ This command sets the Model of the selected Fixtures:
 Fixture 1 + 2 Attribute 2 Set Model 3
 ```
 Every new Fixture's Model is set to None.
-This means that the Fixture is a simple Dimmer.
-You can also remove the Model from a Fixture, setting the Model Attribute to None/Dimmer again:
+This means that the Fixture won't output any DMX data.
+
+You can also remove the Model from a Fixture, setting the Model Attribute to None again:
 ```
 Fixture 1 Attribute 2 Set -
 ```
@@ -187,6 +188,8 @@ You only need to change this Attribute if your Fixture's pan in the real world i
 ### Fixture Attribute 5.2 Set (Invert Pan)
 This command is needed if your Fixture's pan rotates into the wrong direction compared with the 2D View.
 
+The accepted values are 0 (False / Pan Normal) and 1 (True / Pan Inverted).
+
 ## Groups
 If no Group Attribute is given, the standard Attribute 2 will be used.
 
@@ -201,7 +204,7 @@ This command takes the Fixtures which you want to add to the Group:
 ```
 Group 1 Attribute 2 Set Fixture 1.1 + 1.2 + 1.3
 ```
-You can also give no Fixture IDs which would result in an empty Group:
+You can also give no Fixture IDs which results in an empty Group:
 ```
 Group 1 Attribute 2 Set
 ```
@@ -411,7 +414,7 @@ Effect 1 Attribute 9 Set 180
 ```
 The value is given in degree.
 
-You can also set Fixture exceptions in order to set phase differences between Fixtures:
+You can also set Fixture exceptions in order to produce phase differences between Fixtures:
 ```
 Effect 1 Attribute 9 Fixture 4 Set 90
 ```
@@ -429,7 +432,7 @@ You can select the current Cue like this:
 ```
 Cue 1
 ```
-Please note that when you add a new Cue, the cue will use the values of Attribute 2, 3, 4, 5 and 6 of the previouse Cue as these values are tracked.
+Please note that when you add a new Cue, the cue will use the values of Attribute 2, 3, 4, 5 and 6 of the previouse Cue as these values will be tracked.
 
 ### Cue Attribute 2 Set (Intensities)
 This command sets the Intensity of the selected Groups in the selected Cues:
@@ -601,6 +604,7 @@ This command deletes all Intensities starting with Intensity 1.1 and ending with
 
 ## Control Panel
 The Control panel can be used to control the values of the current Group or Fixture:
+
 When selecting a Cue and a Group, you can see and change the Dimmer of the current Intensity, the Hue and Saturation of the current Color and the Pan and Tilt of the current Position.
 When you now also select a Fixture, not the standard value but instead the value for this Fixture will be changed.
 So, for example, if your current Intensity holds a Dimmer exception for the current Fixture, rotating the Dial will change this exception.

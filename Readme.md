@@ -10,16 +10,12 @@ See the [Releases page](https://github.com/arneBersch/Zoeglfrex/releases/) to do
 - sACN (ANSI E1.31) DMX output
 - included hardware abstraction
 
-As Zöglfrex is still a very young software, only the most basic functions are implemented yet.
-
 ## Documentation
 For documentation, you can find the complete [Zöglfrex Reference](docs/reference.md) and also a [Quick Start Guide](docs/quick_start_guide.md).
 
 ## Known Limitations
-- only one DMX Universe
 - DMX Output only via sACN (ANSI E1.31)
 - only one Cue can be played back simultanously
-- no Effects possible
 - only English UI, no other languages are supported yet
 
 ## How to contribute
