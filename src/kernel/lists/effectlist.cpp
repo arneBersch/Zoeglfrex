@@ -10,10 +10,10 @@
 
 EffectList::EffectList(Kernel *core) : ItemList(core, Keys::Effect, "Effect", "Effects") {
     intAttributes[STEPSATTRIBUTEID] = {"Steps", 2, 2, 99};
-    floatAttributes[STEPHOLDATTRIBUTEID] = {"Step Hold", 1, 0, 60, "s"};
-    stepSpecificFloatAttributes[STEPHOLDATTRIBUTEID] = {"Step Hold", 1, 0, 60, "s"};
-    floatAttributes[STEPFADEATTRIBUTEID] = {"Step Fade", 0, 0, 60, "s"};
-    stepSpecificFloatAttributes[STEPFADEATTRIBUTEID] = {"Step Fade", 0, 0, 60, "s"};
+    floatAttributes[STEPHOLDATTRIBUTEID] = {"Step Hold", 1, 0, 600, "s"};
+    stepSpecificFloatAttributes[STEPHOLDATTRIBUTEID] = {"Step Hold", 1, 0, 600, "s"};
+    floatAttributes[STEPFADEATTRIBUTEID] = {"Step Fade", 0, 0, 600, "s"};
+    stepSpecificFloatAttributes[STEPFADEATTRIBUTEID] = {"Step Fade", 0, 0, 600, "s"};
     angleAttributes[PHASEATTRIBUTEID] = {"Phase", 0};
     fixtureSpecificAngleAttributes[PHASEATTRIBUTEID] = {"Phase", 0};
 }
@@ -234,6 +234,10 @@ void EffectList::setAttribute(QStringList ids, QMap<int, QString> attributes, QL
                     raws.append(raw);
                 }
             }
+            if (raws.isEmpty()) {
+                kernel->terminal->error("Can't set Effect Raw Set because an invalid Raw selection was given.");
+                return;
+            }
             int effectCounter = 0;
             for (QString id : ids) {
                 Effect *effect = getItem(id);
@@ -364,6 +368,11 @@ void EffectList::setAttribute(QStringList ids, QMap<int, QString> attributes, QL
             for (int colorStep : effect->colorSteps.keys()) {
                 if (colorStep > effect->intAttributes.value(STEPSATTRIBUTEID)) {
                     effect->colorSteps.remove(colorStep);
+                }
+            }
+            for (int positionStep : effect->positionSteps.keys()) {
+                if (positionStep > effect->intAttributes.value(STEPSATTRIBUTEID)) {
+                    effect->positionSteps.remove(positionStep);
                 }
             }
             for (int rawStep : effect->rawSteps.keys()) {

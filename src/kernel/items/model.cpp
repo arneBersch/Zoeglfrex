@@ -57,6 +57,14 @@ Model::~Model() {
             color->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
         }
     }
+    for (Position* position : kernel->positions->items) {
+        for (QString modelSpecificFloatAttribute : position->modelSpecificFloatAttributes.keys()) {
+            position->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+        }
+        for (QString modelSpecificAngleAttribute : position->modelSpecificAngleAttributes.keys()) {
+            position->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
+        }
+    }
     for (Raw* raw : kernel->raws->items) {
         raw->modelSpecificChannelValues.remove(this);
         for (QString modelSpecificFloatAttribute : raw->modelSpecificFloatAttributes.keys()) {

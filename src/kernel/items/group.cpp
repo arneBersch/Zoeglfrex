@@ -24,6 +24,7 @@ Group::~Group() {
     for (Cue *cue : kernel->cues->items) {
         cue->intensities.remove(this);
         cue->colors.remove(this);
+        cue->positions.remove(this);
         cue->raws.remove(this);
     }
 }

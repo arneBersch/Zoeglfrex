@@ -10,7 +10,7 @@
 
 RawList::RawList(Kernel *core) : ItemList(core, Keys::Raw, "Raw", "Raws") {
     boolAttributes[MOVEINBLACKATTRIBUTEID] = {"MiB", true};
-    boolAttributes[FADEATTRIBUTEID] = {"Fade", true};
+    boolAttributes[FADEATTRIBUTEID] = {"Fade", false};
 }
 
 void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {

@@ -22,12 +22,12 @@ class FixtureList : public ItemList<Fixture> {
 public:
     FixtureList(Kernel *core);
     const QString MODELATTRIBUTEID = "2";
-    const QString ADDRESSATTRIBUTEID = "3";
-    const QString UNIVERSEATTRIBUTEID = "4";
-    const QString POSITIONXATTRIBUTEID = "5.1";
-    const QString POSITIONYATTRIBUTEID = "5.2";
-    const QString ROTATIONATTRIBUTEID = "5.3";
-    const QString INVERTPANATTRIBUTE = "6";
+    const QString ADDRESSATTRIBUTEID = "3.1";
+    const QString UNIVERSEATTRIBUTEID = "3.2";
+    const QString POSITIONXATTRIBUTEID = "4.1";
+    const QString POSITIONYATTRIBUTEID = "4.2";
+    const QString ROTATIONATTRIBUTEID = "5.1";
+    const QString INVERTPANATTRIBUTE = "5.2";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 

@@ -67,10 +67,10 @@ QString Effect::info() {
             stepFadeValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).value(step)) + "s");
         }
     }
-    info += "\n" + kernel->effects->INTENSITYSTEPSATTRIBUTEID + " Intensities: " + intensityStepValues.join("; ");
-    info += "\n" + kernel->effects->COLORSTEPSATTRIBUTEID + " Colors: " + colorStepValues.join("; ");
-    info += "\n" + kernel->effects->POSITIONSTEPSATTRIBUTEID + " Positions: " + positionStepValues.join("; ");
-    info += "\n" + kernel->effects->RAWSTEPSATTRIBUTEID + " Raws: " + rawStepValues.join("; ");
+    info += "\n" + kernel->effects->INTENSITYSTEPSATTRIBUTEID + ".x Intensities: " + intensityStepValues.join("; ");
+    info += "\n" + kernel->effects->COLORSTEPSATTRIBUTEID + ".x Colors: " + colorStepValues.join("; ");
+    info += "\n" + kernel->effects->POSITIONSTEPSATTRIBUTEID + ".x Positions: " + positionStepValues.join("; ");
+    info += "\n" + kernel->effects->RAWSTEPSATTRIBUTEID + ".x Raws: " + rawStepValues.join("; ");
     info += "\n" + kernel->effects->STEPHOLDATTRIBUTEID + " Step Hold: " + QString::number(floatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID)) + "s";
     info += "\n    Step Exceptions: " + stepHoldValues.join("; ");
     info += "\n" + kernel->effects->STEPFADEATTRIBUTEID + " Step Fade: " + QString::number(floatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID)) + "s";

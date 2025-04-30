@@ -9,7 +9,7 @@
 #include "cuelist.h"
 
 CueList::CueList(Kernel *core) : ItemList(core, Keys::Cue, "Cue", "Cues") {
-    floatAttributes[FADEATTRIBUTEID] = {"Fade", 0, 0, 60, "s"};
+    floatAttributes[FADEATTRIBUTEID] = {"Fade", 0, 0, 600, "s"};
     boolAttributes[BLOCKATTRIBUTEID] = {"Block", false};
 }
 
@@ -190,10 +190,6 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
             if (!text.isEmpty()) {
                 rawIds = text.split("+");
             }
-            if (rawIds.isEmpty()) {
-                kernel->terminal->error("Can't set Cue Raws because an invalid Raw selection was given.");
-                return;
-            }
             QList<Raw*> raws;
             for (QString rawId : rawIds) {
                 Raw* raw = kernel->raws->getItem(rawId);
@@ -204,6 +200,7 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                 }
             }
             if (raws.isEmpty()) {
+                kernel->terminal->error("Can't set Cue Raws because an invalid Raw selection was given.");
                 return;
             }
             for (QString id : ids) {
@@ -250,10 +247,6 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
             if (!text.isEmpty()) {
                 effectIds = text.split("+");
             }
-            if (effectIds.isEmpty()) {
-                kernel->terminal->error("Can't set Cue Effects because an invalid Effect selection was given.");
-                return;
-            }
             QList<Effect*> effects;
             for (QString effectId : effectIds) {
                 Effect* effect = kernel->effects->getItem(effectId);
@@ -264,6 +257,7 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                 }
             }
             if (effects.isEmpty()) {
+                kernel->terminal->error("Can't set Cue Effects because an invalid Effect selection was given.");
                 return;
             }
             for (QString id : ids) {

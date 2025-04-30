@@ -104,7 +104,7 @@ void Terminal::execute() {
                 return;
             }
             if (!kernel->cuelistView->currentGroup->fixtures.contains(fixture)) {
-                success("Can't select Fixture " + fixture->name() + " because the current Group " + kernel->cuelistView->currentGroup->name() + " doesn't contain this Fixture.");
+                error("Can't select Fixture " + fixture->name() + " because the current Group " + kernel->cuelistView->currentGroup->name() + " doesn't contain this Fixture.");
                 return;
             }
             kernel->cuelistView->currentFixture = fixture;
