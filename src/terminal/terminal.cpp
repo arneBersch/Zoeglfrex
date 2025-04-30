@@ -10,7 +10,7 @@
 
 Terminal::Terminal(Kernel *core, QWidget *parent) : QWidget(parent) {
     kernel = core;
-    QVBoxLayout *grid = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
     scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
     connect(scrollArea->verticalScrollBar(), SIGNAL(rangeChanged(int, int)), this, SLOT(scrollToLastMessage(int, int)));
@@ -19,10 +19,10 @@ Terminal::Terminal(Kernel *core, QWidget *parent) : QWidget(parent) {
     messagesFrame->setLayout(messages);
     scrollArea->setWidget(messagesFrame);
     messages->addStretch();
-    grid->addWidget(scrollArea);
+    layout->addWidget(scrollArea);
     prompt = new QLabel();
     prompt->setWordWrap(true);
-    grid->addWidget(prompt);
+    layout->addWidget(prompt);
 }
 
 void Terminal::write(int key) {
