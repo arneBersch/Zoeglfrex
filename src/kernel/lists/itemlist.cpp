@@ -90,6 +90,10 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
         kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + singularItemName + " " + sourceItem->name() + " .");
     } else if (attribute == IDATTRIBUTEID) { // Move Item
         QString targetId = kernel->terminal->keysToId(value);
+        if (targetId.isEmpty()) {
+            kernel->terminal->error("Couldn't set " + singularItemName + " ID because the given ID is not valid.");
+            return;
+        }
         QList<int> itemRows;
         for (QString id : ids) {
             int itemRow = getItemRow(id);
