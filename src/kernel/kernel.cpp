@@ -8,17 +8,23 @@
 
 #include "kernel.h"
 
-Kernel::Kernel() {
+Kernel::Kernel(MainWindow* window) {
+    mainWindow = window;
     models = new ModelList(this);
     fixtures = new FixtureList(this);
     groups = new GroupList(this);
     intensities = new IntensityList(this);
     colors = new ColorList(this);
+    positions = new PositionList(this);
     raws = new RawList(this);
+    effects = new EffectList(this);
     cues = new CueList(this);
     terminal = new Terminal(this);
     inspector = new Inspector(this);
+    dmxEngine = new DmxEngine(this);
     cuelistView = new CuelistView(this);
+    preview2d = new Preview2d(this);
+    controlPanel = new ControlPanel(this);
     mutex = new QMutex();
 }
 
@@ -29,14 +35,15 @@ void Kernel::reset() {
     groups->reset();
     intensities->reset();
     colors->reset();
+    positions->reset();
     raws->reset();
+    effects->reset();
     cues->reset();
-    cuelistView->dmxEngine->sacnServer->universeSpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_UNIVERSE); // reset sACN universe
-    cuelistView->dmxEngine->sacnServer->prioritySpinBox->setValue(cuelistView->dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
-    cuelistView->loadCue();
+    dmxEngine->sacnServer->prioritySpinBox->setValue(dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
+    cuelistView->reload();
 }
 
-void Kernel::saveFile(QString fileName, QString version) {
+void Kernel::saveFile(QString fileName) {
     QMutexLocker locker(mutex);
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly)) {
@@ -50,12 +57,11 @@ void Kernel::saveFile(QString fileName, QString version) {
 
     fileStream.writeStartElement("Creator");
     fileStream.writeTextElement("Name", "Zöglfrex");
-    fileStream.writeTextElement("Version", version);
+    fileStream.writeTextElement("Version", VERSION);
     fileStream.writeEndElement();
 
     fileStream.writeStartElement("Output");
-    fileStream.writeTextElement("Universe", QString::number(cuelistView->dmxEngine->sacnServer->universeSpinBox->value()));
-    fileStream.writeTextElement("Priority", QString::number(cuelistView->dmxEngine->sacnServer->prioritySpinBox->value()));
+    fileStream.writeTextElement("Priority", QString::number(dmxEngine->sacnServer->prioritySpinBox->value()));
     fileStream.writeEndElement();
 
     models->saveItemsToFile(&fileStream);
@@ -63,7 +69,9 @@ void Kernel::saveFile(QString fileName, QString version) {
     groups->saveItemsToFile(&fileStream);
     intensities->saveItemsToFile(&fileStream);
     colors->saveItemsToFile(&fileStream);
+    positions->saveItemsToFile(&fileStream);
     raws->saveItemsToFile(&fileStream);
+    effects->saveItemsToFile(&fileStream);
     cues->saveItemsToFile(&fileStream);
 
     fileStream.writeEndElement();
@@ -72,7 +80,7 @@ void Kernel::saveFile(QString fileName, QString version) {
     terminal->success("Saved file as " + fileName);
 }
 
-void Kernel::openFile(QString fileName, QString version) {
+void Kernel::openFile(QString fileName) {
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         terminal->error("Can't open file.");
@@ -91,8 +99,8 @@ void Kernel::openFile(QString fileName, QString version) {
                             return;
                         }
                     } else if (fileStream.name().toString() == "Version") {
-                        if (fileStream.readElementText() != version) {
-                            terminal->error("Error reading file: This Zöglfrex version isn't compatible to the current version (" + version + ").");
+                        if (fileStream.readElementText() != VERSION) {
+                            terminal->error("Error reading file: This Zöglfrex version isn't compatible to the current version (" + VERSION + ").");
                             return;
                         }
                     } else {
@@ -102,22 +110,14 @@ void Kernel::openFile(QString fileName, QString version) {
                 }
             } else if (fileStream.name().toString() == "Output") {
                 while (fileStream.readNextStartElement()) {
-                    if (fileStream.name().toString() == "Universe") {
-                        bool ok;
-                        int universe = fileStream.readElementText().toInt(&ok);
-                        if (!ok) {
-                            terminal->error("Error reading file: Invalid sACN universe given.");
-                            return;
-                        }
-                        cuelistView->dmxEngine->sacnServer->universeSpinBox->setValue(universe);
-                    } else if (fileStream.name().toString() == "Priority") {
+                    if (fileStream.name().toString() == "Priority") {
                         bool ok;
                         int priority = fileStream.readElementText().toInt(&ok);
                         if (!ok) {
                             terminal->error("Error reading file: Invalid sACN priority given.");
                             return;
                         }
-                        cuelistView->dmxEngine->sacnServer->prioritySpinBox->setValue(priority);
+                        dmxEngine->sacnServer->prioritySpinBox->setValue(priority);
                     } else {
                         terminal->error("Error reading file: Received unknown Output attribute " + fileStream.name().toString());
                         return;
@@ -154,8 +154,14 @@ void Kernel::openFile(QString fileName, QString version) {
                         if (fileStream.attributes().hasAttribute("Color")) {
                             attributes[Keys::Color] = fileStream.attributes().value("Color").toString();
                         }
+                        if (fileStream.attributes().hasAttribute("Position")) {
+                            attributes[Keys::Position] = fileStream.attributes().value("Position").toString();
+                        }
                         if (fileStream.attributes().hasAttribute("Raw")) {
                             attributes[Keys::Raw] = fileStream.attributes().value("Raw").toString();
+                        }
+                        if (fileStream.attributes().hasAttribute("Effect")) {
+                            attributes[Keys::Effect] = fileStream.attributes().value("Effect").toString();
                         }
                         if (fileStream.attributes().hasAttribute("Cue")) {
                             attributes[Keys::Cue] = fileStream.attributes().value("Cue").toString();
@@ -171,8 +177,12 @@ void Kernel::openFile(QString fileName, QString version) {
                             intensities->setAttribute(ids, attributes, QList<int>(), text);
                         } else if ((pluralName == "Colors") && (singularName == "Color")) {
                             colors->setAttribute(ids, attributes, QList<int>(), text);
+                        } else if ((pluralName == "Positions") && (singularName == "Position")) {
+                            positions->setAttribute(ids, attributes, QList<int>(), text);
                         } else if ((pluralName == "Raws") && (singularName == "Raw")) {
                             raws->setAttribute(ids, attributes, QList<int>(), text);
+                        } else if ((pluralName == "Effects") && (singularName == "Effect")) {
+                            effects->setAttribute(ids, attributes, QList<int>(), text);
                         } else if ((pluralName == "Cues") && (singularName == "Cue")) {
                             cues->setAttribute(ids, attributes, QList<int>(), text);
                         } else {
@@ -191,5 +201,5 @@ void Kernel::openFile(QString fileName, QString version) {
         terminal->error("Can't open file because a XML parsing error occured in line " + QString::number(fileStream.lineNumber()) + ": " + fileStream.errorString() + " (" + QString::number(fileStream.error()) + ")");
         return;
     }
-    cuelistView->loadCue();
+    cuelistView->reload();
 }

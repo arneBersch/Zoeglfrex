@@ -9,7 +9,8 @@
 #include "itemlist.h"
 #include "kernel/kernel.h"
 
-template <class T> ItemList<T>::ItemList(int key, QString singular, QString plural) {
+template <class T> ItemList<T>::ItemList(Kernel* core, int key, QString singular, QString plural) {
+    kernel = core;
     itemKey = key;
     singularItemName = singular;
     pluralItemName = plural;
@@ -89,6 +90,10 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
         kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + singularItemName + " " + sourceItem->name() + " .");
     } else if (attribute == IDATTRIBUTEID) { // Move Item
         QString targetId = kernel->terminal->keysToId(value);
+        if (targetId.isEmpty()) {
+            kernel->terminal->error("Couldn't set " + singularItemName + " ID because the given ID is not valid.");
+            return;
+        }
         QList<int> itemRows;
         for (QString id : ids) {
             int itemRow = getItemRow(id);
@@ -172,11 +177,11 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                 }
                 item->intAttributes[attribute] += newValue;
                 if (item->intAttributes.value(attribute) < intAttribute.min) {
-                    kernel->terminal->warning("Can't decrease " +  intAttribute.name + " of " + singularItemName + " " + item->name() + " because " + intAttribute.name + " must be at least " + QString::number(intAttribute.min) + intAttribute.unit + ".");
                     item->intAttributes[attribute] = intAttribute.min;
+                    kernel->terminal->warning("Can't decrease " +  intAttribute.name + " of " + singularItemName + " " + item->name() + " because " + intAttribute.name + " must be at least " + QString::number(intAttribute.min) + intAttribute.unit + ".");
                 } else if (item->intAttributes.value(attribute) > intAttribute.max) {
-                    kernel->terminal->warning("Can't increase " +  intAttribute.name + " of " + singularItemName + " " + item->name() + " because " + intAttribute.name + " must not exceed " + QString::number(intAttribute.max) + intAttribute.unit + ".");
                     item->intAttributes[attribute] = intAttribute.max;
+                    kernel->terminal->warning("Can't increase " +  intAttribute.name + " of " + singularItemName + " " + item->name() + " because " + intAttribute.name + " must not exceed " + QString::number(intAttribute.max) + intAttribute.unit + ".");
                 }
                 emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
             }
@@ -262,11 +267,11 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                     }
                     item->modelSpecificFloatAttributes[attribute][model] += newValue;
                     if (item->modelSpecificFloatAttributes.value(attribute).value(model) < floatAttribute.min) {
-                        kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                         item->modelSpecificFloatAttributes[attribute][model] = floatAttribute.min;
+                        kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                     } else if (item->modelSpecificFloatAttributes.value(attribute).value(model) > floatAttribute.max) {
-                        kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                         item->modelSpecificFloatAttributes[attribute][model] = floatAttribute.max;
+                        kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                     }
                     emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
                 }
@@ -356,11 +361,11 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                     }
                     item->fixtureSpecificFloatAttributes[attribute][fixture] += newValue;
                     if (item->fixtureSpecificFloatAttributes.value(attribute).value(fixture) < floatAttribute.min) {
-                        kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                         item->fixtureSpecificFloatAttributes[attribute][fixture] = floatAttribute.min;
+                        kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                     } else if (item->fixtureSpecificFloatAttributes.value(attribute).value(fixture) > floatAttribute.max) {
-                        kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                         item->fixtureSpecificFloatAttributes[attribute][fixture] = floatAttribute.max;
+                        kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                     }
                     emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
                 }
@@ -424,11 +429,11 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                 }
                 item->floatAttributes[attribute] += newValue;
                 if (item->floatAttributes.value(attribute) < floatAttribute.min) {
-                    kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                     item->floatAttributes[attribute] = floatAttribute.min;
+                    kernel->terminal->warning("Can't decrease " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must be at least " + QString::number(floatAttribute.min) + floatAttribute.unit + ".");
                 } else if (item->floatAttributes.value(attribute) > floatAttribute.max) {
-                    kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                     item->floatAttributes[attribute] = floatAttribute.max;
+                    kernel->terminal->warning("Can't increase " +  floatAttribute.name + " of " + singularItemName + " " + item->name() + " because " + floatAttribute.name + " must not exceed " + QString::number(floatAttribute.max) + floatAttribute.unit + ".");
                 }
                 emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
             }
@@ -699,7 +704,7 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
                 kernel->terminal->success("Set " + angleAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + "°.");
             }
         }
-    } else if (boolAttributes.contains(attribute)) {
+    } else if (boolAttributes.contains(attribute)) { // Bool Attribute
         BoolAttribute boolAttribute = boolAttributes.value(attribute);
         bool newValue;
         QString valueText = QString::number(kernel->terminal->keysToValue(value));
@@ -723,9 +728,9 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
             emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
         if (ids.size() == 1) {
-            kernel->terminal->success("Set " + boolAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(newValue) + "°.");
+            kernel->terminal->success("Set " + boolAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(newValue) + ".");
         } else {
-            kernel->terminal->success("Set " + boolAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + "°.");
+            kernel->terminal->success("Set " + boolAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + ".");
         }
     } else {
         kernel->terminal->error("Can't set " + singularItemName + " Attribute " + attributes.value(Keys::Attribute) + ".");
@@ -734,7 +739,8 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
 
 template <class T> void ItemList<T>::saveItemsToFile(QXmlStreamWriter* fileStream) {
     fileStream->writeStartElement(pluralItemName);
-    for (T* item : items) {
+    for (int itemRow = (items.size() - 1); itemRow >= 0; itemRow--) {
+        T* item = items[itemRow];
         fileStream->writeStartElement(singularItemName);
         fileStream->writeAttribute("ID", item->id);
         item->writeAttributesToFile(fileStream);
@@ -751,13 +757,11 @@ template <class T> void ItemList<T>::reset() {
     }
 }
 
-template <class T> int ItemList<T>::rowCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
+template <class T> int ItemList<T>::rowCount(const QModelIndex&) const {
     return items.size();
 }
 
-template <class T> int ItemList<T>::columnCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent);
+template <class T> int ItemList<T>::columnCount(const QModelIndex&) const {
     return 1;
 }
 

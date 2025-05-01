@@ -8,13 +8,15 @@
 
 #include "grouplist.h"
 
-GroupList::GroupList(Kernel *core) : ItemList(Keys::Group, "Group", "Groups") {
-    kernel = core;
-}
+GroupList::GroupList(Kernel *core) : ItemList(core, Keys::Group, "Group", "Groups") {}
 
 void GroupList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute == FIXTURESATTRIBUTEID) {
+        bool addFixtures = value.startsWith(Keys::Plus);
+        if (addFixtures) {
+            value.removeFirst();
+        }
         QList<Fixture*> fixtureSelection;
         if (!value.isEmpty() || !text.isEmpty()) {
             if (!value.isEmpty()) {
@@ -35,7 +37,7 @@ void GroupList::setAttribute(QStringList ids, QMap<int, QString> attributes, QLi
             for (QString fixtureId : fixtureIds) {
                 Fixture* fixture = kernel->fixtures->getItem(fixtureId);
                 if (fixture == nullptr) {
-                    kernel->terminal->warning("Can't add Fixture " + fixtureId + " to Group because it doesn't exist.");
+                    kernel->terminal->warning("Can't add Fixture " + fixtureId + " to Groups because it doesn't exist.");
                 } else {
                     if (!fixtureSelection.contains(fixture)) {
                         fixtureSelection.append(fixture);
@@ -48,16 +50,28 @@ void GroupList::setAttribute(QStringList ids, QMap<int, QString> attributes, QLi
             if (group == nullptr) {
                 group = addItem(id);
             }
-            group->fixtures = fixtureSelection;
+            if (addFixtures) {
+                for (Fixture* fixture : fixtureSelection) {
+                    if (!group->fixtures.contains(fixture)) {
+                        group->fixtures.append(fixture);
+                    }
+                }
+            } else {
+                group->fixtures = fixtureSelection;
+            }
             emit dataChanged(index(getItemRow(group->id), 0), index(getItemRow(group->id), 0), {Qt::DisplayRole, Qt::EditRole});
         }
-        if ((kernel->cuelistView->currentGroup != nullptr) && (kernel->cuelistView->currentFixture != nullptr) && !kernel->cuelistView->currentGroup->fixtures.contains(kernel->cuelistView->currentFixture)) {
-            kernel->cuelistView->currentGroup->fixtures.removeAll(kernel->cuelistView->currentFixture);
+        if ((kernel->cuelistView->currentGroup != nullptr) && !kernel->cuelistView->currentGroup->fixtures.contains(kernel->cuelistView->currentFixture)) {
+            kernel->cuelistView->currentFixture = nullptr;
         }
         if (ids.size() == 1) {
-            kernel->terminal->success("Set Fixtures of Group " + getItem(ids.first())->name() + " to " + QString::number(fixtureSelection.length()) + " Fixtures.");
+            kernel->terminal->success("Set Fixtures of Group " + getItem(ids.first())->name() + " to " + QString::number(getItem(ids.first())->fixtures.length()) + " Fixtures.");
         } else {
-            kernel->terminal->success("Set Fixtures of " + QString::number(ids.length()) + " Groups to " + QString::number(fixtureSelection.length()) + " Fixtures.");
+            if (addFixtures) {
+                kernel->terminal->success("Added " + QString::number(fixtureSelection.length()) + " Fixtures to " + QString::number(ids.length()) + " Groups.");
+            } else {
+                kernel->terminal->success("Set Fixtures of " + QString::number(ids.length()) + " Groups to " + QString::number(fixtureSelection.length()) + " Fixtures.");
+            }
         }
     } else {
         ItemList::setAttribute(ids, attributes, value, text);

@@ -6,24 +6,35 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef RAW_H
-#define RAW_H
+#ifndef EFFECT_H
+#define EFFECT_H
 
 #include <QtWidgets>
 
 #include "item.h"
+#include "intensity.h"
+#include "color.h"
+#include "position.h"
+#include "raw.h"
 
-class Raw : public Item {
+class Effect : public Item {
 public:
-    Raw(Kernel* core);
-    Raw(const Raw* item);
-    ~Raw();
-    QMap<int, uint8_t> channelValues;
-    QMap<Model*, QMap<int, uint8_t>> modelSpecificChannelValues;
-    QMap<Fixture*, QMap<int, uint8_t>> fixtureSpecificChannelValues;
+    Effect(Kernel* core);
+    Effect(const Effect* item);
+    ~Effect();
+    QMap<int, Intensity*> intensitySteps;
+    QMap<int, Color*> colorSteps;
+    QMap<int, Position*> positionSteps;
+    QMap<int, QList<Raw*>> rawSteps;
+    QMap<QString, QMap<int, float>> stepSpecificFloatAttributes;
     QString info() override;
     void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
-    QMap<int, uint8_t> getChannels(Fixture* fixture);
+    float getDimmer(Fixture* fixture, int frame);
+    rgbColor getRGB(Fixture* fixture, int frame);
+    positionAngles getPosition(Fixture* fixture, int frame);
+    QMap<int, uint8_t> getRaws(Fixture* fixture, int frame, bool renderMiBRaws = true);
+private:
+    int getStep(Fixture* fixture, int frame, float* fade);
 };
 
-#endif // RAW_H
+#endif // EFFECT_H

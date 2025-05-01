@@ -16,29 +16,42 @@
 #include "kernel/lists/grouplist.h"
 #include "kernel/lists/intensitylist.h"
 #include "kernel/lists/colorlist.h"
+#include "kernel/lists/positionlist.h"
 #include "kernel/lists/rawlist.h"
+#include "kernel/lists/effectlist.h"
 #include "kernel/lists/cuelist.h"
 #include "terminal/terminal.h"
 #include "inspector/inspector.h"
 #include "cuelistview/cuelistview.h"
+#include "dmxengine/dmxengine.h"
+#include "preview2d/preview2d.h"
+#include "controlpanel/controlpanel.h"
+#include "mainwindow/mainwindow.h"
 
 class Kernel {
 public:
-    Kernel();
+    Kernel(MainWindow* mainWindow);
     void reset();
-    void saveFile(QString fileName, QString version);
-    void openFile(QString fileName, QString version);
+    void saveFile(QString fileName);
+    void openFile(QString fileName);
+    MainWindow* mainWindow;
     ModelList *models;
     FixtureList *fixtures;
     GroupList *groups;
     IntensityList *intensities;
     ColorList *colors;
+    PositionList *positions;
     RawList *raws;
+    EffectList *effects;
     CueList *cues;
     Terminal *terminal;
     Inspector *inspector;
     CuelistView *cuelistView;
+    DmxEngine *dmxEngine;
+    Preview2d *preview2d;
+    ControlPanel *controlPanel;
     QMutex *mutex;
+    const QString VERSION = "0.4.0";
 };
 
 #endif // KERNEL_H

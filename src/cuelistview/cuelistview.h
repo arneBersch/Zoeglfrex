@@ -17,23 +17,24 @@ class Kernel;
 class Fixture;
 class Group;
 class Cue;
-class DmxEngine;
 
 class CuelistView : public QWidget {
     Q_OBJECT
 public:
     CuelistView(Kernel *core, QWidget *parent = nullptr);
-    void loadCue();
+    void reload();
+    void loadCue(QString cueId);
     void nextCue();
     void previousCue();
+    void loadGroup(QString groupId);
     void nextGroup();
     void previousGroup();
     void nextFixture();
     void previousFixture();
+    void noFixture();
     Fixture* currentFixture = nullptr;
     Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;
-    DmxEngine *dmxEngine;
 private:
     void updateCuelistView();
     Kernel *kernel;
@@ -48,6 +49,5 @@ private:
 };
 
 #include "kernel/kernel.h"
-#include "cuelistview/dmxengine.h"
 
 #endif // CUELISTVIEW_H

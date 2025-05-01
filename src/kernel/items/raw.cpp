@@ -11,9 +11,23 @@
 
 Raw::Raw(Kernel* core) : Item(core) {}
 
-Raw::Raw(const Raw* item) : Item(item) {}
+Raw::Raw(const Raw* item) : Item(item) {
+    channelValues = item->channelValues;
+    modelSpecificChannelValues = item->modelSpecificChannelValues;
+    fixtureSpecificChannelValues = item->fixtureSpecificChannelValues;
+}
 
 Raw::~Raw() {
+    for (Effect *effect : kernel->effects->items) {
+        for (int step : effect->rawSteps.keys()) {
+            if (effect->rawSteps.contains(step)) {
+                effect->rawSteps[step].removeAll(this);
+                if (effect->rawSteps[step].isEmpty()) {
+                    effect->rawSteps.remove(step);
+                }
+            }
+        }
+    }
     for (Cue *cue : kernel->cues->items) {
         for (Group *group : cue->raws.keys()) {
             if (cue->raws.contains(group)) {
@@ -29,28 +43,48 @@ Raw::~Raw() {
 QString Raw::info() {
     QString info = Item::info();
     QStringList channelValue;
-    for (int channel : channelValues.keys()) {
-        channelValue.append(QString::number(channel) + " @ " + QString::number(channelValues.value(channel)));
-    }
-    info += "\n" + kernel->raws->CHANNELVALUEATTRIBUTEID + " Channel Values: " + channelValue.join(", ");
-    QStringList modelChannelValue;
-    for (Model* model : modelSpecificChannelValues.keys()) {
-        QStringList modelChannelValueValues;
-        for (int channel : modelSpecificChannelValues.value(model).keys()) {
-            modelChannelValueValues.append(QString::number(channel) + " @ " + QString::number(modelSpecificChannelValues.value(model).value(channel)));
+    for (int channel = 1; channel <= 512; channel++) {
+        if (channelValues.contains(channel)) {
+            channelValue.append(QString::number(channel) + " @ " + QString::number(channelValues.value(channel)));
         }
-        modelChannelValue.append(model->name() + ": " + modelChannelValueValues.join(", "));
+    }
+    info += "\n" + kernel->raws->CHANNELVALUEATTRIBUTEID + ".x Channel Values: " + channelValue.join(", ");
+    QStringList modelChannelValue;
+    for (Model* model : kernel->models->items) {
+        if (modelSpecificChannelValues.contains(model)) {
+            QStringList modelChannelValueValues;
+            for (int channel = 1; channel <= 512; channel++) {
+                if (modelSpecificChannelValues.value(model).contains(channel)) {
+                    modelChannelValueValues.append(QString::number(channel) + " @ " + QString::number(modelSpecificChannelValues.value(model).value(channel)));
+                }
+            }
+            modelChannelValue.append(model->name() + ": " + modelChannelValueValues.join(", "));
+        }
     }
     info += "\n    Model Exceptions: " + modelChannelValue.join("; ");
     QStringList fixtureChannelValue;
-    for (Fixture* fixture : fixtureSpecificChannelValues.keys()) {
-        QStringList fixtureChannelValueValues;
-        for (int channel : fixtureSpecificChannelValues.value(fixture).keys()) {
-            fixtureChannelValueValues.append(QString::number(channel) + " @ " + QString::number(fixtureSpecificChannelValues.value(fixture).value(channel)));
+    for (Fixture* fixture : kernel->fixtures->items) {
+        if (fixtureSpecificChannelValues.contains(fixture)) {
+            QStringList fixtureChannelValueValues;
+            for (int channel = 1; channel <= 512; channel++) {
+                if (fixtureSpecificChannelValues.value(fixture).contains(channel)) {
+                    fixtureChannelValueValues.append(QString::number(channel) + " @ " + QString::number(fixtureSpecificChannelValues.value(fixture).value(channel)));
+                }
+            }
+            fixtureChannelValue.append(fixture->name() + ": " + fixtureChannelValueValues.join(", "));
         }
-        fixtureChannelValue.append(fixture->name() + ": " + fixtureChannelValueValues.join(", "));
     }
     info += "\n    Fixture Exceptions: " + fixtureChannelValue.join("; ");
+    if (boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
+        info += "\n" + kernel->raws->MOVEINBLACKATTRIBUTEID + " MiB (Move in Black): True";
+    } else {
+        info += "\n" + kernel->raws->MOVEINBLACKATTRIBUTEID + " MiB (Move in Black): False";
+    }
+    if (boolAttributes.value(kernel->raws->FADEATTRIBUTEID)) {
+        info += "\n" + kernel->raws->FADEATTRIBUTEID + " Fade: True";
+    } else {
+        info += "\n" + kernel->raws->FADEATTRIBUTEID + " Fade: False";
+    }
     return info;
 }
 
@@ -80,4 +114,22 @@ void Raw::writeAttributesToFile(QXmlStreamWriter* fileStream) {
             fileStream->writeEndElement();
         }
     }
+}
+
+QMap<int, uint8_t> Raw::getChannels(Fixture* fixture) {
+    QMap<int, uint8_t> channels;
+    for (int channel : channelValues.keys()) {
+        channels[channel] = channelValues.value(channel);
+    }
+    if (modelSpecificChannelValues.contains(fixture->model)) {
+        for (int channel : modelSpecificChannelValues.value(fixture->model).keys()) {
+            channels[channel] = modelSpecificChannelValues.value(fixture->model).value(channel);
+        }
+    }
+    if (fixtureSpecificChannelValues.contains(fixture)) {
+        for (int channel : fixtureSpecificChannelValues.value(fixture).keys()) {
+            channels[channel] = fixtureSpecificChannelValues.value(fixture).value(channel);
+        }
+    }
+    return channels;
 }

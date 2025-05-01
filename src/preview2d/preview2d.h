@@ -6,10 +6,25 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "intensitylist.h"
+#ifndef PREVIEW2D_H
+#define PREVIEW2D_H
 
-IntensityList::IntensityList(Kernel *core) : ItemList(core, Keys::Intensity, "Intensity", "Intensities") {
-    floatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    modelSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    fixtureSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-}
+#include <QtWidgets>
+
+#include "fixturegraphicsitem.h"
+class Kernel;
+class Fixture;
+
+class Preview2d : public QWidget {
+public:
+    Preview2d(Kernel* core);
+    void updateImage();
+    QMap<Fixture*, FixtureGraphicsItem*> fixtureCircles;
+private:
+    int fixtureCirclesAmount = 0;
+    QGraphicsView* view;
+    QGraphicsScene* scene;
+    Kernel* kernel;
+};
+
+#endif // PREVIEW2D_H

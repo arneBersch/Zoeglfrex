@@ -6,10 +6,26 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "intensitylist.h"
+#ifndef POSITION_H
+#define POSITION_H
 
-IntensityList::IntensityList(Kernel *core) : ItemList(core, Keys::Intensity, "Intensity", "Intensities") {
-    floatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    modelSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    fixtureSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-}
+#include <QtWidgets>
+
+#include "item.h"
+
+struct positionAngles {
+    float pan = 0;
+    float tilt = 0;
+};
+
+class Position : public Item {
+public:
+    Position(Kernel* core);
+    Position(const Position* item);
+    ~Position();
+    QString name() override;
+    QString info() override;
+    positionAngles getAngles(Fixture* fixture);
+};
+
+#endif // POSITION_H

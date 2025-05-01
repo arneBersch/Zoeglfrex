@@ -8,7 +8,8 @@
 
 #include "modellist.h"
 
-ModelList::ModelList(Kernel *core) : ItemList(Keys::Model, "Model", "Models") {
-    kernel = core;
-    stringAttributes[CHANNELSATTRIBUTEID] = {"Channels", "D", "^[01DRGBWCMY]+$"};
+ModelList::ModelList(Kernel *core) : ItemList(core, Keys::Model, "Model", "Models") {
+    stringAttributes[CHANNELSATTRIBUTEID] = {"Channels", "D", "^[01DdRrGgBbWwCcMmYyPpTt]+$"};
+    floatAttributes[PANRANGEATTRIBUTEID] = {"Pan Range", 540, 0, 3600, "°"};
+    floatAttributes[TILTRANGEATTRIBUTEID] = {"Tilt Range", 270, 0, 360, "°"};
 }

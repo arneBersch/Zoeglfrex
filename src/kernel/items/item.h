@@ -15,7 +15,6 @@ class Kernel;
 class Model;
 class Fixture;
 class Group;
-class Intensity;
 
 class Item {
 public:

@@ -8,8 +8,9 @@
 
 #include "rawlist.h"
 
-RawList::RawList(Kernel *core) : ItemList(Keys::Raw, "Raw", "Raws") {
-    kernel = core;
+RawList::RawList(Kernel *core) : ItemList(core, Keys::Raw, "Raw", "Raws") {
+    boolAttributes[MOVEINBLACKATTRIBUTEID] = {"MiB", true};
+    boolAttributes[FADEATTRIBUTEID] = {"Fade", false};
 }
 
 void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
@@ -130,11 +131,11 @@ void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                             }
                         }
                         if ((raw->modelSpecificChannelValues.value(model).value(channel) + newValue) < 0) {
-                            kernel->terminal->warning("Can't decrease Channel Value of Raw " + raw->name() + " because Value must be at least 0.");
                             raw->modelSpecificChannelValues[model][channel] = 0;
+                            kernel->terminal->warning("Can't decrease Channel Value of Raw " + raw->name() + " because Value must be at least 0.");
                         } else if ((raw->modelSpecificChannelValues.value(model).value(channel) + newValue) > 255) {
-                            kernel->terminal->warning("Can't increase Channel Values of Raw " + raw->name() + " because Value must not exceed 255.");
                             raw->modelSpecificChannelValues[model][channel] = 255;
+                            kernel->terminal->warning("Can't increase Channel Values of Raw " + raw->name() + " because Value must not exceed 255.");
                         } else {
                             raw->modelSpecificChannelValues[model][channel] += newValue;
                         }
@@ -181,11 +182,11 @@ void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                         }
                         raw->fixtureSpecificChannelValues[fixture][channel] += newValue;
                         if ((raw->fixtureSpecificChannelValues.value(fixture).value(channel) + newValue) < 0) {
-                            kernel->terminal->warning("Can't decrease Channel Value of Raw " + raw->name() + " because Value must be at least 0.");
                             raw->fixtureSpecificChannelValues[fixture][channel] = 0;
+                            kernel->terminal->warning("Can't decrease Channel Value of Raw " + raw->name() + " because Value must be at least 0.");
                         } else if ((raw->fixtureSpecificChannelValues.value(fixture).value(channel) + newValue) > 255) {
-                            kernel->terminal->warning("Can't increase Channel Values of Raw " + raw->name() + " because Value must not exceed 255.");
                             raw->fixtureSpecificChannelValues[fixture][channel] = 255;
+                            kernel->terminal->warning("Can't increase Channel Values of Raw " + raw->name() + " because Value must not exceed 255.");
                         } else {
                             raw->fixtureSpecificChannelValues[fixture][channel] += newValue;
                         }
@@ -221,11 +222,11 @@ void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                             raw->channelValues[channel] = 0;
                         }
                         if ((raw->channelValues.value(channel) + newValue) < 0) {
-                            kernel->terminal->warning("Can't decrease Channel Value of Raw " + raw->name() + " because Value must be at least 0.");
                             raw->channelValues[channel] = 0;
+                            kernel->terminal->warning("Can't decrease Channel Value of Raw " + raw->name() + " because Value must be at least 0.");
                         } else if ((raw->channelValues.value(channel) + newValue) > 255) {
-                            kernel->terminal->warning("Can't increase Channel Values of Raw " + raw->name() + " because Value must not exceed 255.");
                             raw->channelValues[channel] = 255;
+                            kernel->terminal->warning("Can't increase Channel Values of Raw " + raw->name() + " because Value must not exceed 255.");
                         } else {
                             raw->channelValues[channel] += newValue;
                         }

@@ -6,33 +6,25 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef DMXENGINE_H
-#define DMXENGINE_H
+#ifndef POSITIONLIST_H
+#define POSITIONLIST_H
 
 #include <QtWidgets>
 
-#include "sacnserver.h"
-class Kernel;
-class Cue;
+#include "itemlist.h"
+#include "../items/position.h"
 
-class DmxEngine : public QWidget {
+class Kernel;
+
+template class ItemList<Position>;
+class PositionList : public ItemList<Position> {
     Q_OBJECT
 public:
-    DmxEngine(Kernel *core, QWidget *parent = nullptr);
-    void generateDmx();
-    SacnServer *sacnServer;
-private:
-    void sendDmx();
-    QTimer *timer;
-    Cue* lastCue;
-    QList<uint8_t> lastCueValues;
-    QList<uint8_t> currentCueValues;
-    int remainingFadeFrames = 0;
-    int totalFadeFrames = 0;
-    QPushButton *highlightButton;
-    QProgressBar* fadeProgress;
-    QPushButton* skipFadeButton;
-    Kernel *kernel;
+    PositionList(Kernel *core);
+    const QString PANATTRIBUTEID = "2";
+    const QString TILTATTRIBUTEID = "3";
 };
 
-#endif // DMXENGINE_H
+#include "kernel/kernel.h"
+
+#endif // POSITIONLIST_H

@@ -6,26 +6,45 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef MODELLIST_H
-#define MODELLIST_H
+#ifndef CONTROLPANEL_H
+#define CONTROLPANEL_H
 
 #include <QtWidgets>
 
-#include "itemlist.h"
-#include "../items/model.h"
-
 class Kernel;
 
-template class ItemList<Model>;
-class ModelList : public ItemList<Model> {
-    Q_OBJECT
+namespace ControlPanelColumns {
+enum {
+    dimmer,
+    hue,
+    saturation,
+    pan,
+    tilt,
+};
+}
+
+namespace ControlPanelRows {
+enum {
+    label,
+    valueLabel,
+    modelValueLabel,
+    fixtureValueLabel,
+    dial,
+};
+}
+
+class ControlPanel : public QWidget {
 public:
-    ModelList(Kernel *core);
-    const QString CHANNELSATTRIBUTEID = "2";
-    const QString PANRANGEATTRIBUTEID = "3.1";
-    const QString TILTRANGEATTRIBUTEID = "3.2";
+    ControlPanel(Kernel* core);
+    void reload();
+private:
+    bool reloading = false;
+    QGridLayout *layout;
+    QList<QLabel*> valueLabels = QList<QLabel*>(5, nullptr);
+    QList<QLabel*> modelValueLabels = QList<QLabel*>(5, nullptr);
+    QList<QLabel*> fixtureValueLabels = QList<QLabel*>(5, nullptr);
+    QList<QDial*> dials = QList<QDial*>(5, nullptr);
+    Kernel* kernel;
 };
 
-#include "kernel/kernel.h"
-
-#endif // MODELLIST_H
+#endif // CONTROLPANEL_H

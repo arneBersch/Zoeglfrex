@@ -18,16 +18,14 @@ void GroupModel::loadGroup() {
     endResetModel();
 }
 
-int GroupModel::rowCount(const QModelIndex &parent) const
+int GroupModel::rowCount(const QModelIndex&) const
 {
-    Q_UNUSED(parent);
     return kernel->cues->rowCount();
 }
 
-int GroupModel::columnCount(const QModelIndex &parent) const
+int GroupModel::columnCount(const QModelIndex&) const
 {
-    Q_UNUSED(parent);
-    return 4;
+    return 6;
 }
 
 QVariant GroupModel::data(const QModelIndex &index, const int role) const
@@ -58,6 +56,12 @@ QVariant GroupModel::data(const QModelIndex &index, const int role) const
                 return cue->colors.value(kernel->cuelistView->currentGroup)->name();
             }
             return QVariant();
+        } else if (column == GroupModelColumns::position) {
+            if (cue->positions.contains(kernel->cuelistView->currentGroup)) {
+                return cue->positions.value(kernel->cuelistView->currentGroup)->name();
+            }
+            return QVariant();
+
         } else if (column == GroupModelColumns::raws) {
             if (cue->raws.contains(kernel->cuelistView->currentGroup)) {
                 QStringList raws;
@@ -65,6 +69,14 @@ QVariant GroupModel::data(const QModelIndex &index, const int role) const
                     raws.append(raw->name());
                 }
                 return raws.join(" + ");
+            }
+        } else if (column == GroupModelColumns::effects) {
+            if (cue->effects.contains(kernel->cuelistView->currentGroup)) {
+                QStringList effects;
+                for (Effect* effect : cue->effects.value(kernel->cuelistView->currentGroup)) {
+                    effects.append(effect->name());
+                }
+                return effects.join(" + ");
             }
         } else {
             return QVariant();
@@ -89,8 +101,12 @@ QVariant GroupModel::headerData(int column, Qt::Orientation orientation, int rol
             return kernel->cues->INTENSITIESATTRIBUTEID + " Intensity";
         } else if (column == GroupModelColumns::color) {
             return kernel->cues->COLORSATTRIBUTEID + " Color";
+        } else if (column == GroupModelColumns::position) {
+            return kernel->cues->POSITIONSATTRIBUTEID + " Position";
         } else if (column == GroupModelColumns::raws) {
             return kernel->cues->RAWSATTRIBUTEID + " Raws";
+        } else if (column == GroupModelColumns::effects) {
+            return kernel->cues->EFFECTSATTRIBUTEID + " Effects";
         } else {
             return QVariant();
         }

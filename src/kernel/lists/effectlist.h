@@ -6,27 +6,35 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef RAWLIST_H
-#define RAWLIST_H
+#ifndef EFFECTLIST_H
+#define EFFECTLIST_H
 
 #include <QtWidgets>
 
 #include "itemlist.h"
-#include "../items/raw.h"
+#include "../items/effect.h"
 
 class Kernel;
 
-template class ItemList<Raw>;
-class RawList : public ItemList<Raw> {
+template class ItemList<Effect>;
+class EffectList : public ItemList<Effect> {
     Q_OBJECT
 public:
-    RawList(Kernel *core);
-    const QString CHANNELVALUEATTRIBUTEID = "2";
-    const QString MOVEINBLACKATTRIBUTEID = "3";
-    const QString FADEATTRIBUTEID = "4";
+    EffectList(Kernel *core);
+    const QString STEPSATTRIBUTEID = "2";
+    const QString INTENSITYSTEPSATTRIBUTEID = "3";
+    const QString COLORSTEPSATTRIBUTEID = "4";
+    const QString POSITIONSTEPSATTRIBUTEID = "5";
+    const QString RAWSTEPSATTRIBUTEID = "6";
+    const QString STEPHOLDATTRIBUTEID = "7";
+    const QString STEPFADEATTRIBUTEID = "8";
+    const QString PHASEATTRIBUTEID = "9";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
+private:
+    Effect* addItem(QString id) override;
+    QMap<QString, FloatAttribute> stepSpecificFloatAttributes;
 };
 
 #include "kernel/kernel.h"
 
-#endif // RAWLIST_H
+#endif // EFFECTLIST_H

@@ -8,9 +8,13 @@
 
 #include "fixturelist.h"
 
-FixtureList::FixtureList(Kernel *core) : ItemList(Keys::Fixture, "Fixture", "Fixtures") {
-    kernel = core;
+FixtureList::FixtureList(Kernel *core) : ItemList(core, Keys::Fixture, "Fixture", "Fixtures") {
     intAttributes[ADDRESSATTRIBUTEID] = {"Address", 0, 0, 512};
+    intAttributes[UNIVERSEATTRIBUTEID] = {"Universe", 1, 1, 63999};
+    floatAttributes[POSITIONXATTRIBUTEID] = {"X Position", 0, -100, 100};
+    floatAttributes[POSITIONYATTRIBUTEID] = {"Y Position", 0, -100, 100};
+    angleAttributes[ROTATIONATTRIBUTEID] = {"Rotation", 0};
+    boolAttributes[INVERTPANATTRIBUTE] = {"Invert Pan", false};
 }
 
 void FixtureList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
@@ -25,9 +29,9 @@ void FixtureList::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
                 fixture->model = nullptr;
             }
             if (ids.size() == 1) {
-                kernel->terminal->success("Set Model of Fixture " + getItem(ids.first())->name() + " to None (Dimmer).");
+                kernel->terminal->success("Removed Model of Fixture " + getItem(ids.first())->name() + ".");
             } else {
-                kernel->terminal->success("Set Model of " + QString::number(ids.size()) + " Fixtures to None (Dimmer).");
+                kernel->terminal->success("Removed Model of " + QString::number(ids.size()) + " Fixtures.");
             }
         } else if (((value.size() >= 2) && (value.first() == Keys::Model)) || !text.isEmpty()) {
             if (!value.isEmpty()) {

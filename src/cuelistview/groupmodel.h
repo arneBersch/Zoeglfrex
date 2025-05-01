@@ -18,7 +18,9 @@ enum {
     cue,
     intensity,
     color,
+    position,
     raws,
+    effects,
 };
 }
 

@@ -6,10 +6,13 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "intensitylist.h"
+#include "positionlist.h"
 
-IntensityList::IntensityList(Kernel *core) : ItemList(core, Keys::Intensity, "Intensity", "Intensities") {
-    floatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    modelSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    fixtureSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
+PositionList::PositionList(Kernel *core) : ItemList(core, Keys::Position, "Position", "Positions") {
+    angleAttributes[PANATTRIBUTEID] = {"Pan", 0};
+    modelSpecificAngleAttributes[PANATTRIBUTEID] = {"Pan", 0};
+    fixtureSpecificAngleAttributes[PANATTRIBUTEID] = {"Pan", 0};
+    floatAttributes[TILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
+    modelSpecificFloatAttributes[TILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
+    fixtureSpecificFloatAttributes[TILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
 }

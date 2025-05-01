@@ -6,7 +6,9 @@
 - Group: G
 - Intensity: I
 - Color: C
+- Position: P
 - Raw: R
+- Effect: E
 - Cue: Q
 
 ### Other keys
@@ -36,6 +38,7 @@
 - Select previous Group: Arrow up
 - Select next Fixture in current Group: Arrow right
 - Select previous Fixture in current Group: Arrow left
+- Deselect the currently selected Fixture: Escape
 - Execute command and clear the Terminal: Return/Enter
 - Execute command without clearing the Terminal: Shift + Return/Enter
 - Undo the last keypress in the command input: Backspace
@@ -81,15 +84,17 @@ Model 1 + 2 Set -
 This command will remove Model 1 and 2.
 
 > [!CAUTION]
-> Please note that deleting Items can affect other Items to:
-> - When deleting a Model, the Model Attribute of all Fixtures which used this Model are set to None (Dimmer).
+> Please note that deleting Items can affect other Items too:
+> - When deleting a Model, the Model Attribute of all Fixtures which used this Model are set to None.
 > - When deleting a Model, the Model Exceptions for these Model are deleted in all Attributes.
 > - When deleting a Fixture, the Fixture is removed from all Groups.
 > - When deleting a Fixture, the Fixture Exceptions for these Fixture are deleted in all Attributes.
-> - When deleting a Group, the Group will be removed from all Cues.
-> - When deleting an Intensity, it will be removed from all Cues.
-> - When deleting an Color, it will be removed from all Cues.
-> - When deleting an Raw, it will be removed from all Cues.
+> - When deleting a Group, the Group values will be removed from all Cues.
+> - When deleting an Intensity, it will be removed from all Effects and Cues.
+> - When deleting a Color, it will be removed from all Effects and Cues.
+> - When deleting a Position, it will be removed from all Effects and Cues.
+> - When deleting a Raw, it will be removed from all Effects and Cues.
+> - When deleting an Effect, it will be removed from all Cues.
 
 ## Models
 If no Model Attribute is given, the standard Attribute 2 will be used.
@@ -99,42 +104,62 @@ If no Model ID is given, the Model of the current Fixture will be used.
 ### Model Attribute 2 Set (Channels)
 This command doesn't take a value. Instead, it will open a popup where you can insert the Model's channels. These channels are currently supported:
 - D (Dimmer)
+- d (Dimmer fine)
 - R (Red)
+- r (Red fine)
 - G (Green)
+- g (Green fine)
 - B (Blue)
+- b (Blue fine)
 - W (White)
+- w (White fine)
 - C (Cyan)
+- c (Cyan fine)
 - M (Magenta)
+- m (Magenta fine)
 - Y (Yellow)
+- y (Yellow fine)
+- P (Pan)
+- p (Pan fine)
+- T (Tilt)
+- t (Tilt fine)
 - 0 (DMX value 0)
 - 1 (DMX value 255)
 
 So, for example, if you want to add a generic RGB Model, you need to type 'RGB' into the popup.
+
+### Model Attribute 3.1 Set (Pan Range)
+If your Model supports the Pan Attribute, you should set its Pan Range so that Positions are rendered correctly.
+The Pan Range is given in degree.
+
+### Model Attribute 3.2 Set (Tilt Range)
+If your Model supports the Tilt Attribute, you should set its Tilt Range so that Positions are rendered correctly.
+The Tilt Range is given in degree.
 
 ## Fixtures
 If no Fixture Attribute is given, the standard Attribute 3 will be used.
 
 If no Fixture ID is given, the current Fixture in the current Group will be used.
 If no Fixture is currently selected, all Fixtures of the current Group will be selected.
-You can select the current Fixture with the left and right arrow keys or like this:
+You can select the current Fixture of the current Group with the left and right arrow keys or like this:
 ```
 Fixture 1
 ```
-When using this syntax, the Fixture will be automatically added to the current Group if necessary.
 
-### Fixture Attribute 2 Set
+### Fixture Attribute 2 Set (Model)
 This command sets the Model of the selected Fixtures:
 ```
 Fixture 1 + 2 Attribute 2 Set Model 3
 ```
 Every new Fixture's Model is set to None.
-This means that the Fixture is a simple Dimmer.
-You can also remove the Model from a Fixture, setting the Model Attribute to None/Dimmer again:
+This means that the Fixture won't output any DMX data.
+
+You can also remove the Model from a Fixture, setting the Model Attribute to None again:
 ```
 Fixture 1 Attribute 2 Set -
 ```
 
-## Fixture Attribute 3 Set
+### Fixture Attribute 3.1 Set (Address)
 This command sets the DMX address of the selected Fixtures.
 
 Every new Fixture is patched to address 0.
@@ -142,6 +167,28 @@ This means that it won't output any DMX signal but can still be used for program
 This is great if you know your Fixture rig but not how it's patched.
 
 After every (successful) command, Zöglfrex will check your rig for DMX patch conflicts.
+
+### Fixture Attribute 3.2 Set (Universe)
+This command sets the sACN universe of the selected Fixtures.
+
+After every (successful) command, Zöglfrex will check your rig for DMX patch conflicts.
+
+### Fixture Attribute 4.1 Set (X Position)
+This command sets the X Position of the Fixture in the 2D View.
+
+### Fixture Attribute 4.2 Set (Y Position)
+This command sets the Y Position of the Fixture in the 2D View.
+
+### Fixture Attribute 5.1 Set (Rotation)
+This command sets the Rotation of the Fixture.
+
+You only need to change this Attribute if your Fixture's pan in the real world is different compared to the one in the 2D View.
+
+
+### Fixture Attribute 5.2 Set (Invert Pan)
+This command is needed if your Fixture's pan rotates into the wrong direction compared with the 2D View.
+
+The accepted values are 0 (False / Pan Normal) and 1 (True / Pan Inverted).
 
 ## Groups
 If no Group Attribute is given, the standard Attribute 2 will be used.
@@ -152,24 +199,26 @@ You can select the current Group with the up and down arrow keys or like this:
 Group 1
 ```
 
-### Group Attribute 2 Set
+### Group Attribute 2 Set (Fixtures)
 This command takes the Fixtures which you want to add to the Group:
 ```
 Group 1 Attribute 2 Set Fixture 1.1 + 1.2 + 1.3
 ```
-You can also give no Fixture IDs which would result in an empty Group:
+You can also give no Fixture IDs which results in an empty Group:
 ```
 Group 1 Attribute 2 Set
 ```
-> [!WARNING]
-> Please note that Group Attribute 2 Set will overwrite the Fixtures Attribute.
+You can also add Fixtures to Groups without overwriting all the Fixtures like this:
+```
+Group 1 Attribute 2 Set + Fixture 1.4 + 1.5
+```
 
 ## Intensities
 If no Itensity Attribute is given, the standard Attribute 2 will be used.
 
 If no Intensity ID is given, the ID of the Intensity of the currently selected Group in the current Cue will be used.
 
-### Intensity Attribute 2 Set
+### Intensity Attribute 2 Set (Dimmer)
 This command sets the Dimmer Attribute to the selected Intensities:
 ```
 Intensity 1 + 2 Attribute 2 Set 75
@@ -182,7 +231,7 @@ Intensity 1 + 2 Attribute 2 Model 7 Set 80
 Intensity 1 + 2 Attribute 2 Fixture 5 Set 70
 ```
 These values will replace the standard values if the Fixtures or the Models match.
-You can also remove exception values:
+You can also remove the exception values again:
 ```
 Intensity 1 + 2 Attribute 2 Model 7 Set -
 Intensity 1 + 2 Attribute 2 Fixture 5 Set -
@@ -195,29 +244,31 @@ Intensity 2 Attribute 2 Set + - 5
 ```
 The first command will increase the Dimmer value of Intensity 1 by 10 percent.
 The second command will reduce the Dimmer value of Intensity 2 by 5 percent.
-Please note that this command won't work as it tries to set the Dimmer to -10 percent instead of reducing it by 10 percent:
-```
-Intensity 2 Attribute 2 Set - 10
-```
+
+> [!CAUTION]
+> Please note that this command won't work as it tries to set the Dimmer to -10 percent instead of reducing it by 10 percent:
+> ```
+> Intensity 2 Attribute 2 Set - 10
+> ```
 
 ## Colors
 If no Color Attribute is given, the standard Attribute 2 will be used.
 
 If no Color ID is given, the ID of the Color of the currently selected Group in the current Cue will be used.
 
-### Color Attribute 2 Set
+### Color Attribute 2 Set (Hue)
 This command sets the Hue Attribute of the selected Colors.
 The value is given in degree.
 
-For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2
+For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2.
 
-### Color Attribute 3 Set
+### Color Attribute 3 Set (Saturation)
 This command sets the Saturation of the selected Colors.
 The value is given in percent.
 
-For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2
+For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2.
 
-### Color Attribute 4 Set
+### Color Attribute 4 Set (Quality)
 This command sets the quality of the selected Colors.
 The value is given in percent:
 ```
@@ -227,16 +278,33 @@ Color 1 Attribute 4 Set 75
 This is important in combination with RGBW color mixing:
 The color white can be producted with only the white LEDs turned on (Quality = 100%) or with all LEDs turned on (Quality = 0%).
 
+## Positions
+If no Position Attribute is given, the standard Attribute 2 will be used.
+
+If no Position ID is given, the ID of the Position of the currently selected Group in the current Cue will be used.
+
+### Position Attribute 2 Set (Pan)
+This command sets the Pan Attribute of the selected Positions.
+The value is given in degree.
+
+For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2.
+
+### Position Attribute 3 Set (Tilt)
+This command sets the Tilt of the selected Positions.
+The value is given in degree.
+
+For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2.
+
 ## Raws
 If no Raw Attribute is given, the standard Attribute 2 will be used.
 If no Raw IDs are given, the IDs of the Raws of the currently selected Group in the current Cue will be used.
 
-### Raw Attribute 2.x Set
+### Raw Attribute 2.x Set (Channel Values)
 This command sets the value of channel x in the selected Raws:
 ```
 Raw 1 + 2 Attribute 2.7 Set 213
 ```
-This example would set channel 7 to the DMX value 213.
+This example would set channel 7 of the Fixtures the Raw is applied to to the DMX value 213.
 
 The channel x has to be between 1 and 512.
 The value has to be between 0 and 255.
@@ -252,16 +320,121 @@ Raw 1 Attribute 2 Model 4 Set -
 Raw 2 Attribute 2.7 Fixture 5 Set -
 ```
 
+### Raw Attribute 3 Set (Move in Black)
+This command sets if the Raw channels are allowed to be set before the actual Cue where they are requested takes place.
+
+The accepted values are 0 (False / MiB deactivated) and 1 (True / MiB activated).
+
+### Raw Attribute 4 Set (Fading)
+This command sets if the Raw is allowed to fade the Channels.
+
+The accepted values are 0 (False / Fading deactivated) and 1 (True / Fading activated).
+
+## Effects
+If no Effect Attribute is given, the standard Attribute 2 will be used.
+If no Effect IDs are given, the IDs of the Effects of the currently selected Group in the current Cue will be used.
+
+### Effect Attribute 2 Set (Steps)
+This command sets the amount of steps of the Effect.
+
+### Effect Attribute 3.x Set (Intensities)
+This command sets the Intensity of Step x in the selected Effects:
+```
+Effect 1 Attribute 3.1 Set Intensity 1
+```
+You can remove the Intensity like this:
+```
+Effect 1 Attribute 3.1 Set -
+```
+Please note that as soon as at least one Effect step holds an Intensity value, the Effect will overwrite the Intensity.
+
+### Effect Attribute 4.x Set (Colors)
+This command sets the Color of Step x in the selected Effects:
+```
+Effect 1 Attribute 4.1 Set Color 1
+```
+You can remove the Color like this:
+```
+Effect 1 Attribute 4.1 Set -
+```
+Please note that as soon as at least one Effect step holds a Color value, the Effect will overwrite the Color.
+
+### Effect Attribute 5.x Set (Positions)
+This command sets the Position of Step x in the selected Effects:
+```
+Effect 1 Attribute 5.1 Set Position 1
+```
+You can remove the Position like this:
+```
+Effect 1 Attribute 5.1 Set -
+```
+Please note that as soon as at least one Effect step holds a Position value, the Effect will overwrite the Position.
+
+### Effect Attribute 6.x Set (Raws)
+This command sets the Raws of Step x in the selected Effects:
+```
+Effect 1 Attribute 6.1 Set Raw 1 + 2
+```
+You can remove the Raws like this:
+```
+Effect 1 Attribute 6.1 Set -
+```
+Please note that as soon as at least one Effect step holds a Raw, the Effect will overwrite every Channel of the Raw.
+
+### Effect Attribute 7 Set (Hold)
+This command sets the Hold time of the Effect steps:
+```
+Effect 1 Attribute 7 Set 1.5
+```
+The value is given in seconds.
+
+You can also set and remove Step exceptions like this:
+```
+Effect 1 Attribute 7.2 Set 2
+Effect 1 Attribute 7.1 Set -
+```
+
+### Effect Attribute 8 Set (Fade)
+This command sets the Fade time of the Effect steps:
+```
+Effect 1 Attribute 8 Set 1.5
+```
+The value is given in seconds.
+
+You can also set and remove Step exceptions like this:
+```
+Effect 1 Attribute 8.2 Set 2
+Effect 1 Attribute 8.1 Set -
+```
+
+### Effect Attribute 9 Set (Phase)
+This command sets the standard Phase the Effects starts with:
+```
+Effect 1 Attribute 9 Set 180
+```
+The value is given in degree.
+
+You can also set Fixture exceptions in order to produce phase differences between Fixtures:
+```
+Effect 1 Attribute 9 Fixture 4 Set 90
+```
+You can remove the Fixture exceptions again like this:
+```
+Effect 1 Attribute 9 Fixture 4 Set -
+```
+
+
 ## Cues
-If no Cue Attribute is given, the standard Attribute 5 will be used.
+If no Cue Attribute is given, the standard Attribute 7 will be used.
 
 If no Cue ID is given, the ID of current Cue will be used.
 You can select the current Cue like this:
 ```
 Cue 1
 ```
+Please note that when you add a new Cue, the cue will use the values of Attribute 2, 3, 4, 5 and 6 of the previouse Cue as these values will be tracked.
 
-### Cue Attribute 2 Set
+### Cue Attribute 2 Set (Intensities)
 This command sets the Intensity of the selected Groups in the selected Cues:
 ```
 Cue 1 + 2 Attribute 2 Group 4 Set Intensity 3
@@ -270,7 +443,6 @@ You can remove the Intensity like this:
 ```
 Cue 1 + 2 Attribute 2 Group 4 Set -
 ```
-If you change this Attribute, it will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds a different Intensity.
 
 > [!TIP]
 > You can set the Intensity of the currently selected Group in the current Cue like this:
@@ -281,8 +453,9 @@ If you change this Attribute, it will be tracked in the next Cues until a Blocke
 > ```
 > Intensity -
 > ```
+> If you use this syntax, the Intensity will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds a different Intensity.
 
-### Cue Attribute 3 Set
+### Cue Attribute 3 Set (Colors)
 This command sets the Color of the selected Groups in the selected Cues:
 ```
 Cue 1 + 2 Attribute 3 Group 4 Set Color 3
@@ -291,7 +464,6 @@ You can remove the Color like this:
 ```
 Cue 1 + 2 Attribute 3 Group 4 Set -
 ```
-If you change this Attribute, it will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds a different Color.
 
 > [!TIP]
 > You can set the Color of the currently selected Group in the current Cue like this:
@@ -302,19 +474,38 @@ If you change this Attribute, it will be tracked in the next Cues until a Blocke
 > ```
 > Color -
 > ```
+> If you use this syntax, the Color will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds a different Color.
 
+### Cue Attribute 4 Set (Positions)
+This command sets the Position of the selected Groups in the selected Cues:
+```
+Cue 1 + 2 Attribute 4 Group 4 Set Position 3
+```
+You can remove the Position like this:
+```
+Cue 1 + 2 Attribute 4 Group 4 Set -
+```
 
-### Cue Attribute 4 Set
+> [!TIP]
+> You can set the Position of the currently selected Group in the current Cue like this:
+> ```
+> Position 1
+> ```
+> You can also remove the Position of the currently selected Group in the current Cue like this:
+> ```
+> Position -
+> ```
+> If you use this syntax, the Position will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds a different Position.
+
+### Cue Attribute 5 Set (Raws)
 This command sets the Raws of the selected Groups in the selected Cues:
 ```
-Cue 1 + 2 Attribute 4 Group 3 Set Raw 5 + 6
+Cue 1 + 2 Attribute 5 Group 3 Set Raw 5 + 6
 ```
 You can remove all Raws like this:
 ```
-Cue 1 + 2 Attribute 4 Group 3 Set -
+Cue 1 + 2 Attribute 5 Group 3 Set -
 ```
-If you change this Attribute, it will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds different Raws.
-
 > [!TIP]
 > You can set the Raws of the currently selected Group in the current Cue like this:
 > ```
@@ -324,19 +515,40 @@ If you change this Attribute, it will be tracked in the next Cues until a Blocke
 > ```
 > Raw -
 > ```
+> If you use this syntax, the Raws will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds different Raws.
 
-### Cue Attribute 5 Set
+### Cue Attribute 6 Set (Effects)
+This command sets the Effects of the selected Groups in the selected Cues:
+```
+Cue 1 + 2 Attribute 6 Group 3 Set Effect 5 + 6
+```
+You can remove all Effects like this:
+```
+Cue 1 + 2 Attribute 6 Group 3 Set -
+```
+> [!TIP]
+> You can set the Effects of the currently selected Group in the current Cue like this:
+> ```
+> Effect 1 + 2 + 3
+> ```
+> You can also remove the Effects of the currently selected Group in the current Cue like this:
+> ```
+> Effect -
+> ```
+> If you use this syntax, the Effects will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds different Effects.
+
+### Cue Attribute 7 Set (Fade)
 This command sets the Fade time of the selected Cues:
 ```
-Cue 1 Attribute 5 Set 17.4
+Cue 1 Attribute 7 Set 17.4
 ```
 The value is given in seconds.
 
-### Cue Attribute 6 Set
+### Cue Attribute 8 Set (Block)
 This command sets if the selected Cues will be blocked Cues.
 This means that tracked values will not pass on to those Cues.
 ```
-Cue 1 + 2 Attribute 6 Set 1
+Cue 1 + 2 Attribute 8 Set 1
 ```
 The accepted values are 0 (False / Block deactivated) and 1 (True / Block activated).
 
@@ -389,3 +601,13 @@ You can also select all Items in a range like this:
 Intensity 1.1 Thru 2.3 Set -
 ```
 This command deletes all Intensities starting with Intensity 1.1 and ending with Intensity 2.3.
+
+## Control Panel
+The Control panel can be used to control the values of the current Group or Fixture:
+
+When selecting a Cue and a Group, you can see and change the Dimmer of the current Intensity, the Hue and Saturation of the current Color and the Pan and Tilt of the current Position.
+When you now also select a Fixture, not the standard value but instead the value for this Fixture will be changed.
+So, for example, if your current Intensity holds a Dimmer exception for the current Fixture, rotating the Dial will change this exception.
+> [!CAUTION]
+> Please note that the precision of the dials cannot be smaller than 1.
+> When you need a more precise control, you can of course still set the values with the Terminal.

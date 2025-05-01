@@ -13,6 +13,7 @@
 
 #include "item.h"
 #include "model.h"
+#include "raw.h"
 
 class Fixture : public Item {
 public:
