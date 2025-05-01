@@ -59,6 +59,8 @@ void Inspector::load(QList<int> keys)
         table->setModel(kernel->fixtures);
         if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentFixture != nullptr)) {
             item = kernel->cuelistView->currentFixture;
+        } else if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentGroup != nullptr) && !kernel->cuelistView->currentGroup->fixtures.isEmpty()) {
+            item = kernel->cuelistView->currentGroup->fixtures.last();
         } else {
             item = kernel->fixtures->getItem(id);
         }
