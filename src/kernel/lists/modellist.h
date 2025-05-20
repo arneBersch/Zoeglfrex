@@ -24,6 +24,8 @@ public:
     const QString CHANNELSATTRIBUTEID = "2";
     const QString PANRANGEATTRIBUTEID = "3.1";
     const QString TILTRANGEATTRIBUTEID = "3.2";
+    const QString MINZOOMATTRIBUTEID = "4.1";
+    const QString MAXZOOMATTRIBUTEID = "4.2";
 };
 
 #include "kernel/kernel.h"

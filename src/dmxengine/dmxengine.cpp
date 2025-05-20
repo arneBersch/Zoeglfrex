@@ -197,6 +197,9 @@ void DmxEngine::generateDmx() {
             float tilt = 50 + (position.tilt / (fixture->model->floatAttributes.value(kernel->models->TILTRANGEATTRIBUTEID) / 2) * 50);
             tilt = std::min<float>(tilt, 100);
             tilt = std::max<float>(tilt, 0);
+            float zoom = (position.zoom - fixture->model->floatAttributes.value(kernel->models->MINZOOMATTRIBUTEID)) / (fixture->model->floatAttributes.value(kernel->models->MAXZOOMATTRIBUTEID) - fixture->model->floatAttributes.value(kernel->models->MINZOOMATTRIBUTEID)) * 100;
+            zoom = std::min<float>(zoom, 100);
+            zoom = std::max<float>(zoom, 0);
             for (int channel = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID); channel < (address + channels.size()); channel++) {
                 float value = 0;
                 QChar channelType = channels.at(channel - address);
@@ -210,7 +213,8 @@ void DmxEngine::generateDmx() {
                     (channelType == QChar('m')) ||
                     (channelType == QChar('y')) ||
                     (channelType == QChar('p')) ||
-                    (channelType == QChar('t'))
+                    (channelType == QChar('t')) ||
+                    (channelType == QChar('z'))
                 );
                 if (fine) {
                     channelType = channelType.toUpper();
@@ -235,6 +239,8 @@ void DmxEngine::generateDmx() {
                     value = pan;
                 } else if (channelType == QChar('T')) { // Tilt
                     value = tilt;
+                } else if (channelType == QChar('Z')) { // Zoom
+                    value = zoom;
                 } else if (channelType == QChar('0')) { // DMX 0
                     value = 0;
                 } else if (channelType == QChar('1')) { // DMX 255

@@ -104,5 +104,7 @@ QString Model::info() {
     info += "\n" + kernel->models->CHANNELSATTRIBUTEID + " Channels: " + stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
     info += "\n" + kernel->models->PANRANGEATTRIBUTEID + " Pan Range: " + QString::number(floatAttributes.value(kernel->models->PANRANGEATTRIBUTEID)) + "°";
     info += "\n" + kernel->models->TILTRANGEATTRIBUTEID + " Tilt Range: " + QString::number(floatAttributes.value(kernel->models->TILTRANGEATTRIBUTEID)) + "°";
+    info += "\n" + kernel->models->MINZOOMATTRIBUTEID + " Minimal Zoom: " + QString::number(floatAttributes.value(kernel->models->MINZOOMATTRIBUTEID)) + "°";
+    info += "\n" + kernel->models->MAXZOOMATTRIBUTEID + " Maximal Zoom: " + QString::number(floatAttributes.value(kernel->models->MAXZOOMATTRIBUTEID)) + "°";
     return info;
 }
