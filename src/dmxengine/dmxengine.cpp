@@ -17,8 +17,11 @@ DmxEngine::DmxEngine(Kernel *core, QWidget* parent) : QWidget(parent) {
 
     highlightButton = new QPushButton("Highlight");
     highlightButton->setCheckable(true);
-    connect(highlightButton,&QPushButton::clicked, this, &DmxEngine::generateDmx);
     layout->addWidget(highlightButton);
+
+    soloButton = new QPushButton("Solo");
+    soloButton->setCheckable(true);
+    layout->addWidget(soloButton);
 
     fadeProgress = new QProgressBar();
     fadeProgress->setRange(0, 1);
@@ -137,9 +140,12 @@ void DmxEngine::generateDmx() {
                 position = lastCuePosition;
             }
         }
-        if (highlightButton->isChecked() && (kernel->cuelistView->currentGroup != nullptr) && (((kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup->fixtures.contains(fixture))) || (kernel->cuelistView->currentFixture == fixture))) { // Highlight
+        if (highlightButton->isChecked() && kernel->cuelistView->isSelected(fixture)) { // Highlight
             dimmer = 100;
             color = {100, 100, 100, 0};
+        }
+        if (soloButton->isChecked() && !kernel->cuelistView->isSelected(fixture)) { // Solo
+            dimmer = 0;
         }
         kernel->preview2d->fixtureCircles.value(fixture)->red = (color.red / 100 * dimmer / 100 * 255);
         kernel->preview2d->fixtureCircles.value(fixture)->green = (color.green / 100 * dimmer / 100 * 255);
@@ -160,9 +166,9 @@ void DmxEngine::generateDmx() {
             }
             const float white = std::min(std::min(color.red, color.green), color.blue);
             if (channels.contains('W')) {
-                color.red -= (white * color.quality / 100);
-                color.green -= (white * color.quality / 100);
-                color.blue -= (white * color.quality / 100);
+                color.red -= white * (color.quality / 100);
+                color.green -= white * (color.quality / 100);
+                color.blue -= white * (color.quality / 100);
             }
             if (!fixture->boolAttributes.value(kernel->fixtures->INVERTPANATTRIBUTE)) {
                 position.pan = fixture->angleAttributes.value(kernel->fixtures->ROTATIONATTRIBUTEID) + position.pan;

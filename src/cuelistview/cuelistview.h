@@ -32,6 +32,7 @@ public:
     void nextFixture();
     void previousFixture();
     void noFixture();
+    bool isSelected(Fixture* fixture);
     Fixture* currentFixture = nullptr;
     Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;

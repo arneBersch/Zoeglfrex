@@ -185,6 +185,16 @@ void CuelistView::nextFixture() {
     }
 }
 
+bool CuelistView::isSelected(Fixture* fixture) {
+    if (currentFixture == fixture) {
+        return true;
+    }
+    if ((currentGroup != nullptr) && (currentFixture == nullptr) && (currentGroup->fixtures.contains(fixture))) {
+        return true;
+    }
+    return false;
+}
+
 void CuelistView::updateCuelistView() {
     if (cueViewModeComboBox->currentText() == CUEVIEWCUEMODE) {
         cuelistTableView->setModel(cueModel);

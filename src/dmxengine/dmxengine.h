@@ -37,6 +37,7 @@ private:
     int remainingFadeFrames = 0;
     int totalFadeFrames = 0;
     QPushButton *highlightButton;
+    QPushButton *soloButton;
     QProgressBar* fadeProgress;
     QPushButton* skipFadeButton;
     Kernel *kernel;
