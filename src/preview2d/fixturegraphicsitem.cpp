@@ -19,10 +19,8 @@ void FixtureGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsIte
     painter->setBrush(QColor(red, green, blue));
 
     QPainterPath path;
-    path.lineTo(-20, -maxBeamLength * std::sin(tilt * M_PI / 180));
-    path.lineTo(20, -maxBeamLength * std::sin(tilt * M_PI / 180));
-    path.closeSubpath();
-    painter->rotate(pan);
+    int beamLength = maxBeamLength * std::sin(tilt * M_PI / 180);
+    path.arcTo(-beamLength, -beamLength, 2 * beamLength, 2 * beamLength, 90 - pan - (zoom / 2), zoom);
     painter->drawPath(path);
 
     painter->drawEllipse(-ellipseWidth / 2, -ellipseWidth / 2, ellipseWidth, ellipseWidth);

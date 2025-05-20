@@ -232,6 +232,7 @@ positionAngles Effect::getPosition(Fixture* fixture, int frame) {
             position.pan -= 360;
         }
         position.tilt = formerPosition.tilt + (position.tilt - formerPosition.tilt) * fade;
+        position.zoom = formerPosition.zoom + (position.zoom - formerPosition.zoom) * fade;
     }
     return position;
 }

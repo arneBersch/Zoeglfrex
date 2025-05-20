@@ -71,6 +71,7 @@ ControlPanel::ControlPanel(Kernel* core) {
     setupColumn(ControlPanelColumns::saturation, 0, 100, false, Keys::Color, kernel->colors->SATURATIONATTRIBUTEID, "Saturation");
     setupColumn(ControlPanelColumns::pan, 0, 359, true, Keys::Position, kernel->positions->PANATTRIBUTEID, "Pan");
     setupColumn(ControlPanelColumns::tilt, -180, 180, false, Keys::Position, kernel->positions->TILTATTRIBUTEID, "Tilt");
+    setupColumn(ControlPanelColumns::zoom, 0, 180, false, Keys::Position, kernel->positions->ZOOMATTRIBUTEID, "Zoom");
 }
 
 void ControlPanel::reload() {
@@ -132,5 +133,6 @@ void ControlPanel::reload() {
     setColumn(ControlPanelColumns::saturation, Keys::Color, kernel->colors->SATURATIONATTRIBUTEID, false, "%", "No Color");
     setColumn(ControlPanelColumns::pan, Keys::Position, kernel->positions->PANATTRIBUTEID, true, "°", "No Position");;
     setColumn(ControlPanelColumns::tilt, Keys::Position, kernel->positions->TILTATTRIBUTEID, false, "°", "No Position");
+    setColumn(ControlPanelColumns::zoom, Keys::Position, kernel->positions->ZOOMATTRIBUTEID, false, "°", "No Position");
     reloading = false;
 }

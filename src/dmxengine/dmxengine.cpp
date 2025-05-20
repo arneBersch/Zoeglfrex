@@ -135,6 +135,7 @@ void DmxEngine::generateDmx() {
                     position.pan -= 360;
                 }
                 position.tilt += (lastCuePosition.tilt - position.tilt) * fade;
+                position.zoom += (lastCuePosition.zoom - position.zoom) * fade;
             } else {
                 color = lastCueColor;
                 position = lastCuePosition;
@@ -152,6 +153,7 @@ void DmxEngine::generateDmx() {
         kernel->preview2d->fixtureCircles.value(fixture)->blue = (color.blue / 100 * dimmer / 100 * 255);
         kernel->preview2d->fixtureCircles.value(fixture)->pan = position.pan;
         kernel->preview2d->fixtureCircles.value(fixture)->tilt = position.tilt;
+        kernel->preview2d->fixtureCircles.value(fixture)->zoom = position.zoom;
         const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
         if ((address > 0) && (fixture->model != nullptr)) {
             const QString channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
