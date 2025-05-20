@@ -16,6 +16,7 @@
 struct positionAngles {
     float pan = 0;
     float tilt = 0;
+    float zoom = 0;
 };
 
 class Position : public Item {

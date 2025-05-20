@@ -23,6 +23,7 @@ public:
     PositionList(Kernel *core);
     const QString PANATTRIBUTEID = "2";
     const QString TILTATTRIBUTEID = "3";
+    const QString ZOOMATTRIBUTEID = "4";
 };
 
 #include "kernel/kernel.h"

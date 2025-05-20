@@ -39,9 +39,9 @@ QString Position::name() {
 
 QString Position::info() {
     QString info = Item::info();
-    info += "\n" + kernel->positions->PANATTRIBUTEID + " Pan: " + QString::number(angleAttributes.value(kernel->positions->PANATTRIBUTEID)) + "°";
     QStringList modelPanValues;
     QStringList modelTiltValues;
+    QStringList modelZoomValues;
     for (Model* model : kernel->models->items) {
         if (modelSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).contains(model)) {
             modelPanValues.append(model->name() + " @ " + QString::number(modelSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).value(model)) + "°");
@@ -49,10 +49,13 @@ QString Position::info() {
         if (modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(model)) {
             modelTiltValues.append(model->name() + " @ " + QString::number(modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(model)) + "°");
         }
+        if (modelSpecificFloatAttributes.value(kernel->positions->ZOOMATTRIBUTEID).contains(model)) {
+            modelZoomValues.append(model->name() + " @ " + QString::number(modelSpecificFloatAttributes.value(kernel->positions->ZOOMATTRIBUTEID).value(model)) + "°");
+        }
     }
-    info += "\n    Model Exceptions: " + modelPanValues.join("; ");
     QStringList fixturePanValues;
     QStringList fixtureTiltValues;
+    QStringList fixtureZoomValues;
     for (Fixture* fixture : kernel->fixtures->items) {
         if (fixtureSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).contains(fixture)) {
             fixturePanValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->positions->PANATTRIBUTEID).value(fixture)) + "°");
@@ -60,11 +63,19 @@ QString Position::info() {
         if (fixtureSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(fixture)) {
             fixtureTiltValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture)) + "°");
         }
+        if (fixtureSpecificFloatAttributes.value(kernel->positions->ZOOMATTRIBUTEID).contains(fixture)) {
+            fixtureZoomValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->positions->ZOOMATTRIBUTEID).value(fixture)) + "°");
+        }
     }
+    info += "\n" + kernel->positions->PANATTRIBUTEID + " Pan: " + QString::number(angleAttributes.value(kernel->positions->PANATTRIBUTEID)) + "°";
+    info += "\n    Model Exceptions: " + modelPanValues.join("; ");
     info += "\n    Fixture Exceptions: " + fixturePanValues.join("; ");
     info += "\n" + kernel->positions->TILTATTRIBUTEID + " Tilt: " + QString::number(floatAttributes.value(kernel->positions->TILTATTRIBUTEID)) + "°";
     info += "\n    Model Exceptions: " + modelTiltValues.join("; ");
     info += "\n    Fixture Exceptions: " + fixtureTiltValues.join("; ");
+    info += "\n" + kernel->positions->ZOOMATTRIBUTEID + " Zoom: " + QString::number(floatAttributes.value(kernel->positions->ZOOMATTRIBUTEID)) + "°";
+    info += "\n    Model Exceptions: " + modelZoomValues.join("; ");
+    info += "\n    Fixture Exceptions: " + fixtureZoomValues.join("; ");
     return info;
 }
 
@@ -81,6 +92,12 @@ positionAngles Position::getAngles(Fixture* fixture) {
         angles.tilt = fixtureSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture);
     } else if (modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).contains(fixture->model)) {
         angles.tilt = modelSpecificFloatAttributes.value(kernel->positions->TILTATTRIBUTEID).value(fixture->model);
+    }
+    angles.zoom = floatAttributes.value(kernel->positions->ZOOMATTRIBUTEID);
+    if (fixtureSpecificFloatAttributes.value(kernel->positions->ZOOMATTRIBUTEID).contains(fixture)) {
+        angles.zoom = fixtureSpecificFloatAttributes.value(kernel->positions->ZOOMATTRIBUTEID).value(fixture);
+    } else if (modelSpecificFloatAttributes.value(kernel->positions->ZOOMATTRIBUTEID).contains(fixture->model)) {
+        angles.zoom = modelSpecificFloatAttributes.value(kernel->positions->ZOOMATTRIBUTEID).value(fixture->model);
     }
     return angles;
 }

@@ -15,4 +15,7 @@ PositionList::PositionList(Kernel *core) : ItemList(core, Keys::Position, "Posit
     floatAttributes[TILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
     modelSpecificFloatAttributes[TILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
     fixtureSpecificFloatAttributes[TILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
+    floatAttributes[ZOOMATTRIBUTEID] = {"Zoom", 30, 0, 180, "°"};
+    modelSpecificFloatAttributes[ZOOMATTRIBUTEID] = {"Zoom", 30, 0, 180, "°"};
+    fixtureSpecificFloatAttributes[ZOOMATTRIBUTEID] = {"Zoom", 30, 0, 180, "°"};
 }
