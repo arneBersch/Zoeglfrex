@@ -13,6 +13,8 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
 
     QVBoxLayout *layout = new QVBoxLayout(this);
 
+    cuelistLabel = new QLabel();
+    layout->addWidget(cuelistLabel);
     cueOrGroupLabel = new QLabel();
     layout->addWidget(cueOrGroupLabel);
     fixtureLabel = new QLabel();
@@ -53,6 +55,10 @@ void CuelistView::reload() {
     kernel->inspector->load(kernel->terminal->command);
     kernel->controlPanel->reload();
     cueOrGroupLabel->setText(QString());
+    cuelistLabel->setText(QString());
+    if (currentCuelist != nullptr) {
+        cuelistLabel->setText("Cuelist " + currentCuelist->name());
+    }
     if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE)) {
         cueOrGroupLabel->setText("No Cue selected.");
         if (currentCue != nullptr) {
@@ -68,6 +74,11 @@ void CuelistView::reload() {
     if (currentFixture != nullptr) {
         fixtureLabel->setText("Fixture " + currentFixture->name());
     }
+    if ((currentCuelist == nullptr) && !kernel->cuelists->items.isEmpty()) {
+        currentCuelist = kernel->cuelists->items.first();
+        reload();
+        return;
+    }
     if ((currentCue == nullptr) && !kernel->cues->items.isEmpty()) {
         currentCue = kernel->cues->items.first();
         reload();
@@ -78,6 +89,16 @@ void CuelistView::reload() {
         reload();
         return;
     }
+}
+
+void CuelistView::loadCuelist(QString cuelistId) {
+    Cuelist* cuelist = kernel->cuelists->getItem(cuelistId);
+    if (cuelist == nullptr) {
+        kernel->terminal->error("Can't select Cuelist because Cuelist " + cuelistId + " doesn't exist.");
+        return;
+    }
+    currentCuelist = cuelist;
+    reload();
 }
 
 void CuelistView::loadCue(QString cueId) {

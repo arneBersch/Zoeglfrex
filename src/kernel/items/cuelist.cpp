@@ -13,7 +13,12 @@ Cuelist::Cuelist(Kernel* core) : Item(core) {}
 
 Cuelist::Cuelist(const Cuelist* item) : Item(item) {}
 
-Cuelist::~Cuelist() {}
+Cuelist::~Cuelist() {
+    if (kernel->cuelistView->currentCuelist == this) {
+        kernel->cuelistView->currentCuelist = nullptr;
+        kernel->cuelistView->reload();
+    }
+}
 
 QString Cuelist::info() {
     QString info = Item::info();

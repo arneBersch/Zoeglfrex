@@ -14,6 +14,7 @@
 #include "cuelistview/cuemodel.h"
 #include "cuelistview/groupmodel.h"
 class Kernel;
+class Cuelist;
 class Fixture;
 class Group;
 class Cue;
@@ -23,6 +24,7 @@ class CuelistView : public QWidget {
 public:
     CuelistView(Kernel *core, QWidget *parent = nullptr);
     void reload();
+    void loadCuelist(QString cuelistId);
     void loadCue(QString cueId);
     void nextCue();
     void previousCue();
@@ -33,6 +35,7 @@ public:
     void previousFixture();
     void noFixture();
     bool isSelected(Fixture* fixture);
+    Cuelist* currentCuelist = nullptr;
     Fixture* currentFixture = nullptr;
     Group* currentGroup = nullptr;
     Cue* currentCue = nullptr;
@@ -46,6 +49,7 @@ private:
     QTableView *cuelistTableView;
     CueModel *cueModel;
     GroupModel *groupModel;
+    QLabel *cuelistLabel;
     QLabel *cueOrGroupLabel;
     QLabel *fixtureLabel;
 };

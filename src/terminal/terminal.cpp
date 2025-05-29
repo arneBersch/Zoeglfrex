@@ -362,6 +362,12 @@ void Terminal::execute() {
                 }
                 kernel->cues->setAttribute(cueIds, attributeMap, command);
             }
+        } else if (selectionType == Keys::Cuelist) {
+            if (ids.size() != 1) {
+                error("Can't select Cuelist because Cuelist only allows one Cuelist ID.");
+                return;
+            }
+            kernel->cuelistView->loadCuelist(ids.first());
         } else if (selectionType == Keys::Cue) {
             if (ids.size() != 1) {
                 error("Can't select Cue because Cue only allows one Cue ID.");
@@ -478,6 +484,12 @@ void Terminal::execute() {
             for (Effect* effect : kernel->cuelistView->currentCue->effects.value(kernel->cuelistView->currentGroup)) {
                 ids.append(effect->id);
             }
+        } else if (selectionType == Keys::Cuelist) {
+            if (kernel->cuelistView->currentCuelist == nullptr) {
+                error("Can't load the Cuelist because no Cuelist is selected.");
+                return;
+            }
+            ids.append(kernel->cuelistView->currentCuelist->id);
         } else if (selectionType == Keys::Cue) {
             if (kernel->cuelistView->currentCue == nullptr) {
                 error("Can't load the Cue because no Cue is selected.");
@@ -566,6 +578,12 @@ void Terminal::execute() {
                             return;
                         }
                         currentIdString = kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup)->id;
+                    } else if (currentItemType == Keys::Cuelist) {
+                        if (kernel->cuelistView->currentCuelist == nullptr) {
+                            error("Can't load the Cuelist because no Cuelist is selected.");
+                            return;
+                        }
+                        currentIdString = kernel->cuelistView->currentCuelist->id;
                     } else if (currentItemType == Keys::Cue) {
                         if (kernel->cuelistView->currentCue == nullptr) {
                             error("Can't load the Cue because no Cue is selected.");
