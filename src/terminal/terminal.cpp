@@ -634,7 +634,7 @@ void Terminal::execute() {
             attributeMap[Keys::Attribute] = kernel->cues->FADEATTRIBUTEID;
         }
     }
-    QString text;
+    QString text = QString();
     if (((selectionType == Keys::Model) && kernel->models->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Fixture) && kernel->fixtures->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Group) && kernel->groups->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
@@ -646,9 +646,36 @@ void Terminal::execute() {
         || ((selectionType == Keys::Cuelist) && kernel->cuelists->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Cue) && kernel->cues->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
     ) {
+        if (ids.size() == 1) {
+            Item* item = nullptr;
+            if (selectionType == Keys::Model) {
+                item = kernel->models->getItem(ids.first());
+            } else if (selectionType == Keys::Fixture) {
+                item = kernel->fixtures->getItem(ids.first());
+            } else if (selectionType == Keys::Group) {
+                item = kernel->groups->getItem(ids.first());
+            } else if (selectionType == Keys::Intensity) {
+                item = kernel->intensities->getItem(ids.first());
+            } else if (selectionType == Keys::Color) {
+                item = kernel->colors->getItem(ids.first());
+            } else if (selectionType == Keys::Position) {
+                item = kernel->positions->getItem(ids.first());
+            } else if (selectionType == Keys::Raw) {
+                item = kernel->raws->getItem(ids.first());
+            } else if (selectionType == Keys::Effect) {
+                item = kernel->effects->getItem(ids.first());
+            } else if (selectionType == Keys::Cuelist) {
+                item = kernel->cuelists->getItem(ids.first());
+            } else if (selectionType == Keys::Cue) {
+                item = kernel->cues->getItem(ids.first());
+            }
+            if (item != nullptr) {
+                text = item->stringAttributes.value(attributeMap.value(Keys::Attribute));
+            }
+        }
         bool ok = false;
         locker.unlock();
-        text = QInputDialog::getText(this, QString(), "Insert Text", QLineEdit::Normal, QString(), &ok);
+        text = QInputDialog::getText(this, QString(), "Insert Text", QLineEdit::Normal, text, &ok);
         locker.relock();
         if (!ok) {
             error("Popup cancelled.");
