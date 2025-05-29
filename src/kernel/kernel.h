@@ -11,15 +11,16 @@
 
 #include <QtWidgets>
 
-#include "kernel/lists/modellist.h"
-#include "kernel/lists/fixturelist.h"
-#include "kernel/lists/grouplist.h"
-#include "kernel/lists/intensitylist.h"
-#include "kernel/lists/colorlist.h"
-#include "kernel/lists/positionlist.h"
-#include "kernel/lists/rawlist.h"
-#include "kernel/lists/effectlist.h"
-#include "kernel/lists/cuelist.h"
+#include "kernel/tables/modeltable.h"
+#include "kernel/tables/fixturetable.h"
+#include "kernel/tables/grouptable.h"
+#include "kernel/tables/intensitytable.h"
+#include "kernel/tables/colortable.h"
+#include "kernel/tables/positiontable.h"
+#include "kernel/tables/rawtable.h"
+#include "kernel/tables/effecttable.h"
+#include "kernel/tables/cuelisttable.h"
+#include "kernel/tables/cuetable.h"
 #include "terminal/terminal.h"
 #include "inspector/inspector.h"
 #include "cuelistview/cuelistview.h"
@@ -35,15 +36,16 @@ public:
     void saveFile(QString fileName);
     void openFile(QString fileName);
     MainWindow* mainWindow;
-    ModelList *models;
-    FixtureList *fixtures;
-    GroupList *groups;
-    IntensityList *intensities;
-    ColorList *colors;
-    PositionList *positions;
-    RawList *raws;
-    EffectList *effects;
-    CueList *cues;
+    ModelTable *models;
+    FixtureTable *fixtures;
+    GroupTable *groups;
+    IntensityTable *intensities;
+    ColorTable *colors;
+    PositionTable *positions;
+    RawTable *raws;
+    EffectTable *effects;
+    CuelistTable* cuelists;
+    CueTable *cues;
     Terminal *terminal;
     Inspector *inspector;
     CuelistView *cuelistView;

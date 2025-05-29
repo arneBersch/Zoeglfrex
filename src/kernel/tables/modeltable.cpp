@@ -6,27 +6,12 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef RAWLIST_H
-#define RAWLIST_H
+#include "modeltable.h"
 
-#include <QtWidgets>
-
-#include "itemlist.h"
-#include "../items/raw.h"
-
-class Kernel;
-
-template class ItemList<Raw>;
-class RawList : public ItemList<Raw> {
-    Q_OBJECT
-public:
-    RawList(Kernel *core);
-    const QString CHANNELVALUEATTRIBUTEID = "2";
-    const QString MOVEINBLACKATTRIBUTEID = "3";
-    const QString FADEATTRIBUTEID = "4";
-    void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
-};
-
-#include "kernel/kernel.h"
-
-#endif // RAWLIST_H
+ModelTable::ModelTable(Kernel *core) : ItemTable(core, Keys::Model, "Model", "Models") {
+    stringAttributes[CHANNELSATTRIBUTEID] = {"Channels", "D", "^[01DdRrGgBbWwCcMmYyPpTtZz]+$"};
+    floatAttributes[PANRANGEATTRIBUTEID] = {"Pan Range", 540, 0, 3600, "°"};
+    floatAttributes[TILTRANGEATTRIBUTEID] = {"Tilt Range", 270, 0, 360, "°"};
+    floatAttributes[MINZOOMATTRIBUTEID] = {"Minimal Zoom", 5, 0, 180, "°"};
+    floatAttributes[MINZOOMATTRIBUTEID] = {"Maximal Zoom", 60, 0, 180, "°"};
+}

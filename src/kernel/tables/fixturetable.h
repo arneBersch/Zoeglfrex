@@ -6,35 +6,31 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef EFFECTLIST_H
-#define EFFECTLIST_H
+#ifndef FIXTURETABLE_H
+#define FIXTURETABLE_H
 
 #include <QtWidgets>
 
-#include "itemlist.h"
-#include "../items/effect.h"
+#include "itemtable.h"
+#include "../items/fixture.h"
 
 class Kernel;
 
-template class ItemList<Effect>;
-class EffectList : public ItemList<Effect> {
+template class ItemTable<Fixture>;
+class FixtureTable : public ItemTable<Fixture> {
     Q_OBJECT
 public:
-    EffectList(Kernel *core);
-    const QString STEPSATTRIBUTEID = "2";
-    const QString INTENSITYSTEPSATTRIBUTEID = "3";
-    const QString COLORSTEPSATTRIBUTEID = "4";
-    const QString POSITIONSTEPSATTRIBUTEID = "5";
-    const QString RAWSTEPSATTRIBUTEID = "6";
-    const QString STEPHOLDATTRIBUTEID = "7";
-    const QString STEPFADEATTRIBUTEID = "8";
-    const QString PHASEATTRIBUTEID = "9";
+    FixtureTable(Kernel *core);
+    const QString MODELATTRIBUTEID = "2";
+    const QString ADDRESSATTRIBUTEID = "3.1";
+    const QString UNIVERSEATTRIBUTEID = "3.2";
+    const QString POSITIONXATTRIBUTEID = "4.1";
+    const QString POSITIONYATTRIBUTEID = "4.2";
+    const QString ROTATIONATTRIBUTEID = "5.1";
+    const QString INVERTPANATTRIBUTE = "5.2";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
-private:
-    Effect* addItem(QString id) override;
-    QMap<QString, FloatAttribute> stepSpecificFloatAttributes;
 };
 
 #include "kernel/kernel.h"
 
-#endif // EFFECTLIST_H
+#endif // FIXTURETABLE_H

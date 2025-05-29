@@ -6,25 +6,25 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GROUPLIST_H
-#define GROUPLIST_H
+#ifndef GROUPTABLE_H
+#define GROUPTABLE_H
 
 #include <QtWidgets>
 
-#include "itemlist.h"
+#include "itemtable.h"
 #include "../items/group.h"
 
 class Kernel;
 
-template class ItemList<Group>;
-class GroupList : public ItemList<Group> {
+template class ItemTable<Group>;
+class GroupTable : public ItemTable<Group> {
     Q_OBJECT
 public:
-    GroupList(Kernel *core);
+    GroupTable(Kernel *core);
     const QString FIXTURESATTRIBUTEID = "2";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 
 #include "kernel/kernel.h"
 
-#endif // GROUPLIST_H
+#endif // GROUPTABLE_H

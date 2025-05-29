@@ -10,15 +10,16 @@
 
 Kernel::Kernel(MainWindow* window) {
     mainWindow = window;
-    models = new ModelList(this);
-    fixtures = new FixtureList(this);
-    groups = new GroupList(this);
-    intensities = new IntensityList(this);
-    colors = new ColorList(this);
-    positions = new PositionList(this);
-    raws = new RawList(this);
-    effects = new EffectList(this);
-    cues = new CueList(this);
+    models = new ModelTable(this);
+    fixtures = new FixtureTable(this);
+    groups = new GroupTable(this);
+    intensities = new IntensityTable(this);
+    colors = new ColorTable(this);
+    positions = new PositionTable(this);
+    raws = new RawTable(this);
+    effects = new EffectTable(this);
+    cuelists = new CuelistTable(this);
+    cues = new CueTable(this);
     terminal = new Terminal(this);
     inspector = new Inspector(this);
     dmxEngine = new DmxEngine(this);
@@ -38,6 +39,7 @@ void Kernel::reset() {
     positions->reset();
     raws->reset();
     effects->reset();
+    cuelists->reset();
     cues->reset();
     dmxEngine->sacnServer->prioritySpinBox->setValue(dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
     cuelistView->reload();
@@ -72,6 +74,7 @@ void Kernel::saveFile(QString fileName) {
     positions->saveItemsToFile(&fileStream);
     raws->saveItemsToFile(&fileStream);
     effects->saveItemsToFile(&fileStream);
+    cuelists->saveItemsToFile(&fileStream);
     cues->saveItemsToFile(&fileStream);
 
     fileStream.writeEndElement();
@@ -163,6 +166,9 @@ void Kernel::openFile(QString fileName) {
                         if (fileStream.attributes().hasAttribute("Effect")) {
                             attributes[Keys::Effect] = fileStream.attributes().value("Effect").toString();
                         }
+                        if (fileStream.attributes().hasAttribute("Cuelist")) {
+                            attributes[Keys::Cuelist] = fileStream.attributes().value("Cuelist").toString();
+                        }
                         if (fileStream.attributes().hasAttribute("Cue")) {
                             attributes[Keys::Cue] = fileStream.attributes().value("Cue").toString();
                         }
@@ -183,6 +189,8 @@ void Kernel::openFile(QString fileName) {
                             raws->setAttribute(ids, attributes, QList<int>(), text);
                         } else if ((pluralName == "Effects") && (singularName == "Effect")) {
                             effects->setAttribute(ids, attributes, QList<int>(), text);
+                        } else if ((pluralName == "Cuelists") && (singularName == "Cuelist")) {
+                            cuelists->setAttribute(ids, attributes, QList<int>(), text);
                         } else if ((pluralName == "Cues") && (singularName == "Cue")) {
                             cues->setAttribute(ids, attributes, QList<int>(), text);
                         } else {

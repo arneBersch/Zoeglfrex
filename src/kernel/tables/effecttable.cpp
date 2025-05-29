@@ -6,9 +6,9 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "effectlist.h"
+#include "effecttable.h"
 
-EffectList::EffectList(Kernel *core) : ItemList(core, Keys::Effect, "Effect", "Effects") {
+EffectTable::EffectTable(Kernel *core) : ItemTable(core, Keys::Effect, "Effect", "Effects") {
     intAttributes[STEPSATTRIBUTEID] = {"Steps", 2, 2, 99};
     floatAttributes[STEPHOLDATTRIBUTEID] = {"Step Hold", 1, 0, 600, "s"};
     stepSpecificFloatAttributes[STEPHOLDATTRIBUTEID] = {"Step Hold", 1, 0, 600, "s"};
@@ -18,7 +18,7 @@ EffectList::EffectList(Kernel *core) : ItemList(core, Keys::Effect, "Effect", "E
     fixtureSpecificAngleAttributes[PHASEATTRIBUTEID] = {"Phase", 0};
 }
 
-void EffectList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+void EffectTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute.startsWith(INTENSITYSTEPSATTRIBUTEID + ".")) {
         attribute.remove(0, QString(INTENSITYSTEPSATTRIBUTEID + ".").length());
@@ -358,7 +358,7 @@ void EffectList::setAttribute(QStringList ids, QMap<int, QString> attributes, QL
             }
         }
     } else {
-        ItemList::setAttribute(ids, attributes, value, text);
+        ItemTable::setAttribute(ids, attributes, value, text);
         for (Effect* effect : items) {
             for (int intensityStep : effect->intensitySteps.keys()) {
                 if (intensityStep > effect->intAttributes.value(STEPSATTRIBUTEID)) {
@@ -391,8 +391,8 @@ void EffectList::setAttribute(QStringList ids, QMap<int, QString> attributes, QL
     }
 }
 
-Effect* EffectList::addItem(QString id) {
-    Effect* effect = ItemList<Effect>::addItem(id);
+Effect* EffectTable::addItem(QString id) {
+    Effect* effect = ItemTable<Effect>::addItem(id);
     for (QString attribute : stepSpecificFloatAttributes.keys()) {
         effect->stepSpecificFloatAttributes[attribute] = QMap<int, float>();
     }

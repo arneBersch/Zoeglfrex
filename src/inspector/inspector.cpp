@@ -112,6 +112,10 @@ void Inspector::load(QList<int> keys)
         } else {
             item = kernel->effects->getItem(id);
         }
+    } else if (itemType == Keys::Cuelist) {
+        title->setText("Cuelists");
+        table->setModel(kernel->cuelists);
+        item = kernel->cuelists->getItem(id);
     } else if (itemType == Keys::Cue) {
         title->setText("Cues");
         table->setModel(kernel->cues);

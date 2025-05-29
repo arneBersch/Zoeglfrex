@@ -6,33 +6,28 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef CUELIST_H
-#define CUELIST_H
+#ifndef MODELTABLE_H
+#define MODELTABLE_H
 
 #include <QtWidgets>
 
-#include "itemlist.h"
-#include "../items/cue.h"
+#include "itemtable.h"
+#include "../items/model.h"
 
 class Kernel;
 
-template class ItemList<Cue>;
-class CueList : public ItemList<Cue> {
+template class ItemTable<Model>;
+class ModelTable : public ItemTable<Model> {
     Q_OBJECT
 public:
-    CueList(Kernel *core);
-    const QString INTENSITIESATTRIBUTEID = "2";
-    const QString COLORSATTRIBUTEID = "3";
-    const QString POSITIONSATTRIBUTEID = "4";
-    const QString RAWSATTRIBUTEID = "5";
-    const QString EFFECTSATTRIBUTEID = "6";
-    const QString FADEATTRIBUTEID = "7";
-    const QString BLOCKATTRIBUTEID = "8";
-    void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
-private:
-    Cue* addItem(QString id) override;
+    ModelTable(Kernel *core);
+    const QString CHANNELSATTRIBUTEID = "2";
+    const QString PANRANGEATTRIBUTEID = "3.1";
+    const QString TILTRANGEATTRIBUTEID = "3.2";
+    const QString MINZOOMATTRIBUTEID = "4.1";
+    const QString MAXZOOMATTRIBUTEID = "4.2";
 };
 
 #include "kernel/kernel.h"
 
-#endif // CUELIST_H
+#endif // MODELTABLE_H

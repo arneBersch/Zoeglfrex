@@ -6,24 +6,26 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef INTENSITYLIST_H
-#define INTENSITYLIST_H
+#ifndef POSITIONTABLE_H
+#define POSITIONTABLE_H
 
 #include <QtWidgets>
 
-#include "itemlist.h"
-#include "../items/intensity.h"
+#include "itemtable.h"
+#include "../items/position.h"
 
 class Kernel;
 
-template class ItemList<Intensity>;
-class IntensityList : public ItemList<Intensity> {
+template class ItemTable<Position>;
+class PositionTable : public ItemTable<Position> {
     Q_OBJECT
 public:
-    IntensityList(Kernel *core);
-    const QString DIMMERATTRIBUTEID = "2";
+    PositionTable(Kernel *core);
+    const QString PANATTRIBUTEID = "2";
+    const QString TILTATTRIBUTEID = "3";
+    const QString ZOOMATTRIBUTEID = "4";
 };
 
 #include "kernel/kernel.h"
 
-#endif // INTENSITYLIST_H
+#endif // POSITIONTABLE_H

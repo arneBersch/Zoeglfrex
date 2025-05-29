@@ -6,14 +6,27 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "colorlist.h"
+#ifndef RAWTABLE_H
+#define RAWTABLE_H
 
-ColorList::ColorList(Kernel *core) : ItemList(core, Keys::Color, "Color", "Colors") {
-    angleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
-    modelSpecificAngleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
-    fixtureSpecificAngleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
-    floatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
-    modelSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
-    fixtureSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
-    floatAttributes[QUALITYATTRIBUTEID] = {"Quality", 100, 0, 100, "%"};
-}
+#include <QtWidgets>
+
+#include "itemtable.h"
+#include "../items/raw.h"
+
+class Kernel;
+
+template class ItemTable<Raw>;
+class RawTable : public ItemTable<Raw> {
+    Q_OBJECT
+public:
+    RawTable(Kernel *core);
+    const QString CHANNELVALUEATTRIBUTEID = "2";
+    const QString MOVEINBLACKATTRIBUTEID = "3";
+    const QString FADEATTRIBUTEID = "4";
+    void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
+};
+
+#include "kernel/kernel.h"
+
+#endif // RAWTABLE_H

@@ -6,11 +6,11 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "grouplist.h"
+#include "grouptable.h"
 
-GroupList::GroupList(Kernel *core) : ItemList(core, Keys::Group, "Group", "Groups") {}
+GroupTable::GroupTable(Kernel *core) : ItemTable(core, Keys::Group, "Group", "Groups") {}
 
-void GroupList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+void GroupTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute == FIXTURESATTRIBUTEID) {
         bool addFixtures = value.startsWith(Keys::Plus);
@@ -74,6 +74,6 @@ void GroupList::setAttribute(QStringList ids, QMap<int, QString> attributes, QLi
             }
         }
     } else {
-        ItemList::setAttribute(ids, attributes, value, text);
+        ItemTable::setAttribute(ids, attributes, value, text);
     }
 }

@@ -6,9 +6,9 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "fixturelist.h"
+#include "fixturetable.h"
 
-FixtureList::FixtureList(Kernel *core) : ItemList(core, Keys::Fixture, "Fixture", "Fixtures") {
+FixtureTable::FixtureTable(Kernel *core) : ItemTable(core, Keys::Fixture, "Fixture", "Fixtures") {
     intAttributes[ADDRESSATTRIBUTEID] = {"Address", 0, 0, 512};
     intAttributes[UNIVERSEATTRIBUTEID] = {"Universe", 1, 1, 63999};
     floatAttributes[POSITIONXATTRIBUTEID] = {"X Position", 0, -100, 100};
@@ -17,7 +17,7 @@ FixtureList::FixtureList(Kernel *core) : ItemList(core, Keys::Fixture, "Fixture"
     boolAttributes[INVERTPANATTRIBUTE] = {"Invert Pan", false};
 }
 
-void FixtureList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+void FixtureTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute == MODELATTRIBUTEID) {
         if ((value.size() == 1) && (value.first() == Keys::Minus)) {
@@ -64,6 +64,6 @@ void FixtureList::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
             return;
         }
     } else {
-        ItemList::setAttribute(ids, attributes, value, text);
+        ItemTable::setAttribute(ids, attributes, value, text);
     }
 }

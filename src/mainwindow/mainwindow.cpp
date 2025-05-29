@@ -119,6 +119,7 @@ void MainWindow::setupShortcuts(QWidget* widget) {
     connect(new QShortcut(QKeySequence(Qt::Key_F), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Fixture); }); // Fixture
     connect(new QShortcut(QKeySequence(Qt::Key_G), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Group); }); // Group
     connect(new QShortcut(QKeySequence(Qt::Key_I), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Intensity); }); // Intensity
+    connect(new QShortcut(QKeySequence(Qt::Key_L), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Cuelist); }); // Cue List
     connect(new QShortcut(QKeySequence(Qt::Key_M), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Model); }); // Model
     connect(new QShortcut(QKeySequence(Qt::Key_P), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Position); }); // Model
     connect(new QShortcut(QKeySequence(Qt::Key_Q), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Cue); }); // Cue

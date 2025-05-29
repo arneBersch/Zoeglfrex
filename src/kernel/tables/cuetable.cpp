@@ -6,14 +6,14 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "cuelist.h"
+#include "cuetable.h"
 
-CueList::CueList(Kernel *core) : ItemList(core, Keys::Cue, "Cue", "Cues") {
+CueTable::CueTable(Kernel *core) : ItemTable(core, Keys::Cue, "Cue", "Cues") {
     floatAttributes[FADEATTRIBUTEID] = {"Fade", 0, 0, 600, "s"};
     boolAttributes[BLOCKATTRIBUTEID] = {"Block", false};
 }
 
-void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+void CueTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute == INTENSITIESATTRIBUTEID) { // Intensities
         Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
@@ -274,12 +274,12 @@ void CueList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
             }
         }
     } else {
-        ItemList::setAttribute(ids, attributes, value, text);
+        ItemTable::setAttribute(ids, attributes, value, text);
     }
 }
 
-Cue* CueList::addItem(QString id) {
-    Cue* cue = ItemList<Cue>::addItem(id);
+Cue* CueTable::addItem(QString id) {
+    Cue* cue = ItemTable<Cue>::addItem(id);
     int cueRow = getItemRow(cue->id);
     if ((cueRow > 0) && kernel->cuelistView->trackingButton->isChecked()) {
         cue->intensities = items[cueRow - 1]->intensities;

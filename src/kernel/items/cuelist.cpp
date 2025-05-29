@@ -6,28 +6,16 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef MODELLIST_H
-#define MODELLIST_H
-
-#include <QtWidgets>
-
-#include "itemlist.h"
-#include "../items/model.h"
-
-class Kernel;
-
-template class ItemList<Model>;
-class ModelList : public ItemList<Model> {
-    Q_OBJECT
-public:
-    ModelList(Kernel *core);
-    const QString CHANNELSATTRIBUTEID = "2";
-    const QString PANRANGEATTRIBUTEID = "3.1";
-    const QString TILTRANGEATTRIBUTEID = "3.2";
-    const QString MINZOOMATTRIBUTEID = "4.1";
-    const QString MAXZOOMATTRIBUTEID = "4.2";
-};
-
+#include "cuelist.h"
 #include "kernel/kernel.h"
 
-#endif // MODELLIST_H
+Cuelist::Cuelist(Kernel* core) : Item(core) {}
+
+Cuelist::Cuelist(const Cuelist* item) : Item(item) {}
+
+Cuelist::~Cuelist() {}
+
+QString Cuelist::info() {
+    QString info = Item::info();
+    return info;
+}

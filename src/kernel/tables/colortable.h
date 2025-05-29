@@ -6,10 +6,26 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "intensitylist.h"
+#ifndef COLORTABLE_H
+#define COLORTABLE_H
 
-IntensityList::IntensityList(Kernel *core) : ItemList(core, Keys::Intensity, "Intensity", "Intensities") {
-    floatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    modelSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    fixtureSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-}
+#include <QtWidgets>
+
+#include "itemtable.h"
+#include "../items/color.h"
+
+class Kernel;
+
+template class ItemTable<Color>;
+class ColorTable : public ItemTable<Color> {
+    Q_OBJECT
+public:
+    ColorTable(Kernel *core);
+    const QString HUEATTRIBUTEID = "2";
+    const QString SATURATIONATTRIBUTEID = "3";
+    const QString QUALITYATTRIBUTEID = "4";
+};
+
+#include "kernel/kernel.h"
+
+#endif // COLORTABLE_H

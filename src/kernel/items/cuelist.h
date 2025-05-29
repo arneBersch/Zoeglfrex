@@ -6,26 +6,19 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef POSITIONLIST_H
-#define POSITIONLIST_H
+#ifndef CUELIST_H
+#define CUELIST_H
 
 #include <QtWidgets>
 
-#include "itemlist.h"
-#include "../items/position.h"
+#include "item.h"
 
-class Kernel;
-
-template class ItemList<Position>;
-class PositionList : public ItemList<Position> {
-    Q_OBJECT
+class Cuelist : public Item {
 public:
-    PositionList(Kernel *core);
-    const QString PANATTRIBUTEID = "2";
-    const QString TILTATTRIBUTEID = "3";
-    const QString ZOOMATTRIBUTEID = "4";
+    Cuelist(Kernel* core);
+    Cuelist(const Cuelist* item);
+    ~Cuelist();
+    QString info() override;
 };
 
-#include "kernel/kernel.h"
-
-#endif // POSITIONLIST_H
+#endif // CUELIST_H

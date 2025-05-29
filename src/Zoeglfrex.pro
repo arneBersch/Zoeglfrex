@@ -21,6 +21,7 @@ SOURCES += \
     inspector/inspector.cpp \
     kernel/items/color.cpp \
     kernel/items/cue.cpp \
+    kernel/items/cuelist.cpp \
     kernel/items/effect.cpp \
     kernel/items/fixture.cpp \
     kernel/items/group.cpp \
@@ -30,16 +31,17 @@ SOURCES += \
     kernel/items/position.cpp \
     kernel/items/raw.cpp \
     kernel/kernel.cpp \
-    kernel/lists/colorlist.cpp \
-    kernel/lists/cuelist.cpp \
-    kernel/lists/effectlist.cpp \
-    kernel/lists/fixturelist.cpp \
-    kernel/lists/grouplist.cpp \
-    kernel/lists/intensitylist.cpp \
-    kernel/lists/itemlist.cpp \
-    kernel/lists/modellist.cpp \
-    kernel/lists/positionlist.cpp \
-    kernel/lists/rawlist.cpp \
+    kernel/tables/colortable.cpp \
+    kernel/tables/cuelisttable.cpp \
+    kernel/tables/cuetable.cpp \
+    kernel/tables/effecttable.cpp \
+    kernel/tables/fixturetable.cpp \
+    kernel/tables/grouptable.cpp \
+    kernel/tables/intensitytable.cpp \
+    kernel/tables/itemtable.cpp \
+    kernel/tables/modeltable.cpp \
+    kernel/tables/positiontable.cpp \
+    kernel/tables/rawtable.cpp \
     main.cpp \
     mainwindow/mainwindow.cpp \
     preview2d/fixturegraphicsitem.cpp \
@@ -57,6 +59,7 @@ HEADERS += \
     inspector/inspector.h \
     kernel/items/color.h \
     kernel/items/cue.h \
+    kernel/items/cuelist.h \
     kernel/items/effect.h \
     kernel/items/fixture.h \
     kernel/items/group.h \
@@ -66,16 +69,17 @@ HEADERS += \
     kernel/items/position.h \
     kernel/items/raw.h \
     kernel/kernel.h \
-    kernel/lists/colorlist.h \
-    kernel/lists/cuelist.h \
-    kernel/lists/effectlist.h \
-    kernel/lists/fixturelist.h \
-    kernel/lists/grouplist.h \
-    kernel/lists/intensitylist.h \
-    kernel/lists/itemlist.h \
-    kernel/lists/modellist.h \
-    kernel/lists/positionlist.h \
-    kernel/lists/rawlist.h \
+    kernel/tables/colortable.h \
+    kernel/tables/cuelisttable.h \
+    kernel/tables/cuetable.h \
+    kernel/tables/effecttable.h \
+    kernel/tables/fixturetable.h \
+    kernel/tables/grouptable.h \
+    kernel/tables/intensitytable.h \
+    kernel/tables/itemtable.h \
+    kernel/tables/modeltable.h \
+    kernel/tables/positiontable.h \
+    kernel/tables/rawtable.h \
     mainwindow/mainwindow.h \
     preview2d/fixturegraphicsitem.h \
     preview2d/preview2d.h \

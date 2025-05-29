@@ -6,8 +6,8 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ITEMLIST_H
-#define ITEMLIST_H
+#ifndef ITEMTABLE_H
+#define ITEMTABLE_H
 
 #include <QtWidgets>
 
@@ -47,9 +47,9 @@ struct BoolAttribute {
 
 class Kernel;
 
-template <class T> class ItemList : public QAbstractTableModel {
+template <class T> class ItemTable : public QAbstractTableModel {
 public:
-    ItemList(Kernel* core, int key, QString singularName, QString pluralName);
+    ItemTable(Kernel* core, int key, QString singularName, QString pluralName);
     T* getItem(QString id) const;
     int getItemRow(QString id) const;
     QStringList getIds() const;
@@ -81,4 +81,4 @@ private:
     QString pluralItemName = "items";
 };
 
-#endif // ITEMLIST_H
+#endif // ITEMTABLE_H

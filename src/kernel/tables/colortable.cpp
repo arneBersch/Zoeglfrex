@@ -6,26 +6,14 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLORLIST_H
-#define COLORLIST_H
+#include "colortable.h"
 
-#include <QtWidgets>
-
-#include "itemlist.h"
-#include "../items/color.h"
-
-class Kernel;
-
-template class ItemList<Color>;
-class ColorList : public ItemList<Color> {
-    Q_OBJECT
-public:
-    ColorList(Kernel *core);
-    const QString HUEATTRIBUTEID = "2";
-    const QString SATURATIONATTRIBUTEID = "3";
-    const QString QUALITYATTRIBUTEID = "4";
-};
-
-#include "kernel/kernel.h"
-
-#endif // COLORLIST_H
+ColorTable::ColorTable(Kernel *core) : ItemTable(core, Keys::Color, "Color", "Colors") {
+    angleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
+    modelSpecificAngleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
+    fixtureSpecificAngleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
+    floatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
+    modelSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
+    fixtureSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
+    floatAttributes[QUALITYATTRIBUTEID] = {"Quality", 100, 0, 100, "%"};
+}

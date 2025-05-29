@@ -6,14 +6,14 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "rawlist.h"
+#include "rawtable.h"
 
-RawList::RawList(Kernel *core) : ItemList(core, Keys::Raw, "Raw", "Raws") {
+RawTable::RawTable(Kernel *core) : ItemTable(core, Keys::Raw, "Raw", "Raws") {
     boolAttributes[MOVEINBLACKATTRIBUTEID] = {"MiB", true};
     boolAttributes[FADEATTRIBUTEID] = {"Fade", false};
 }
 
-void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+void RawTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute.startsWith(CHANNELVALUEATTRIBUTEID + ".")) {
         attribute.remove(0, QString(CHANNELVALUEATTRIBUTEID + ".").length());
@@ -297,6 +297,6 @@ void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
             return;
         }
     } else {
-        ItemList::setAttribute(ids, attributes, value, text);
+        ItemTable::setAttribute(ids, attributes, value, text);
     }
 }

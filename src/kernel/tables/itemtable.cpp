@@ -6,10 +6,10 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "itemlist.h"
+#include "itemtable.h"
 #include "kernel/kernel.h"
 
-template <class T> ItemList<T>::ItemList(Kernel* core, int key, QString singular, QString plural) {
+template <class T> ItemTable<T>::ItemTable(Kernel* core, int key, QString singular, QString plural) {
     kernel = core;
     itemKey = key;
     singularItemName = singular;
@@ -17,7 +17,7 @@ template <class T> ItemList<T>::ItemList(Kernel* core, int key, QString singular
     stringAttributes[LABELATTRIBUTEID] = {"Label", QString(), QString()};
 }
 
-template <class T> T* ItemList<T>::getItem(QString id) const {
+template <class T> T* ItemTable<T>::getItem(QString id) const {
     int itemRow = getItemRow(id);
     if (itemRow < 0 || itemRow >= items.size()) {
         return nullptr;
@@ -25,7 +25,7 @@ template <class T> T* ItemList<T>::getItem(QString id) const {
     return items[itemRow];
 }
 
-template <class T> int ItemList<T>::getItemRow(QString id) const {
+template <class T> int ItemTable<T>::getItemRow(QString id) const {
     for (int itemRow = 0; itemRow < items.size(); itemRow++) {
         if (items[itemRow]->id == id) {
             return itemRow;
@@ -34,7 +34,7 @@ template <class T> int ItemList<T>::getItemRow(QString id) const {
     return -1;
 }
 
-template <class T> QStringList ItemList<T>::getIds() const {
+template <class T> QStringList ItemTable<T>::getIds() const {
     QStringList ids;
     for (T* item : items) {
         ids.append(item->id);
@@ -42,7 +42,7 @@ template <class T> QStringList ItemList<T>::getIds() const {
     return ids;
 }
 
-template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+template <class T> void ItemTable<T>::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if ((!attributes.contains(Keys::Attribute)) && (value.size() == 1) && (value.first() == Keys::Minus)) { // Delete Item
         QStringList existingIds;
@@ -737,7 +737,7 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
     }
 }
 
-template <class T> void ItemList<T>::saveItemsToFile(QXmlStreamWriter* fileStream) {
+template <class T> void ItemTable<T>::saveItemsToFile(QXmlStreamWriter* fileStream) {
     fileStream->writeStartElement(pluralItemName);
     for (T* item : items) {
         fileStream->writeStartElement(singularItemName);
@@ -748,7 +748,7 @@ template <class T> void ItemList<T>::saveItemsToFile(QXmlStreamWriter* fileStrea
     fileStream->writeEndElement();
 }
 
-template <class T> void ItemList<T>::reset() {
+template <class T> void ItemTable<T>::reset() {
     for (int itemIndex = (items.length() - 1); itemIndex >= 0; itemIndex--) {
         T* item = items[itemIndex];
         items.removeAt(itemIndex);
@@ -756,15 +756,15 @@ template <class T> void ItemList<T>::reset() {
     }
 }
 
-template <class T> int ItemList<T>::rowCount(const QModelIndex&) const {
+template <class T> int ItemTable<T>::rowCount(const QModelIndex&) const {
     return items.size();
 }
 
-template <class T> int ItemList<T>::columnCount(const QModelIndex&) const {
+template <class T> int ItemTable<T>::columnCount(const QModelIndex&) const {
     return 1;
 }
 
-template <class T> QVariant ItemList<T>::data(const QModelIndex &index, const int role) const {
+template <class T> QVariant ItemTable<T>::data(const QModelIndex &index, const int role) const {
     const int row = index.row();
     const int column = index.column();
     if (row >= rowCount() || row < 0) {
@@ -779,7 +779,7 @@ template <class T> QVariant ItemList<T>::data(const QModelIndex &index, const in
     return QVariant();
 }
 
-template <class T> int ItemList<T>::findRow(QString id) {
+template <class T> int ItemTable<T>::findRow(QString id) {
     int position = 0;
     QStringList idParts = id.split(".");
     for (T* item : items) {
@@ -805,7 +805,7 @@ template <class T> int ItemList<T>::findRow(QString id) {
     return position;
 }
 
-template <class T> T* ItemList<T>::addItem(QString id) {
+template <class T> T* ItemTable<T>::addItem(QString id) {
     T* item = new T(kernel);
     item->id = id;
     for (QString attribute : stringAttributes.keys()) {

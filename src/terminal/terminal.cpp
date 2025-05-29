@@ -610,6 +610,8 @@ void Terminal::execute() {
             attributeMap[Keys::Attribute] = kernel->raws->CHANNELVALUEATTRIBUTEID;
         } else if (selectionType == Keys::Effect) {
             attributeMap[Keys::Attribute] = kernel->effects->STEPSATTRIBUTEID;
+        } else if (selectionType == Keys::Cuelist) {
+            attributeMap[Keys::Attribute] = kernel->cuelists->LABELATTRIBUTEID;
         } else if (selectionType == Keys::Cue) {
             attributeMap[Keys::Attribute] = kernel->cues->FADEATTRIBUTEID;
         }
@@ -623,7 +625,9 @@ void Terminal::execute() {
         || ((selectionType == Keys::Position) && kernel->positions->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Raw) && kernel->raws->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Effect) && kernel->effects->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
-        || ((selectionType == Keys::Cue) && kernel->cues->stringAttributes.contains(attributeMap.value(Keys::Attribute)))) {
+        || ((selectionType == Keys::Cuelist) && kernel->cuelists->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
+        || ((selectionType == Keys::Cue) && kernel->cues->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
+    ) {
         bool ok = false;
         locker.unlock();
         text = QInputDialog::getText(this, QString(), "Insert Text", QLineEdit::Normal, QString(), &ok);
@@ -649,6 +653,8 @@ void Terminal::execute() {
         kernel->raws->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Effect) {
         kernel->effects->setAttribute(ids, attributeMap, value, text);
+    } else if (selectionType == Keys::Cuelist) {
+        kernel->cuelists->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Cue) {
         kernel->cues->setAttribute(ids, attributeMap, value, text);
     }
@@ -761,6 +767,8 @@ QString Terminal::promptText(QList<int> keys) {
             commandString += " Raw ";
         } else if (key == Keys::Effect) {
             commandString += " Effect ";
+        } else if (key == Keys::Cuelist) {
+            commandString += " Cuelist ";
         } else if (key == Keys::Cue) {
             commandString += " Cue ";
         } else if (key == Keys::Set) {
@@ -840,6 +848,8 @@ QStringList Terminal::keysToSelection(QList<int> keys, int itemType) {
         allIds = kernel->raws->getIds();
     } else if (itemType == Keys::Effect) {
         allIds = kernel->effects->getIds();
+    } else if (itemType == Keys::Cuelist) {
+        allIds = kernel->cuelists->getIds();
     } else if (itemType == Keys::Cue) {
         allIds = kernel->cues->getIds();
     } else {
@@ -966,8 +976,9 @@ bool Terminal::isItem(int key) {
         (key == Keys::Position) ||
         (key == Keys::Raw) ||
         (key == Keys::Effect) ||
+        (key == Keys::Cuelist) ||
         (key == Keys::Cue)
-        );
+    );
 }
 
 bool Terminal::isNumber(int key) {

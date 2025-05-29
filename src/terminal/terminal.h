@@ -39,6 +39,7 @@ enum {
     Position, // P
     Raw, // R
     Effect, // E
+    Cuelist, // L
     Cue, // Q
 };
 }

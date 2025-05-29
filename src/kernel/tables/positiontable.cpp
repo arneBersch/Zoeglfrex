@@ -6,9 +6,9 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "positionlist.h"
+#include "positiontable.h"
 
-PositionList::PositionList(Kernel *core) : ItemList(core, Keys::Position, "Position", "Positions") {
+PositionTable::PositionTable(Kernel *core) : ItemTable(core, Keys::Position, "Position", "Positions") {
     angleAttributes[PANATTRIBUTEID] = {"Pan", 0};
     modelSpecificAngleAttributes[PANATTRIBUTEID] = {"Pan", 0};
     fixtureSpecificAngleAttributes[PANATTRIBUTEID] = {"Pan", 0};

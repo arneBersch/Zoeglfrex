@@ -6,31 +6,24 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef FIXTURELIST_H
-#define FIXTURELIST_H
+#ifndef INTENSITYTABLE_H
+#define INTENSITYTABLE_H
 
 #include <QtWidgets>
 
-#include "itemlist.h"
-#include "../items/fixture.h"
+#include "itemtable.h"
+#include "../items/intensity.h"
 
 class Kernel;
 
-template class ItemList<Fixture>;
-class FixtureList : public ItemList<Fixture> {
+template class ItemTable<Intensity>;
+class IntensityTable : public ItemTable<Intensity> {
     Q_OBJECT
 public:
-    FixtureList(Kernel *core);
-    const QString MODELATTRIBUTEID = "2";
-    const QString ADDRESSATTRIBUTEID = "3.1";
-    const QString UNIVERSEATTRIBUTEID = "3.2";
-    const QString POSITIONXATTRIBUTEID = "4.1";
-    const QString POSITIONYATTRIBUTEID = "4.2";
-    const QString ROTATIONATTRIBUTEID = "5.1";
-    const QString INVERTPANATTRIBUTE = "5.2";
-    void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
+    IntensityTable(Kernel *core);
+    const QString DIMMERATTRIBUTEID = "2";
 };
 
 #include "kernel/kernel.h"
 
-#endif // FIXTURELIST_H
+#endif // INTENSITYTABLE_H
