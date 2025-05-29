@@ -151,8 +151,11 @@ void MainWindow::openFile() {
     }
     fileName = newFileName;
     kernel->terminal->printMessages = false;
+    bool tracking = kernel->cuelistView->trackingButton->isChecked();
+    kernel->cuelistView->trackingButton->setChecked(false);
     kernel->openFile(fileName);
     kernel->terminal->printMessages = true;
+    kernel->cuelistView->trackingButton->setChecked(tracking);
     kernel->terminal->success("Opened File " + fileName);
 }
 

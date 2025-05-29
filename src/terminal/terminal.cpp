@@ -135,6 +135,7 @@ void Terminal::execute() {
                         && kernel->cues->items[cueRow]->intensities.contains(kernel->cuelistView->currentGroup)
                         && (kernel->cues->items[cueRow]->intensities.value(kernel->cuelistView->currentGroup) == oldIntensity)
                         && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                        && kernel->cuelistView->trackingButton->isChecked()
                     ) {
                         cueIds.append(kernel->cues->items[cueRow]->id);
                         cueRow++;
@@ -148,6 +149,7 @@ void Terminal::execute() {
                         && kernel->cues->items[cueRow]->intensities.contains(kernel->cuelistView->currentGroup)
                         && (kernel->cues->items[cueRow]->intensities.value(kernel->cuelistView->currentGroup) == oldIntensity)
                         && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                        && kernel->cuelistView->trackingButton->isChecked()
                     ) {
                         cueIds.append(kernel->cues->items[cueRow]->id);
                         cueRow++;
@@ -156,6 +158,7 @@ void Terminal::execute() {
                     while ((cueRow < kernel->cues->items.size())
                         && !kernel->cues->items[cueRow]->intensities.contains(kernel->cuelistView->currentGroup)
                         && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                        && kernel->cuelistView->trackingButton->isChecked()
                     ) {
                         cueIds.append(kernel->cues->items[cueRow]->id);
                         cueRow++;

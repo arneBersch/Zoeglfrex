@@ -739,8 +739,7 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
 
 template <class T> void ItemList<T>::saveItemsToFile(QXmlStreamWriter* fileStream) {
     fileStream->writeStartElement(pluralItemName);
-    for (int itemRow = (items.size() - 1); itemRow >= 0; itemRow--) {
-        T* item = items[itemRow];
+    for (T* item : items) {
         fileStream->writeStartElement(singularItemName);
         fileStream->writeAttribute("ID", item->id);
         item->writeAttributesToFile(fileStream);

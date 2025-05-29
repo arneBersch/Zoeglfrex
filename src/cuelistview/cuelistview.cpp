@@ -18,11 +18,19 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
     fixtureLabel = new QLabel();
     layout->addWidget(fixtureLabel);
 
+    QHBoxLayout *header = new QHBoxLayout();
+    layout->addLayout(header);
+
     cueViewModeComboBox = new QComboBox();
     cueViewModeComboBox->addItem(CUEVIEWCUEMODE);
     cueViewModeComboBox->addItem(CUEVIEWGROUPMODE);
     connect(cueViewModeComboBox, &QComboBox::currentIndexChanged, this, &CuelistView::updateCuelistView);
-    layout->addWidget(cueViewModeComboBox);
+    header->addWidget(cueViewModeComboBox);
+
+    trackingButton = new QPushButton("Tracking");
+    trackingButton->setCheckable(true);
+    trackingButton->setChecked(true);
+    header->addWidget(trackingButton);
 
     cueModel = new CueModel(kernel);
     groupModel = new GroupModel(kernel);

@@ -51,7 +51,7 @@ public:
     Preview2d *preview2d;
     ControlPanel *controlPanel;
     QMutex *mutex;
-    const QString VERSION = "0.4.0";
+    const QString VERSION = "0.5.0";
 };
 
 #endif // KERNEL_H
