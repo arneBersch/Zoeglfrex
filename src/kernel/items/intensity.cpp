@@ -33,7 +33,7 @@ Intensity::~Intensity() {
 }
 
 QString Intensity::name() {
-    if (stringAttributes.value(kernel->intensities->LABELATTRIBUTEID).isEmpty()) {
+    if (stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
         return Item::name() + QString::number(floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID)) + "%";
     }
     return Item::name();

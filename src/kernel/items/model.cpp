@@ -101,7 +101,7 @@ Model::~Model() {
 }
 
 QString Model::name() {
-    if (stringAttributes.value(kernel->models->LABELATTRIBUTEID).isEmpty()) {
+    if (stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
         return Item::name() + stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
     }
     return Item::name();

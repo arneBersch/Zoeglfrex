@@ -113,11 +113,11 @@ QString Fixture::name() {
     QString channels = "None";
     if (model != nullptr) {
         channels = model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
-        if (!model->stringAttributes.value(kernel->models->LABELATTRIBUTEID).isEmpty()) {
-            channels = model->stringAttributes.value(kernel->models->LABELATTRIBUTEID);
+        if (!model->stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
+            channels = model->stringAttributes.value(kernel->LABELATTRIBUTEID);
         }
     }
-    if (stringAttributes.value(kernel->fixtures->LABELATTRIBUTEID).isEmpty()) {
+    if (stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
         return Item::name() + channels + " (" + QString::number(intAttributes.value(kernel->fixtures->UNIVERSEATTRIBUTEID)) + "." + QString::number(intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID)) + ")";
     }
     return Item::name();

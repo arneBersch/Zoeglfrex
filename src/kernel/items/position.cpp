@@ -33,7 +33,7 @@ Position::~Position() {
 }
 
 QString Position::name() {
-    if (stringAttributes.value(kernel->positions->LABELATTRIBUTEID).isEmpty()) {
+    if (stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
         return Item::name() + QString::number(angleAttributes.value(kernel->positions->PANATTRIBUTEID)) + "°, " + QString::number(floatAttributes.value(kernel->positions->TILTATTRIBUTEID)) + "°";
     }
     return Item::name();

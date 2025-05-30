@@ -689,7 +689,7 @@ void Terminal::execute() {
         } else if (selectionType == Keys::Effect) {
             attributeMap[Keys::Attribute] = kernel->effects->STEPSATTRIBUTEID;
         } else if (selectionType == Keys::Cuelist) {
-            attributeMap[Keys::Attribute] = kernel->cuelists->LABELATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->LABELATTRIBUTEID;
         } else if (selectionType == Keys::Cue) {
             attributeMap[Keys::Attribute] = kernel->CUEFADEATTRIBUTEID;
         }

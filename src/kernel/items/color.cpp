@@ -33,7 +33,7 @@ Color::~Color() {
 }
 
 QString Color::name() {
-    if (stringAttributes.value(kernel->colors->LABELATTRIBUTEID).isEmpty()) {
+    if (stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
         const float saturation = floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID);
         if (saturation <= 10) {
             return Item::name() + "White";

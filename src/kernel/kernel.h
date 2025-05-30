@@ -52,6 +52,10 @@ public:
     ControlPanel *controlPanel;
     QMutex *mutex;
     const QString VERSION = "0.5.0";
+
+    const QString IDATTRIBUTEID = "0";
+    const QString LABELATTRIBUTEID = "1";
+
     const QString CUEINTENSITIESATTRIBUTEID = "2";
     const QString CUECOLORSATTRIBUTEID = "3";
     const QString CUEPOSITIONSATTRIBUTEID = "4";

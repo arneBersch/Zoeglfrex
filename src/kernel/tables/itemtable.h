@@ -61,8 +61,6 @@ public:
     virtual void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> values, QString text = QString());
     void saveItemsToFile(QXmlStreamWriter* fileStream);
     void reset();
-    const QString IDATTRIBUTEID = "0";
-    const QString LABELATTRIBUTEID = "1";
     QMap<QString, StringAttribute> stringAttributes;
     QMap<QString, IntAttribute> intAttributes;
     QMap<QString, FloatAttribute> floatAttributes;

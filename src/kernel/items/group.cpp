@@ -32,7 +32,7 @@ Group::~Group() {
 }
 
 QString Group::name() {
-    if (stringAttributes.value(kernel->groups->LABELATTRIBUTEID).isEmpty()) {
+    if (stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
         QString response = Item::name();
         QStringList fixtureIds;
         for (Fixture* fixture : fixtures) {

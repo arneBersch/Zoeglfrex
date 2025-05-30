@@ -14,7 +14,7 @@ template <class T> ItemTable<T>::ItemTable(Kernel* core, int key, QString singul
     itemKey = key;
     singularItemName = singular;
     pluralItemName = plural;
-    stringAttributes[LABELATTRIBUTEID] = {"Label", QString(), QString()};
+    stringAttributes[kernel->LABELATTRIBUTEID] = {"Label", QString(), QString()};
 }
 
 template <class T> ItemTable<T>::~ItemTable() {
@@ -92,7 +92,7 @@ template <class T> void ItemTable<T>::setAttribute(QStringList ids, QMap<int, QS
             }
         }
         kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + singularItemName + " " + sourceItem->name() + " .");
-    } else if (attribute == IDATTRIBUTEID) { // Move Item
+    } else if (attribute == kernel->IDATTRIBUTEID) { // Move Item
         QString targetId = kernel->terminal->keysToId(value);
         if (targetId.isEmpty()) {
             kernel->terminal->error("Couldn't set " + singularItemName + " ID because the given ID is not valid.");

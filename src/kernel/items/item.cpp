@@ -29,12 +29,12 @@ Item::Item(const Item* item) {
 Item::~Item() {}
 
 QString Item::name() {
-    return id + " " + stringAttributes.value(kernel->models->LABELATTRIBUTEID);
+    return id + " " + stringAttributes.value(kernel->LABELATTRIBUTEID);
 }
 
 QString Item::info() {
-    QString info = kernel->models->IDATTRIBUTEID + " ID: " + id;
-    info += "\n" + kernel->models->LABELATTRIBUTEID + " Label: \"" + stringAttributes.value(kernel->models->LABELATTRIBUTEID) + "\"";
+    QString info = kernel->IDATTRIBUTEID + " ID: " + id;
+    info += "\n" + kernel->LABELATTRIBUTEID + " Label: \"" + stringAttributes.value(kernel->LABELATTRIBUTEID) + "\"";
     return info;
 }
 
