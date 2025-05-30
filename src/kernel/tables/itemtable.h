@@ -50,6 +50,7 @@ class Kernel;
 template <class T> class ItemTable : public QAbstractTableModel {
 public:
     ItemTable(Kernel* core, int key, QString singularName, QString pluralName);
+    ~ItemTable();
     T* getItem(QString id) const;
     int getItemRow(QString id) const;
     QStringList getIds() const;

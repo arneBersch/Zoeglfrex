@@ -7,6 +7,7 @@
 */
 
 #include "cuetable.h"
+#include "kernel/kernel.h"
 
 CueTable::CueTable(Kernel *core) : ItemTable(core, Keys::Cue, "Cue", "Cues") {
     floatAttributes[FADEATTRIBUTEID] = {"Fade", 0, 0, 600, "s"};

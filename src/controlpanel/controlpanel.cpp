@@ -49,12 +49,14 @@ ControlPanel::ControlPanel(Kernel* core) {
                 }
                 kernel->terminal->printMessages = false;
                 QString value = QString::number(dials[column]->value());
+                Q_ASSERT(kernel->cuelistView->currentCuelist != nullptr);
+                Q_ASSERT(kernel->cuelistView->currentCuelist->currentCue != nullptr);
                 if (itemKey == Keys::Intensity) {
-                    kernel->intensities->setAttribute({kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
+                    kernel->intensities->setAttribute({kernel->cuelistView->currentCuelist->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
                 } else if (itemKey == Keys::Color) {
-                    kernel->colors->setAttribute({kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
+                    kernel->colors->setAttribute({kernel->cuelistView->currentCuelist->currentCue->colors.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
                 } else if (itemKey == Keys::Position) {
-                    kernel->positions->setAttribute({kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
+                    kernel->positions->setAttribute({kernel->cuelistView->currentCuelist->currentCue->positions.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
                 } else {
                     Q_ASSERT(false);
                 }
@@ -79,12 +81,12 @@ void ControlPanel::reload() {
 
     auto setColumn = [this] (int column, int itemKey, QString attribute, bool angle, QString unit, QString noValueMessage) {
         Item* item = nullptr;
-        if ((itemKey == Keys::Intensity) && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
-            item = kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup);
-        } else if ((itemKey == Keys::Color) && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
-            item = kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup);
-        } else if ((itemKey == Keys::Position) && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
-            item = kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup);
+        if ((itemKey == Keys::Intensity) && (kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCuelist->currentCue->intensities.value(kernel->cuelistView->currentGroup);
+        } else if ((itemKey == Keys::Color) && (kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCuelist->currentCue->colors.value(kernel->cuelistView->currentGroup);
+        } else if ((itemKey == Keys::Position) && (kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCuelist->currentCue->positions.value(kernel->cuelistView->currentGroup);
         }
         valueLabels[column]->setText(noValueMessage);
         modelValueLabels[column]->setText(QString());

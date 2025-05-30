@@ -89,13 +89,13 @@ Model::~Model() {
         for (QString modelSpecificAngleAttribute : cuelist->modelSpecificAngleAttributes.keys()) {
             cuelist->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
         }
-    }
-    for (Cue* cue : kernel->cues->items) {
-        for (QString modelSpecificFloatAttribute : cue->modelSpecificFloatAttributes.keys()) {
-            cue->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
-        }
-        for (QString modelSpecificAngleAttribute : cue->modelSpecificAngleAttributes.keys()) {
-            cue->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
+        for (Cue* cue : cuelist->cues->items) {
+            for (QString modelSpecificFloatAttribute : cue->modelSpecificFloatAttributes.keys()) {
+                cue->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+            }
+            for (QString modelSpecificAngleAttribute : cue->modelSpecificAngleAttributes.keys()) {
+                cue->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
+            }
         }
     }
 }

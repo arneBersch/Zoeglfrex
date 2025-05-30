@@ -20,12 +20,14 @@ Effect::Effect(const Effect* item) : Item(item) {
 }
 
 Effect::~Effect() {
-    for (Cue *cue : kernel->cues->items) {
-        for (Group *group : cue->effects.keys()) {
-            if (cue->effects.contains(group)) {
-                cue->effects[group].removeAll(this);
-                if (cue->effects[group].isEmpty()) {
-                    cue->effects.remove(group);
+    for (Cuelist *cuelist : kernel->cuelists->items) {
+        for (Cue *cue : cuelist->cues->items) {
+            for (Group *group : cue->effects.keys()) {
+                if (cue->effects.contains(group)) {
+                    cue->effects[group].removeAll(this);
+                    if (cue->effects[group].isEmpty()) {
+                        cue->effects.remove(group);
+                    }
                 }
             }
         }

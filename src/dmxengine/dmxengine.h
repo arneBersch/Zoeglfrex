@@ -30,12 +30,8 @@ private:
     void generateDmx();
     QMap<Group*, QMap<Effect*, int>> renderCue(Cue* cue, QMap<Fixture*, float>* dimmerValues, QMap<Fixture*, rgbColor>* colorValues, QMap<Fixture*, positionAngles>* positionValues, QMap<Fixture*, QMap<int, uint8_t>>* rawValues, QMap<Fixture*, QMap<int, bool>>* rawFade);
     QTimer *timer;
-    Cue* currentCue = nullptr;
-    Cue* lastCue = nullptr;
     QMap<Group*, QMap<Effect*, int>> groupEffectFrames;
     QMap<Fixture*, float> fixturePan;
-    int remainingFadeFrames = 0;
-    int totalFadeFrames = 0;
     QPushButton *highlightButton;
     QPushButton *soloButton;
     QProgressBar* fadeProgress;

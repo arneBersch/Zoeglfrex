@@ -21,10 +21,12 @@ Color::~Color() {
             }
         }
     }
-    for (Cue *cue : kernel->cues->items) {
-        for (Group *group : cue->colors.keys()) {
-            if (cue->colors.value(group) == this) {
-                cue->colors.remove(group);
+    for (Cuelist *cuelist : kernel->cuelists->items) {
+        for (Cue *cue : cuelist->cues->items) {
+            for (Group *group : cue->colors.keys()) {
+                if (cue->colors.value(group) == this) {
+                    cue->colors.remove(group);
+                }
             }
         }
     }

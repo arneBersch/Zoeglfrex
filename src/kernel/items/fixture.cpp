@@ -88,20 +88,20 @@ Fixture::~Fixture() {
             effect->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
         }
     }
-    for (Cuelist* cuelist : kernel->cuelists->items) {
+    for (Cuelist *cuelist : kernel->cuelists->items) {
         for (QString fixtureSpecificFloatAttribute : cuelist->fixtureSpecificFloatAttributes.keys()) {
             cuelist->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }
         for (QString fixtureSpecificAngleAttribute : cuelist->fixtureSpecificAngleAttributes.keys()) {
             cuelist->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
         }
-    }
-    for (Cue* cue : kernel->cues->items) {
-        for (QString fixtureSpecificFloatAttribute : cue->fixtureSpecificFloatAttributes.keys()) {
-            cue->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
-        }
-        for (QString fixtureSpecificAngleAttribute : cue->fixtureSpecificAngleAttributes.keys()) {
-            cue->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
+        for (Cue* cue : cuelist->cues->items) {
+            for (QString fixtureSpecificFloatAttribute : cue->fixtureSpecificFloatAttributes.keys()) {
+                cue->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
+            }
+            for (QString fixtureSpecificAngleAttribute : cue->fixtureSpecificAngleAttributes.keys()) {
+                cue->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
+            }
         }
     }
     FixtureGraphicsItem *previewCircle = kernel->preview2d->fixtureCircles.value(this);

@@ -20,7 +20,10 @@ void GroupModel::loadGroup() {
 
 int GroupModel::rowCount(const QModelIndex&) const
 {
-    return kernel->cues->rowCount();
+    if (kernel->cuelistView->currentCuelist != nullptr) {
+        return kernel->cuelistView->currentCuelist->cues->rowCount();
+    }
+    return 0;
 }
 
 int GroupModel::columnCount(const QModelIndex&) const
@@ -39,11 +42,14 @@ QVariant GroupModel::data(const QModelIndex &index, const int role) const
         return QVariant();
     }
     if (!index.isValid()) {
-        return QString();
+        return QVariant();
+    }
+    if (kernel->cuelistView->currentCuelist == nullptr) {
+        return QVariant();
     }
     if (role == Qt::DisplayRole) {
         QMutexLocker locker(kernel->mutex);
-        Cue *cue = kernel->cues->items[row];
+        Cue *cue = kernel->cuelistView->currentCuelist->cues->items[row];
         if (column == GroupModelColumns::cue) {
             return cue->name();
         } else if (column == GroupModelColumns::intensity) {
@@ -82,7 +88,7 @@ QVariant GroupModel::data(const QModelIndex &index, const int role) const
             return QVariant();
         }
     } else if (role == Qt::BackgroundRole) {
-        if (kernel->cues->items[row] == kernel->cuelistView->currentCue) {
+        if (kernel->cuelistView->currentCuelist->cues->items[row] == kernel->cuelistView->currentCuelist->currentCue) {
             return QColor(48, 48, 48);
         }
     }
@@ -94,19 +100,22 @@ QVariant GroupModel::headerData(int column, Qt::Orientation orientation, int rol
     if (role != Qt::DisplayRole) {
         return QVariant();
     }
+    if (kernel->cuelistView->currentCuelist == nullptr) {
+        return QVariant();
+    }
     if (orientation == Qt::Horizontal) {
         if (column == GroupModelColumns::cue) {
             return "Cue";
         } else if (column == GroupModelColumns::intensity) {
-            return kernel->cues->INTENSITIESATTRIBUTEID + " Intensity";
+            return kernel->cuelistView->currentCuelist->cues->INTENSITIESATTRIBUTEID + " Intensity";
         } else if (column == GroupModelColumns::color) {
-            return kernel->cues->COLORSATTRIBUTEID + " Color";
+            return kernel->cuelistView->currentCuelist->cues->COLORSATTRIBUTEID + " Color";
         } else if (column == GroupModelColumns::position) {
-            return kernel->cues->POSITIONSATTRIBUTEID + " Position";
+            return kernel->cuelistView->currentCuelist->cues->POSITIONSATTRIBUTEID + " Position";
         } else if (column == GroupModelColumns::raws) {
-            return kernel->cues->RAWSATTRIBUTEID + " Raws";
+            return kernel->cuelistView->currentCuelist->cues->RAWSATTRIBUTEID + " Raws";
         } else if (column == GroupModelColumns::effects) {
-            return kernel->cues->EFFECTSATTRIBUTEID + " Effects";
+            return kernel->cuelistView->currentCuelist->cues->EFFECTSATTRIBUTEID + " Effects";
         } else {
             return QVariant();
         }

@@ -21,10 +21,12 @@ Position::~Position() {
             }
         }
     }
-    for (Cue *cue : kernel->cues->items) {
-        for (Group *group : cue->positions.keys()) {
-            if (cue->positions.value(group) == this) {
-                cue->positions.remove(group);
+    for (Cuelist* cuelist : kernel->cuelists->items) {
+        for (Cue *cue : cuelist->cues->items) {
+            for (Group *group : cue->positions.keys()) {
+                if (cue->positions.value(group) == this) {
+                    cue->positions.remove(group);
+                }
             }
         }
     }

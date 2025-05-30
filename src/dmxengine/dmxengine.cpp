@@ -49,27 +49,18 @@ void DmxEngine::generateDmx() {
     QMap<Fixture*, positionAngles> lastCueFixturePosition;
     QMap<Fixture*, QMap<int, uint8_t>> lastCueFixtureRaws;
     QMap<Fixture*, QMap<int, bool>> lastCueFixtureRawFade;
-    if (kernel->cuelistView->currentCue == nullptr) {
-        currentCue = nullptr;
-        remainingFadeFrames = 0;
-        totalFadeFrames = 0;
-    } else {
-        if (kernel->cuelistView->currentCue != currentCue) {
-            lastCue = nullptr;
-            if (kernel->cues->items.contains(currentCue)) {
-                lastCue = currentCue;
-            }
-            currentCue = kernel->cuelistView->currentCue;
-            totalFadeFrames = PROCESSINGRATE * currentCue->floatAttributes[kernel->cues->FADEATTRIBUTEID] + 0.5;
-            remainingFadeFrames = totalFadeFrames;
-        }
+    int remainingFadeFrames = 0;
+    int totalFadeFrames = 0;
+    if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr)) {
+        remainingFadeFrames = kernel->cuelistView->currentCuelist->remainingFadeFrames;
+        totalFadeFrames = kernel->cuelistView->currentCuelist->totalFadeFrames;
         if (skipFadeButton->isChecked()) {
-            remainingFadeFrames = 0;
+            kernel->cuelistView->currentCuelist->remainingFadeFrames = 0;
         }
-        QMap<Group*, QMap<Effect*, int>> newGroupEffectFrames = renderCue(currentCue, &currentCueFixtureDimmer, &currentCueFixtureColor, &currentCueFixturePosition, &currentCueFixtureRaws, &currentCueFixtureRawFade);
+        QMap<Group*, QMap<Effect*, int>> newGroupEffectFrames = renderCue(kernel->cuelistView->currentCuelist->currentCue, &currentCueFixtureDimmer, &currentCueFixtureColor, &currentCueFixturePosition, &currentCueFixtureRaws, &currentCueFixtureRawFade);
         QMap<Group*, QMap<Effect*, int>> fadeGroupEffectFrames;
-        if ((lastCue != nullptr) && (remainingFadeFrames > 0)) {
-            fadeGroupEffectFrames = renderCue(lastCue, &lastCueFixtureDimmer, &lastCueFixtureColor, &lastCueFixturePosition, &lastCueFixtureRaws, &lastCueFixtureRawFade);
+        if ((kernel->cuelistView->currentCuelist->lastCue != nullptr) && (kernel->cuelistView->currentCuelist->remainingFadeFrames > 0)) {
+            fadeGroupEffectFrames = renderCue(kernel->cuelistView->currentCuelist->lastCue, &lastCueFixtureDimmer, &lastCueFixtureColor, &lastCueFixturePosition, &lastCueFixtureRaws, &lastCueFixtureRawFade);
         }
         groupEffectFrames.clear();
         for (Group* group : fadeGroupEffectFrames.keys()) {
@@ -363,19 +354,19 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
     }
     for (Fixture* fixture : kernel->fixtures->items) {
         if (!fixtureDimmers->contains(fixture)) {
-            int cueRow = kernel->cues->getItemRow(cue->id);
-            while ((cueRow < kernel->cues->items.length()) && !fixtureColors->contains(fixture)) {
-                Cue* cue = kernel->cues->items[cueRow];
+            int cueRow = cue->getCuelist()->cues->getItemRow(cue->id);
+            while ((cueRow < cue->getCuelist()->cues->items.length()) && !fixtureColors->contains(fixture)) {
+                Cue* currentCue = cue->getCuelist()->cues->items[cueRow];
                 for (Group* group : kernel->groups->items) {
                     if (group->fixtures.contains(fixture)) {
-                        if (cue->intensities.contains(group) && !fixtureColors->contains(fixture)) {
+                        if (currentCue->intensities.contains(group) && !fixtureColors->contains(fixture)) {
                             (*fixtureColors)[fixture] = {};
                         }
-                        if (cue->colors.contains(group)) {
-                            (*fixtureColors)[fixture] = cue->colors.value(group)->getRGB(fixture);
+                        if (currentCue->colors.contains(group)) {
+                            (*fixtureColors)[fixture] = currentCue->colors.value(group)->getRGB(fixture);
                         }
-                        if (cue->effects.contains(group)) {
-                            for (Effect* effect : cue->effects.value(group)) {
+                        if (currentCue->effects.contains(group)) {
+                            for (Effect* effect : currentCue->effects.value(group)) {
                                 if (!effect->intensitySteps.isEmpty() && !fixtureColors->contains(fixture)) {
                                     (*fixtureColors)[fixture] = {};
                                 }
@@ -388,19 +379,19 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                 }
                 cueRow++;
             }
-            cueRow = kernel->cues->getItemRow(cue->id);
-            while ((cueRow < kernel->cues->items.length()) && !fixturePositions->contains(fixture)) {
-                Cue* cue = kernel->cues->items[cueRow];
+            cueRow = cue->getCuelist()->cues->getItemRow(cue->id);
+            while ((cueRow < cue->getCuelist()->cues->items.length()) && !fixturePositions->contains(fixture)) {
+                Cue* currentCue = cue->getCuelist()->cues->items[cueRow];
                 for (Group* group : kernel->groups->items) {
                     if (group->fixtures.contains(fixture)) {
-                        if (cue->intensities.contains(group) && !fixturePositions->contains(fixture)) {
+                        if (currentCue->intensities.contains(group) && !fixturePositions->contains(fixture)) {
                             (*fixturePositions)[fixture] = {};
                         }
-                        if (cue->positions.contains(group)) {
-                            (*fixturePositions)[fixture] = cue->positions.value(group)->getAngles(fixture);
+                        if (currentCue->positions.contains(group)) {
+                            (*fixturePositions)[fixture] = currentCue->positions.value(group)->getAngles(fixture);
                         }
-                        if (cue->effects.contains(group)) {
-                            for (Effect* effect : cue->effects.value(group)) {
+                        if (currentCue->effects.contains(group)) {
+                            for (Effect* effect : currentCue->effects.value(group)) {
                                 if (!effect->intensitySteps.isEmpty() && !fixturePositions->contains(fixture)) {
                                     (*fixturePositions)[fixture] = {};
                                 }
@@ -413,17 +404,17 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                 }
                 cueRow++;
             }
-            cueRow = kernel->cues->getItemRow(cue->id);
-            while ((cueRow < kernel->cues->items.length()) && !fixtureRaws->contains(fixture)) {
-                Cue* cue = kernel->cues->items[cueRow];
+            cueRow = cue->getCuelist()->cues->getItemRow(cue->id);
+            while ((cueRow < cue->getCuelist()->cues->items.length()) && !fixtureRaws->contains(fixture)) {
+                Cue* currentCue = cue->getCuelist()->cues->items[cueRow];
                 for (Group* group : kernel->groups->items) {
                     if (group->fixtures.contains(fixture)) {
-                        if (cue->intensities.contains(group) && !fixtureRaws->contains(fixture)) {
+                        if (currentCue->intensities.contains(group) && !fixtureRaws->contains(fixture)) {
                             (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
                             (*fixtureRawFade)[fixture] = QMap<int, bool>();
                         }
-                        if (cue->raws.contains(group)) {
-                            for (Raw* raw : cue->raws.value(group)) {
+                        if (currentCue->raws.contains(group)) {
+                            for (Raw* raw : currentCue->raws.value(group)) {
                                 if (raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
                                     if (!fixtureRaws->contains(fixture)) {
                                         (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
@@ -437,8 +428,8 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                                 }
                             }
                         }
-                        if (cue->effects.contains(group)) {
-                            for (Effect* effect : cue->effects.value(group)) {
+                        if (currentCue->effects.contains(group)) {
+                            for (Effect* effect : currentCue->effects.value(group)) {
                                 if (!effect->intensitySteps.isEmpty() && !fixtureRaws->contains(fixture)) {
                                     (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
                                     (*fixtureRawFade)[fixture] = QMap<int, bool>();

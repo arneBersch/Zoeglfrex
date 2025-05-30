@@ -17,6 +17,10 @@ template <class T> ItemTable<T>::ItemTable(Kernel* core, int key, QString singul
     stringAttributes[LABELATTRIBUTEID] = {"Label", QString(), QString()};
 }
 
+template <class T> ItemTable<T>::~ItemTable() {
+    reset();
+}
+
 template <class T> T* ItemTable<T>::getItem(QString id) const {
     int itemRow = getItemRow(id);
     if (itemRow < 0 || itemRow >= items.size()) {

@@ -21,11 +21,13 @@ Group::~Group() {
         kernel->cuelistView->currentFixture = nullptr;
         kernel->cuelistView->reload();
     }
-    for (Cue *cue : kernel->cues->items) {
-        cue->intensities.remove(this);
-        cue->colors.remove(this);
-        cue->positions.remove(this);
-        cue->raws.remove(this);
+    for (Cuelist *cuelist : kernel->cuelists->items) {
+        for (Cue *cue : cuelist->cues->items) {
+            cue->intensities.remove(this);
+            cue->colors.remove(this);
+            cue->positions.remove(this);
+            cue->raws.remove(this);
+        }
     }
 }
 

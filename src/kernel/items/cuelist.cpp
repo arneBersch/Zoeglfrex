@@ -9,9 +9,13 @@
 #include "cuelist.h"
 #include "kernel/kernel.h"
 
-Cuelist::Cuelist(Kernel* core) : Item(core) {}
+Cuelist::Cuelist(Kernel* core) : Item(core) {
+    cues = new CueTable(core);
+}
 
-Cuelist::Cuelist(const Cuelist* item) : Item(item) {}
+Cuelist::Cuelist(const Cuelist* item) : Item(item) {
+    delete cues;
+}
 
 Cuelist::~Cuelist() {
     if (kernel->cuelistView->currentCuelist == this) {

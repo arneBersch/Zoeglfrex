@@ -28,12 +28,14 @@ Raw::~Raw() {
             }
         }
     }
-    for (Cue *cue : kernel->cues->items) {
-        for (Group *group : cue->raws.keys()) {
-            if (cue->raws.contains(group)) {
-                cue->raws[group].removeAll(this);
-                if (cue->raws[group].isEmpty()) {
-                    cue->raws.remove(group);
+    for (Cuelist *cuelist : kernel->cuelists->items) {
+        for (Cue *cue : cuelist->cues->items) {
+            for (Group *group : cue->raws.keys()) {
+                if (cue->raws.contains(group)) {
+                    cue->raws[group].removeAll(this);
+                    if (cue->raws[group].isEmpty()) {
+                        cue->raws.remove(group);
+                    }
                 }
             }
         }

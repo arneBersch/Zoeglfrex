@@ -47,32 +47,32 @@ QVariant CueModel::data(const QModelIndex &index, const int role) const
         if (column == CueModelColumns::group) {
             return group->name();
         } else if (column == CueModelColumns::intensity) {
-            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->intensities.contains(group)) {
-                return kernel->cuelistView->currentCue->intensities.value(group)->name();
+            if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->intensities.contains(group)) {
+                return kernel->cuelistView->currentCuelist->currentCue->intensities.value(group)->name();
             }
             return QVariant();
         } else if (column == CueModelColumns::color) {
-            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->colors.contains(group)) {
-                return kernel->cuelistView->currentCue->colors.value(group)->name();
+            if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->colors.contains(group)) {
+                return kernel->cuelistView->currentCuelist->currentCue->colors.value(group)->name();
             }
             return QVariant();
         } else if (column == CueModelColumns::position) {
-            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->positions.contains(group)) {
-                return kernel->cuelistView->currentCue->positions.value(group)->name();
+            if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->positions.contains(group)) {
+                return kernel->cuelistView->currentCuelist->currentCue->positions.value(group)->name();
             }
             return QVariant();
         } else if (column == CueModelColumns::raws) {
-            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->raws.contains(group)) {
+            if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->raws.contains(group)) {
                 QStringList raws;
-                for (Raw* raw : kernel->cuelistView->currentCue->raws.value(group)) {
+                for (Raw* raw : kernel->cuelistView->currentCuelist->currentCue->raws.value(group)) {
                     raws.append(raw->name());
                 }
                 return raws.join(" + ");
             }
         } else if (column == CueModelColumns::effects) {
-            if ((kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->effects.contains(group)) {
+            if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->effects.contains(group)) {
                 QStringList effects;
-                for (Effect* effect : kernel->cuelistView->currentCue->effects.value(group)) {
+                for (Effect* effect : kernel->cuelistView->currentCuelist->currentCue->effects.value(group)) {
                     effects.append(effect->name());
                 }
                 return effects.join(" + ");
@@ -96,16 +96,20 @@ QVariant CueModel::headerData(int column, Qt::Orientation orientation, int role)
     if (orientation == Qt::Horizontal) {
         if (column == CueModelColumns::group) {
             return "Group";
-        } else if (column == CueModelColumns::intensity) {
-            return kernel->cues->INTENSITIESATTRIBUTEID + " Intensity";
-        } else if (column == CueModelColumns::color) {
-            return kernel->cues->COLORSATTRIBUTEID + " Color";
-        } else if (column == CueModelColumns::position) {
-            return kernel->cues->POSITIONSATTRIBUTEID + " Position";
-        } else if (column == CueModelColumns::raws) {
-            return kernel->cues->RAWSATTRIBUTEID + " Raws";
-        } else if (column == CueModelColumns::effects) {
-            return kernel->cues->EFFECTSATTRIBUTEID + " Effects";
+        } else if (kernel->cuelistView->currentCuelist != nullptr) {
+            if (column == CueModelColumns::intensity) {
+                return kernel->cuelistView->currentCuelist->cues->INTENSITIESATTRIBUTEID + " Intensity";
+            } else if (column == CueModelColumns::color) {
+                return kernel->cuelistView->currentCuelist->cues->COLORSATTRIBUTEID + " Color";
+            } else if (column == CueModelColumns::position) {
+                return kernel->cuelistView->currentCuelist->cues->POSITIONSATTRIBUTEID + " Position";
+            } else if (column == CueModelColumns::raws) {
+                return kernel->cuelistView->currentCuelist->cues->RAWSATTRIBUTEID + " Raws";
+            } else if (column == CueModelColumns::effects) {
+                return kernel->cuelistView->currentCuelist->cues->EFFECTSATTRIBUTEID + " Effects";
+            } else {
+                return QVariant();
+            }
         } else {
             return QVariant();
         }

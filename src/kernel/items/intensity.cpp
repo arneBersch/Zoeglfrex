@@ -21,10 +21,12 @@ Intensity::~Intensity() {
             }
         }
     }
-    for (Cue *cue : kernel->cues->items) {
-        for (Group *group : cue->intensities.keys()) {
-            if (cue->intensities.value(group) == this) {
-                cue->intensities.remove(group);
+    for (Cuelist *cuelist : kernel->cuelists->items) {
+        for (Cue *cue : cuelist->cues->items) {
+            for (Group *group : cue->intensities.keys()) {
+                if (cue->intensities.value(group) == this) {
+                    cue->intensities.remove(group);
+                }
             }
         }
     }

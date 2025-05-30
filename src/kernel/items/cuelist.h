@@ -12,6 +12,7 @@
 #include <QtWidgets>
 
 #include "item.h"
+#include "../tables/cuetable.h"
 
 class Cuelist : public Item {
 public:
@@ -19,6 +20,11 @@ public:
     Cuelist(const Cuelist* item);
     ~Cuelist();
     QString info() override;
+    CueTable* cues;
+    Cue* currentCue = nullptr;
+    Cue* lastCue = nullptr;
+    unsigned int remainingFadeFrames = 0;
+    unsigned int totalFadeFrames = 0;
 };
 
 #endif // CUELIST_H

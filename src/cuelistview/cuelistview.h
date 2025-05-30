@@ -38,7 +38,6 @@ public:
     Cuelist* currentCuelist = nullptr;
     Fixture* currentFixture = nullptr;
     Group* currentGroup = nullptr;
-    Cue* currentCue = nullptr;
     QPushButton* trackingButton;
 private:
     void updateCuelistView();

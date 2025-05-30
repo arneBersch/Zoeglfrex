@@ -33,6 +33,4 @@ private:
     Cue* addItem(QString id) override;
 };
 
-#include "kernel/kernel.h"
-
 #endif // CUETABLE_H

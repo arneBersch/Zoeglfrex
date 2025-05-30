@@ -75,40 +75,40 @@ void Inspector::load(QList<int> keys)
     } else if (itemType == Keys::Intensity) {
         title->setText("Intensities");
         table->setModel(kernel->intensities);
-        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
-            item = kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup);
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCuelist->currentCue->intensities.value(kernel->cuelistView->currentGroup);
         } else {
             item = kernel->intensities->getItem(id);
         }
     } else if (itemType == Keys::Color) {
         title->setText("Colors");
         table->setModel(kernel->colors);
-        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
-            item = kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup);
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCuelist->currentCue->colors.value(kernel->cuelistView->currentGroup);
         } else {
             item = kernel->colors->getItem(id);
         }
     } else if (itemType == Keys::Position) {
         title->setText("Positions");
         table->setModel(kernel->positions);
-        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
-            item = kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup);
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCuelist->currentCue->positions.value(kernel->cuelistView->currentGroup);
         } else {
             item = kernel->positions->getItem(id);
         }
     } else if (itemType == Keys::Raw) {
         title->setText("Raws");
         table->setModel(kernel->raws);
-        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->raws.contains(kernel->cuelistView->currentGroup)) {
-            item = kernel->cuelistView->currentCue->raws.value(kernel->cuelistView->currentGroup).last();
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->raws.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCuelist->currentCue->raws.value(kernel->cuelistView->currentGroup).last();
         } else {
             item = kernel->raws->getItem(id);
         }
     } else if (itemType == Keys::Effect) {
         title->setText("Effects");
         table->setModel(kernel->effects);
-        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCue != nullptr) && kernel->cuelistView->currentCue->effects.contains(kernel->cuelistView->currentGroup)) {
-            item = kernel->cuelistView->currentCue->effects.value(kernel->cuelistView->currentGroup).last();
+        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->effects.contains(kernel->cuelistView->currentGroup)) {
+            item = kernel->cuelistView->currentCuelist->currentCue->effects.value(kernel->cuelistView->currentGroup).last();
         } else {
             item = kernel->effects->getItem(id);
         }
@@ -121,12 +121,16 @@ void Inspector::load(QList<int> keys)
             item = kernel->cuelists->getItem(id);
         }
     } else if (itemType == Keys::Cue) {
-        title->setText("Cues");
-        table->setModel(kernel->cues);
-        if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCue != nullptr)) {
-            item = kernel->cuelistView->currentCue;
+        if (kernel->cuelistView->currentCuelist == nullptr) {
+            title->setText("Cues (No Cuelist selected!)");
         } else {
-            item = kernel->cues->getItem(id);
+            title->setText("Cues (Cuelist " + kernel->cuelistView->currentCuelist->name() + ")");
+            table->setModel(kernel->cuelistView->currentCuelist->cues);
+            if (itemIdKeys.isEmpty() && (kernel->cuelistView->currentCuelist->currentCue != nullptr)) {
+                item = kernel->cuelistView->currentCuelist->currentCue;
+            } else {
+                item = kernel->cuelistView->currentCuelist->cues->getItem(id);
+            }
         }
     } else {
         return;

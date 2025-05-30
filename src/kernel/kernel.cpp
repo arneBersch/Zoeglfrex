@@ -19,7 +19,6 @@ Kernel::Kernel(MainWindow* window) {
     raws = new RawTable(this);
     effects = new EffectTable(this);
     cuelists = new CuelistTable(this);
-    cues = new CueTable(this);
     terminal = new Terminal(this);
     inspector = new Inspector(this);
     dmxEngine = new DmxEngine(this);
@@ -40,7 +39,6 @@ void Kernel::reset() {
     raws->reset();
     effects->reset();
     cuelists->reset();
-    cues->reset();
     dmxEngine->sacnServer->prioritySpinBox->setValue(dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
     cuelistView->reload();
 }
@@ -75,7 +73,7 @@ void Kernel::saveFile(QString fileName) {
     raws->saveItemsToFile(&fileStream);
     effects->saveItemsToFile(&fileStream);
     cuelists->saveItemsToFile(&fileStream);
-    cues->saveItemsToFile(&fileStream);
+    //cues->saveItemsToFile(&fileStream);
 
     fileStream.writeEndElement();
     fileStream.writeEndDocument();
@@ -192,7 +190,7 @@ void Kernel::openFile(QString fileName) {
                         } else if ((pluralName == "Cuelists") && (singularName == "Cuelist")) {
                             cuelists->setAttribute(ids, attributes, QList<int>(), text);
                         } else if ((pluralName == "Cues") && (singularName == "Cue")) {
-                            cues->setAttribute(ids, attributes, QList<int>(), text);
+                            //cues->setAttribute(ids, attributes, QList<int>(), text);
                         } else {
                             terminal->error("Error reading file: Expected Object Type");
                             return;

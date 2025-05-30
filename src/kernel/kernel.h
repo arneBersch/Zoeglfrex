@@ -20,7 +20,6 @@
 #include "kernel/tables/rawtable.h"
 #include "kernel/tables/effecttable.h"
 #include "kernel/tables/cuelisttable.h"
-#include "kernel/tables/cuetable.h"
 #include "terminal/terminal.h"
 #include "inspector/inspector.h"
 #include "cuelistview/cuelistview.h"
@@ -45,7 +44,6 @@ public:
     RawTable *raws;
     EffectTable *effects;
     CuelistTable* cuelists;
-    CueTable *cues;
     Terminal *terminal;
     Inspector *inspector;
     CuelistView *cuelistView;

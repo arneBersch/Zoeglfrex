@@ -119,248 +119,268 @@ void Terminal::execute() {
                 error("Can't set Intensity because no Group is currently selected.");
                 return;
             }
-            if (kernel->cuelistView->currentCue == nullptr) {
+            if (kernel->cuelistView->currentCuelist == nullptr) {
+                error("Can't set Intensity because no Cuelist is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                 error("Can't set Intensity because no Cue is currently selected.");
                 return;
             }
-            attributeMap[Keys::Attribute] = kernel->cues->INTENSITIESATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->cuelistView->currentCuelist->cues->INTENSITIESATTRIBUTEID;
             attributeMap[Keys::Group] = kernel->cuelistView->currentGroup->id;
             QStringList cueIds;
-            cueIds.append(kernel->cuelistView->currentCue->id);
-            int cueRow = kernel->cues->getItemRow(kernel->cuelistView->currentCue->id) + 1;
+            cueIds.append(kernel->cuelistView->currentCuelist->currentCue->id);
+            int cueRow = kernel->cuelistView->currentCuelist->cues->getItemRow(kernel->cuelistView->currentCuelist->currentCue->id) + 1;
             if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
-                if (kernel->cuelistView->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
-                    Intensity* oldIntensity = kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cues->items.size())
-                        && kernel->cues->items[cueRow]->intensities.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cues->items[cueRow]->intensities.value(kernel->cuelistView->currentGroup) == oldIntensity)
-                        && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                if (kernel->cuelistView->currentCuelist->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
+                    Intensity* oldIntensity = kernel->cuelistView->currentCuelist->currentCue->intensities.value(kernel->cuelistView->currentGroup);
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->intensities.contains(kernel->cuelistView->currentGroup)
+                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->intensities.value(kernel->cuelistView->currentGroup) == oldIntensity)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
                         && kernel->cuelistView->trackingButton->isChecked()
                     ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 }
-                kernel->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
+                kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
             } else {
-                if (kernel->cuelistView->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
-                    Intensity* oldIntensity = kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cues->items.size())
-                        && kernel->cues->items[cueRow]->intensities.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cues->items[cueRow]->intensities.value(kernel->cuelistView->currentGroup) == oldIntensity)
-                        && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                if (kernel->cuelistView->currentCuelist->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
+                    Intensity* oldIntensity = kernel->cuelistView->currentCuelist->currentCue->intensities.value(kernel->cuelistView->currentGroup);
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->intensities.contains(kernel->cuelistView->currentGroup)
+                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->intensities.value(kernel->cuelistView->currentGroup) == oldIntensity)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
                         && kernel->cuelistView->trackingButton->isChecked()
                     ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 } else {
-                    while ((cueRow < kernel->cues->items.size())
-                        && !kernel->cues->items[cueRow]->intensities.contains(kernel->cuelistView->currentGroup)
-                        && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->intensities.contains(kernel->cuelistView->currentGroup)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
                         && kernel->cuelistView->trackingButton->isChecked()
                     ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 }
-                kernel->cues->setAttribute(cueIds, attributeMap, command);
+                kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, command);
             }
         } else if (selectionType == Keys::Color) {
             if (kernel->cuelistView->currentGroup == nullptr) {
                 error("Can't set Color because no Group is currently selected.");
                 return;
             }
-            if (kernel->cuelistView->currentCue == nullptr) {
+            if (kernel->cuelistView->currentCuelist == nullptr) {
+                error("Can't set Color because no Cuelist is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                 error("Can't set Color because no Cue is currently selected.");
                 return;
             }
-            attributeMap[Keys::Attribute] = kernel->cues->COLORSATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->cuelistView->currentCuelist->cues->COLORSATTRIBUTEID;
             attributeMap[Keys::Group] = kernel->cuelistView->currentGroup->id;
             QStringList cueIds;
-            cueIds.append(kernel->cuelistView->currentCue->id);
-            int cueRow = kernel->cues->getItemRow(kernel->cuelistView->currentCue->id) + 1;
+            cueIds.append(kernel->cuelistView->currentCuelist->currentCue->id);
+            int cueRow = kernel->cuelistView->currentCuelist->cues->getItemRow(kernel->cuelistView->currentCuelist->currentCue->id) + 1;
             if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
-                if (kernel->cuelistView->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
-                    Color* oldColor = kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cues->items.size())
-                        && kernel->cues->items[cueRow]->colors.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cues->items[cueRow]->colors.value(kernel->cuelistView->currentGroup) == oldColor)
-                        && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                if (kernel->cuelistView->currentCuelist->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
+                    Color* oldColor = kernel->cuelistView->currentCuelist->currentCue->colors.value(kernel->cuelistView->currentGroup);
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->colors.contains(kernel->cuelistView->currentGroup)
+                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->colors.value(kernel->cuelistView->currentGroup) == oldColor)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
                     ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 }
-                kernel->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
+                kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
             } else {
-                if (kernel->cuelistView->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
-                    Color* oldColor = kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cues->items.size())
-                           && kernel->cues->items[cueRow]->colors.contains(kernel->cuelistView->currentGroup)
-                           && (kernel->cues->items[cueRow]->colors.value(kernel->cuelistView->currentGroup) == oldColor)
-                           && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                if (kernel->cuelistView->currentCuelist->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
+                    Color* oldColor = kernel->cuelistView->currentCuelist->currentCue->colors.value(kernel->cuelistView->currentGroup);
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->colors.contains(kernel->cuelistView->currentGroup)
+                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->colors.value(kernel->cuelistView->currentGroup) == oldColor)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
                            ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 } else {
-                    while ((cueRow < kernel->cues->items.size())
-                           && !kernel->cues->items[cueRow]->colors.contains(kernel->cuelistView->currentGroup)
-                           && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
-                           ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->colors.contains(kernel->cuelistView->currentGroup)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
+                    ) {
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 }
-                kernel->cues->setAttribute(cueIds, attributeMap, command);
+                kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, command);
             }
         } else if (selectionType == Keys::Position) {
             if (kernel->cuelistView->currentGroup == nullptr) {
                 error("Can't set Position because no Group is currently selected.");
                 return;
             }
-            if (kernel->cuelistView->currentCue == nullptr) {
+            if (kernel->cuelistView->currentCuelist == nullptr) {
+                error("Can't set Position because no Cuelist is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                 error("Can't set Position because no Cue is currently selected.");
                 return;
             }
-            attributeMap[Keys::Attribute] = kernel->cues->POSITIONSATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->cuelistView->currentCuelist->cues->POSITIONSATTRIBUTEID;
             attributeMap[Keys::Group] = kernel->cuelistView->currentGroup->id;
             QStringList cueIds;
-            cueIds.append(kernel->cuelistView->currentCue->id);
-            int cueRow = kernel->cues->getItemRow(kernel->cuelistView->currentCue->id) + 1;
+            cueIds.append(kernel->cuelistView->currentCuelist->currentCue->id);
+            int cueRow = kernel->cuelistView->currentCuelist->cues->getItemRow(kernel->cuelistView->currentCuelist->currentCue->id) + 1;
             if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
-                if (kernel->cuelistView->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
-                    Position* oldPosition = kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cues->items.size())
-                           && kernel->cues->items[cueRow]->positions.contains(kernel->cuelistView->currentGroup)
-                           && (kernel->cues->items[cueRow]->positions.value(kernel->cuelistView->currentGroup) == oldPosition)
-                           && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
-                           ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                if (kernel->cuelistView->currentCuelist->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
+                    Position* oldPosition = kernel->cuelistView->currentCuelist->currentCue->positions.value(kernel->cuelistView->currentGroup);
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->positions.contains(kernel->cuelistView->currentGroup)
+                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->positions.value(kernel->cuelistView->currentGroup) == oldPosition)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
+                    ) {
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 }
-                kernel->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
+                kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
             } else {
-                if (kernel->cuelistView->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
-                    Position* oldPosition = kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cues->items.size())
-                           && kernel->cues->items[cueRow]->positions.contains(kernel->cuelistView->currentGroup)
-                           && (kernel->cues->items[cueRow]->positions.value(kernel->cuelistView->currentGroup) == oldPosition)
-                           && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
-                           ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                if (kernel->cuelistView->currentCuelist->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
+                    Position* oldPosition = kernel->cuelistView->currentCuelist->currentCue->positions.value(kernel->cuelistView->currentGroup);
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->positions.contains(kernel->cuelistView->currentGroup)
+                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->positions.value(kernel->cuelistView->currentGroup) == oldPosition)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
+                    ) {
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 } else {
-                    while ((cueRow < kernel->cues->items.size())
-                           && !kernel->cues->items[cueRow]->positions.contains(kernel->cuelistView->currentGroup)
-                           && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
-                           ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->positions.contains(kernel->cuelistView->currentGroup)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
+                    ) {
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 }
-                kernel->cues->setAttribute(cueIds, attributeMap, command);
+                kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, command);
             }
         } else if (selectionType == Keys::Raw) {
             if (kernel->cuelistView->currentGroup == nullptr) {
                 error("Can't set Raws because no Group is currently selected.");
                 return;
             }
-            if (kernel->cuelistView->currentCue == nullptr) {
+            if (kernel->cuelistView->currentCuelist == nullptr) {
+                error("Can't set Raws because no Cuelist is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                 error("Can't set Raws because no Cue is currently selected.");
                 return;
             }
-            attributeMap[Keys::Attribute] = kernel->cues->RAWSATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->cuelistView->currentCuelist->cues->RAWSATTRIBUTEID;
             attributeMap[Keys::Group] = kernel->cuelistView->currentGroup->id;
             QStringList cueIds;
-            cueIds.append(kernel->cuelistView->currentCue->id);
-            int cueRow = kernel->cues->getItemRow(kernel->cuelistView->currentCue->id) + 1;
+            cueIds.append(kernel->cuelistView->currentCuelist->currentCue->id);
+            int cueRow = kernel->cuelistView->currentCuelist->cues->getItemRow(kernel->cuelistView->currentCuelist->currentCue->id) + 1;
             if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
-                if (kernel->cuelistView->currentCue->raws.contains(kernel->cuelistView->currentGroup)) {
-                    QList<Raw*> oldRaws = kernel->cuelistView->currentCue->raws.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cues->items.size())
-                        && kernel->cues->items[cueRow]->raws.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cues->items[cueRow]->raws.value(kernel->cuelistView->currentGroup) == oldRaws)
-                        && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                if (kernel->cuelistView->currentCuelist->currentCue->raws.contains(kernel->cuelistView->currentGroup)) {
+                    QList<Raw*> oldRaws = kernel->cuelistView->currentCuelist->currentCue->raws.value(kernel->cuelistView->currentGroup);
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->raws.contains(kernel->cuelistView->currentGroup)
+                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->raws.value(kernel->cuelistView->currentGroup) == oldRaws)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
                     ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 }
-                kernel->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
+                kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
             } else {
-                if (kernel->cuelistView->currentCue->raws.contains(kernel->cuelistView->currentGroup)) {
-                    QList<Raw*> oldRaws = kernel->cuelistView->currentCue->raws.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cues->items.size())
-                        && kernel->cues->items[cueRow]->raws.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cues->items[cueRow]->raws.value(kernel->cuelistView->currentGroup) == oldRaws)
-                        && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                if (kernel->cuelistView->currentCuelist->currentCue->raws.contains(kernel->cuelistView->currentGroup)) {
+                    QList<Raw*> oldRaws = kernel->cuelistView->currentCuelist->currentCue->raws.value(kernel->cuelistView->currentGroup);
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->raws.contains(kernel->cuelistView->currentGroup)
+                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->raws.value(kernel->cuelistView->currentGroup) == oldRaws)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
                     ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 } else {
-                    while ((cueRow < kernel->cues->items.size())
-                        && !kernel->cues->items[cueRow]->raws.contains(kernel->cuelistView->currentGroup)
-                        && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->raws.contains(kernel->cuelistView->currentGroup)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
                     ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 }
-                kernel->cues->setAttribute(cueIds, attributeMap, command);
+                kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, command);
             }
         } else if (selectionType == Keys::Effect) {
             if (kernel->cuelistView->currentGroup == nullptr) {
                 error("Can't set Effects because no Group is currently selected.");
                 return;
             }
-            if (kernel->cuelistView->currentCue == nullptr) {
+            if (kernel->cuelistView->currentCuelist == nullptr) {
+                error("Can't set Effects because no Cuelist is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                 error("Can't set Effects because no Cue is currently selected.");
                 return;
             }
-            attributeMap[Keys::Attribute] = kernel->cues->EFFECTSATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->cuelistView->currentCuelist->cues->EFFECTSATTRIBUTEID;
             attributeMap[Keys::Group] = kernel->cuelistView->currentGroup->id;
             QStringList cueIds;
-            cueIds.append(kernel->cuelistView->currentCue->id);
-            int cueRow = kernel->cues->getItemRow(kernel->cuelistView->currentCue->id) + 1;
+            cueIds.append(kernel->cuelistView->currentCuelist->currentCue->id);
+            int cueRow = kernel->cuelistView->currentCuelist->cues->getItemRow(kernel->cuelistView->currentCuelist->currentCue->id) + 1;
             if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
-                if (kernel->cuelistView->currentCue->effects.contains(kernel->cuelistView->currentGroup)) {
-                    QList<Effect*> oldEffects = kernel->cuelistView->currentCue->effects.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cues->items.size())
-                           && kernel->cues->items[cueRow]->effects.contains(kernel->cuelistView->currentGroup)
-                           && (kernel->cues->items[cueRow]->effects.value(kernel->cuelistView->currentGroup) == oldEffects)
-                           && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                if (kernel->cuelistView->currentCuelist->currentCue->effects.contains(kernel->cuelistView->currentGroup)) {
+                    QList<Effect*> oldEffects = kernel->cuelistView->currentCuelist->currentCue->effects.value(kernel->cuelistView->currentGroup);
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->effects.contains(kernel->cuelistView->currentGroup)
+                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->effects.value(kernel->cuelistView->currentGroup) == oldEffects)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
                            ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 }
-                kernel->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
+                kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
             } else {
-                if (kernel->cuelistView->currentCue->effects.contains(kernel->cuelistView->currentGroup)) {
-                    QList<Effect*> oldEffects = kernel->cuelistView->currentCue->effects.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cues->items.size())
-                           && kernel->cues->items[cueRow]->effects.contains(kernel->cuelistView->currentGroup)
-                           && (kernel->cues->items[cueRow]->effects.value(kernel->cuelistView->currentGroup) == oldEffects)
-                           && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
-                           ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                if (kernel->cuelistView->currentCuelist->currentCue->effects.contains(kernel->cuelistView->currentGroup)) {
+                    QList<Effect*> oldEffects = kernel->cuelistView->currentCuelist->currentCue->effects.value(kernel->cuelistView->currentGroup);
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->effects.contains(kernel->cuelistView->currentGroup)
+                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->effects.value(kernel->cuelistView->currentGroup) == oldEffects)
+                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
+                    ) {
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 } else {
-                    while ((cueRow < kernel->cues->items.size())
-                           && !kernel->cues->items[cueRow]->effects.contains(kernel->cuelistView->currentGroup)
-                           && !kernel->cues->items[cueRow]->boolAttributes.value(kernel->cues->BLOCKATTRIBUTEID)
+                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                           && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->effects.contains(kernel->cuelistView->currentGroup)
+                           && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->cuelistView->currentCuelist->cues->BLOCKATTRIBUTEID)
                            ) {
-                        cueIds.append(kernel->cues->items[cueRow]->id);
+                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
                         cueRow++;
                     }
                 }
-                kernel->cues->setAttribute(cueIds, attributeMap, command);
+                kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, command);
             }
         } else if (selectionType == Keys::Cuelist) {
             if (ids.size() != 1) {
@@ -415,57 +435,73 @@ void Terminal::execute() {
                 error("Can't load the Intensity because no Group is currently selected.");
                 return;
             }
-            if (kernel->cuelistView->currentCue == nullptr) {
+            if (kernel->cuelistView->currentCuelist == nullptr) {
+                error("Can't set Intensity because no Cuelist is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                 error("Can't set Intensity because no Cue is currently selected.");
                 return;
             }
-            if (!kernel->cuelistView->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
+            if (!kernel->cuelistView->currentCuelist->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
                 error("Can't load the Intensity because the selected Cue contains no Intensity for this Group.");
                 return;
             }
-            ids.append(kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id);
+            ids.append(kernel->cuelistView->currentCuelist->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id);
         } else if (selectionType == Keys::Color) {
             if (kernel->cuelistView->currentGroup == nullptr) {
                 error("Can't load the Color because no Group is currently selected.");
                 return;
             }
-            if (kernel->cuelistView->currentCue == nullptr) {
+            if (kernel->cuelistView->currentCuelist == nullptr) {
+                error("Can't set Color because no Cuelist is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                 error("Can't set Color because no Cue is currently selected.");
                 return;
             }
-            if (!kernel->cuelistView->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
+            if (!kernel->cuelistView->currentCuelist->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
                 error("Can't load the Color because the selected Cue contains no Color for this Group.");
                 return;
             }
-            ids.append(kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id);
+            ids.append(kernel->cuelistView->currentCuelist->currentCue->colors.value(kernel->cuelistView->currentGroup)->id);
         } else if (selectionType == Keys::Position) {
             if (kernel->cuelistView->currentGroup == nullptr) {
                 error("Can't load the Position because no Group is currently selected.");
                 return;
             }
-            if (kernel->cuelistView->currentCue == nullptr) {
+            if (kernel->cuelistView->currentCuelist == nullptr) {
+                error("Can't set Position because no Cuelist is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                 error("Can't set Position because no Cue is currently selected.");
                 return;
             }
-            if (!kernel->cuelistView->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
+            if (!kernel->cuelistView->currentCuelist->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
                 error("Can't load the Position because the selected Cue contains no Position for this Group.");
                 return;
             }
-            ids.append(kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup)->id);
+            ids.append(kernel->cuelistView->currentCuelist->currentCue->positions.value(kernel->cuelistView->currentGroup)->id);
         } else if (selectionType == Keys::Raw) {
             if (kernel->cuelistView->currentGroup == nullptr) {
                 error("Can't load the Raws because no Group is currently selected.");
                 return;
             }
-            if (kernel->cuelistView->currentCue == nullptr) {
+            if (kernel->cuelistView->currentCuelist == nullptr) {
+                error("Can't set Raws because no Cuelist is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                 error("Can't set Raws because no Cue is currently selected.");
                 return;
             }
-            if (!kernel->cuelistView->currentCue->raws.contains(kernel->cuelistView->currentGroup)) {
+            if (!kernel->cuelistView->currentCuelist->currentCue->raws.contains(kernel->cuelistView->currentGroup)) {
                 error("Can't load the Raws because the selected Cue contains no Raws for this Group.");
                 return;
             }
-            for (Raw* raw : kernel->cuelistView->currentCue->raws.value(kernel->cuelistView->currentGroup)) {
+            for (Raw* raw : kernel->cuelistView->currentCuelist->currentCue->raws.value(kernel->cuelistView->currentGroup)) {
                 ids.append(raw->id);
             }
         } else if (selectionType == Keys::Effect) {
@@ -473,15 +509,19 @@ void Terminal::execute() {
                 error("Can't load the Effects because no Group is currently selected.");
                 return;
             }
-            if (kernel->cuelistView->currentCue == nullptr) {
+            if (kernel->cuelistView->currentCuelist == nullptr) {
+                error("Can't set Effects because no Cuelist is currently selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                 error("Can't set Effects because no Cue is currently selected.");
                 return;
             }
-            if (!kernel->cuelistView->currentCue->effects.contains(kernel->cuelistView->currentGroup)) {
+            if (!kernel->cuelistView->currentCuelist->currentCue->effects.contains(kernel->cuelistView->currentGroup)) {
                 error("Can't load the Effects because the selected Cue contains no Effects for this Group.");
                 return;
             }
-            for (Effect* effect : kernel->cuelistView->currentCue->effects.value(kernel->cuelistView->currentGroup)) {
+            for (Effect* effect : kernel->cuelistView->currentCuelist->currentCue->effects.value(kernel->cuelistView->currentGroup)) {
                 ids.append(effect->id);
             }
         } else if (selectionType == Keys::Cuelist) {
@@ -491,11 +531,15 @@ void Terminal::execute() {
             }
             ids.append(kernel->cuelistView->currentCuelist->id);
         } else if (selectionType == Keys::Cue) {
-            if (kernel->cuelistView->currentCue == nullptr) {
+            if (kernel->cuelistView->currentCuelist == nullptr) {
+                error("Can't load the Cue because no Cuelist is selected.");
+                return;
+            }
+            if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                 error("Can't load the Cue because no Cue is selected.");
                 return;
             }
-            ids.append(kernel->cuelistView->currentCue->id);
+            ids.append(kernel->cuelistView->currentCuelist->currentCue->id);
         } else {
             error("No standard selection for this Item type.");
             return;
@@ -541,43 +585,55 @@ void Terminal::execute() {
                             error("Can't load the current Intensity because no Group is currently selected.");
                             return;
                         }
-                        if (kernel->cuelistView->currentCue == nullptr) {
+                        if (kernel->cuelistView->currentCuelist == nullptr) {
+                            error("Can't load the current Intensity because no Cuelist is currently selected.");
+                            return;
+                        }
+                        if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                             error("Can't load the current Intensity because no Cue is currently selected.");
                             return;
                         }
-                        if (!kernel->cuelistView->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
+                        if (!kernel->cuelistView->currentCuelist->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
                             error("Can't load the current Intensity because the current Cue contains no Intensity for the current Group.");
                             return;
                         }
-                        currentIdString = kernel->cuelistView->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id;
+                        currentIdString = kernel->cuelistView->currentCuelist->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id;
                     } else if (currentItemType == Keys::Color) {
                         if (kernel->cuelistView->currentGroup == nullptr) {
                             error("Can't load the current Color because no Group is currently selected.");
                             return;
                         }
-                        if (kernel->cuelistView->currentCue == nullptr) {
+                        if (kernel->cuelistView->currentCuelist == nullptr) {
+                            error("Can't load the current Color because no Cuelist is currently selected.");
+                            return;
+                        }
+                        if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                             error("Can't load the current Color because no Cue is currently selected.");
                             return;
                         }
-                        if (!kernel->cuelistView->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
+                        if (!kernel->cuelistView->currentCuelist->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
                             error("Can't load the current Color because the current Cue contains no Color for the current Group.");
                             return;
                         }
-                        currentIdString = kernel->cuelistView->currentCue->colors.value(kernel->cuelistView->currentGroup)->id;
+                        currentIdString = kernel->cuelistView->currentCuelist->currentCue->colors.value(kernel->cuelistView->currentGroup)->id;
                     } else if (currentItemType == Keys::Position) {
                         if (kernel->cuelistView->currentGroup == nullptr) {
                             error("Can't load the current Position because no Group is currently selected.");
                             return;
                         }
-                        if (kernel->cuelistView->currentCue == nullptr) {
+                        if (kernel->cuelistView->currentCuelist == nullptr) {
+                            error("Can't load the current Position because no Cuelist is currently selected.");
+                            return;
+                        }
+                        if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                             error("Can't load the current Position because no Cue is currently selected.");
                             return;
                         }
-                        if (!kernel->cuelistView->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
+                        if (!kernel->cuelistView->currentCuelist->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
                             error("Can't load the current Position because the current Cue contains no Color for the current Group.");
                             return;
                         }
-                        currentIdString = kernel->cuelistView->currentCue->positions.value(kernel->cuelistView->currentGroup)->id;
+                        currentIdString = kernel->cuelistView->currentCuelist->currentCue->positions.value(kernel->cuelistView->currentGroup)->id;
                     } else if (currentItemType == Keys::Cuelist) {
                         if (kernel->cuelistView->currentCuelist == nullptr) {
                             error("Can't load the Cuelist because no Cuelist is selected.");
@@ -585,11 +641,15 @@ void Terminal::execute() {
                         }
                         currentIdString = kernel->cuelistView->currentCuelist->id;
                     } else if (currentItemType == Keys::Cue) {
-                        if (kernel->cuelistView->currentCue == nullptr) {
+                        if (kernel->cuelistView->currentCuelist == nullptr) {
+                            error("Can't load the Cue because no Cuelist is selected.");
+                            return;
+                        }
+                        if (kernel->cuelistView->currentCuelist->currentCue == nullptr) {
                             error("Can't load the Cue because no Cue is selected.");
                             return;
                         }
-                        currentIdString = kernel->cuelistView->currentCue->id;
+                        currentIdString = kernel->cuelistView->currentCuelist->currentCue->id;
                     } else {
                         error("Invalid Attributes given.");
                         return;
@@ -631,7 +691,7 @@ void Terminal::execute() {
         } else if (selectionType == Keys::Cuelist) {
             attributeMap[Keys::Attribute] = kernel->cuelists->LABELATTRIBUTEID;
         } else if (selectionType == Keys::Cue) {
-            attributeMap[Keys::Attribute] = kernel->cues->FADEATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->models->LABELATTRIBUTEID;
         }
     }
     QString text = QString();
@@ -644,7 +704,7 @@ void Terminal::execute() {
         || ((selectionType == Keys::Raw) && kernel->raws->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Effect) && kernel->effects->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
         || ((selectionType == Keys::Cuelist) && kernel->cuelists->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
-        || ((selectionType == Keys::Cue) && kernel->cues->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
+        || ((selectionType == Keys::Cue) && (kernel->cuelistView->currentCuelist != nullptr) && kernel->cuelistView->currentCuelist->cues->stringAttributes.contains(attributeMap.value(Keys::Attribute)))
     ) {
         if (ids.size() == 1) {
             Item* item = nullptr;
@@ -666,8 +726,8 @@ void Terminal::execute() {
                 item = kernel->effects->getItem(ids.first());
             } else if (selectionType == Keys::Cuelist) {
                 item = kernel->cuelists->getItem(ids.first());
-            } else if (selectionType == Keys::Cue) {
-                item = kernel->cues->getItem(ids.first());
+            } else if ((selectionType == Keys::Cue) && (kernel->cuelistView->currentCuelist != nullptr)) {
+                item = kernel->cuelistView->currentCuelist->cues->getItem(ids.first());
             }
             if (item != nullptr) {
                 text = item->stringAttributes.value(attributeMap.value(Keys::Attribute));
@@ -701,7 +761,11 @@ void Terminal::execute() {
     } else if (selectionType == Keys::Cuelist) {
         kernel->cuelists->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Cue) {
-        kernel->cues->setAttribute(ids, attributeMap, value, text);
+        if (kernel->cuelistView->currentCuelist == nullptr) {
+            error("Can't set Cue Attribute because no Cue is currently selected.");
+            return;
+        }
+        kernel->cuelistView->currentCuelist->cues->setAttribute(ids, attributeMap, value, text);
     }
     QMap<int, QSet<int>> channels;
     for (Fixture* fixture : kernel->fixtures->items) {
@@ -895,8 +959,8 @@ QStringList Terminal::keysToSelection(QList<int> keys, int itemType) {
         allIds = kernel->effects->getIds();
     } else if (itemType == Keys::Cuelist) {
         allIds = kernel->cuelists->getIds();
-    } else if (itemType == Keys::Cue) {
-        allIds = kernel->cues->getIds();
+    } else if ((itemType == Keys::Cue) && (kernel->cuelistView->currentCuelist != nullptr)) {
+        allIds = kernel->cuelistView->currentCuelist->cues->getIds();
     } else {
         return QStringList();
     }
