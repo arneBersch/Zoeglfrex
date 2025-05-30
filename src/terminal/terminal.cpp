@@ -762,7 +762,7 @@ void Terminal::execute() {
         kernel->cuelists->setAttribute(ids, attributeMap, value, text);
     } else if (selectionType == Keys::Cue) {
         if (kernel->cuelistView->currentCuelist == nullptr) {
-            error("Can't set Cue Attribute because no Cue is currently selected.");
+            error("Can't set Cue Attribute because no Cuelist is currently selected.");
             return;
         }
         kernel->cuelistView->currentCuelist->cues->setAttribute(ids, attributeMap, value, text);
@@ -959,8 +959,10 @@ QStringList Terminal::keysToSelection(QList<int> keys, int itemType) {
         allIds = kernel->effects->getIds();
     } else if (itemType == Keys::Cuelist) {
         allIds = kernel->cuelists->getIds();
-    } else if ((itemType == Keys::Cue) && (kernel->cuelistView->currentCuelist != nullptr)) {
-        allIds = kernel->cuelistView->currentCuelist->cues->getIds();
+    } else if (itemType == Keys::Cue) {
+        if (kernel->cuelistView->currentCuelist != nullptr) {
+            allIds = kernel->cuelistView->currentCuelist->cues->getIds();
+        }
     } else {
         return QStringList();
     }

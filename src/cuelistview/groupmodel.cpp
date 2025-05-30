@@ -100,9 +100,6 @@ QVariant GroupModel::headerData(int column, Qt::Orientation orientation, int rol
     if (role != Qt::DisplayRole) {
         return QVariant();
     }
-    if (kernel->cuelistView->currentCuelist == nullptr) {
-        return QVariant();
-    }
     if (orientation == Qt::Horizontal) {
         if (column == GroupModelColumns::cue) {
             return "Cue";

@@ -73,7 +73,6 @@ void Kernel::saveFile(QString fileName) {
     raws->saveItemsToFile(&fileStream);
     effects->saveItemsToFile(&fileStream);
     cuelists->saveItemsToFile(&fileStream);
-    //cues->saveItemsToFile(&fileStream);
 
     fileStream.writeEndElement();
     fileStream.writeEndDocument();

@@ -81,6 +81,9 @@ void DmxEngine::generateDmx() {
                 groupEffectFrames[group][effect] = newGroupEffectFrames.value(group).value(effect);
             }
         }
+    } else {
+        fadeProgress->setValue(0);
+        fadeProgress->setRange(0, 1);
     }
     QMap<int, QByteArray> dmxUniverses;
     QMap<Fixture*, float> lastFrameFixturePan = fixturePan;

@@ -20,6 +20,7 @@ public:
     Cuelist(const Cuelist* item);
     ~Cuelist();
     QString info() override;
+    void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
     CueTable* cues;
     Cue* currentCue = nullptr;
     Cue* lastCue = nullptr;

@@ -28,3 +28,10 @@ QString Cuelist::info() {
     QString info = Item::info();
     return info;
 }
+
+void Cuelist::writeAttributesToFile(QXmlStreamWriter* fileStream) {
+    Item::writeAttributesToFile(fileStream);
+    fileStream->writeStartElement("Cues");
+    cues->saveItemsToFile(fileStream);
+    fileStream->writeEndElement();
+}
