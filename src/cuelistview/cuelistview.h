@@ -39,8 +39,8 @@ public:
     Fixture* currentFixture = nullptr;
     Group* currentGroup = nullptr;
     QPushButton* trackingButton;
-private:
     void updateCuelistView();
+private:
     Kernel *kernel;
     QComboBox *cueViewModeComboBox;
     const QString CUEVIEWCUEMODE = "Cue Mode";

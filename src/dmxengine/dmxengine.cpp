@@ -54,6 +54,14 @@ void DmxEngine::generateDmx() {
     if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr)) {
         remainingFadeFrames = kernel->cuelistView->currentCuelist->remainingFadeFrames;
         totalFadeFrames = kernel->cuelistView->currentCuelist->totalFadeFrames;
+        if (remainingFadeFrames > 0) {
+            fadeProgress->setValue(totalFadeFrames - remainingFadeFrames);
+            fadeProgress->setRange(0, totalFadeFrames);
+            kernel->cuelistView->currentCuelist->remainingFadeFrames--;
+        } else {
+            fadeProgress->setValue(1);
+            fadeProgress->setRange(0, 1);
+        }
         if (skipFadeButton->isChecked()) {
             kernel->cuelistView->currentCuelist->remainingFadeFrames = 0;
         }
@@ -270,14 +278,6 @@ void DmxEngine::generateDmx() {
         }
     }
     sacnServer->send(dmxUniverses);
-    if (remainingFadeFrames > 0) {
-        remainingFadeFrames--;
-        fadeProgress->setValue(totalFadeFrames - remainingFadeFrames);
-        fadeProgress->setRange(0, totalFadeFrames);
-    } else {
-        fadeProgress->setValue(1);
-        fadeProgress->setRange(0, 1);
-    }
     kernel->preview2d->updateImage();
 }
 

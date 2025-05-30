@@ -64,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     kernel = new Kernel(this);
     setupShortcuts(this);
+    kernel->cuelistView->updateCuelistView();
     kernel->cuelistView->reload();
 
     QSplitter *leftColumn = new QSplitter();

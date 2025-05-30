@@ -43,7 +43,6 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
     cuelistTableView->setFocusPolicy(Qt::NoFocus);
     cuelistTableView->verticalHeader()->hide();
     cuelistTableView->horizontalHeader()->setStretchLastSection(true);
-    cuelistTableView->setModel(cueModel);
     layout->addWidget(cuelistTableView);
 
     layout->addWidget(kernel->dmxEngine);
@@ -79,7 +78,7 @@ void CuelistView::reload() {
         reload();
         return;
     }
-    if ((currentCuelist != nullptr) && (currentCuelist == nullptr) && !currentCuelist->cues->items.isEmpty()) {
+    if ((currentCuelist != nullptr) && (currentCuelist->currentCue == nullptr) && !currentCuelist->cues->items.isEmpty()) {
         loadCue(currentCuelist->cues->items.first()->id);
         return;
     }
@@ -109,7 +108,7 @@ void CuelistView::loadCue(QString cueId) {
         kernel->terminal->error("Can't select Cue because Cue " + cueId + " doesn't exist.");
         return;
     }
-    if (cue == currentCuelist->lastCue) {
+    if (cue == currentCuelist->currentCue) {
         return;
     }
     currentCuelist->lastCue = currentCuelist->currentCue;
