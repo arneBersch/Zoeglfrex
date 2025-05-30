@@ -60,14 +60,14 @@ QString Cue::info() {
             effectValues.append(group->name() + " @ " + effectValueItems.join(" + "));
         }
     }
-    info += "\n" + getCuelist()->cues->INTENSITIESATTRIBUTEID + " Intensities: " + intensityValues.join("; ");
-    info += "\n" + getCuelist()->cues->COLORSATTRIBUTEID + " Colors: " + colorValues.join("; ");
-    info += "\n" + getCuelist()->cues->POSITIONSATTRIBUTEID + " Positions: " + positionValues.join("; ");
-    info += "\n" + getCuelist()->cues->RAWSATTRIBUTEID + " Raws: " + rawValues.join("; ");
-    info += "\n" + getCuelist()->cues->EFFECTSATTRIBUTEID + " Effects: " + effectValues.join("; ");
-    info += "\n" + getCuelist()->cues->FADEATTRIBUTEID + " Fade: " + QString::number(floatAttributes.value(getCuelist()->cues->FADEATTRIBUTEID)) + "s";
-    info += "\n" + getCuelist()->cues->BLOCKATTRIBUTEID + " Block: ";
-    if (boolAttributes.value(getCuelist()->cues->BLOCKATTRIBUTEID)) {
+    info += "\n" + kernel->CUEINTENSITIESATTRIBUTEID + " Intensities: " + intensityValues.join("; ");
+    info += "\n" + kernel->CUECOLORSATTRIBUTEID + " Colors: " + colorValues.join("; ");
+    info += "\n" + kernel->CUEPOSITIONSATTRIBUTEID + " Positions: " + positionValues.join("; ");
+    info += "\n" + kernel->CUERAWSATTRIBUTEID + " Raws: " + rawValues.join("; ");
+    info += "\n" + kernel->CUEEFFECTSATTRIBUTEID + " Effects: " + effectValues.join("; ");
+    info += "\n" + kernel->CUEFADEATTRIBUTEID + " Fade: " + QString::number(floatAttributes.value(kernel->CUEFADEATTRIBUTEID)) + "s";
+    info += "\n" + kernel->CUEBLOCKATTRIBUTEID + " Block: ";
+    if (boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)) {
         info += "True";
     } else {
         info += "False";
@@ -79,28 +79,28 @@ void Cue::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     Item::writeAttributesToFile(fileStream);
     for (Group* group : intensities.keys()) {
         fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", getCuelist()->cues->INTENSITIESATTRIBUTEID);
+        fileStream->writeAttribute("ID", kernel->CUEINTENSITIESATTRIBUTEID);
         fileStream->writeAttribute("Group", group->id);
         fileStream->writeCharacters(intensities.value(group)->id);
         fileStream->writeEndElement();
     }
     for (Group* group : colors.keys()) {
         fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", getCuelist()->cues->COLORSATTRIBUTEID);
+        fileStream->writeAttribute("ID", kernel->CUECOLORSATTRIBUTEID);
         fileStream->writeAttribute("Group", group->id);
         fileStream->writeCharacters(colors.value(group)->id);
         fileStream->writeEndElement();
     }
     for (Group* group : positions.keys()) {
         fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", getCuelist()->cues->POSITIONSATTRIBUTEID);
+        fileStream->writeAttribute("ID", kernel->CUEPOSITIONSATTRIBUTEID);
         fileStream->writeAttribute("Group", group->id);
         fileStream->writeCharacters(positions.value(group)->id);
         fileStream->writeEndElement();
     }
     for (Group* group : raws.keys()) {
         fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", getCuelist()->cues->RAWSATTRIBUTEID);
+        fileStream->writeAttribute("ID", kernel->CUERAWSATTRIBUTEID);
         fileStream->writeAttribute("Group", group->id);
         QStringList rawIds;
         for (Raw* raw : raws.value(group)) {
@@ -111,7 +111,7 @@ void Cue::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     }
     for (Group* group : effects.keys()) {
         fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", getCuelist()->cues->EFFECTSATTRIBUTEID);
+        fileStream->writeAttribute("ID", kernel->CUEEFFECTSATTRIBUTEID);
         fileStream->writeAttribute("Group", group->id);
         QStringList effectIds;
         for (Effect* effect : effects.value(group)) {

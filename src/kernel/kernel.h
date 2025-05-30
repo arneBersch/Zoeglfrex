@@ -52,6 +52,13 @@ public:
     ControlPanel *controlPanel;
     QMutex *mutex;
     const QString VERSION = "0.5.0";
+    const QString CUEINTENSITIESATTRIBUTEID = "2";
+    const QString CUECOLORSATTRIBUTEID = "3";
+    const QString CUEPOSITIONSATTRIBUTEID = "4";
+    const QString CUERAWSATTRIBUTEID = "5";
+    const QString CUEEFFECTSATTRIBUTEID = "6";
+    const QString CUEFADEATTRIBUTEID = "7";
+    const QString CUEBLOCKATTRIBUTEID = "8";
 };
 
 #endif // KERNEL_H

@@ -113,7 +113,7 @@ void CuelistView::loadCue(QString cueId) {
     }
     currentCuelist->lastCue = currentCuelist->currentCue;
     currentCuelist->currentCue = cue;
-    currentCuelist->totalFadeFrames = kernel->dmxEngine->PROCESSINGRATE * cue->floatAttributes[currentCuelist->cues->FADEATTRIBUTEID] + 0.5;
+    currentCuelist->totalFadeFrames = kernel->dmxEngine->PROCESSINGRATE * cue->floatAttributes[kernel->CUEFADEATTRIBUTEID] + 0.5;
     currentCuelist->remainingFadeFrames = currentCuelist->totalFadeFrames;
     reload();
     if ((cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE)) {

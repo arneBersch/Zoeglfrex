@@ -10,13 +10,13 @@
 #include "kernel/kernel.h"
 
 CueTable::CueTable(Kernel *core) : ItemTable(core, Keys::Cue, "Cue", "Cues") {
-    floatAttributes[FADEATTRIBUTEID] = {"Fade", 0, 0, 600, "s"};
-    boolAttributes[BLOCKATTRIBUTEID] = {"Block", false};
+    floatAttributes[kernel->CUEFADEATTRIBUTEID] = {"Fade", 0, 0, 600, "s"};
+    boolAttributes[kernel->CUEBLOCKATTRIBUTEID] = {"Block", false};
 }
 
 void CueTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
-    if (attribute == INTENSITIESATTRIBUTEID) { // Intensities
+    if (attribute == kernel->CUEINTENSITIESATTRIBUTEID) { // Intensities
         Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
             kernel->terminal->error("Can't set Cue Intensities because an invalid Group was given.");
@@ -64,7 +64,7 @@ void CueTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QLis
                 kernel->terminal->success("Set Intensities of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to Intensity " + intensity->name() + ".");
             }
         }
-    } else if (attribute == COLORSATTRIBUTEID) { // Colors
+    } else if (attribute == kernel->CUECOLORSATTRIBUTEID) { // Colors
         Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
             kernel->terminal->error("Can't set Cue Colors because an invalid Group was given.");
@@ -112,7 +112,7 @@ void CueTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QLis
                 kernel->terminal->success("Set Colors of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to Color " + color->name() + ".");
             }
         }
-    } else if (attribute == POSITIONSATTRIBUTEID) { // Positions
+    } else if (attribute == kernel->CUEPOSITIONSATTRIBUTEID) { // Positions
         Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
             kernel->terminal->error("Can't set Cue Positions because an invalid Group was given.");
@@ -160,7 +160,7 @@ void CueTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QLis
                 kernel->terminal->success("Set Positions of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to Position " + position->name() + ".");
             }
         }
-    } else if (attribute == RAWSATTRIBUTEID) { // Raws
+    } else if (attribute == kernel->CUERAWSATTRIBUTEID) { // Raws
         Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
             kernel->terminal->error("Can't set Cue Raws because an invalid Group was given.");
@@ -217,7 +217,7 @@ void CueTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QLis
                 kernel->terminal->success("Set Raws of " + QString::number(ids.length()) + " Cues at Group " + group->name() + " to " + QString::number(raws.length()) + " Raws.");
             }
         }
-    } else if (attribute == EFFECTSATTRIBUTEID) { // Effects
+    } else if (attribute == kernel->CUEEFFECTSATTRIBUTEID) { // Effects
         Group* group = kernel->groups->getItem(attributes.value(Keys::Group));
         if (group == nullptr) {
             kernel->terminal->error("Can't set Cue Effects because an invalid Group was given.");

@@ -107,15 +107,15 @@ QVariant GroupModel::headerData(int column, Qt::Orientation orientation, int rol
         if (column == GroupModelColumns::cue) {
             return "Cue";
         } else if (column == GroupModelColumns::intensity) {
-            return kernel->cuelistView->currentCuelist->cues->INTENSITIESATTRIBUTEID + " Intensity";
+            return kernel->CUEINTENSITIESATTRIBUTEID + " Intensity";
         } else if (column == GroupModelColumns::color) {
-            return kernel->cuelistView->currentCuelist->cues->COLORSATTRIBUTEID + " Color";
+            return kernel->CUECOLORSATTRIBUTEID + " Color";
         } else if (column == GroupModelColumns::position) {
-            return kernel->cuelistView->currentCuelist->cues->POSITIONSATTRIBUTEID + " Position";
+            return kernel->CUEPOSITIONSATTRIBUTEID + " Position";
         } else if (column == GroupModelColumns::raws) {
-            return kernel->cuelistView->currentCuelist->cues->RAWSATTRIBUTEID + " Raws";
+            return kernel->CUERAWSATTRIBUTEID + " Raws";
         } else if (column == GroupModelColumns::effects) {
-            return kernel->cuelistView->currentCuelist->cues->EFFECTSATTRIBUTEID + " Effects";
+            return kernel->CUEEFFECTSATTRIBUTEID + " Effects";
         } else {
             return QVariant();
         }
