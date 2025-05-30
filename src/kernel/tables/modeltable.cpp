@@ -9,9 +9,9 @@
 #include "modeltable.h"
 
 ModelTable::ModelTable(Kernel *core) : ItemTable(core, Keys::Model, "Model", "Models") {
-    stringAttributes[CHANNELSATTRIBUTEID] = {"Channels", "D", "^[01DdRrGgBbWwCcMmYyPpTtZz]+$"};
-    floatAttributes[PANRANGEATTRIBUTEID] = {"Pan Range", 540, 0, 3600, "°"};
-    floatAttributes[TILTRANGEATTRIBUTEID] = {"Tilt Range", 270, 0, 360, "°"};
-    floatAttributes[MINZOOMATTRIBUTEID] = {"Minimal Zoom", 5, 0, 180, "°"};
-    floatAttributes[MINZOOMATTRIBUTEID] = {"Maximal Zoom", 60, 0, 180, "°"};
+    stringAttributes[kernel->MODELCHANNELSATTRIBUTEID] = {"Channels", "D", "^[01DdRrGgBbWwCcMmYyPpTtZz]+$"};
+    floatAttributes[kernel->MODELPANRANGEATTRIBUTEID] = {"Pan Range", 540, 0, 3600, "°"};
+    floatAttributes[kernel->MODELTILTRANGEATTRIBUTEID] = {"Tilt Range", 270, 0, 360, "°"};
+    floatAttributes[kernel->MODELMINZOOMATTRIBUTEID] = {"Minimal Zoom", 5, 0, 180, "°"};
+    floatAttributes[kernel->MODELMINZOOMATTRIBUTEID] = {"Maximal Zoom", 60, 0, 180, "°"};
 }

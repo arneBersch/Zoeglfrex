@@ -21,7 +21,6 @@ class GroupTable : public ItemTable<Group> {
     Q_OBJECT
 public:
     GroupTable(Kernel *core);
-    const QString FIXTURESATTRIBUTEID = "2";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 

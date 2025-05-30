@@ -50,7 +50,7 @@ QString Raw::info() {
             channelValue.append(QString::number(channel) + " @ " + QString::number(channelValues.value(channel)));
         }
     }
-    info += "\n" + kernel->raws->CHANNELVALUEATTRIBUTEID + ".x Channel Values: " + channelValue.join(", ");
+    info += "\n" + kernel->RAWCHANNELVALUEATTRIBUTEID + ".x Channel Values: " + channelValue.join(", ");
     QStringList modelChannelValue;
     for (Model* model : kernel->models->items) {
         if (modelSpecificChannelValues.contains(model)) {
@@ -77,15 +77,15 @@ QString Raw::info() {
         }
     }
     info += "\n    Fixture Exceptions: " + fixtureChannelValue.join("; ");
-    if (boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
-        info += "\n" + kernel->raws->MOVEINBLACKATTRIBUTEID + " MiB (Move in Black): True";
+    if (boolAttributes.value(kernel->RAWMOVEINBLACKATTRIBUTEID)) {
+        info += "\n" + kernel->RAWMOVEINBLACKATTRIBUTEID + " MiB (Move in Black): True";
     } else {
-        info += "\n" + kernel->raws->MOVEINBLACKATTRIBUTEID + " MiB (Move in Black): False";
+        info += "\n" + kernel->RAWMOVEINBLACKATTRIBUTEID + " MiB (Move in Black): False";
     }
-    if (boolAttributes.value(kernel->raws->FADEATTRIBUTEID)) {
-        info += "\n" + kernel->raws->FADEATTRIBUTEID + " Fade: True";
+    if (boolAttributes.value(kernel->RAWFADEATTRIBUTEID)) {
+        info += "\n" + kernel->RAWFADEATTRIBUTEID + " Fade: True";
     } else {
-        info += "\n" + kernel->raws->FADEATTRIBUTEID + " Fade: False";
+        info += "\n" + kernel->RAWFADEATTRIBUTEID + " Fade: False";
     }
     return info;
 }
@@ -94,14 +94,14 @@ void Raw::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     Item::writeAttributesToFile(fileStream);
     for (int channel : channelValues.keys()) {
         fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", (kernel->raws->CHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
+        fileStream->writeAttribute("ID", (kernel->RAWCHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
         fileStream->writeCharacters(QString::number(channelValues.value(channel)));
         fileStream->writeEndElement();
     }
     for (Model* model : modelSpecificChannelValues.keys()) {
         for (int channel : modelSpecificChannelValues.value(model).keys()) {
             fileStream->writeStartElement("Attribute");
-            fileStream->writeAttribute("ID", (kernel->raws->CHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
+            fileStream->writeAttribute("ID", (kernel->RAWCHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
             fileStream->writeAttribute("Model", model->id);
             fileStream->writeCharacters(QString::number(modelSpecificChannelValues.value(model).value(channel)));
             fileStream->writeEndElement();
@@ -110,7 +110,7 @@ void Raw::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     for (Fixture* fixture : fixtureSpecificChannelValues.keys()) {
         for (int channel : fixtureSpecificChannelValues.value(fixture).keys()) {
             fileStream->writeStartElement("Attribute");
-            fileStream->writeAttribute("ID", (kernel->raws->CHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
+            fileStream->writeAttribute("ID", (kernel->RAWCHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
             fileStream->writeAttribute("Fixture", fixture->id);
             fileStream->writeCharacters(QString::number(fixtureSpecificChannelValues.value(fixture).value(channel)));
             fileStream->writeEndElement();

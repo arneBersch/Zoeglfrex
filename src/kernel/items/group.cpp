@@ -50,14 +50,14 @@ QString Group::info() {
     for (Fixture* fixture : fixtures) {
         fixtureIds.append(fixture->name());
     }
-    info += "\n" + kernel->groups->FIXTURESATTRIBUTEID + " Fixtures: " + fixtureIds.join(" + ");
+    info += "\n" + kernel->GROUPFIXTURESATTRIBUTEID + " Fixtures: " + fixtureIds.join(" + ");
     return info;
 }
 
 void Group::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     Item::writeAttributesToFile(fileStream);
     fileStream->writeStartElement("Attribute");
-    fileStream->writeAttribute("ID", kernel->groups->FIXTURESATTRIBUTEID);
+    fileStream->writeAttribute("ID", kernel->GROUPFIXTURESATTRIBUTEID);
     QStringList fixtureIds;
     for (Fixture* fixture : fixtures) {
         fixtureIds.append(fixture->id);

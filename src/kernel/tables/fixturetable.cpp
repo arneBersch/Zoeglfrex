@@ -9,17 +9,17 @@
 #include "fixturetable.h"
 
 FixtureTable::FixtureTable(Kernel *core) : ItemTable(core, Keys::Fixture, "Fixture", "Fixtures") {
-    intAttributes[ADDRESSATTRIBUTEID] = {"Address", 0, 0, 512};
-    intAttributes[UNIVERSEATTRIBUTEID] = {"Universe", 1, 1, 63999};
-    floatAttributes[POSITIONXATTRIBUTEID] = {"X Position", 0, -100, 100};
-    floatAttributes[POSITIONYATTRIBUTEID] = {"Y Position", 0, -100, 100};
-    angleAttributes[ROTATIONATTRIBUTEID] = {"Rotation", 0};
-    boolAttributes[INVERTPANATTRIBUTE] = {"Invert Pan", false};
+    intAttributes[kernel->FIXTUREADDRESSATTRIBUTEID] = {"Address", 0, 0, 512};
+    intAttributes[kernel->FIXTUREUNIVERSEATTRIBUTEID] = {"Universe", 1, 1, 63999};
+    floatAttributes[kernel->FIXTUREPOSITIONXATTRIBUTEID] = {"X Position", 0, -100, 100};
+    floatAttributes[kernel->FIXTUREPOSITIONYATTRIBUTEID] = {"Y Position", 0, -100, 100};
+    angleAttributes[kernel->FIXTUREROTATIONATTRIBUTEID] = {"Rotation", 0};
+    boolAttributes[kernel->FIXTUREINVERTPANATTRIBUTE] = {"Invert Pan", false};
 }
 
 void FixtureTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
-    if (attribute == MODELATTRIBUTEID) {
+    if (attribute == kernel->FIXTUREMODELATTRIBUTEID) {
         if ((value.size() == 1) && (value.first() == Keys::Minus)) {
             for (QString id : ids) {
                 Fixture* fixture = getItem(id);

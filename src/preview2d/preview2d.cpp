@@ -42,7 +42,7 @@ void Preview2d::updateImage() {
     }
     for (Fixture* fixture : fixtureCircles.keys()) {
         FixtureGraphicsItem *fixtureGraphicsItem = fixtureCircles.value(fixture);
-        QPointF position(100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONXATTRIBUTEID), -100 * fixture->floatAttributes.value(kernel->fixtures->POSITIONYATTRIBUTEID));
+        QPointF position(100 * fixture->floatAttributes.value(kernel->FIXTUREPOSITIONXATTRIBUTEID), -100 * fixture->floatAttributes.value(kernel->FIXTUREPOSITIONYATTRIBUTEID));
         if (position != fixtureGraphicsItem->pos()) {
             sceneRectChanged = true;
             fixtureGraphicsItem->setPos(position);

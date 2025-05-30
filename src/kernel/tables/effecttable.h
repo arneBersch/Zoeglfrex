@@ -21,14 +21,6 @@ class EffectTable : public ItemTable<Effect> {
     Q_OBJECT
 public:
     EffectTable(Kernel *core);
-    const QString STEPSATTRIBUTEID = "2";
-    const QString INTENSITYSTEPSATTRIBUTEID = "3";
-    const QString COLORSTEPSATTRIBUTEID = "4";
-    const QString POSITIONSTEPSATTRIBUTEID = "5";
-    const QString RAWSTEPSATTRIBUTEID = "6";
-    const QString STEPHOLDATTRIBUTEID = "7";
-    const QString STEPFADEATTRIBUTEID = "8";
-    const QString PHASEATTRIBUTEID = "9";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 private:
     Effect* addItem(QString id) override;

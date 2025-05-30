@@ -9,13 +9,13 @@
 #include "positiontable.h"
 
 PositionTable::PositionTable(Kernel *core) : ItemTable(core, Keys::Position, "Position", "Positions") {
-    angleAttributes[PANATTRIBUTEID] = {"Pan", 0};
-    modelSpecificAngleAttributes[PANATTRIBUTEID] = {"Pan", 0};
-    fixtureSpecificAngleAttributes[PANATTRIBUTEID] = {"Pan", 0};
-    floatAttributes[TILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
-    modelSpecificFloatAttributes[TILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
-    fixtureSpecificFloatAttributes[TILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
-    floatAttributes[ZOOMATTRIBUTEID] = {"Zoom", 15, 0, 180, "°"};
-    modelSpecificFloatAttributes[ZOOMATTRIBUTEID] = {"Zoom", 15, 0, 180, "°"};
-    fixtureSpecificFloatAttributes[ZOOMATTRIBUTEID] = {"Zoom", 15, 0, 180, "°"};
+    angleAttributes[kernel->POSITIONPANATTRIBUTEID] = {"Pan", 0};
+    modelSpecificAngleAttributes[kernel->POSITIONPANATTRIBUTEID] = {"Pan", 0};
+    fixtureSpecificAngleAttributes[kernel->POSITIONPANATTRIBUTEID] = {"Pan", 0};
+    floatAttributes[kernel->POSITIONTILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
+    modelSpecificFloatAttributes[kernel->POSITIONTILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
+    fixtureSpecificFloatAttributes[kernel->POSITIONTILTATTRIBUTEID] = {"Tilt", 0, -180, 180, "°"};
+    floatAttributes[kernel->POSITIONZOOMATTRIBUTEID] = {"Zoom", 15, 0, 180, "°"};
+    modelSpecificFloatAttributes[kernel->POSITIONZOOMATTRIBUTEID] = {"Zoom", 15, 0, 180, "°"};
+    fixtureSpecificFloatAttributes[kernel->POSITIONZOOMATTRIBUTEID] = {"Zoom", 15, 0, 180, "°"};
 }

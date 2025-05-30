@@ -21,9 +21,6 @@ class RawTable : public ItemTable<Raw> {
     Q_OBJECT
 public:
     RawTable(Kernel *core);
-    const QString CHANNELVALUEATTRIBUTEID = "2";
-    const QString MOVEINBLACKATTRIBUTEID = "3";
-    const QString FADEATTRIBUTEID = "4";
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 

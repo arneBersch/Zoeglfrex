@@ -9,7 +9,7 @@
 #include "intensitytable.h"
 
 IntensityTable::IntensityTable(Kernel *core) : ItemTable(core, Keys::Intensity, "Intensity", "Intensities") {
-    floatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    modelSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    fixtureSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
+    floatAttributes[kernel->INTENSITYDIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
+    modelSpecificFloatAttributes[kernel->INTENSITYDIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
+    fixtureSpecificFloatAttributes[kernel->INTENSITYDIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
 }

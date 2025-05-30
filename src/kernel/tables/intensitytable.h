@@ -21,7 +21,6 @@ class IntensityTable : public ItemTable<Intensity> {
     Q_OBJECT
 public:
     IntensityTable(Kernel *core);
-    const QString DIMMERATTRIBUTEID = "2";
 };
 
 #include "kernel/kernel.h"

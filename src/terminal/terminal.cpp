@@ -673,21 +673,21 @@ void Terminal::execute() {
     }
     if (!attributeMap.contains(Keys::Attribute) && !(attributeMap.isEmpty() && !value.isEmpty() && (((value.size() == 1) && (value.first() == Keys::Minus)) || (value.first() == selectionType)))) {
         if (selectionType == Keys::Model) {
-            attributeMap[Keys::Attribute] = kernel->models->CHANNELSATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->MODELCHANNELSATTRIBUTEID;
         } else if (selectionType == Keys::Fixture) {
-            attributeMap[Keys::Attribute] = kernel->fixtures->ADDRESSATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->FIXTUREADDRESSATTRIBUTEID;
         } else if (selectionType == Keys::Group) {
-            attributeMap[Keys::Attribute] = kernel->groups->FIXTURESATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->GROUPFIXTURESATTRIBUTEID;
         } else if (selectionType == Keys::Intensity) {
-            attributeMap[Keys::Attribute] = kernel->intensities->DIMMERATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->INTENSITYDIMMERATTRIBUTEID;
         } else if (selectionType == Keys::Color) {
-            attributeMap[Keys::Attribute] = kernel->colors->HUEATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->COLORHUEATTRIBUTEID;
         } else if (selectionType == Keys::Position) {
-            attributeMap[Keys::Attribute] = kernel->positions->PANATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->POSITIONPANATTRIBUTEID;
         } else if (selectionType == Keys::Raw) {
-            attributeMap[Keys::Attribute] = kernel->raws->CHANNELVALUEATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->RAWCHANNELVALUEATTRIBUTEID;
         } else if (selectionType == Keys::Effect) {
-            attributeMap[Keys::Attribute] = kernel->effects->STEPSATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->EFFECTSTEPSATTRIBUTEID;
         } else if (selectionType == Keys::Cuelist) {
             attributeMap[Keys::Attribute] = kernel->LABELATTRIBUTEID;
         } else if (selectionType == Keys::Cue) {
@@ -769,15 +769,15 @@ void Terminal::execute() {
     }
     QMap<int, QSet<int>> channels;
     for (Fixture* fixture : kernel->fixtures->items) {
-        const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
-        const int universe = fixture->intAttributes.value(kernel->fixtures->UNIVERSEATTRIBUTEID);
+        const int address = fixture->intAttributes.value(kernel->FIXTUREADDRESSATTRIBUTEID);
+        const int universe = fixture->intAttributes.value(kernel->FIXTUREUNIVERSEATTRIBUTEID);
         if (!channels.contains(universe)) {
             channels[universe] = QSet<int>();
         }
         if (address > 0) {
             int fixtureChannels = 0;
             if (fixture->model != nullptr) {
-                fixtureChannels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID).size();
+                fixtureChannels = fixture->model->stringAttributes.value(kernel->MODELCHANNELSATTRIBUTEID).size();
             }
             for (int channel = address; channel < (address + fixtureChannels); channel++) {
                 if (channel > 512) {

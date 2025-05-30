@@ -34,25 +34,25 @@ Intensity::~Intensity() {
 
 QString Intensity::name() {
     if (stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
-        return Item::name() + QString::number(floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID)) + "%";
+        return Item::name() + QString::number(floatAttributes.value(kernel->INTENSITYDIMMERATTRIBUTEID)) + "%";
     }
     return Item::name();
 }
 
 QString Intensity::info() {
     QString info = Item::info();
-    info += "\n" + kernel->intensities->DIMMERATTRIBUTEID + " Dimmer: " + QString::number(floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID)) + "%";
+    info += "\n" + kernel->INTENSITYDIMMERATTRIBUTEID + " Dimmer: " + QString::number(floatAttributes.value(kernel->INTENSITYDIMMERATTRIBUTEID)) + "%";
     QStringList modelDimmerValues;
     for (Model* model : kernel->models->items) {
-        if (modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(model)) {
-            modelDimmerValues.append(model->name() + " @ " + QString::number(modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(model)) + "%");
+        if (modelSpecificFloatAttributes.value(kernel->INTENSITYDIMMERATTRIBUTEID).contains(model)) {
+            modelDimmerValues.append(model->name() + " @ " + QString::number(modelSpecificFloatAttributes.value(kernel->INTENSITYDIMMERATTRIBUTEID).value(model)) + "%");
         }
     }
     info += "\n    Model Exceptions: " + modelDimmerValues.join("; ");
     QStringList fixtureDimmerValues;
     for (Fixture* fixture : kernel->fixtures->items) {
-        if (fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture)) {
-            fixtureDimmerValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture)) + "%");
+        if (fixtureSpecificFloatAttributes.value(kernel->INTENSITYDIMMERATTRIBUTEID).contains(fixture)) {
+            fixtureDimmerValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->INTENSITYDIMMERATTRIBUTEID).value(fixture)) + "%");
         }
     }
     info += "\n    Fixture Exceptions: " + fixtureDimmerValues.join("; ");
@@ -60,11 +60,11 @@ QString Intensity::info() {
 }
 
 float Intensity::getDimmer(Fixture* fixture) {
-    float dimmer = floatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID);
-    if (fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture)) {
-        dimmer = fixtureSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture);
-    } else if (modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).contains(fixture->model)) {
-        dimmer = modelSpecificFloatAttributes.value(kernel->intensities->DIMMERATTRIBUTEID).value(fixture->model);
+    float dimmer = floatAttributes.value(kernel->INTENSITYDIMMERATTRIBUTEID);
+    if (fixtureSpecificFloatAttributes.value(kernel->INTENSITYDIMMERATTRIBUTEID).contains(fixture)) {
+        dimmer = fixtureSpecificFloatAttributes.value(kernel->INTENSITYDIMMERATTRIBUTEID).value(fixture);
+    } else if (modelSpecificFloatAttributes.value(kernel->INTENSITYDIMMERATTRIBUTEID).contains(fixture->model)) {
+        dimmer = modelSpecificFloatAttributes.value(kernel->INTENSITYDIMMERATTRIBUTEID).value(fixture->model);
     }
     return dimmer;
 }

@@ -68,12 +68,12 @@ ControlPanel::ControlPanel(Kernel* core) {
         dials[column] = dial;
     };
 
-    setupColumn(ControlPanelColumns::dimmer, 0, 100, false, Keys::Intensity, kernel->intensities->DIMMERATTRIBUTEID, "Dimmer");
-    setupColumn(ControlPanelColumns::hue, 0, 359, true, Keys::Color, kernel->colors->HUEATTRIBUTEID, "Hue");
-    setupColumn(ControlPanelColumns::saturation, 0, 100, false, Keys::Color, kernel->colors->SATURATIONATTRIBUTEID, "Saturation");
-    setupColumn(ControlPanelColumns::pan, 0, 359, true, Keys::Position, kernel->positions->PANATTRIBUTEID, "Pan");
-    setupColumn(ControlPanelColumns::tilt, -180, 180, false, Keys::Position, kernel->positions->TILTATTRIBUTEID, "Tilt");
-    setupColumn(ControlPanelColumns::zoom, 0, 180, false, Keys::Position, kernel->positions->ZOOMATTRIBUTEID, "Zoom");
+    setupColumn(ControlPanelColumns::dimmer, 0, 100, false, Keys::Intensity, kernel->INTENSITYDIMMERATTRIBUTEID, "Dimmer");
+    setupColumn(ControlPanelColumns::hue, 0, 359, true, Keys::Color, kernel->COLORHUEATTRIBUTEID, "Hue");
+    setupColumn(ControlPanelColumns::saturation, 0, 100, false, Keys::Color, kernel->COLORSATURATIONATTRIBUTEID, "Saturation");
+    setupColumn(ControlPanelColumns::pan, 0, 359, true, Keys::Position, kernel->POSITIONPANATTRIBUTEID, "Pan");
+    setupColumn(ControlPanelColumns::tilt, -180, 180, false, Keys::Position, kernel->POSITIONTILTATTRIBUTEID, "Tilt");
+    setupColumn(ControlPanelColumns::zoom, 0, 180, false, Keys::Position, kernel->POSITIONZOOMATTRIBUTEID, "Zoom");
 }
 
 void ControlPanel::reload() {
@@ -130,11 +130,11 @@ void ControlPanel::reload() {
         }
     };
 
-    setColumn(ControlPanelColumns::dimmer, Keys::Intensity, kernel->intensities->DIMMERATTRIBUTEID, false, "%", "No Intensity");
-    setColumn(ControlPanelColumns::hue, Keys::Color, kernel->colors->HUEATTRIBUTEID, true, "°", "No Color");
-    setColumn(ControlPanelColumns::saturation, Keys::Color, kernel->colors->SATURATIONATTRIBUTEID, false, "%", "No Color");
-    setColumn(ControlPanelColumns::pan, Keys::Position, kernel->positions->PANATTRIBUTEID, true, "°", "No Position");;
-    setColumn(ControlPanelColumns::tilt, Keys::Position, kernel->positions->TILTATTRIBUTEID, false, "°", "No Position");
-    setColumn(ControlPanelColumns::zoom, Keys::Position, kernel->positions->ZOOMATTRIBUTEID, false, "°", "No Position");
+    setColumn(ControlPanelColumns::dimmer, Keys::Intensity, kernel->INTENSITYDIMMERATTRIBUTEID, false, "%", "No Intensity");
+    setColumn(ControlPanelColumns::hue, Keys::Color, kernel->COLORHUEATTRIBUTEID, true, "°", "No Color");
+    setColumn(ControlPanelColumns::saturation, Keys::Color, kernel->COLORSATURATIONATTRIBUTEID, false, "%", "No Color");
+    setColumn(ControlPanelColumns::pan, Keys::Position, kernel->POSITIONPANATTRIBUTEID, true, "°", "No Position");;
+    setColumn(ControlPanelColumns::tilt, Keys::Position, kernel->POSITIONTILTATTRIBUTEID, false, "°", "No Position");
+    setColumn(ControlPanelColumns::zoom, Keys::Position, kernel->POSITIONZOOMATTRIBUTEID, false, "°", "No Position");
     reloading = false;
 }

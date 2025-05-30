@@ -9,14 +9,14 @@
 #include "rawtable.h"
 
 RawTable::RawTable(Kernel *core) : ItemTable(core, Keys::Raw, "Raw", "Raws") {
-    boolAttributes[MOVEINBLACKATTRIBUTEID] = {"MiB", true};
-    boolAttributes[FADEATTRIBUTEID] = {"Fade", false};
+    boolAttributes[kernel->RAWMOVEINBLACKATTRIBUTEID] = {"MiB", true};
+    boolAttributes[kernel->RAWFADEATTRIBUTEID] = {"Fade", false};
 }
 
 void RawTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
-    if (attribute.startsWith(CHANNELVALUEATTRIBUTEID + ".")) {
-        attribute.remove(0, QString(CHANNELVALUEATTRIBUTEID + ".").length());
+    if (attribute.startsWith(kernel->RAWCHANNELVALUEATTRIBUTEID + ".")) {
+        attribute.remove(0, QString(kernel->RAWCHANNELVALUEATTRIBUTEID + ".").length());
         bool ok = true;
         int channel = attribute.toInt(&ok);
         if (!ok) {
@@ -253,7 +253,7 @@ void RawTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QLis
                 }
             }
         }
-    } else if (attribute == CHANNELVALUEATTRIBUTEID) {
+    } else if (attribute == kernel->RAWCHANNELVALUEATTRIBUTEID) {
         if ((value.size() != 1) || (value.first() != Keys::Minus)) {
             kernel->terminal->error("Can't set Raw Channel Value because no Channel was given.");
             return;

@@ -12,7 +12,7 @@ GroupTable::GroupTable(Kernel *core) : ItemTable(core, Keys::Group, "Group", "Gr
 
 void GroupTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
-    if (attribute == FIXTURESATTRIBUTEID) {
+    if (attribute == kernel->GROUPFIXTURESATTRIBUTEID) {
         bool addFixtures = value.startsWith(Keys::Plus);
         if (addFixtures) {
             value.removeFirst();

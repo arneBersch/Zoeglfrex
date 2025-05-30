@@ -21,9 +21,6 @@ class ColorTable : public ItemTable<Color> {
     Q_OBJECT
 public:
     ColorTable(Kernel *core);
-    const QString HUEATTRIBUTEID = "2";
-    const QString SATURATIONATTRIBUTEID = "3";
-    const QString QUALITYATTRIBUTEID = "4";
 };
 
 #include "kernel/kernel.h"

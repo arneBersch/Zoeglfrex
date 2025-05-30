@@ -153,10 +153,10 @@ void DmxEngine::generateDmx() {
         kernel->preview2d->fixtureCircles.value(fixture)->pan = position.pan;
         kernel->preview2d->fixtureCircles.value(fixture)->tilt = position.tilt;
         kernel->preview2d->fixtureCircles.value(fixture)->zoom = position.zoom;
-        const int address = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID);
+        const int address = fixture->intAttributes.value(kernel->FIXTUREADDRESSATTRIBUTEID);
         if ((address > 0) && (fixture->model != nullptr)) {
-            const QString channels = fixture->model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
-            const int universe = fixture->intAttributes.value(kernel->fixtures->UNIVERSEATTRIBUTEID);
+            const QString channels = fixture->model->stringAttributes.value(kernel->MODELCHANNELSATTRIBUTEID);
+            const int universe = fixture->intAttributes.value(kernel->FIXTUREUNIVERSEATTRIBUTEID);
             if (!dmxUniverses.contains(universe)) {
                 dmxUniverses[universe] = QByteArray(512, 0);
             }
@@ -171,10 +171,10 @@ void DmxEngine::generateDmx() {
                 color.green -= white * (color.quality / 100);
                 color.blue -= white * (color.quality / 100);
             }
-            if (!fixture->boolAttributes.value(kernel->fixtures->INVERTPANATTRIBUTE)) {
-                position.pan = fixture->angleAttributes.value(kernel->fixtures->ROTATIONATTRIBUTEID) + position.pan;
+            if (!fixture->boolAttributes.value(kernel->FIXTUREINVERTPANATTRIBUTE)) {
+                position.pan = fixture->angleAttributes.value(kernel->FIXTUREROTATIONATTRIBUTEID) + position.pan;
             } else {
-                position.pan = fixture->angleAttributes.value(kernel->fixtures->ROTATIONATTRIBUTEID) - position.pan;
+                position.pan = fixture->angleAttributes.value(kernel->FIXTUREROTATIONATTRIBUTEID) - position.pan;
             }
             while (position.pan >= 360) {
                 position.pan -= 360;
@@ -185,21 +185,21 @@ void DmxEngine::generateDmx() {
             if (!lastFrameFixturePan.contains(fixture)) {
                 lastFrameFixturePan[fixture] = 0;
             }
-            float pan = position.pan / fixture->model->floatAttributes.value(kernel->models->PANRANGEATTRIBUTEID) * 100;
+            float pan = position.pan / fixture->model->floatAttributes.value(kernel->MODELPANRANGEATTRIBUTEID) * 100;
             pan = std::min<float>(pan, 100);
-            for (float angle = position.pan; angle <= fixture->model->floatAttributes.value(kernel->models->PANRANGEATTRIBUTEID); angle += 360) {
-                if (std::abs(lastFrameFixturePan.value(fixture) - (angle / fixture->model->floatAttributes.value(kernel->models->PANRANGEATTRIBUTEID) * 100)) < std::abs(lastFrameFixturePan.value(fixture) - pan)) {
-                    pan = angle / fixture->model->floatAttributes.value(kernel->models->PANRANGEATTRIBUTEID) * 100;
+            for (float angle = position.pan; angle <= fixture->model->floatAttributes.value(kernel->MODELPANRANGEATTRIBUTEID); angle += 360) {
+                if (std::abs(lastFrameFixturePan.value(fixture) - (angle / fixture->model->floatAttributes.value(kernel->MODELPANRANGEATTRIBUTEID) * 100)) < std::abs(lastFrameFixturePan.value(fixture) - pan)) {
+                    pan = angle / fixture->model->floatAttributes.value(kernel->MODELPANRANGEATTRIBUTEID) * 100;
                 }
             }
             fixturePan[fixture] = pan;
-            float tilt = 50 + (position.tilt / (fixture->model->floatAttributes.value(kernel->models->TILTRANGEATTRIBUTEID) / 2) * 50);
+            float tilt = 50 + (position.tilt / (fixture->model->floatAttributes.value(kernel->MODELTILTRANGEATTRIBUTEID) / 2) * 50);
             tilt = std::min<float>(tilt, 100);
             tilt = std::max<float>(tilt, 0);
-            float zoom = (position.zoom - fixture->model->floatAttributes.value(kernel->models->MINZOOMATTRIBUTEID)) / (fixture->model->floatAttributes.value(kernel->models->MAXZOOMATTRIBUTEID) - fixture->model->floatAttributes.value(kernel->models->MINZOOMATTRIBUTEID)) * 100;
+            float zoom = (position.zoom - fixture->model->floatAttributes.value(kernel->MODELMINZOOMATTRIBUTEID)) / (fixture->model->floatAttributes.value(kernel->MODELMAXZOOMATTRIBUTEID) - fixture->model->floatAttributes.value(kernel->MODELMINZOOMATTRIBUTEID)) * 100;
             zoom = std::min<float>(zoom, 100);
             zoom = std::max<float>(zoom, 0);
-            for (int channel = fixture->intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID); channel < (address + channels.size()); channel++) {
+            for (int channel = fixture->intAttributes.value(kernel->FIXTUREADDRESSATTRIBUTEID); channel < (address + channels.size()); channel++) {
                 float value = 0;
                 QChar channelType = channels.at(channel - address);
                 bool fine = (
@@ -310,7 +310,7 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                     const QMap<int, uint8_t> channels = raw->getChannels(fixture);
                     for (int channel : channels.keys()) {
                         (*fixtureRaws)[fixture][channel] = channels.value(channel);
-                        (*fixtureRawFade)[fixture][channel] = raw->boolAttributes.value(kernel->raws->FADEATTRIBUTEID);
+                        (*fixtureRawFade)[fixture][channel] = raw->boolAttributes.value(kernel->RAWFADEATTRIBUTEID);
                     }
                 }
             }
@@ -415,7 +415,7 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                         }
                         if (currentCue->raws.contains(group)) {
                             for (Raw* raw : currentCue->raws.value(group)) {
-                                if (raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
+                                if (raw->boolAttributes.value(kernel->RAWMOVEINBLACKATTRIBUTEID)) {
                                     if (!fixtureRaws->contains(fixture)) {
                                         (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
                                         (*fixtureRawFade)[fixture] = QMap<int, bool>();

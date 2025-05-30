@@ -9,19 +9,19 @@
 #include "effecttable.h"
 
 EffectTable::EffectTable(Kernel *core) : ItemTable(core, Keys::Effect, "Effect", "Effects") {
-    intAttributes[STEPSATTRIBUTEID] = {"Steps", 2, 2, 99};
-    floatAttributes[STEPHOLDATTRIBUTEID] = {"Step Hold", 1, 0, 600, "s"};
-    stepSpecificFloatAttributes[STEPHOLDATTRIBUTEID] = {"Step Hold", 1, 0, 600, "s"};
-    floatAttributes[STEPFADEATTRIBUTEID] = {"Step Fade", 0, 0, 600, "s"};
-    stepSpecificFloatAttributes[STEPFADEATTRIBUTEID] = {"Step Fade", 0, 0, 600, "s"};
-    angleAttributes[PHASEATTRIBUTEID] = {"Phase", 0};
-    fixtureSpecificAngleAttributes[PHASEATTRIBUTEID] = {"Phase", 0};
+    intAttributes[kernel->EFFECTSTEPSATTRIBUTEID] = {"Steps", 2, 2, 99};
+    floatAttributes[kernel->EFFECTSTEPHOLDATTRIBUTEID] = {"Step Hold", 1, 0, 600, "s"};
+    stepSpecificFloatAttributes[kernel->EFFECTSTEPHOLDATTRIBUTEID] = {"Step Hold", 1, 0, 600, "s"};
+    floatAttributes[kernel->EFFECTSTEPFADEATTRIBUTEID] = {"Step Fade", 0, 0, 600, "s"};
+    stepSpecificFloatAttributes[kernel->EFFECTSTEPFADEATTRIBUTEID] = {"Step Fade", 0, 0, 600, "s"};
+    angleAttributes[kernel->EFFECTPHASEATTRIBUTEID] = {"Phase", 0};
+    fixtureSpecificAngleAttributes[kernel->EFFECTPHASEATTRIBUTEID] = {"Phase", 0};
 }
 
 void EffectTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
-    if (attribute.startsWith(INTENSITYSTEPSATTRIBUTEID + ".")) {
-        attribute.remove(0, QString(INTENSITYSTEPSATTRIBUTEID + ".").length());
+    if (attribute.startsWith(kernel->EFFECTINTENSITYSTEPSATTRIBUTEID + ".")) {
+        attribute.remove(0, QString(kernel->EFFECTINTENSITYSTEPSATTRIBUTEID + ".").length());
         bool ok;
         int step = attribute.toInt(&ok);
         if (!ok) {
@@ -67,8 +67,8 @@ void EffectTable::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
                 if (effect == nullptr) {
                     effect = addItem(id);
                 }
-                if (step > effect->intAttributes.value(STEPSATTRIBUTEID)) {
-                    kernel->terminal->warning("Can't set Intensity Step " + QString::number(step) + " of Effect " + effect->name() + " because this Effect only has " + QString::number(effect->intAttributes.value(STEPSATTRIBUTEID)) + " Steps.");
+                if (step > effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) {
+                    kernel->terminal->warning("Can't set Intensity Step " + QString::number(step) + " of Effect " + effect->name() + " because this Effect only has " + QString::number(effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) + " Steps.");
                 } else {
                     effect->intensitySteps[step] = intensity;
                     effectCounter++;
@@ -76,8 +76,8 @@ void EffectTable::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
             }
             kernel->terminal->success("Set Intensity Step " + QString::number(step) + " of " + QString::number(effectCounter) + " Effects to Intensity " + intensity->name() + ".");
         }
-    } else if (attribute.startsWith(COLORSTEPSATTRIBUTEID + ".")) {
-        attribute.remove(0, QString(COLORSTEPSATTRIBUTEID + ".").length());
+    } else if (attribute.startsWith(kernel->EFFECTCOLORSTEPSATTRIBUTEID + ".")) {
+        attribute.remove(0, QString(kernel->EFFECTCOLORSTEPSATTRIBUTEID + ".").length());
         bool ok;
         int step = attribute.toInt(&ok);
         if (!ok) {
@@ -123,8 +123,8 @@ void EffectTable::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
                 if (effect == nullptr) {
                     effect = addItem(id);
                 }
-                if (step > effect->intAttributes.value(STEPSATTRIBUTEID)) {
-                    kernel->terminal->warning("Can't set Color Step " + QString::number(step) + " of Effect " + effect->name() + " because this Effect only has " + QString::number(effect->intAttributes.value(STEPSATTRIBUTEID)) + " Steps.");
+                if (step > effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) {
+                    kernel->terminal->warning("Can't set Color Step " + QString::number(step) + " of Effect " + effect->name() + " because this Effect only has " + QString::number(effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) + " Steps.");
                 } else {
                     effect->colorSteps[step] = color;
                     effectCounter++;
@@ -132,8 +132,8 @@ void EffectTable::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
             }
             kernel->terminal->success("Set Color Step " + QString::number(step) + " of " + QString::number(effectCounter) + " Effects to Color " + color->name() + ".");
         }
-    } else if (attribute.startsWith(POSITIONSTEPSATTRIBUTEID + ".")) {
-        attribute.remove(0, QString(POSITIONSTEPSATTRIBUTEID + ".").length());
+    } else if (attribute.startsWith(kernel->EFFECTPOSITIONSTEPSATTRIBUTEID + ".")) {
+        attribute.remove(0, QString(kernel->EFFECTPOSITIONSTEPSATTRIBUTEID + ".").length());
         bool ok;
         int step = attribute.toInt(&ok);
         if (!ok) {
@@ -179,8 +179,8 @@ void EffectTable::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
                 if (effect == nullptr) {
                     effect = addItem(id);
                 }
-                if (step > effect->intAttributes.value(STEPSATTRIBUTEID)) {
-                    kernel->terminal->warning("Can't set Position Step " + QString::number(step) + " of Effect " + effect->name() + " because this Effect only has " + QString::number(effect->intAttributes.value(STEPSATTRIBUTEID)) + " Steps.");
+                if (step > effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) {
+                    kernel->terminal->warning("Can't set Position Step " + QString::number(step) + " of Effect " + effect->name() + " because this Effect only has " + QString::number(effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) + " Steps.");
                 } else {
                     effect->positionSteps[step] = position;
                     effectCounter++;
@@ -188,8 +188,8 @@ void EffectTable::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
             }
             kernel->terminal->success("Set Position Step " + QString::number(step) + " of " + QString::number(effectCounter) + " Effects to Position " + position->name() + ".");
         }
-    } else if (attribute.startsWith(RAWSTEPSATTRIBUTEID + ".")) {
-        attribute.remove(0, QString(RAWSTEPSATTRIBUTEID + ".").length());
+    } else if (attribute.startsWith(kernel->EFFECTRAWSTEPSATTRIBUTEID + ".")) {
+        attribute.remove(0, QString(kernel->EFFECTRAWSTEPSATTRIBUTEID + ".").length());
         bool ok;
         int step = attribute.toInt(&ok);
         if (!ok) {
@@ -244,8 +244,8 @@ void EffectTable::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
                 if (effect == nullptr) {
                     effect = addItem(id);
                 }
-                if (step > effect->intAttributes.value(STEPSATTRIBUTEID)) {
-                    kernel->terminal->warning("Can't set Raw Step " + QString::number(step) + " of Effect " + effect->name() + " because this Effect only has " + QString::number(effect->intAttributes.value(STEPSATTRIBUTEID)) + " Steps.");
+                if (step > effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) {
+                    kernel->terminal->warning("Can't set Raw Step " + QString::number(step) + " of Effect " + effect->name() + " because this Effect only has " + QString::number(effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) + " Steps.");
                 } else {
                     effect->rawSteps[step] = raws;
                     effectCounter++;
@@ -311,8 +311,8 @@ void EffectTable::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
                     if (effect == nullptr) {
                         effect = addItem(id);
                     }
-                    if (step > effect->intAttributes.value(STEPSATTRIBUTEID)) {
-                        kernel->terminal->warning("Can't set " + floatAttribute.name + " of Step " + QString::number(step) + " of Effect " + effect->name() + " because this Effect only has " + QString::number(effect->intAttributes.value(STEPSATTRIBUTEID)) + " Steps.");
+                    if (step > effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) {
+                        kernel->terminal->warning("Can't set " + floatAttribute.name + " of Step " + QString::number(step) + " of Effect " + effect->name() + " because this Effect only has " + QString::number(effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) + " Steps.");
                     } else {
                         if (!effect->stepSpecificFloatAttributes.value(attribute).contains(step)) {
                             effect->stepSpecificFloatAttributes[attribute][step] = effect->floatAttributes.value(attribute);
@@ -343,8 +343,8 @@ void EffectTable::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
                     if (effect == nullptr) {
                         effect = addItem(id);
                     }
-                    if (step > effect->intAttributes.value(STEPSATTRIBUTEID)) {
-                        kernel->terminal->warning("Can't set " + floatAttribute.name + " of Step " + QString::number(step) + " in Effect " + effect->name() + " because this Effect only has " + QString::number(effect->intAttributes.value(STEPSATTRIBUTEID)) + " Steps.");
+                    if (step > effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) {
+                        kernel->terminal->warning("Can't set " + floatAttribute.name + " of Step " + QString::number(step) + " in Effect " + effect->name() + " because this Effect only has " + QString::number(effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) + " Steps.");
                     } else {
                         effect->stepSpecificFloatAttributes[attribute][step] = newValue;
                         emit dataChanged(index(getItemRow(effect->id), 0), index(getItemRow(effect->id), 0), {Qt::DisplayRole, Qt::EditRole});
@@ -361,28 +361,28 @@ void EffectTable::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
         ItemTable::setAttribute(ids, attributes, value, text);
         for (Effect* effect : items) {
             for (int intensityStep : effect->intensitySteps.keys()) {
-                if (intensityStep > effect->intAttributes.value(STEPSATTRIBUTEID)) {
+                if (intensityStep > effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) {
                     effect->intensitySteps.remove(intensityStep);
                 }
             }
             for (int colorStep : effect->colorSteps.keys()) {
-                if (colorStep > effect->intAttributes.value(STEPSATTRIBUTEID)) {
+                if (colorStep > effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) {
                     effect->colorSteps.remove(colorStep);
                 }
             }
             for (int positionStep : effect->positionSteps.keys()) {
-                if (positionStep > effect->intAttributes.value(STEPSATTRIBUTEID)) {
+                if (positionStep > effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) {
                     effect->positionSteps.remove(positionStep);
                 }
             }
             for (int rawStep : effect->rawSteps.keys()) {
-                if (rawStep > effect->intAttributes.value(STEPSATTRIBUTEID)) {
+                if (rawStep > effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) {
                     effect->rawSteps.remove(rawStep);
                 }
             }
             for (QString attribute : stepSpecificFloatAttributes.keys()) {
                 for (int step : effect->stepSpecificFloatAttributes.value(attribute).keys()) {
-                    if (step > effect->intAttributes.value(STEPSATTRIBUTEID)) {
+                    if (step > effect->intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID)) {
                         effect->stepSpecificFloatAttributes[attribute].remove(step);
                     }
                 }

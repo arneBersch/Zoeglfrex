@@ -9,11 +9,11 @@
 #include "colortable.h"
 
 ColorTable::ColorTable(Kernel *core) : ItemTable(core, Keys::Color, "Color", "Colors") {
-    angleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
-    modelSpecificAngleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
-    fixtureSpecificAngleAttributes[HUEATTRIBUTEID] = {"Hue", 0};
-    floatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
-    modelSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
-    fixtureSpecificFloatAttributes[SATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
-    floatAttributes[QUALITYATTRIBUTEID] = {"Quality", 100, 0, 100, "%"};
+    angleAttributes[kernel->COLORHUEATTRIBUTEID] = {"Hue", 0};
+    modelSpecificAngleAttributes[kernel->COLORHUEATTRIBUTEID] = {"Hue", 0};
+    fixtureSpecificAngleAttributes[kernel->COLORHUEATTRIBUTEID] = {"Hue", 0};
+    floatAttributes[kernel->COLORSATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
+    modelSpecificFloatAttributes[kernel->COLORSATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
+    fixtureSpecificFloatAttributes[kernel->COLORSATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
+    floatAttributes[kernel->COLORQUALITYATTRIBUTEID] = {"Quality", 100, 0, 100, "%"};
 }

@@ -34,7 +34,7 @@ Color::~Color() {
 
 QString Color::name() {
     if (stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
-        const float saturation = floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID);
+        const float saturation = floatAttributes.value(kernel->COLORSATURATIONATTRIBUTEID);
         if (saturation <= 10) {
             return Item::name() + "White";
         }
@@ -42,7 +42,7 @@ QString Color::name() {
         if (saturation <= 70) {
             prefix = "light ";
         }
-        const float hue = angleAttributes.value(kernel->colors->HUEATTRIBUTEID);
+        const float hue = angleAttributes.value(kernel->COLORHUEATTRIBUTEID);
         if ((hue <= 30) || (hue > 330)) {
             return Item::name() + prefix + "Red";
         } else if (hue <= 90) {
@@ -62,52 +62,52 @@ QString Color::name() {
 
 QString Color::info() {
     QString info = Item::info();
-    info += "\n" + kernel->colors->HUEATTRIBUTEID + " Hue: " + QString::number(angleAttributes.value(kernel->colors->HUEATTRIBUTEID)) + "°";
+    info += "\n" + kernel->COLORHUEATTRIBUTEID + " Hue: " + QString::number(angleAttributes.value(kernel->COLORHUEATTRIBUTEID)) + "°";
     QStringList modelHueValues;
     QStringList modelSaturationValues;
     for (Model* model : kernel->models->items) {
-        if (modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).contains(model)) {
-            modelHueValues.append(model->name() + " @ " + QString::number(modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(model)) + "°");
+        if (modelSpecificAngleAttributes.value(kernel->COLORHUEATTRIBUTEID).contains(model)) {
+            modelHueValues.append(model->name() + " @ " + QString::number(modelSpecificAngleAttributes.value(kernel->COLORHUEATTRIBUTEID).value(model)) + "°");
         }
-        if (modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).contains(model)) {
-            modelSaturationValues.append(model->name() + " @ " + QString::number(modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(model)) + "%");
+        if (modelSpecificFloatAttributes.value(kernel->COLORSATURATIONATTRIBUTEID).contains(model)) {
+            modelSaturationValues.append(model->name() + " @ " + QString::number(modelSpecificFloatAttributes.value(kernel->COLORSATURATIONATTRIBUTEID).value(model)) + "%");
         }
     }
     info += "\n    Model Exceptions: " + modelHueValues.join("; ");
     QStringList fixtureHueValues;
     QStringList fixtureSaturationValues;
     for (Fixture* fixture : kernel->fixtures->items) {
-        if (fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).contains(fixture)) {
-            fixtureHueValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture)) + "°");
+        if (fixtureSpecificAngleAttributes.value(kernel->COLORHUEATTRIBUTEID).contains(fixture)) {
+            fixtureHueValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->COLORHUEATTRIBUTEID).value(fixture)) + "°");
         }
-        if (fixtureSpecificFloatAttributes.value(kernel->colors->HUEATTRIBUTEID).contains(fixture)) {
-            fixtureSaturationValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture)) + "%");
+        if (fixtureSpecificFloatAttributes.value(kernel->COLORHUEATTRIBUTEID).contains(fixture)) {
+            fixtureSaturationValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificFloatAttributes.value(kernel->COLORSATURATIONATTRIBUTEID).value(fixture)) + "%");
         }
     }
     info += "\n    Fixture Exceptions: " + fixtureHueValues.join("; ");
-    info += "\n" + kernel->colors->SATURATIONATTRIBUTEID + " Saturation: " + QString::number(floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID)) + "%";
+    info += "\n" + kernel->COLORSATURATIONATTRIBUTEID + " Saturation: " + QString::number(floatAttributes.value(kernel->COLORSATURATIONATTRIBUTEID)) + "%";
     info += "\n    Model Exceptions: " + modelSaturationValues.join("; ");
     info += "\n    Fixture Exceptions: " + fixtureSaturationValues.join("; ");
-    info += "\n" + kernel->colors->QUALITYATTRIBUTEID + " Quality: " + QString::number(floatAttributes.value(kernel->colors->QUALITYATTRIBUTEID)) + "%";
+    info += "\n" + kernel->COLORQUALITYATTRIBUTEID + " Quality: " + QString::number(floatAttributes.value(kernel->COLORQUALITYATTRIBUTEID)) + "%";
     return info;
 }
 
 rgbColor Color::getRGB(Fixture* fixture) {
     rgbColor color;
-    float hue = angleAttributes.value(kernel->colors->HUEATTRIBUTEID);
-    if (fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).contains(fixture)) {
-        hue = fixtureSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture);
-    } else if (modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).contains(fixture->model)) {
-        hue = modelSpecificAngleAttributes.value(kernel->colors->HUEATTRIBUTEID).value(fixture->model);
+    float hue = angleAttributes.value(kernel->COLORHUEATTRIBUTEID);
+    if (fixtureSpecificAngleAttributes.value(kernel->COLORHUEATTRIBUTEID).contains(fixture)) {
+        hue = fixtureSpecificAngleAttributes.value(kernel->COLORHUEATTRIBUTEID).value(fixture);
+    } else if (modelSpecificAngleAttributes.value(kernel->COLORHUEATTRIBUTEID).contains(fixture->model)) {
+        hue = modelSpecificAngleAttributes.value(kernel->COLORHUEATTRIBUTEID).value(fixture->model);
     }
     const double h = (hue / 60.0);
     const int i = (int)h;
     const double f = h - i;
-    float saturation = floatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID);
-    if (fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).contains(fixture)) {
-        saturation = fixtureSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture);
-    } else if (modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).contains(fixture->model)) {
-        saturation = modelSpecificFloatAttributes.value(kernel->colors->SATURATIONATTRIBUTEID).value(fixture->model);
+    float saturation = floatAttributes.value(kernel->COLORSATURATIONATTRIBUTEID);
+    if (fixtureSpecificFloatAttributes.value(kernel->COLORSATURATIONATTRIBUTEID).contains(fixture)) {
+        saturation = fixtureSpecificFloatAttributes.value(kernel->COLORSATURATIONATTRIBUTEID).value(fixture);
+    } else if (modelSpecificFloatAttributes.value(kernel->COLORSATURATIONATTRIBUTEID).contains(fixture->model)) {
+        saturation = modelSpecificFloatAttributes.value(kernel->COLORSATURATIONATTRIBUTEID).value(fixture->model);
     }
     const double p = (100.0 - saturation);
     const double q = (100.0 - (saturation * f));
@@ -137,6 +137,6 @@ rgbColor Color::getRGB(Fixture* fixture) {
         color.green = p;
         color.blue = q;
     }
-    color.quality = floatAttributes.value(kernel->colors->QUALITYATTRIBUTEID);
+    color.quality = floatAttributes.value(kernel->COLORQUALITYATTRIBUTEID);
     return color;
 }

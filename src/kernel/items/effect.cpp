@@ -36,14 +36,14 @@ Effect::~Effect() {
 
 QString Effect::info() {
     QString info = Item::info();
-    info += "\n" + kernel->effects->STEPSATTRIBUTEID + " Steps: " + QString::number(intAttributes.value(kernel->effects->STEPSATTRIBUTEID));
+    info += "\n" + kernel->EFFECTSTEPSATTRIBUTEID + " Steps: " + QString::number(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID));
     QStringList intensityStepValues;
     QStringList colorStepValues;
     QStringList positionStepValues;
     QStringList rawStepValues;
     QStringList stepHoldValues;
     QStringList stepFadeValues;
-    for (int step = 1; step <= intAttributes.value(kernel->effects->STEPSATTRIBUTEID); step++) {
+    for (int step = 1; step <= intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID); step++) {
         if (intensitySteps.contains(step)) {
             intensityStepValues.append(QString::number(step) + ": " + intensitySteps.value(step)->name());
         }
@@ -62,26 +62,26 @@ QString Effect::info() {
             }
             rawStepValues.append(QString::number(step) + ": " + rawStepValueValues.join(", "));
         }
-        if (stepSpecificFloatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID).contains(step)) {
-            stepHoldValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID).value(step)) + "s");
+        if (stepSpecificFloatAttributes.value(kernel->EFFECTSTEPHOLDATTRIBUTEID).contains(step)) {
+            stepHoldValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->EFFECTSTEPHOLDATTRIBUTEID).value(step)) + "s");
         }
-        if (stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).contains(step)) {
-            stepFadeValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).value(step)) + "s");
+        if (stepSpecificFloatAttributes.value(kernel->EFFECTSTEPFADEATTRIBUTEID).contains(step)) {
+            stepFadeValues.append(QString::number(step) + ": " + QString::number(stepSpecificFloatAttributes.value(kernel->EFFECTSTEPFADEATTRIBUTEID).value(step)) + "s");
         }
     }
-    info += "\n" + kernel->effects->INTENSITYSTEPSATTRIBUTEID + ".x Intensities: " + intensityStepValues.join("; ");
-    info += "\n" + kernel->effects->COLORSTEPSATTRIBUTEID + ".x Colors: " + colorStepValues.join("; ");
-    info += "\n" + kernel->effects->POSITIONSTEPSATTRIBUTEID + ".x Positions: " + positionStepValues.join("; ");
-    info += "\n" + kernel->effects->RAWSTEPSATTRIBUTEID + ".x Raws: " + rawStepValues.join("; ");
-    info += "\n" + kernel->effects->STEPHOLDATTRIBUTEID + " Step Hold: " + QString::number(floatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID)) + "s";
+    info += "\n" + kernel->EFFECTINTENSITYSTEPSATTRIBUTEID + ".x Intensities: " + intensityStepValues.join("; ");
+    info += "\n" + kernel->EFFECTCOLORSTEPSATTRIBUTEID + ".x Colors: " + colorStepValues.join("; ");
+    info += "\n" + kernel->EFFECTPOSITIONSTEPSATTRIBUTEID + ".x Positions: " + positionStepValues.join("; ");
+    info += "\n" + kernel->EFFECTRAWSTEPSATTRIBUTEID + ".x Raws: " + rawStepValues.join("; ");
+    info += "\n" + kernel->EFFECTSTEPHOLDATTRIBUTEID + " Step Hold: " + QString::number(floatAttributes.value(kernel->EFFECTSTEPHOLDATTRIBUTEID)) + "s";
     info += "\n    Step Exceptions: " + stepHoldValues.join("; ");
-    info += "\n" + kernel->effects->STEPFADEATTRIBUTEID + " Step Fade: " + QString::number(floatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID)) + "s";
+    info += "\n" + kernel->EFFECTSTEPFADEATTRIBUTEID + " Step Fade: " + QString::number(floatAttributes.value(kernel->EFFECTSTEPFADEATTRIBUTEID)) + "s";
     info += "\n    Step Exceptions: " + stepFadeValues.join("; ");
-    info += "\n" + kernel->effects->PHASEATTRIBUTEID + " Phase: " + QString::number(angleAttributes.value(kernel->effects->PHASEATTRIBUTEID)) + "°";
+    info += "\n" + kernel->EFFECTPHASEATTRIBUTEID + " Phase: " + QString::number(angleAttributes.value(kernel->EFFECTPHASEATTRIBUTEID)) + "°";
     QStringList fixturePhaseValues;
     for (Fixture* fixture : kernel->fixtures->items) {
-        if (fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).contains(fixture)) {
-            fixturePhaseValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).value(fixture)) + "°");
+        if (fixtureSpecificAngleAttributes.value(kernel->EFFECTPHASEATTRIBUTEID).contains(fixture)) {
+            fixturePhaseValues.append(fixture->name() + " @ " + QString::number(fixtureSpecificAngleAttributes.value(kernel->EFFECTPHASEATTRIBUTEID).value(fixture)) + "°");
         }
     }
     info += "\n    Fixture Exceptions: " + fixturePhaseValues.join("; ");
@@ -92,25 +92,25 @@ void Effect::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     Item::writeAttributesToFile(fileStream);
     for (int step : intensitySteps.keys()) {
         fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", (kernel->effects->INTENSITYSTEPSATTRIBUTEID + "." + QString::number(step)));
+        fileStream->writeAttribute("ID", (kernel->EFFECTINTENSITYSTEPSATTRIBUTEID + "." + QString::number(step)));
         fileStream->writeCharacters(intensitySteps.value(step)->id);
         fileStream->writeEndElement();
     }
     for (int step : colorSteps.keys()) {
         fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", (kernel->effects->COLORSTEPSATTRIBUTEID + "." + QString::number(step)));
+        fileStream->writeAttribute("ID", (kernel->EFFECTCOLORSTEPSATTRIBUTEID + "." + QString::number(step)));
         fileStream->writeCharacters(colorSteps.value(step)->id);
         fileStream->writeEndElement();
     }
     for (int step : positionSteps.keys()) {
         fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", (kernel->effects->POSITIONSTEPSATTRIBUTEID + "." + QString::number(step)));
+        fileStream->writeAttribute("ID", (kernel->EFFECTPOSITIONSTEPSATTRIBUTEID + "." + QString::number(step)));
         fileStream->writeCharacters(positionSteps.value(step)->id);
         fileStream->writeEndElement();
     }
     for (int step : rawSteps.keys()) {
         fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", (kernel->effects->RAWSTEPSATTRIBUTEID + "." + QString::number(step)));
+        fileStream->writeAttribute("ID", (kernel->EFFECTRAWSTEPSATTRIBUTEID + "." + QString::number(step)));
         QStringList rawIds;
         for (Raw* raw : rawSteps.value(step)) {
             rawIds.append(raw->id);
@@ -129,29 +129,29 @@ void Effect::writeAttributesToFile(QXmlStreamWriter* fileStream) {
 }
 
 int Effect::getStep(Fixture* fixture, int frame, float* fade) {
-    QList<int> stepFrames = QList<int>(intAttributes.value(kernel->effects->STEPSATTRIBUTEID), 0);
-    QList<int> fadeFrames = QList<int>(intAttributes.value(kernel->effects->STEPSATTRIBUTEID), 0);
+    QList<int> stepFrames = QList<int>(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID), 0);
+    QList<int> fadeFrames = QList<int>(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID), 0);
     int totalFrames = 0;
-    for (int step = 1; step <= intAttributes.value(kernel->effects->STEPSATTRIBUTEID); step++) {
-        if (stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).contains(step)) {
-            fadeFrames[step - 1] = (kernel->dmxEngine->PROCESSINGRATE * stepSpecificFloatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID).value(step));
+    for (int step = 1; step <= intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID); step++) {
+        if (stepSpecificFloatAttributes.value(kernel->EFFECTSTEPFADEATTRIBUTEID).contains(step)) {
+            fadeFrames[step - 1] = (kernel->dmxEngine->PROCESSINGRATE * stepSpecificFloatAttributes.value(kernel->EFFECTSTEPFADEATTRIBUTEID).value(step));
         } else {
-            fadeFrames[step - 1] = (kernel->dmxEngine->PROCESSINGRATE * floatAttributes.value(kernel->effects->STEPFADEATTRIBUTEID));
+            fadeFrames[step - 1] = (kernel->dmxEngine->PROCESSINGRATE * floatAttributes.value(kernel->EFFECTSTEPFADEATTRIBUTEID));
         }
         stepFrames[step - 1] = fadeFrames[step - 1];
-        if (stepSpecificFloatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID).contains(step)) {
-            stepFrames[step - 1] += (kernel->dmxEngine->PROCESSINGRATE * stepSpecificFloatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID).value(step));
+        if (stepSpecificFloatAttributes.value(kernel->EFFECTSTEPHOLDATTRIBUTEID).contains(step)) {
+            stepFrames[step - 1] += (kernel->dmxEngine->PROCESSINGRATE * stepSpecificFloatAttributes.value(kernel->EFFECTSTEPHOLDATTRIBUTEID).value(step));
         } else {
-            stepFrames[step - 1] += (kernel->dmxEngine->PROCESSINGRATE * floatAttributes.value(kernel->effects->STEPHOLDATTRIBUTEID));
+            stepFrames[step - 1] += (kernel->dmxEngine->PROCESSINGRATE * floatAttributes.value(kernel->EFFECTSTEPHOLDATTRIBUTEID));
         }
         totalFrames += stepFrames[step - 1];
     }
     int step = 1;
     if (totalFrames > 0) {
-        if (fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).contains(fixture)) {
-            frame += fixtureSpecificAngleAttributes.value(kernel->effects->PHASEATTRIBUTEID).value(fixture) * (float)totalFrames / 360.0;
+        if (fixtureSpecificAngleAttributes.value(kernel->EFFECTPHASEATTRIBUTEID).contains(fixture)) {
+            frame += fixtureSpecificAngleAttributes.value(kernel->EFFECTPHASEATTRIBUTEID).value(fixture) * (float)totalFrames / 360.0;
         } else {
-            frame += angleAttributes.value(kernel->effects->PHASEATTRIBUTEID) * (float)totalFrames / 360.0;
+            frame += angleAttributes.value(kernel->EFFECTPHASEATTRIBUTEID) * (float)totalFrames / 360.0;
         }
         frame %= totalFrames;
         while (frame >= stepFrames[step - 1]) {
@@ -175,8 +175,8 @@ float Effect::getDimmer(Fixture* fixture, int frame) {
         float formerDimmer = 0.0;
         if ((step > 1) && intensitySteps.contains(step - 1)) {
             formerDimmer = intensitySteps.value(step - 1)->getDimmer(fixture);
-        } else if ((step == 1) && intensitySteps.contains(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) {
-            formerDimmer = intensitySteps.value(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))->getDimmer(fixture);
+        } else if ((step == 1) && intensitySteps.contains(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID))) {
+            formerDimmer = intensitySteps.value(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID))->getDimmer(fixture);
         }
         if (intensitySteps.contains(step)) {
             dimmer = intensitySteps.value(step)->getDimmer(fixture);
@@ -194,8 +194,8 @@ rgbColor Effect::getRGB(Fixture* fixture, int frame) {
         rgbColor formerColor = {};
         if ((step > 1) && colorSteps.contains(step - 1)) {
             formerColor = colorSteps.value(step - 1)->getRGB(fixture);
-        } else if ((step == 1) && colorSteps.contains(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) {
-            formerColor = colorSteps.value(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))->getRGB(fixture);
+        } else if ((step == 1) && colorSteps.contains(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID))) {
+            formerColor = colorSteps.value(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID))->getRGB(fixture);
         }
         if (colorSteps.contains(step)) {
             color = colorSteps.value(step)->getRGB(fixture);
@@ -216,8 +216,8 @@ positionAngles Effect::getPosition(Fixture* fixture, int frame) {
         positionAngles formerPosition = {};
         if ((step > 1) && positionSteps.contains(step - 1)) {
             formerPosition = positionSteps.value(step - 1)->getAngles(fixture);
-        } else if ((step == 1) && positionSteps.contains(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) {
-            formerPosition = positionSteps.value(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))->getAngles(fixture);
+        } else if ((step == 1) && positionSteps.contains(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID))) {
+            formerPosition = positionSteps.value(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID))->getAngles(fixture);
         }
         if (positionSteps.contains(step)) {
             position = positionSteps.value(step)->getAngles(fixture);
@@ -241,10 +241,10 @@ positionAngles Effect::getPosition(Fixture* fixture, int frame) {
 
 QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMiBRaws) {
     QMap<int, uint8_t> channels;
-    for (int step = 1; step <= intAttributes.value(kernel->effects->STEPSATTRIBUTEID); step++) {
+    for (int step = 1; step <= intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID); step++) {
         if (rawSteps.contains(step)) {
             for (Raw* raw : rawSteps.value(step)) {
-                if (renderMiBRaws || raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
+                if (renderMiBRaws || raw->boolAttributes.value(kernel->RAWMOVEINBLACKATTRIBUTEID)) {
                     for (int channel : raw->getChannels(fixture).keys()) {
                         channels[channel] = 0;
                     }
@@ -258,13 +258,13 @@ QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMiBRa
         QList<Raw*> formerRaws;
         if ((step > 1) && rawSteps.contains(step - 1)) {
             formerRaws = rawSteps.value(step - 1);
-        } else if ((step == 1) && rawSteps.contains(intAttributes.value(kernel->effects->STEPSATTRIBUTEID))) {
-            formerRaws = rawSteps.value(intAttributes.value(kernel->effects->STEPSATTRIBUTEID));
+        } else if ((step == 1) && rawSteps.contains(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID))) {
+            formerRaws = rawSteps.value(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID));
         }
         for (int channel : channels.keys()) {
             uint8_t formerValue = 0;
             for (Raw* raw : formerRaws) {
-                if ((renderMiBRaws || raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) && raw->getChannels(fixture).contains(channel)) {
+                if ((renderMiBRaws || raw->boolAttributes.value(kernel->RAWMOVEINBLACKATTRIBUTEID)) && raw->getChannels(fixture).contains(channel)) {
                     formerValue = raw->getChannels(fixture).value(channel);
                 }
             }
@@ -272,8 +272,8 @@ QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMiBRa
             bool fadeThisChannel = true;
             if (rawSteps.contains(step)) {
                 for (Raw* raw : rawSteps.value(step)) {
-                    if ((renderMiBRaws || raw->boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) && raw->getChannels(fixture).contains(channel)) {
-                        fadeThisChannel = raw->boolAttributes.value(kernel->raws->FADEATTRIBUTEID);
+                    if ((renderMiBRaws || raw->boolAttributes.value(kernel->RAWMOVEINBLACKATTRIBUTEID)) && raw->getChannels(fixture).contains(channel)) {
+                        fadeThisChannel = raw->boolAttributes.value(kernel->RAWFADEATTRIBUTEID);
                         value = raw->getChannels(fixture).value(channel);
                     }
                 }
