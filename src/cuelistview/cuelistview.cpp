@@ -54,7 +54,7 @@ void CuelistView::reload() {
     kernel->inspector->load(kernel->terminal->command);
     kernel->controlPanel->reload();
     cueOrGroupLabel->setText(QString());
-    cuelistLabel->setText(QString());
+    cuelistLabel->setText("No Cuelist selected.");
     if (currentCuelist != nullptr) {
         cuelistLabel->setText("Cuelist " + currentCuelist->name());
     }
@@ -68,6 +68,8 @@ void CuelistView::reload() {
         if (currentGroup != nullptr) {
             cueOrGroupLabel->setText("Group " + currentGroup->name());
         }
+    } else {
+        Q_ASSERT(false);
     }
     fixtureLabel->setText("No Fixture selected.");
     if (currentFixture != nullptr) {

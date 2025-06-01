@@ -13,5 +13,5 @@ ModelTable::ModelTable(Kernel *core) : ItemTable(core, Keys::Model, "Model", "Mo
     floatAttributes[kernel->MODELPANRANGEATTRIBUTEID] = {"Pan Range", 540, 0, 3600, "°"};
     floatAttributes[kernel->MODELTILTRANGEATTRIBUTEID] = {"Tilt Range", 270, 0, 360, "°"};
     floatAttributes[kernel->MODELMINZOOMATTRIBUTEID] = {"Minimal Zoom", 5, 0, 180, "°"};
-    floatAttributes[kernel->MODELMINZOOMATTRIBUTEID] = {"Maximal Zoom", 60, 0, 180, "°"};
+    floatAttributes[kernel->MODELMAXZOOMATTRIBUTEID] = {"Maximal Zoom", 60, 0, 180, "°"};
 }

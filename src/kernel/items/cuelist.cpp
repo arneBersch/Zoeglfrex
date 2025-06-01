@@ -31,7 +31,5 @@ QString Cuelist::info() {
 
 void Cuelist::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     Item::writeAttributesToFile(fileStream);
-    fileStream->writeStartElement("Cues");
     cues->saveItemsToFile(fileStream);
-    fileStream->writeEndElement();
 }

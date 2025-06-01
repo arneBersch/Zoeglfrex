@@ -102,6 +102,8 @@ public:
     const QString CUEEFFECTSATTRIBUTEID = "6";
     const QString CUEFADEATTRIBUTEID = "7";
     const QString CUEBLOCKATTRIBUTEID = "8";
+private:
+    QMap<int, QString> xmlToCommandAttributes(QXmlStreamAttributes streamAttributes);
 };
 
 #endif // KERNEL_H

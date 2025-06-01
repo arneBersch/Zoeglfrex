@@ -123,76 +123,67 @@ void Kernel::openFile(QString fileName) {
                         return;
                     }
                 }
-            } else {
+            } else { // <Items>
                 QString pluralName = fileStream.name().toString();
-                while (fileStream.readNextStartElement()) {
+                while (fileStream.readNextStartElement()) { // <Item>
                     QString singularName = fileStream.name().toString();
                     if (!fileStream.attributes().hasAttribute("ID")) {
-                        terminal->error("Error reading file: No ID for " + singularName + " was given.");
+                        terminal->error("Error reading file: No " + singularName + " ID was given.");
                         return;
                     }
                     QStringList ids = {fileStream.attributes().value("ID").toString()};
-                    while (fileStream.readNextStartElement()) {
+                    while (fileStream.readNextStartElement()) { // <Attribute> or <Cues>
                         if ((fileStream.name().toString() != "Attribute") || !fileStream.attributes().hasAttribute("ID")) {
-                            terminal->error("Error reading file: Expected " + singularName + " Attribute.");
-                            return;
-                        }
-                        QMap<int, QString> attributes;
-                        attributes[Keys::Attribute] = fileStream.attributes().value("ID").toString();
-                        if (fileStream.attributes().hasAttribute("Model")) {
-                            attributes[Keys::Model] = fileStream.attributes().value("Model").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Fixture")) {
-                            attributes[Keys::Fixture] = fileStream.attributes().value("Fixture").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Group")) {
-                            attributes[Keys::Group] = fileStream.attributes().value("Group").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Intensity")) {
-                            attributes[Keys::Intensity] = fileStream.attributes().value("Intensity").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Color")) {
-                            attributes[Keys::Color] = fileStream.attributes().value("Color").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Position")) {
-                            attributes[Keys::Position] = fileStream.attributes().value("Position").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Raw")) {
-                            attributes[Keys::Raw] = fileStream.attributes().value("Raw").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Effect")) {
-                            attributes[Keys::Effect] = fileStream.attributes().value("Effect").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Cuelist")) {
-                            attributes[Keys::Cuelist] = fileStream.attributes().value("Cuelist").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Cue")) {
-                            attributes[Keys::Cue] = fileStream.attributes().value("Cue").toString();
-                        }
-                        QString text = fileStream.readElementText();
-                        if ((pluralName == "Models") && (singularName == "Model")) {
-                            models->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Fixtures") && (singularName == "Fixture")) {
-                            fixtures->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Groups") && (singularName == "Group")) {
-                            groups->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Intensities") && (singularName == "Intensity")) {
-                            intensities->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Colors") && (singularName == "Color")) {
-                            colors->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Positions") && (singularName == "Position")) {
-                            positions->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Raws") && (singularName == "Raw")) {
-                            raws->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Effects") && (singularName == "Effect")) {
-                            effects->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Cuelists") && (singularName == "Cuelist")) {
-                            cuelists->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Cues") && (singularName == "Cue")) {
-                            //cues->setAttribute(ids, attributes, QList<int>(), text);
+                            if ((fileStream.name().toString() == "Cues") && (pluralName == "Cuelists") && (singularName == "Cuelist")) {
+                                cuelistView->loadCuelist(ids.first());
+                                while (fileStream.readNextStartElement()) { // <Cue>
+                                    if (fileStream.name().toString() != "Cue") {
+                                        terminal->error("Error reading file: Expected Cue.");
+                                        return;
+                                    }
+                                    if (!fileStream.attributes().hasAttribute("ID")) {
+                                        terminal->error("Error reading file: No Cue ID was given.");
+                                        return;
+                                    }
+                                    QString cueId = fileStream.attributes().value("ID").toString();
+                                    while (fileStream.readNextStartElement()) { // <Attribute>
+                                        if ((fileStream.name().toString() != "Attribute") || !fileStream.attributes().hasAttribute("ID")) {
+                                            terminal->error("Error reading file: Expected Cue Attribute.");
+                                            return;
+                                        }
+                                        QMap<int, QString> attributes = xmlToCommandAttributes(fileStream.attributes());
+                                        cuelistView->currentCuelist->cues->setAttribute({cueId}, attributes, QList<int>(), fileStream.readElementText());
+                                    }
+                                }
+                            } else {
+                                terminal->error("Error reading file: Expected " + singularName + " Attribute.");
+                                return;
+                            }
                         } else {
-                            terminal->error("Error reading file: Expected Object Type");
-                            return;
+                            QMap<int, QString> attributes = xmlToCommandAttributes(fileStream.attributes());
+                            QString text = fileStream.readElementText();
+                            if ((pluralName == "Models") && (singularName == "Model")) {
+                                models->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Fixtures") && (singularName == "Fixture")) {
+                                fixtures->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Groups") && (singularName == "Group")) {
+                                groups->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Intensities") && (singularName == "Intensity")) {
+                                intensities->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Colors") && (singularName == "Color")) {
+                                colors->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Positions") && (singularName == "Position")) {
+                                positions->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Raws") && (singularName == "Raw")) {
+                                raws->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Effects") && (singularName == "Effect")) {
+                                effects->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Cuelists") && (singularName == "Cuelist")) {
+                                cuelists->setAttribute(ids, attributes, QList<int>(), text);
+                            } else {
+                                terminal->error("Error reading file: Expected Object Type");
+                                return;
+                            }
                         }
                     }
                 }
@@ -208,3 +199,39 @@ void Kernel::openFile(QString fileName) {
     }
     cuelistView->reload();
 }
+
+QMap<int, QString> Kernel::xmlToCommandAttributes(QXmlStreamAttributes streamAttributes) {
+    QMap<int, QString> attributes;
+    attributes[Keys::Attribute] = streamAttributes.value("ID").toString();
+    if (streamAttributes.hasAttribute("Model")) {
+        attributes[Keys::Model] = streamAttributes.value("Model").toString();
+    }
+    if (streamAttributes.hasAttribute("Fixture")) {
+        attributes[Keys::Fixture] = streamAttributes.value("Fixture").toString();
+    }
+    if (streamAttributes.hasAttribute("Group")) {
+        attributes[Keys::Group] = streamAttributes.value("Group").toString();
+    }
+    if (streamAttributes.hasAttribute("Intensity")) {
+        attributes[Keys::Intensity] = streamAttributes.value("Intensity").toString();
+    }
+    if (streamAttributes.hasAttribute("Color")) {
+        attributes[Keys::Color] = streamAttributes.value("Color").toString();
+    }
+    if (streamAttributes.hasAttribute("Position")) {
+        attributes[Keys::Position] = streamAttributes.value("Position").toString();
+    }
+    if (streamAttributes.hasAttribute("Raw")) {
+        attributes[Keys::Raw] = streamAttributes.value("Raw").toString();
+    }
+    if (streamAttributes.hasAttribute("Effect")) {
+        attributes[Keys::Effect] = streamAttributes.value("Effect").toString();
+    }
+    if (streamAttributes.hasAttribute("Cuelist")) {
+        attributes[Keys::Cuelist] = streamAttributes.value("Cuelist").toString();
+    }
+    if (streamAttributes.hasAttribute("Cue")) {
+        attributes[Keys::Cue] = streamAttributes.value("Cue").toString();
+    }
+    return attributes;
+};
