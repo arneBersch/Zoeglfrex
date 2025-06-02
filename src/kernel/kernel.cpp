@@ -133,33 +133,7 @@ void Kernel::openFile(QString fileName) {
                     }
                     QStringList ids = {fileStream.attributes().value("ID").toString()};
                     while (fileStream.readNextStartElement()) { // <Attribute> or <Cues>
-                        if ((fileStream.name().toString() != "Attribute") || !fileStream.attributes().hasAttribute("ID")) {
-                            if ((fileStream.name().toString() == "Cues") && (pluralName == "Cuelists") && (singularName == "Cuelist")) {
-                                cuelistView->loadCuelist(ids.first());
-                                while (fileStream.readNextStartElement()) { // <Cue>
-                                    if (fileStream.name().toString() != "Cue") {
-                                        terminal->error("Error reading file: Expected Cue.");
-                                        return;
-                                    }
-                                    if (!fileStream.attributes().hasAttribute("ID")) {
-                                        terminal->error("Error reading file: No Cue ID was given.");
-                                        return;
-                                    }
-                                    QString cueId = fileStream.attributes().value("ID").toString();
-                                    while (fileStream.readNextStartElement()) { // <Attribute>
-                                        if ((fileStream.name().toString() != "Attribute") || !fileStream.attributes().hasAttribute("ID")) {
-                                            terminal->error("Error reading file: Expected Cue Attribute.");
-                                            return;
-                                        }
-                                        QMap<int, QString> attributes = xmlToCommandAttributes(fileStream.attributes());
-                                        cuelistView->currentCuelist->cues->setAttribute({cueId}, attributes, QList<int>(), fileStream.readElementText());
-                                    }
-                                }
-                            } else {
-                                terminal->error("Error reading file: Expected " + singularName + " Attribute.");
-                                return;
-                            }
-                        } else {
+                        if ((fileStream.name().toString() == "Attribute") && fileStream.attributes().hasAttribute("ID")) {
                             QMap<int, QString> attributes = xmlToCommandAttributes(fileStream.attributes());
                             QString text = fileStream.readElementText();
                             if ((pluralName == "Models") && (singularName == "Model")) {
@@ -184,6 +158,30 @@ void Kernel::openFile(QString fileName) {
                                 terminal->error("Error reading file: Expected Object Type");
                                 return;
                             }
+                        } else if ((fileStream.name().toString() == "Cues") && (pluralName == "Cuelists") && (singularName == "Cuelist")) {
+                            cuelistView->loadCuelist(ids.first());
+                            while (fileStream.readNextStartElement()) { // <Cue>
+                                if (fileStream.name().toString() != "Cue") {
+                                    terminal->error("Error reading file: Expected Cue.");
+                                    return;
+                                }
+                                if (!fileStream.attributes().hasAttribute("ID")) {
+                                    terminal->error("Error reading file: No Cue ID was given.");
+                                    return;
+                                }
+                                QString cueId = fileStream.attributes().value("ID").toString();
+                                while (fileStream.readNextStartElement()) { // <Attribute>
+                                    if ((fileStream.name().toString() != "Attribute") || !fileStream.attributes().hasAttribute("ID")) {
+                                        terminal->error("Error reading file: Expected Cue Attribute.");
+                                        return;
+                                    }
+                                    QMap<int, QString> attributes = xmlToCommandAttributes(fileStream.attributes());
+                                    cuelistView->currentCuelist->cues->setAttribute({cueId}, attributes, QList<int>(), fileStream.readElementText());
+                                }
+                            }
+                        } else {
+                            terminal->error("Error reading file: Expected " + singularName + " Attribute.");
+                            return;
                         }
                     }
                 }
