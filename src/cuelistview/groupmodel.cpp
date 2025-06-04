@@ -47,9 +47,9 @@ QVariant GroupModel::data(const QModelIndex &index, const int role) const
     if (kernel->cuelistView->currentCuelist == nullptr) {
         return QVariant();
     }
+    Cue *cue = kernel->cuelistView->currentCuelist->cues->items[row];
     if (role == Qt::DisplayRole) {
         QMutexLocker locker(kernel->mutex);
-        Cue *cue = kernel->cuelistView->currentCuelist->cues->items[row];
         if (column == GroupModelColumns::cue) {
             return cue->name();
         } else if (column == GroupModelColumns::intensity) {
@@ -88,6 +88,21 @@ QVariant GroupModel::data(const QModelIndex &index, const int role) const
             return QVariant();
         }
     } else if (role == Qt::BackgroundRole) {
+        Cue* formerCue = nullptr;
+        if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->cues->getItemRow(cue->id) > 0)) {
+            formerCue = kernel->cuelistView->currentCuelist->cues->items[kernel->cuelistView->currentCuelist->cues->getItemRow(cue->id) - 1];
+        }
+        if ((column == CueModelColumns::intensity) && (formerCue != nullptr) && (cue->intensities.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->intensities.value(kernel->cuelistView->currentGroup, nullptr))) {
+            return QColor(48, 0, 0);
+        } else if ((column == CueModelColumns::color) && (formerCue != nullptr) && (cue->colors.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->colors.value(kernel->cuelistView->currentGroup, nullptr))) {
+            return QColor(48, 0, 0);
+        } else if ((column == CueModelColumns::position) && (formerCue != nullptr) && (cue->positions.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->positions.value(kernel->cuelistView->currentGroup, nullptr))) {
+            return QColor(48, 0, 0);
+        } else if ((column == CueModelColumns::raws) && (formerCue != nullptr) && (cue->raws.value(kernel->cuelistView->currentGroup, QList<Raw*>()) != formerCue->raws.value(kernel->cuelistView->currentGroup, QList<Raw*>()))) {
+            return QColor(48, 0, 0);
+        } else if ((column == CueModelColumns::effects) && (formerCue != nullptr) && (cue->effects.value(kernel->cuelistView->currentGroup, QList<Effect*>()) != formerCue->effects.value(kernel->cuelistView->currentGroup, QList<Effect*>()))) {
+            return QColor(48, 0, 0);
+        }
         if (kernel->cuelistView->currentCuelist->cues->items[row] == kernel->cuelistView->currentCuelist->currentCue) {
             return QColor(48, 48, 48);
         }
