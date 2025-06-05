@@ -77,3 +77,7 @@ void GroupTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QL
         ItemTable::setAttribute(ids, attributes, value, text);
     }
 }
+
+bool GroupTable::isCurrentItem(Group* item) const {
+    return (kernel->cuelistView->currentGroup == item);
+}

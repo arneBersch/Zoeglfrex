@@ -19,3 +19,10 @@ PositionTable::PositionTable(Kernel *core) : ItemTable(core, Keys::Position, "Po
     modelSpecificFloatAttributes[kernel->POSITIONZOOMATTRIBUTEID] = {"Zoom", 15, 0, 180, "°"};
     fixtureSpecificFloatAttributes[kernel->POSITIONZOOMATTRIBUTEID] = {"Zoom", 15, 0, 180, "°"};
 }
+
+bool PositionTable::isCurrentItem(Position* item) const {
+    if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr)) {
+        return (kernel->cuelistView->currentCuelist->currentCue->positions.value(kernel->cuelistView->currentGroup, nullptr) == item);
+    }
+    return false;
+}

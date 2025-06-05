@@ -22,6 +22,8 @@ class GroupTable : public ItemTable<Group> {
 public:
     GroupTable(Kernel *core);
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
+private:
+    bool isCurrentItem(Group* item) const override;
 };
 
 #include "kernel/kernel.h"

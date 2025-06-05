@@ -21,6 +21,8 @@ class ColorTable : public ItemTable<Color> {
     Q_OBJECT
 public:
     ColorTable(Kernel *core);
+private:
+    bool isCurrentItem(Color* item) const override;
 };
 
 #include "kernel/kernel.h"

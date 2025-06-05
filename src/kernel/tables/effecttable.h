@@ -25,6 +25,7 @@ public:
 private:
     Effect* addItem(QString id) override;
     QMap<QString, FloatAttribute> stepSpecificFloatAttributes;
+    bool isCurrentItem(Effect* item) const override;
 };
 
 #include "kernel/kernel.h"

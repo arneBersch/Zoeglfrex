@@ -777,8 +777,12 @@ template <class T> QVariant ItemTable<T>::data(const QModelIndex &index, const i
     if (column >= columnCount() || column < 0) {
         return QVariant();
     }
-    if (index.isValid() && role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole) {
         return items[row]->name();
+    } else if (role == Qt::BackgroundRole) {
+        if (isCurrentItem(items[row])) {
+            return QColor(48, 48, 48);
+        }
     }
     return QVariant();
 }
@@ -845,4 +849,9 @@ template <class T> T* ItemTable<T>::addItem(QString id) {
     endInsertRows();
     kernel->terminal->success("Added " + singularItemName + " " + id + ".");
     return item;
+}
+
+template <class T> bool ItemTable<T>::isCurrentItem(T* item) const {
+    Q_UNUSED(item);
+    return false;
 }

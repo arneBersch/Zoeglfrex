@@ -21,6 +21,8 @@ class PositionTable : public ItemTable<Position> {
     Q_OBJECT
 public:
     PositionTable(Kernel *core);
+private:
+    bool isCurrentItem(Position* item) const override;
 };
 
 #include "kernel/kernel.h"

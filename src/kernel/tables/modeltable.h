@@ -21,6 +21,8 @@ class ModelTable : public ItemTable<Model> {
     Q_OBJECT
 public:
     ModelTable(Kernel *core);
+private:
+    bool isCurrentItem(Model* item) const override;
 };
 
 #include "kernel/kernel.h"

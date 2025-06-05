@@ -24,6 +24,7 @@ public:
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 private:
     Cue* addItem(QString id) override;
+    bool isCurrentItem(Cue* item) const override;
 };
 
 #endif // CUETABLE_H

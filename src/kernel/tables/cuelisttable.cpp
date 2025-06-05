@@ -9,3 +9,7 @@
 #include "cuelisttable.h"
 
 CuelistTable::CuelistTable(Kernel *core) : ItemTable(core, Keys::Cuelist, "Cuelist", "Cuelists") {}
+
+bool CuelistTable::isCurrentItem(Cuelist* item) const {
+    return kernel->cuelistView->currentCuelist == item;
+}

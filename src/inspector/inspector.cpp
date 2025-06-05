@@ -26,6 +26,7 @@ Inspector::Inspector(Kernel *core, QWidget *parent) : QWidget{parent}
 
 void Inspector::load(QList<int> keys)
 {
+    table->reset();
     infos->setText(QString());
     int itemType = Keys::Zero;
     QList<int> itemIdKeys;

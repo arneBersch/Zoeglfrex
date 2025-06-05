@@ -72,6 +72,7 @@ public:
     QMap<QString, BoolAttribute> boolAttributes;
 protected:
     virtual T* addItem(QString id);
+    virtual bool isCurrentItem(T* item) const;
     Kernel *kernel;
 private:
     int findRow(QString id);

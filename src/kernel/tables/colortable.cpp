@@ -17,3 +17,10 @@ ColorTable::ColorTable(Kernel *core) : ItemTable(core, Keys::Color, "Color", "Co
     fixtureSpecificFloatAttributes[kernel->COLORSATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
     floatAttributes[kernel->COLORQUALITYATTRIBUTEID] = {"Quality", 100, 0, 100, "%"};
 }
+
+bool ColorTable::isCurrentItem(Color* item) const {
+    if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr)) {
+        return (kernel->cuelistView->currentCuelist->currentCue->colors.value(kernel->cuelistView->currentGroup, nullptr) == item);
+    }
+    return false;
+}

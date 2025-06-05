@@ -399,3 +399,9 @@ Effect* EffectTable::addItem(QString id) {
     return effect;
 }
 
+bool EffectTable::isCurrentItem(Effect* item) const {
+    if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr)) {
+        return (kernel->cuelistView->currentCuelist->currentCue->effects.value(kernel->cuelistView->currentGroup, QList<Effect*>()).contains(item));
+    }
+    return false;
+}

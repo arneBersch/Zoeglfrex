@@ -22,6 +22,7 @@ class FixtureTable : public ItemTable<Fixture> {
 public:
     FixtureTable(Kernel *core);
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
+    bool isCurrentItem(Fixture* item) const override;
 };
 
 #include "kernel/kernel.h"
