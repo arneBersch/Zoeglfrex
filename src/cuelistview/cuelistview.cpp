@@ -124,7 +124,7 @@ void CuelistView::loadCue(QString cueId) {
     currentCuelist->totalFadeFrames = kernel->dmxEngine->PROCESSINGRATE * cue->floatAttributes[kernel->CUEFADEATTRIBUTEID] + 0.5;
     currentCuelist->remainingFadeFrames = currentCuelist->totalFadeFrames;
     reload();
-    if ((cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE)) {
+    if ((cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE) && groupModel->getCueRows().contains(currentCuelist->currentCue)) {
         cuelistTableView->scrollTo(groupModel->index(groupModel->getCueRows().indexOf(currentCuelist->currentCue), GroupModelColumns::cue));
     }
 }
@@ -160,7 +160,7 @@ void CuelistView::loadGroup(QString groupId) {
     currentGroup = group;
     currentFixture = nullptr;
     reload();
-    if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE)) {
+    if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE) && cueModel->getGroupRows().contains(currentGroup)) {
         cuelistTableView->scrollTo(cueModel->index(cueModel->getGroupRows().indexOf(currentGroup), CueModelColumns::group));
     }
 }
@@ -242,19 +242,19 @@ bool CuelistView::isSelected(Fixture* fixture) {
 void CuelistView::updateCuelistView() {
     if (cueViewModeComboBox->currentText() == CUEVIEWCUEMODE) {
         cuelistTableView->setModel(cueModel);
-        if (currentGroup != nullptr) {
+        if ((currentGroup != nullptr) && cueModel->getGroupRows().contains(currentGroup)) {
             cuelistTableView->scrollTo(cueModel->index(cueModel->getGroupRows().indexOf(currentGroup), CueModelColumns::group));
         }
     } else if (cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE) {
         cuelistTableView->setModel(groupModel);
-        if ((currentCuelist != nullptr) && (currentCuelist->currentCue != nullptr)) {
+        if ((currentCuelist != nullptr) && (currentCuelist->currentCue != nullptr) && groupModel->getCueRows().indexOf(currentCuelist->currentCue)) {
             cuelistTableView->scrollTo(groupModel->index(groupModel->getCueRows().indexOf(currentCuelist->currentCue), GroupModelColumns::cue));
         }
     }
     reload();
-    if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE) && (currentGroup != nullptr)) {
+    /*if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE) && (currentGroup != nullptr) && cueModel->getGroupRows().contains(currentGroup)) {
         cuelistTableView->scrollTo(cueModel->index(cueModel->getGroupRows().indexOf(currentGroup), CueModelColumns::group));
-    } else if ((cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE) && (currentCuelist != nullptr) && (currentCuelist->currentCue != nullptr)) {
+    } else if ((cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE) && (currentCuelist != nullptr) && (currentCuelist->currentCue != nullptr) && groupModel->getCueRows().contains(currentCuelist->currentCue)) {
         cuelistTableView->scrollTo(groupModel->index(groupModel->getCueRows().indexOf(currentCuelist->currentCue), GroupModelColumns::cue));
-    }
+    }*/
 }

@@ -22,6 +22,7 @@ Terminal::Terminal(Kernel *core, QWidget *parent) : QWidget(parent) {
     layout->addWidget(scrollArea);
     prompt = new QLabel();
     prompt->setWordWrap(true);
+    prompt->setStyleSheet("padding: 10px; background-color: #303030;");
     layout->addWidget(prompt);
 }
 
