@@ -300,11 +300,3 @@ void RawTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QLis
         ItemTable::setAttribute(ids, attributes, value, text);
     }
 }
-
-bool RawTable::isCurrentItem(Raw* item) const {
-    if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr)) {
-        return (kernel->cuelistView->currentCuelist->currentCue->raws.value(kernel->cuelistView->currentGroup, QList<Raw*>()).contains(item));
-    }
-    return false;
-}
-

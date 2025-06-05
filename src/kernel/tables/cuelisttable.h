@@ -21,8 +21,6 @@ class CuelistTable : public ItemTable<Cuelist> {
     Q_OBJECT
 public:
     CuelistTable(Kernel *core);
-private:
-    bool isCurrentItem(Cuelist* item) const override;
 };
 
 #include "kernel/kernel.h"

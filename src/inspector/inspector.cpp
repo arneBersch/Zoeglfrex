@@ -43,9 +43,10 @@ void Inspector::load(QList<int> keys)
             itemIdKeys.append(key);
         }
     }
+    ids = kernel->terminal->keysToSelection(itemIdKeys, itemType);
     QString id = QString();
-    if (!kernel->terminal->keysToSelection(itemIdKeys, itemType).isEmpty()) {
-        id = kernel->terminal->keysToSelection(itemIdKeys, itemType).last();
+    if (!ids.isEmpty()) {
+        id = ids.last();
     }
     Item* item = nullptr;
     if (itemType == Keys::Model) {

@@ -67,8 +67,3 @@ void FixtureTable::setAttribute(QStringList ids, QMap<int, QString> attributes, 
         ItemTable::setAttribute(ids, attributes, value, text);
     }
 }
-
-bool FixtureTable::isCurrentItem(Fixture* item) const {
-    return (kernel->cuelistView->currentFixture == item);
-}
-

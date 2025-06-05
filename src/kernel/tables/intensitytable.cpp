@@ -13,10 +13,3 @@ IntensityTable::IntensityTable(Kernel *core) : ItemTable(core, Keys::Intensity, 
     modelSpecificFloatAttributes[kernel->INTENSITYDIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
     fixtureSpecificFloatAttributes[kernel->INTENSITYDIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
 }
-
-bool IntensityTable::isCurrentItem(Intensity* item) const {
-    if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr)) {
-        return (kernel->cuelistView->currentCuelist->currentCue->intensities.value(kernel->cuelistView->currentGroup, nullptr) == item);
-    }
-    return false;
-}

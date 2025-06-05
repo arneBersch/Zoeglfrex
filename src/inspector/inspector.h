@@ -18,6 +18,7 @@ class Inspector : public QWidget {
 public:
     Inspector(Kernel *core, QWidget *parent = nullptr);
     void load(QList<int> keys);
+    QStringList ids;
 private:
     Kernel *kernel;
     QListView *table;

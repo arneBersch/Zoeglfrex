@@ -22,8 +22,6 @@ class RawTable : public ItemTable<Raw> {
 public:
     RawTable(Kernel *core);
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
-private:
-    bool isCurrentItem(Raw* item) const override;
 };
 
 #include "kernel/kernel.h"

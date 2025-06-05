@@ -15,10 +15,3 @@ ModelTable::ModelTable(Kernel *core) : ItemTable(core, Keys::Model, "Model", "Mo
     floatAttributes[kernel->MODELMINZOOMATTRIBUTEID] = {"Minimal Zoom", 5, 0, 180, "°"};
     floatAttributes[kernel->MODELMAXZOOMATTRIBUTEID] = {"Maximal Zoom", 60, 0, 180, "°"};
 }
-
-bool ModelTable::isCurrentItem(Model* item) const {
-    if (kernel->cuelistView->currentFixture != nullptr) {
-        return (kernel->cuelistView->currentFixture->model == item);
-    }
-    return false;
-}

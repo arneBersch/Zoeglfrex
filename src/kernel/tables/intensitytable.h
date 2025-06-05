@@ -21,8 +21,6 @@ class IntensityTable : public ItemTable<Intensity> {
     Q_OBJECT
 public:
     IntensityTable(Kernel *core);
-private:
-    bool isCurrentItem(Intensity* item) const override;
 };
 
 #include "kernel/kernel.h"

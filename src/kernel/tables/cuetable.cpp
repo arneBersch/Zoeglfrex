@@ -291,7 +291,3 @@ Cue* CueTable::addItem(QString id) {
     }
     return cue;
 }
-
-bool CueTable::isCurrentItem(Cue* item) const {
-    return ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue == item));
-}
