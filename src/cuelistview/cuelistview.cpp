@@ -38,6 +38,13 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
     trackingButton->setChecked(true);
     buttonHeader->addWidget(trackingButton);
 
+    filterComboBox = new QComboBox();
+    filterComboBox->addItem(NOFILTER);
+    filterComboBox->addItem(ACTIVEROWSFILTER);
+    filterComboBox->addItem(CHANGEDROWSFILTER);
+    connect(filterComboBox, &QComboBox::currentIndexChanged, this, &CuelistView::updateCuelistView);
+    buttonHeader->addWidget(filterComboBox);
+
     cueModel = new CueModel(kernel);
     groupModel = new GroupModel(kernel);
 

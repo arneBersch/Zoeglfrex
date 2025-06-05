@@ -42,9 +42,6 @@ public:
     void updateCuelistView();
 private:
     Kernel *kernel;
-    QComboBox *cueViewModeComboBox;
-    const QString CUEVIEWCUEMODE = "Cue Mode";
-    const QString CUEVIEWGROUPMODE = "Group Mode";
     QTableView *cuelistTableView;
     CueModel *cueModel;
     GroupModel *groupModel;
@@ -52,6 +49,13 @@ private:
     QLabel *cueLabel;
     QLabel *groupLabel;
     QLabel *fixtureLabel;
+    QComboBox *cueViewModeComboBox;
+    const QString CUEVIEWCUEMODE = "Cue Mode";
+    const QString CUEVIEWGROUPMODE = "Group Mode";
+    QComboBox *filterComboBox;
+    const QString NOFILTER = "All Rows";
+    const QString ACTIVEROWSFILTER = "Active Rows only";
+    const QString CHANGEDROWSFILTER = "Changed Rows only";
 };
 
 #include "kernel/kernel.h"
