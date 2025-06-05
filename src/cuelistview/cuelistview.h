@@ -49,7 +49,8 @@ private:
     CueModel *cueModel;
     GroupModel *groupModel;
     QLabel *cuelistLabel;
-    QLabel *cueOrGroupLabel;
+    QLabel *cueLabel;
+    QLabel *groupLabel;
     QLabel *fixtureLabel;
 };
 

@@ -13,26 +13,30 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
 
     QVBoxLayout *layout = new QVBoxLayout(this);
 
+    QGridLayout* labelHeader = new QGridLayout();
+    layout->addLayout(labelHeader);
     cuelistLabel = new QLabel();
-    layout->addWidget(cuelistLabel);
-    cueOrGroupLabel = new QLabel();
-    layout->addWidget(cueOrGroupLabel);
+    labelHeader->addWidget(cuelistLabel, 0, 0);
+    cueLabel = new QLabel();
+    labelHeader->addWidget(cueLabel, 0, 1);
+    groupLabel = new QLabel();
+    labelHeader->addWidget(groupLabel, 1, 0);
     fixtureLabel = new QLabel();
-    layout->addWidget(fixtureLabel);
+    labelHeader->addWidget(fixtureLabel, 1, 1);
 
-    QHBoxLayout *header = new QHBoxLayout();
-    layout->addLayout(header);
+    QHBoxLayout *buttonHeader = new QHBoxLayout();
+    layout->addLayout(buttonHeader);
 
     cueViewModeComboBox = new QComboBox();
     cueViewModeComboBox->addItem(CUEVIEWCUEMODE);
     cueViewModeComboBox->addItem(CUEVIEWGROUPMODE);
     connect(cueViewModeComboBox, &QComboBox::currentIndexChanged, this, &CuelistView::updateCuelistView);
-    header->addWidget(cueViewModeComboBox);
+    buttonHeader->addWidget(cueViewModeComboBox);
 
     trackingButton = new QPushButton("Tracking");
     trackingButton->setCheckable(true);
     trackingButton->setChecked(true);
-    header->addWidget(trackingButton);
+    buttonHeader->addWidget(trackingButton);
 
     cueModel = new CueModel(kernel);
     groupModel = new GroupModel(kernel);
@@ -53,23 +57,18 @@ void CuelistView::reload() {
     groupModel->loadGroup();
     kernel->inspector->load(kernel->terminal->command);
     kernel->controlPanel->reload();
-    cueOrGroupLabel->setText(QString());
+    cueLabel->setText(QString());
     cuelistLabel->setText("No Cuelist selected.");
     if (currentCuelist != nullptr) {
         cuelistLabel->setText("Cuelist " + currentCuelist->name());
     }
-    if ((cueViewModeComboBox->currentText() == CUEVIEWCUEMODE)) {
-        cueOrGroupLabel->setText("No Cue selected.");
-        if ((currentCuelist != nullptr) && (currentCuelist->currentCue != nullptr)) {
-            cueOrGroupLabel->setText("Cue " + currentCuelist->currentCue->name());
-        }
-    } else if ((cueViewModeComboBox->currentText() == CUEVIEWGROUPMODE)) {
-        cueOrGroupLabel->setText("No Group selected.");
-        if (currentGroup != nullptr) {
-            cueOrGroupLabel->setText("Group " + currentGroup->name());
-        }
-    } else {
-        Q_ASSERT(false);
+    cueLabel->setText("No Cue selected.");
+    if ((currentCuelist != nullptr) && (currentCuelist->currentCue != nullptr)) {
+        cueLabel->setText("Cue " + currentCuelist->currentCue->name());
+    }
+    groupLabel->setText("No Group selected.");
+    if (currentGroup != nullptr) {
+        groupLabel->setText("Group " + currentGroup->name());
     }
     fixtureLabel->setText("No Fixture selected.");
     if (currentFixture != nullptr) {
