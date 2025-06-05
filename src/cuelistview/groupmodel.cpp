@@ -18,21 +18,18 @@ void GroupModel::loadGroup() {
     endResetModel();
 }
 
-int GroupModel::rowCount(const QModelIndex&) const
-{
+int GroupModel::rowCount(const QModelIndex&) const {
     if (kernel->cuelistView->currentCuelist != nullptr) {
         return kernel->cuelistView->currentCuelist->cues->rowCount();
     }
     return 0;
 }
 
-int GroupModel::columnCount(const QModelIndex&) const
-{
+int GroupModel::columnCount(const QModelIndex&) const {
     return 6;
 }
 
-QVariant GroupModel::data(const QModelIndex &index, const int role) const
-{
+QVariant GroupModel::data(const QModelIndex &index, const int role) const {
     const int row = index.row();
     const int column = index.column();
     if (row >= (this->rowCount()) || row < 0) {
@@ -88,19 +85,26 @@ QVariant GroupModel::data(const QModelIndex &index, const int role) const
             return QVariant();
         }
     } else if (role == Qt::BackgroundRole) {
-        Cue* formerCue = nullptr;
-        if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->cues->getItemRow(cue->id) > 0)) {
-            formerCue = kernel->cuelistView->currentCuelist->cues->items[kernel->cuelistView->currentCuelist->cues->getItemRow(cue->id) - 1];
+        bool columnValueChanged = false;
+        if (kernel->cuelistView->currentCuelist->cues->getItemRow(cue->id) > 0) {
+            Cue* formerCue = kernel->cuelistView->currentCuelist->cues->items[kernel->cuelistView->currentCuelist->cues->getItemRow(cue->id) - 1];
+            columnValueChanged = (
+                ((column == CueModelColumns::intensity) && (cue->intensities.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->intensities.value(kernel->cuelistView->currentGroup, nullptr)))
+                || ((column == CueModelColumns::color) && (cue->colors.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->colors.value(kernel->cuelistView->currentGroup, nullptr)))
+                || ((column == CueModelColumns::position) && (cue->positions.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->positions.value(kernel->cuelistView->currentGroup, nullptr)))
+                || ((column == CueModelColumns::raws) && (cue->raws.value(kernel->cuelistView->currentGroup, QList<Raw*>()) != formerCue->raws.value(kernel->cuelistView->currentGroup, QList<Raw*>())))
+                || ((column == CueModelColumns::effects) && (cue->effects.value(kernel->cuelistView->currentGroup, QList<Effect*>()) != formerCue->effects.value(kernel->cuelistView->currentGroup, QList<Effect*>())))
+            );
+        } else {
+            columnValueChanged = (
+                ((column == CueModelColumns::intensity) && cue->intensities.contains(kernel->cuelistView->currentGroup))
+                || ((column == CueModelColumns::color) && cue->colors.contains(kernel->cuelistView->currentGroup))
+                || ((column == CueModelColumns::position) && cue->positions.contains(kernel->cuelistView->currentGroup))
+                || ((column == CueModelColumns::raws) && cue->raws.contains(kernel->cuelistView->currentGroup))
+                || ((column == CueModelColumns::effects) && cue->effects.contains(kernel->cuelistView->currentGroup))
+            );
         }
-        if ((column == CueModelColumns::intensity) && (formerCue != nullptr) && (cue->intensities.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->intensities.value(kernel->cuelistView->currentGroup, nullptr))) {
-            return QColor(48, 0, 0);
-        } else if ((column == CueModelColumns::color) && (formerCue != nullptr) && (cue->colors.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->colors.value(kernel->cuelistView->currentGroup, nullptr))) {
-            return QColor(48, 0, 0);
-        } else if ((column == CueModelColumns::position) && (formerCue != nullptr) && (cue->positions.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->positions.value(kernel->cuelistView->currentGroup, nullptr))) {
-            return QColor(48, 0, 0);
-        } else if ((column == CueModelColumns::raws) && (formerCue != nullptr) && (cue->raws.value(kernel->cuelistView->currentGroup, QList<Raw*>()) != formerCue->raws.value(kernel->cuelistView->currentGroup, QList<Raw*>()))) {
-            return QColor(48, 0, 0);
-        } else if ((column == CueModelColumns::effects) && (formerCue != nullptr) && (cue->effects.value(kernel->cuelistView->currentGroup, QList<Effect*>()) != formerCue->effects.value(kernel->cuelistView->currentGroup, QList<Effect*>()))) {
+        if (columnValueChanged) {
             return QColor(48, 0, 0);
         }
         if (kernel->cuelistView->currentCuelist->cues->items[row] == kernel->cuelistView->currentCuelist->currentCue) {
@@ -110,8 +114,7 @@ QVariant GroupModel::data(const QModelIndex &index, const int role) const
     return QVariant();
 }
 
-QVariant GroupModel::headerData(int column, Qt::Orientation orientation, int role) const
-{
+QVariant GroupModel::headerData(int column, Qt::Orientation orientation, int role) const {
     if (role != Qt::DisplayRole) {
         return QVariant();
     }
