@@ -12,6 +12,7 @@
 #include <QtWidgets>
 
 class Kernel;
+class Group;
 
 namespace CueModelColumns {
 enum {
@@ -33,6 +34,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
     QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
+    QList<Group*> getGroupRows() const;
 private:
     Kernel *kernel;
 };
