@@ -27,7 +27,7 @@ enum {
 namespace ControlPanelRows {
 enum {
     label,
-    valueLabel,
+    valueButton,
     modelValueButton,
     fixtureValueButton,
     dial,
@@ -42,7 +42,7 @@ private:
     void setValue(int column, int itemKey, QString attributeId);
     bool reloading = false;
     QGridLayout *layout;
-    QList<QLabel*> valueLabels = QList<QLabel*>(6, nullptr);
+    QList<QPushButton*> valueButtons = QList<QPushButton*>(6, nullptr);
     QList<QPushButton*> modelValueButtons = QList<QPushButton*>(6, nullptr);
     QList<QPushButton*> fixtureValueButtons = QList<QPushButton*>(6, nullptr);
     QList<QDial*> dials = QList<QDial*>(6, nullptr);

@@ -23,10 +23,10 @@ ControlPanel::ControlPanel(Kernel* core) {
         QLabel* label = new QLabel(labelText);
         label->setAlignment(Qt::AlignCenter);
         layout->addWidget(label, ControlPanelRows::label, column);
-        QLabel* valueLabel = new QLabel();
-        valueLabel->setAlignment(Qt::AlignCenter);
-        layout->addWidget(valueLabel, ControlPanelRows::valueLabel, column);
-        valueLabels[column] = valueLabel;
+        QPushButton* valueButton = new QPushButton();
+        valueButton->setCheckable(true);
+        layout->addWidget(valueButton, ControlPanelRows::valueButton, column);
+        valueButtons[column] = valueButton;
         QPushButton* modelValueButton = new QPushButton();
         modelValueButton->setCheckable(true);
         connect(modelValueButton, &QPushButton::clicked, this, [this, column, itemKey, attributeId] { setValue(column, itemKey, attributeId); });
@@ -65,56 +65,72 @@ void ControlPanel::reload() {
         } else if ((itemKey == Keys::Position) && (kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
             item = kernel->cuelistView->currentCuelist->currentCue->positions.value(kernel->cuelistView->currentGroup);
         }
-        valueLabels[column]->setText(noValueMessage);
-        modelValueButtons[column]->setText(QString());
-        fixtureValueButtons[column]->setText(QString());
-        dials[column]->setValue(0);
         if (item == nullptr) {
-            dials[column]->setDisabled(true);
+            valueButtons[column]->setText(noValueMessage);
+            valueButtons[column]->setChecked(false);
+            valueButtons[column]->setDisabled(true);
+            modelValueButtons[column]->setText(noValueMessage);
             modelValueButtons[column]->setDisabled(true);
+            fixtureValueButtons[column]->setText(noValueMessage);
             fixtureValueButtons[column]->setDisabled(true);
+            dials[column]->setValue(0);
+            dials[column]->setDisabled(true);
         } else {
-            dials[column]->setEnabled(true);
+            valueButtons[column]->setEnabled(true);
+            valueButtons[column]->setChecked(true);
             modelValueButtons[column]->setEnabled(true);
             fixtureValueButtons[column]->setEnabled(true);
+            dials[column]->setEnabled(true);
             if (angle) {
-                valueLabels[column]->setText(QString::number(item->angleAttributes.value(attribute)) + unit);
+                valueButtons[column]->setText(QString::number(item->angleAttributes.value(attribute)) + unit);
                 if ((kernel->cuelistView->currentFixture != nullptr) && item->modelSpecificAngleAttributes.value(attribute).contains(kernel->cuelistView->currentFixture->model)) {
                     modelValueButtons[column]->setChecked(true);
                     modelValueButtons[column]->setText("Model:\n" + QString::number(item->modelSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model)) + unit);
                 } else {
+                    valueButtons[column]->setText("Model:\n" + QString::number(item->angleAttributes.value(attribute)) + unit);
                     modelValueButtons[column]->setChecked(false);
                 }
                 if (item->fixtureSpecificAngleAttributes.value(attribute).contains(kernel->cuelistView->currentFixture)) {
                     fixtureValueButtons[column]->setChecked(true);
                     fixtureValueButtons[column]->setText("Fixture:\n" + QString::number(item->fixtureSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture)) + unit);
                 } else {
+                    if (modelValueButtons[column]->isChecked()) {
+                        fixtureValueButtons[column]->setText("Fixture:\n" + QString::number(item->modelSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model)) + unit);
+                    } else {
+                        fixtureValueButtons[column]->setText("Fixture:\n" + QString::number(item->angleAttributes.value(attribute)) + unit);
+                    }
                     fixtureValueButtons[column]->setChecked(false);
                 }
-                if (!fixtureValueButtons[column]->text().isEmpty()) {
+                if (fixtureValueButtons[column]->isChecked()) {
                     dials[column]->setValue(item->fixtureSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture));
-                } else if (!modelValueButtons[column]->text().isEmpty()) {
+                } else if (modelValueButtons[column]->isChecked()) {
                     dials[column]->setValue(item->modelSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model));
                 } else {
                     dials[column]->setValue(item->angleAttributes.value(attribute));
                 }
             } else {
-                valueLabels[column]->setText(QString::number(item->floatAttributes.value(attribute)) + unit);
+                valueButtons[column]->setText(QString::number(item->floatAttributes.value(attribute)) + unit);
                 if ((kernel->cuelistView->currentFixture != nullptr) && item->modelSpecificFloatAttributes.value(attribute).contains(kernel->cuelistView->currentFixture->model)) {
                     modelValueButtons[column]->setChecked(true);
                     modelValueButtons[column]->setText("Model:\n" + QString::number(item->modelSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model)) + unit);
                 } else {
+                    modelValueButtons[column]->setText("Model:\n" + QString::number(item->floatAttributes.value(attribute)) + unit);
                     modelValueButtons[column]->setChecked(false);
                 }
                 if (item->fixtureSpecificFloatAttributes.value(attribute).contains(kernel->cuelistView->currentFixture)) {
                     fixtureValueButtons[column]->setChecked(true);
                     fixtureValueButtons[column]->setText("Fixture:\n" + QString::number(item->fixtureSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture)) + unit);
                 } else {
+                    if (modelValueButtons[column]->isChecked()) {
+                        fixtureValueButtons[column]->setText("Fixture:\n" + QString::number(item->modelSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model)) + unit);
+                    } else {
+                        fixtureValueButtons[column]->setText("Fixture:\n" + QString::number(item->floatAttributes.value(attribute)) + unit);
+                    }
                     fixtureValueButtons[column]->setChecked(false);
                 }
-                if (!fixtureValueButtons[column]->text().isEmpty()) {
+                if (fixtureValueButtons[column]->isChecked()) {
                     dials[column]->setValue(item->fixtureSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture));
-                } else if (!modelValueButtons[column]->text().isEmpty()) {
+                } else if (modelValueButtons[column]->isChecked()) {
                     dials[column]->setValue(item->modelSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model));
                 } else {
                     dials[column]->setValue(item->floatAttributes.value(attribute));
@@ -136,9 +152,9 @@ void ControlPanel::setValue(int column, int itemKey, QString attributeId) {
     if (!reloading) {
         QMap<int, QString> attributes = {};
         attributes[Keys::Attribute] = attributeId;
-        if (!fixtureValueButtons[column]->text().isEmpty()) {
+        if (fixtureValueButtons[column]->isChecked() && (kernel->cuelistView->currentFixture != nullptr)) {
             attributes[Keys::Fixture] = kernel->cuelistView->currentFixture->id;
-        } else if (!modelValueButtons[column]->text().isEmpty()) {
+        } else if (modelValueButtons[column]->isChecked() && (kernel->cuelistView->currentFixture != nullptr) && (kernel->cuelistView->currentFixture->model != nullptr)) {
             attributes[Keys::Model] = kernel->cuelistView->currentFixture->model->id;
         }
         kernel->terminal->printMessages = false;
