@@ -19,6 +19,13 @@ class Fixture;
 class Group;
 class Cue;
 
+namespace CuelistViewModes {
+enum {
+    cueMode,
+    groupMode,
+};
+}
+
 namespace CuelistViewFilters {
 enum {
     noFilter,
@@ -48,6 +55,7 @@ public:
     Group* currentGroup = nullptr;
     QPushButton* trackingButton;
     void updateCuelistView();
+    QComboBox *cueViewModeComboBox;
     QComboBox *filterComboBox;
 private:
     Kernel *kernel;
@@ -58,12 +66,6 @@ private:
     QLabel *cueLabel;
     QLabel *groupLabel;
     QLabel *fixtureLabel;
-    QComboBox *cueViewModeComboBox;
-    const QString CUEVIEWCUEMODE = "Cue Mode";
-    const QString CUEVIEWGROUPMODE = "Group Mode";
-    const QString NOFILTER = "All Rows";
-    const QString ACTIVEROWSFILTER = "Active Rows only";
-    const QString CHANGEDROWSFILTER = "Changed Rows only";
 };
 
 #include "kernel/kernel.h"

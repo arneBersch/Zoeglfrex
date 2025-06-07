@@ -25,6 +25,9 @@ class DmxEngine : public QWidget {
 public:
     DmxEngine(Kernel *core, QWidget *parent = nullptr);
     SacnServer *sacnServer;
+    QPushButton *highlightButton;
+    QPushButton *soloButton;
+    QPushButton* skipFadeButton;
     const int PROCESSINGRATE = 40; // 40 FPS
 private:
     void generateDmx();
@@ -32,10 +35,7 @@ private:
     QTimer *timer;
     QMap<Group*, QMap<Effect*, int>> groupEffectFrames;
     QMap<Fixture*, float> fixturePan;
-    QPushButton *highlightButton;
-    QPushButton *soloButton;
     QProgressBar* fadeProgress;
-    QPushButton* skipFadeButton;
     Kernel *kernel;
 };
 

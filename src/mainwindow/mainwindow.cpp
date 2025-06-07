@@ -126,12 +126,14 @@ void MainWindow::setupShortcuts(QWidget* widget) {
     connect(new QShortcut(QKeySequence(Qt::Key_Q), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Cue); }); // Cue
     connect(new QShortcut(QKeySequence(Qt::Key_R), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Raw); }); // Raw
     connect(new QShortcut(QKeySequence(Qt::Key_S), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Set); }); // Set
+
     connect(new QShortcut(QKeySequence(Qt::Key_Return), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); kernel->terminal->clear(); }); // Enter Command (via Return key)
     connect(new QShortcut(QKeySequence(Qt::Key_Enter), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); kernel->terminal->clear(); }); // Enter Command (via Keypad Enter key)
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Return), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Shift + Return key)
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Enter), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Shift + Enter key)
     connect(new QShortcut(QKeySequence(Qt::Key_Backspace), widget), &QShortcut::activated, this, [this]{ kernel->terminal->backspace(); }); // Backspace (Remove last keypress)
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Backspace), widget), &QShortcut::activated, this, [this]{ kernel->terminal->clear(); }); // Clear Terminal
+
     connect(new QShortcut(QKeySequence(Qt::Key_Space), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextCue(); }); // Go to next Cue
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Space), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousCue(); }); // Go to previous Cue
     connect(new QShortcut(QKeySequence(Qt::Key_Down), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextGroup(); }); // Go to next Group
@@ -139,6 +141,14 @@ void MainWindow::setupShortcuts(QWidget* widget) {
     connect(new QShortcut(QKeySequence(Qt::Key_Right), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextFixture(); }); // Go to next Fixture
     connect(new QShortcut(QKeySequence(Qt::Key_Left), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousFixture(); }); // Go to previous Fixture
     connect(new QShortcut(QKeySequence(Qt::Key_Escape), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->noFixture(); }); // Deselect Fixture
+
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->skipFadeButton->click(); }); // Skip Fade
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_G), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->cueViewModeComboBox->setCurrentIndex(CuelistViewModes::groupMode); }); // Cuelist View Group Mode
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_H), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->highlightButton->click(); }); // Highlight
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Q), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->cueViewModeComboBox->setCurrentIndex(CuelistViewModes::cueMode); }); // Cuelist View Cue Mode
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_S), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->soloButton->click(); }); // Solo
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_T), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->trackingButton->click(); }); // Tracking
+
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_N), widget), &QShortcut::activated, this, &MainWindow::newFile); // New File
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_O), widget), &QShortcut::activated, this, &MainWindow::openFile); // Open File
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), widget), &QShortcut::activated, this, &MainWindow::saveFile); // Save File
