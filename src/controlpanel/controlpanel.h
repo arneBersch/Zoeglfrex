@@ -28,8 +28,8 @@ namespace ControlPanelRows {
 enum {
     label,
     valueLabel,
-    modelValueLabel,
-    fixtureValueLabel,
+    modelValueButton,
+    fixtureValueButton,
     dial,
 };
 }
@@ -39,11 +39,12 @@ public:
     ControlPanel(Kernel* core);
     void reload();
 private:
+    void setValue(int column, int itemKey, QString attributeId);
     bool reloading = false;
     QGridLayout *layout;
     QList<QLabel*> valueLabels = QList<QLabel*>(6, nullptr);
-    QList<QLabel*> modelValueLabels = QList<QLabel*>(6, nullptr);
-    QList<QLabel*> fixtureValueLabels = QList<QLabel*>(6, nullptr);
+    QList<QPushButton*> modelValueButtons = QList<QPushButton*>(6, nullptr);
+    QList<QPushButton*> fixtureValueButtons = QList<QPushButton*>(6, nullptr);
     QList<QDial*> dials = QList<QDial*>(6, nullptr);
     Kernel* kernel;
 };
