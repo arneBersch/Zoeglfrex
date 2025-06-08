@@ -25,6 +25,7 @@ Kernel::Kernel(MainWindow* window) {
     cuelistView = new CuelistView(this);
     preview2d = new Preview2d(this);
     controlPanel = new ControlPanel(this);
+    playbackView = new PlaybackView(this);
     mutex = new QMutex();
 }
 

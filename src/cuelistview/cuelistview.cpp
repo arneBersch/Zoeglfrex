@@ -64,6 +64,7 @@ void CuelistView::reload() {
     groupModel->loadGroup();
     kernel->inspector->load(kernel->terminal->command);
     kernel->controlPanel->reload();
+    kernel->playbackView->cuelistModel->reset();
     cueLabel->setText(QString());
     cuelistLabel->setText("No Cuelist selected.");
     if (currentCuelist != nullptr) {

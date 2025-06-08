@@ -16,10 +16,10 @@ ControlPanel::ControlPanel(Kernel* core) {
     setWindowTitle("Zöglfrex Control Panel");
     resize(500, 300);
 
-    layout = new QGridLayout();
+    QGridLayout *layout = new QGridLayout();
     setLayout(layout);
 
-    auto setupColumn = [this] (int column, int dialMinValue, int dialMaxValue, bool dialWrapping, int itemKey, QString attributeId, QString labelText) {
+    auto setupColumn = [this] (int column, int dialMinValue, int dialMaxValue, bool dialWrapping, int itemKey, QString attributeId, QString labelText, QGridLayout *layout) {
         QLabel* label = new QLabel(labelText);
         label->setAlignment(Qt::AlignCenter);
         layout->addWidget(label, ControlPanelRows::label, column);
@@ -46,12 +46,12 @@ ControlPanel::ControlPanel(Kernel* core) {
         dials[column] = dial;
     };
 
-    setupColumn(ControlPanelColumns::dimmer, 0, 100, false, Keys::Intensity, kernel->INTENSITYDIMMERATTRIBUTEID, "Dimmer");
-    setupColumn(ControlPanelColumns::hue, 0, 359, true, Keys::Color, kernel->COLORHUEATTRIBUTEID, "Hue");
-    setupColumn(ControlPanelColumns::saturation, 0, 100, false, Keys::Color, kernel->COLORSATURATIONATTRIBUTEID, "Saturation");
-    setupColumn(ControlPanelColumns::pan, 0, 359, true, Keys::Position, kernel->POSITIONPANATTRIBUTEID, "Pan");
-    setupColumn(ControlPanelColumns::tilt, -180, 180, false, Keys::Position, kernel->POSITIONTILTATTRIBUTEID, "Tilt");
-    setupColumn(ControlPanelColumns::zoom, 0, 180, false, Keys::Position, kernel->POSITIONZOOMATTRIBUTEID, "Zoom");
+    setupColumn(ControlPanelColumns::dimmer, 0, 100, false, Keys::Intensity, kernel->INTENSITYDIMMERATTRIBUTEID, "Dimmer", layout);
+    setupColumn(ControlPanelColumns::hue, 0, 359, true, Keys::Color, kernel->COLORHUEATTRIBUTEID, "Hue", layout);
+    setupColumn(ControlPanelColumns::saturation, 0, 100, false, Keys::Color, kernel->COLORSATURATIONATTRIBUTEID, "Saturation", layout);
+    setupColumn(ControlPanelColumns::pan, 0, 359, true, Keys::Position, kernel->POSITIONPANATTRIBUTEID, "Pan", layout);
+    setupColumn(ControlPanelColumns::tilt, -180, 180, false, Keys::Position, kernel->POSITIONTILTATTRIBUTEID, "Tilt", layout);
+    setupColumn(ControlPanelColumns::zoom, 0, 180, false, Keys::Position, kernel->POSITIONZOOMATTRIBUTEID, "Zoom", layout);
 }
 
 void ControlPanel::reload() {

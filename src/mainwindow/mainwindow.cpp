@@ -43,6 +43,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QAction *outputSettingsAction = new QAction("DMX Output Settings");
     outputMenu->addAction(outputSettingsAction);
     connect(outputSettingsAction, &QAction::triggered, this, [this]{ kernel->dmxEngine->sacnServer->show(); });
+    QAction *playbackViewAction = new QAction("Playback View");
+    outputMenu->addAction(playbackViewAction);
+    connect(playbackViewAction, &QAction::triggered, this, [this]{ kernel->playbackView->show(); });
     outputMenu->addSeparator();
     QAction *goAction = new QAction("Go to next Cue (Space)");
     outputMenu->addAction(goAction);
@@ -215,6 +218,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         kernel->dmxEngine->sacnServer->close();
         kernel->preview2d->close();
         kernel->controlPanel->close();
+        kernel->playbackView->close();
         event->accept();
     }
 }
