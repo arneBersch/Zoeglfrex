@@ -25,16 +25,17 @@ ControlPanel::ControlPanel(Kernel* core) {
         layout->addWidget(label, ControlPanelRows::label, column);
         QPushButton* valueButton = new QPushButton();
         valueButton->setCheckable(true);
+        connect(valueButton, &QPushButton::clicked, this, [this, column, itemKey, attributeId] { setExceptions(column, itemKey, attributeId); });
         layout->addWidget(valueButton, ControlPanelRows::valueButton, column);
         valueButtons[column] = valueButton;
         QPushButton* modelValueButton = new QPushButton();
         modelValueButton->setCheckable(true);
-        connect(modelValueButton, &QPushButton::clicked, this, [this, column, itemKey, attributeId] { setValue(column, itemKey, attributeId); });
+        connect(modelValueButton, &QPushButton::clicked, this, [this, column, itemKey, attributeId] { setExceptions(column, itemKey, attributeId); });
         layout->addWidget(modelValueButton, ControlPanelRows::modelValueButton, column);
         modelValueButtons[column] = modelValueButton;
         QPushButton* fixtureValueButton = new QPushButton();
         fixtureValueButton->setCheckable(true);
-        connect(fixtureValueButton, &QPushButton::clicked, this, [this, column, itemKey, attributeId] { setValue(column, itemKey, attributeId); });
+        connect(fixtureValueButton, &QPushButton::clicked, this, [this, column, itemKey, attributeId] { setExceptions(column, itemKey, attributeId); });
         layout->addWidget(fixtureValueButton, ControlPanelRows::fixtureValueButton, column);
         fixtureValueButtons[column] = fixtureValueButton;
         QDial* dial = new QDial();
@@ -182,10 +183,57 @@ void ControlPanel::reload() {
     reloading = false;
 }
 
+void ControlPanel::setAttribute(int itemKey, QMap<int, QString> attributes, QList<int> keys, QString value) {
+    Q_ASSERT(kernel->cuelistView->currentCuelist != nullptr);
+    Q_ASSERT(kernel->cuelistView->currentCuelist->currentCue != nullptr);
+    Q_ASSERT(kernel->cuelistView->currentGroup != nullptr);
+    if (itemKey == Keys::Intensity) {
+        kernel->intensities->setAttribute({kernel->cuelistView->currentCuelist->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id}, attributes, keys, value);
+    } else if (itemKey == Keys::Color) {
+        kernel->colors->setAttribute({kernel->cuelistView->currentCuelist->currentCue->colors.value(kernel->cuelistView->currentGroup)->id}, attributes, keys, value);
+    } else if (itemKey == Keys::Position) {
+        kernel->positions->setAttribute({kernel->cuelistView->currentCuelist->currentCue->positions.value(kernel->cuelistView->currentGroup)->id}, attributes, keys, value);
+    } else {
+        Q_ASSERT(false);
+    }
+};
+
+void ControlPanel::setExceptions(int column, int itemKey, QString attributeId) {
+    if (!reloading) {
+        kernel->terminal->printMessages = false;
+
+        if (modelValueButtons[column]->isEnabled()) {
+            QMap<int, QString> attributes = QMap<int, QString>();
+            attributes[Keys::Attribute] = attributeId;
+            attributes[Keys::Model] = kernel->cuelistView->currentFixture->model->id;
+            if (modelValueButtons[column]->isChecked()) {
+                setAttribute(itemKey, attributes, {Keys::Plus, Keys::Zero});
+            } else {
+                setAttribute(itemKey, attributes, {Keys::Minus});
+            }
+        }
+
+        if (fixtureValueButtons[column]->isEnabled()) {
+            QMap<int, QString> attributes = QMap<int, QString>();
+            attributes[Keys::Attribute] = attributeId;
+            attributes[Keys::Fixture] = kernel->cuelistView->currentFixture->id;
+            if (fixtureValueButtons[column]->isChecked()) {
+                setAttribute(itemKey, attributes, {Keys::Plus, Keys::Zero});
+            } else {
+                setAttribute(itemKey, attributes, {Keys::Minus});
+            }
+        }
+
+        kernel->terminal->printMessages = true;
+        kernel->cuelistView->reload();
+    }
+};
+
 void ControlPanel::setValue(int column, int itemKey, QString attributeId) {
     if (!reloading) {
         kernel->terminal->printMessages = false;
-        QMap<int, QString> attributes = {};
+
+        QMap<int, QString> attributes = QMap<int, QString>();
         attributes[Keys::Attribute] = attributeId;
         if (fixtureValueButtons[column]->isChecked()) {
             attributes[Keys::Fixture] = kernel->cuelistView->currentFixture->id;
@@ -193,17 +241,8 @@ void ControlPanel::setValue(int column, int itemKey, QString attributeId) {
             attributes[Keys::Model] = kernel->cuelistView->currentFixture->model->id;
         }
         QString value = QString::number(dials[column]->value());
-        Q_ASSERT(kernel->cuelistView->currentCuelist != nullptr);
-        Q_ASSERT(kernel->cuelistView->currentCuelist->currentCue != nullptr);
-        if (itemKey == Keys::Intensity) {
-            kernel->intensities->setAttribute({kernel->cuelistView->currentCuelist->currentCue->intensities.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
-        } else if (itemKey == Keys::Color) {
-            kernel->colors->setAttribute({kernel->cuelistView->currentCuelist->currentCue->colors.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
-        } else if (itemKey == Keys::Position) {
-            kernel->positions->setAttribute({kernel->cuelistView->currentCuelist->currentCue->positions.value(kernel->cuelistView->currentGroup)->id}, attributes, {}, value);
-        } else {
-            Q_ASSERT(false);
-        }
+        setAttribute(itemKey, attributes, {}, value);
+
         kernel->terminal->printMessages = true;
         kernel->cuelistView->reload();
     }

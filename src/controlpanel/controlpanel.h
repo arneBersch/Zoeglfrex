@@ -39,7 +39,9 @@ public:
     ControlPanel(Kernel* core);
     void reload();
 private:
+    void setExceptions(int column, int itemKey, QString attributeId);
     void setValue(int column, int itemKey, QString attributeId);
+    void setAttribute(int itemKey, QMap<int, QString> attributes, QList<int> keys, QString text = QString());
     bool reloading = false;
     QGridLayout *layout;
     QList<QPushButton*> valueButtons = QList<QPushButton*>(6, nullptr);
