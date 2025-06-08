@@ -58,12 +58,14 @@ void ControlPanel::reload() {
 
     auto setColumn = [this] (int column, int itemKey, QString attribute, bool angle, QString unit, QString noValueMessage) {
         Item* item = nullptr;
-        if ((itemKey == Keys::Intensity) && (kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
-            item = kernel->cuelistView->currentCuelist->currentCue->intensities.value(kernel->cuelistView->currentGroup);
-        } else if ((itemKey == Keys::Color) && (kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
-            item = kernel->cuelistView->currentCuelist->currentCue->colors.value(kernel->cuelistView->currentGroup);
-        } else if ((itemKey == Keys::Position) && (kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr) && kernel->cuelistView->currentCuelist->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
-            item = kernel->cuelistView->currentCuelist->currentCue->positions.value(kernel->cuelistView->currentGroup);
+        if ((kernel->cuelistView->currentCuelist != nullptr) && (kernel->cuelistView->currentCuelist->currentCue != nullptr)) {
+            if ((itemKey == Keys::Intensity) && kernel->cuelistView->currentCuelist->currentCue->intensities.contains(kernel->cuelistView->currentGroup)) {
+                item = kernel->cuelistView->currentCuelist->currentCue->intensities.value(kernel->cuelistView->currentGroup);
+            } else if ((itemKey == Keys::Color) && kernel->cuelistView->currentCuelist->currentCue->colors.contains(kernel->cuelistView->currentGroup)) {
+                item = kernel->cuelistView->currentCuelist->currentCue->colors.value(kernel->cuelistView->currentGroup);
+            } else if ((itemKey == Keys::Position) && kernel->cuelistView->currentCuelist->currentCue->positions.contains(kernel->cuelistView->currentGroup)) {
+                item = kernel->cuelistView->currentCuelist->currentCue->positions.value(kernel->cuelistView->currentGroup);
+            }
         }
         if (item == nullptr) {
             valueButtons[column]->setText(noValueMessage);
@@ -78,64 +80,96 @@ void ControlPanel::reload() {
         } else {
             valueButtons[column]->setEnabled(true);
             valueButtons[column]->setChecked(true);
-            modelValueButtons[column]->setEnabled(true);
-            fixtureValueButtons[column]->setEnabled(true);
-            dials[column]->setEnabled(true);
             if (angle) {
                 valueButtons[column]->setText(QString::number(item->angleAttributes.value(attribute)) + unit);
-                if ((kernel->cuelistView->currentFixture != nullptr) && item->modelSpecificAngleAttributes.value(attribute).contains(kernel->cuelistView->currentFixture->model)) {
-                    modelValueButtons[column]->setChecked(true);
-                    modelValueButtons[column]->setText("Model:\n" + QString::number(item->modelSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model)) + unit);
-                } else {
-                    valueButtons[column]->setText("Model:\n" + QString::number(item->angleAttributes.value(attribute)) + unit);
-                    modelValueButtons[column]->setChecked(false);
-                }
-                if (item->fixtureSpecificAngleAttributes.value(attribute).contains(kernel->cuelistView->currentFixture)) {
-                    fixtureValueButtons[column]->setChecked(true);
-                    fixtureValueButtons[column]->setText("Fixture:\n" + QString::number(item->fixtureSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture)) + unit);
-                } else {
-                    if (modelValueButtons[column]->isChecked()) {
-                        fixtureValueButtons[column]->setText("Fixture:\n" + QString::number(item->modelSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model)) + unit);
-                    } else {
-                        fixtureValueButtons[column]->setText("Fixture:\n" + QString::number(item->angleAttributes.value(attribute)) + unit);
-                    }
-                    fixtureValueButtons[column]->setChecked(false);
-                }
-                if (fixtureValueButtons[column]->isChecked()) {
-                    dials[column]->setValue(item->fixtureSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture));
-                } else if (modelValueButtons[column]->isChecked()) {
-                    dials[column]->setValue(item->modelSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model));
-                } else {
-                    dials[column]->setValue(item->angleAttributes.value(attribute));
-                }
             } else {
                 valueButtons[column]->setText(QString::number(item->floatAttributes.value(attribute)) + unit);
-                if ((kernel->cuelistView->currentFixture != nullptr) && item->modelSpecificFloatAttributes.value(attribute).contains(kernel->cuelistView->currentFixture->model)) {
-                    modelValueButtons[column]->setChecked(true);
-                    modelValueButtons[column]->setText("Model:\n" + QString::number(item->modelSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model)) + unit);
-                } else {
-                    modelValueButtons[column]->setText("Model:\n" + QString::number(item->floatAttributes.value(attribute)) + unit);
-                    modelValueButtons[column]->setChecked(false);
-                }
-                if (item->fixtureSpecificFloatAttributes.value(attribute).contains(kernel->cuelistView->currentFixture)) {
-                    fixtureValueButtons[column]->setChecked(true);
-                    fixtureValueButtons[column]->setText("Fixture:\n" + QString::number(item->fixtureSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture)) + unit);
-                } else {
-                    if (modelValueButtons[column]->isChecked()) {
-                        fixtureValueButtons[column]->setText("Fixture:\n" + QString::number(item->modelSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model)) + unit);
+            }
+
+            if ((kernel->cuelistView->currentFixture != nullptr) && (kernel->cuelistView->currentFixture->model != nullptr)) {
+                modelValueButtons[column]->setEnabled(true);
+                float modelValue;
+                if (angle) {
+                    if (item->modelSpecificAngleAttributes.value(attribute).contains(kernel->cuelistView->currentFixture->model)) {
+                        modelValueButtons[column]->setChecked(true);
+                        modelValue = item->modelSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model);
                     } else {
-                        fixtureValueButtons[column]->setText("Fixture:\n" + QString::number(item->floatAttributes.value(attribute)) + unit);
+                        modelValue = item->angleAttributes.value(attribute);
+                        modelValueButtons[column]->setChecked(false);
                     }
-                    fixtureValueButtons[column]->setChecked(false);
-                }
-                if (fixtureValueButtons[column]->isChecked()) {
-                    dials[column]->setValue(item->fixtureSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture));
-                } else if (modelValueButtons[column]->isChecked()) {
-                    dials[column]->setValue(item->modelSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model));
                 } else {
-                    dials[column]->setValue(item->floatAttributes.value(attribute));
+                    if (item->modelSpecificFloatAttributes.value(attribute).contains(kernel->cuelistView->currentFixture->model)) {
+                        modelValueButtons[column]->setChecked(true);
+                        modelValue = item->modelSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model);
+                    } else {
+                        modelValue = item->floatAttributes.value(attribute);
+                        modelValueButtons[column]->setChecked(false);
+                    }
+                }
+                modelValueButtons[column]->setText("Model:\n" + QString::number(modelValue) + unit);
+            } else {
+                modelValueButtons[column]->setChecked(false);
+                modelValueButtons[column]->setText("No Model\nselected.");
+                modelValueButtons[column]->setDisabled(true);
+            }
+
+            if (kernel->cuelistView->currentFixture != nullptr) {
+                fixtureValueButtons[column]->setEnabled(true);
+                float fixtureValue;
+                if (angle) {
+                    if (item->fixtureSpecificAngleAttributes.value(attribute).contains(kernel->cuelistView->currentFixture)) {
+                        fixtureValueButtons[column]->setChecked(true);
+                        fixtureValue = item->fixtureSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture);
+                    } else {
+                        fixtureValueButtons[column]->setChecked(false);
+                        if (modelValueButtons[column]->isChecked()) {
+                            fixtureValue = item->modelSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model);
+                        } else {
+                            fixtureValue = item->angleAttributes.value(attribute);
+                        }
+                    }
+                } else {
+                    if (item->fixtureSpecificFloatAttributes.value(attribute).contains(kernel->cuelistView->currentFixture)) {
+                        fixtureValueButtons[column]->setChecked(true);
+                        fixtureValue = item->fixtureSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture);
+                    } else {
+                        fixtureValueButtons[column]->setChecked(false);
+                        if (modelValueButtons[column]->isChecked()) {
+                            fixtureValue = item->modelSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model);
+                        } else {
+                            fixtureValue = item->floatAttributes.value(attribute);
+                        }
+                    }
+                }
+                fixtureValueButtons[column]->setText("Fixture:\n" + QString::number(fixtureValue) + unit);
+            } else {
+                fixtureValueButtons[column]->setChecked(false);
+                fixtureValueButtons[column]->setText("No Fixture\nselected.");
+                fixtureValueButtons[column]->setDisabled(true);
+            }
+
+            dials[column]->setEnabled(true);
+            float dialValue;
+            if (fixtureValueButtons[column]->isChecked()) {
+                if (angle) {
+                    dialValue = item->fixtureSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture);
+                } else {
+                    dialValue = item->fixtureSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture);
+                }
+            } else if (modelValueButtons[column]->isChecked()) {
+                if (angle) {
+                    dialValue = item->modelSpecificAngleAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model);
+                } else {
+                    dialValue = item->modelSpecificFloatAttributes.value(attribute).value(kernel->cuelistView->currentFixture->model);
+                }
+            } else {
+                if (angle) {
+                    dialValue = item->angleAttributes.value(attribute);
+                } else {
+                    dialValue = item->floatAttributes.value(attribute);
                 }
             }
+            dials[column]->setValue(dialValue);
         }
     };
 
