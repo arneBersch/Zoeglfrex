@@ -22,6 +22,7 @@ class CueTable : public ItemTable<Cue> {
 public:
     CueTable(Kernel *core);
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
+    Cuelist* cuelist;
 private:
     Cue* addItem(QString id) override;
 };

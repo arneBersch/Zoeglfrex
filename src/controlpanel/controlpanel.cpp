@@ -78,8 +78,8 @@ void ControlPanel::reload() {
             dials[column]->setValue(0);
             dials[column]->setDisabled(true);
         } else {
-            valueButtons[column]->setEnabled(true);
             valueButtons[column]->setChecked(true);
+            valueButtons[column]->setDisabled(true);
             if (angle) {
                 valueButtons[column]->setText(QString::number(item->angleAttributes.value(attribute)) + unit);
             } else {
@@ -184,14 +184,14 @@ void ControlPanel::reload() {
 
 void ControlPanel::setValue(int column, int itemKey, QString attributeId) {
     if (!reloading) {
+        kernel->terminal->printMessages = false;
         QMap<int, QString> attributes = {};
         attributes[Keys::Attribute] = attributeId;
-        if (fixtureValueButtons[column]->isChecked() && (kernel->cuelistView->currentFixture != nullptr)) {
+        if (fixtureValueButtons[column]->isChecked()) {
             attributes[Keys::Fixture] = kernel->cuelistView->currentFixture->id;
-        } else if (modelValueButtons[column]->isChecked() && (kernel->cuelistView->currentFixture != nullptr) && (kernel->cuelistView->currentFixture->model != nullptr)) {
+        } else if (modelValueButtons[column]->isChecked()) {
             attributes[Keys::Model] = kernel->cuelistView->currentFixture->model->id;
         }
-        kernel->terminal->printMessages = false;
         QString value = QString::number(dials[column]->value());
         Q_ASSERT(kernel->cuelistView->currentCuelist != nullptr);
         Q_ASSERT(kernel->cuelistView->currentCuelist->currentCue != nullptr);

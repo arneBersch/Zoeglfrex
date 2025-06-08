@@ -281,6 +281,7 @@ void CueTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QLis
 
 Cue* CueTable::addItem(QString id) {
     Cue* cue = ItemTable<Cue>::addItem(id);
+    cue->cuelist = cuelist;
     int cueRow = getItemRow(cue->id);
     if ((cueRow > 0) && kernel->cuelistView->trackingButton->isChecked()) {
         cue->intensities = items[cueRow - 1]->intensities;

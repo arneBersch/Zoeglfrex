@@ -21,6 +21,8 @@ class CuelistTable : public ItemTable<Cuelist> {
     Q_OBJECT
 public:
     CuelistTable(Kernel *core);
+private:
+    Cuelist* addItem(QString id) override;
 };
 
 #include "kernel/kernel.h"

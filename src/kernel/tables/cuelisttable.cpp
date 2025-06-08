@@ -9,3 +9,9 @@
 #include "cuelisttable.h"
 
 CuelistTable::CuelistTable(Kernel *core) : ItemTable(core, Keys::Cuelist, "Cuelist", "Cuelists") {}
+
+Cuelist* CuelistTable::addItem(QString id) {
+    Cuelist* cuelist = ItemTable<Cuelist>::addItem(id);
+    cuelist->cues->cuelist = cuelist;
+    return cuelist;
+}

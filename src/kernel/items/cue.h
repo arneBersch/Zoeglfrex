@@ -31,7 +31,7 @@ public:
     QMap<Group*, QList<Effect*>> effects;
     QString info() override;
     void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
-    Cuelist* getCuelist();
+    Cuelist* cuelist;
 };
 
 #endif // CUE_H

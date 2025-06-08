@@ -357,9 +357,9 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
     }
     for (Fixture* fixture : kernel->fixtures->items) {
         if (!fixtureDimmers->contains(fixture)) {
-            int cueRow = cue->getCuelist()->cues->getItemRow(cue->id);
-            while ((cueRow < cue->getCuelist()->cues->items.length()) && !fixtureColors->contains(fixture)) {
-                Cue* currentCue = cue->getCuelist()->cues->items[cueRow];
+            int cueRow = cue->cuelist->cues->getItemRow(cue->id);
+            while ((cueRow < cue->cuelist->cues->items.length()) && !fixtureColors->contains(fixture)) {
+                Cue* currentCue = cue->cuelist->cues->items[cueRow];
                 for (Group* group : kernel->groups->items) {
                     if (group->fixtures.contains(fixture)) {
                         if (currentCue->intensities.contains(group) && !fixtureColors->contains(fixture)) {
@@ -382,9 +382,9 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                 }
                 cueRow++;
             }
-            cueRow = cue->getCuelist()->cues->getItemRow(cue->id);
-            while ((cueRow < cue->getCuelist()->cues->items.length()) && !fixturePositions->contains(fixture)) {
-                Cue* currentCue = cue->getCuelist()->cues->items[cueRow];
+            cueRow = cue->cuelist->cues->getItemRow(cue->id);
+            while ((cueRow < cue->cuelist->cues->items.length()) && !fixturePositions->contains(fixture)) {
+                Cue* currentCue = cue->cuelist->cues->items[cueRow];
                 for (Group* group : kernel->groups->items) {
                     if (group->fixtures.contains(fixture)) {
                         if (currentCue->intensities.contains(group) && !fixturePositions->contains(fixture)) {
@@ -407,9 +407,9 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
                 }
                 cueRow++;
             }
-            cueRow = cue->getCuelist()->cues->getItemRow(cue->id);
-            while ((cueRow < cue->getCuelist()->cues->items.length()) && !fixtureRaws->contains(fixture)) {
-                Cue* currentCue = cue->getCuelist()->cues->items[cueRow];
+            cueRow = cue->cuelist->cues->getItemRow(cue->id);
+            while ((cueRow < cue->cuelist->cues->items.length()) && !fixtureRaws->contains(fixture)) {
+                Cue* currentCue = cue->cuelist->cues->items[cueRow];
                 for (Group* group : kernel->groups->items) {
                     if (group->fixtures.contains(fixture)) {
                         if (currentCue->intensities.contains(group) && !fixtureRaws->contains(fixture)) {

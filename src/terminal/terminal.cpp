@@ -88,10 +88,6 @@ void Terminal::execute() {
         }
     }
     QStringList ids = keysToSelection(selection, selectionType);
-    if (ids.isEmpty()) {
-        error("Can't execute command because of a invalid Item selection.");
-        return;
-    }
     QMap<int, QString> attributeMap = QMap<int, QString>();
     if (!valueReached && !attributeReached) {
         if (selectionType == Keys::Fixture) {
@@ -404,6 +400,10 @@ void Terminal::execute() {
             return;
         }
         kernel->cuelistView->reload();
+        return;
+    }
+    if (ids.isEmpty()) {
+        error("Can't execute command because of an invalid Item selection.");
         return;
     }
     attribute.append(Keys::Attribute);

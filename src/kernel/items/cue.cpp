@@ -20,11 +20,11 @@ Cue::Cue(const Cue* item) : Item(item) {
 }
 
 Cue::~Cue() {
-    if (getCuelist()->currentCue == this) {
-        getCuelist()->currentCue = nullptr;
+    if (cuelist->currentCue == this) {
+        cuelist->currentCue = nullptr;
     }
-    if (getCuelist()->lastCue == this) {
-        getCuelist()->lastCue = nullptr;
+    if (cuelist->lastCue == this) {
+        cuelist->lastCue = nullptr;
     }
 }
 
@@ -120,16 +120,4 @@ void Cue::writeAttributesToFile(QXmlStreamWriter* fileStream) {
         fileStream->writeCharacters(effectIds.join("+"));
         fileStream->writeEndElement();
     }
-}
-
-Cuelist* Cue::getCuelist() {
-    Cuelist* item = nullptr;
-    for (Cuelist* list : kernel->cuelists->items) {
-        if (list->cues->items.contains(this)) {
-            Q_ASSERT(item == nullptr);
-            item = list;
-        }
-    }
-    Q_ASSERT(item != nullptr);
-    return item;
 }
