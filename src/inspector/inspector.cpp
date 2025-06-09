@@ -86,13 +86,25 @@ void Inspector::load(QList<int> keys)
         table->setModel(kernel->cuelists);
         item = kernel->cuelists->getItem(id);
     } else if (itemType == Keys::Cue) {
-        if (kernel->cuelistView->currentCuelist == nullptr) {
+        Cuelist* cuelist = nullptr;
+        if (keys.startsWith(Keys::Cuelist)) {
+            QList<int> cuelistIdKeys;
+            int keysIndex = 1;
+            while ((keysIndex < keys.size()) && (keys[keysIndex] != Keys::Attribute) && (keys[keysIndex] != Keys::Set) && !kernel->terminal->isItem(keys[keysIndex])) {
+                cuelistIdKeys.append(keys[keysIndex]);
+                keysIndex++;
+            }
+            cuelist = kernel->cuelists->getItem(kernel->terminal->keysToId(cuelistIdKeys));
+        } else {
+            cuelist = kernel->cuelistView->currentCuelist;
+        }
+        if (cuelist == nullptr) {
             title->setText("Cues (No Cuelist selected!)");
             table->setModel(nullptr);
         } else {
-            title->setText("Cues (Cuelist " + kernel->cuelistView->currentCuelist->name() + ")");
-            table->setModel(kernel->cuelistView->currentCuelist->cues);
-            item = kernel->cuelistView->currentCuelist->cues->getItem(id);
+            title->setText("Cues (Cuelist " + cuelist->name() + ")");
+            table->setModel(cuelist->cues);
+            item = cuelist->cues->getItem(id);
         }
     } else {
         return;

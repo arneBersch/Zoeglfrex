@@ -456,7 +456,7 @@ void Terminal::execute() {
         } else if (selectionType == Keys::Effect) {
             attributeMap[Keys::Attribute] = kernel->EFFECTSTEPSATTRIBUTEID;
         } else if (selectionType == Keys::Cuelist) {
-            attributeMap[Keys::Attribute] = kernel->LABELATTRIBUTEID;
+            attributeMap[Keys::Attribute] = kernel->CUELISTCUEATTRIBUTEID;
         } else if (selectionType == Keys::Cue) {
             attributeMap[Keys::Attribute] = kernel->CUEFADEATTRIBUTEID;
         }
@@ -736,6 +736,14 @@ QStringList Terminal::keysToSelection(QList<int> keys, int itemType) {
     if (keys.isEmpty()) {
         if ((itemType == Keys::Model) && (kernel->cuelistView->currentFixture != nullptr) && (kernel->cuelistView->currentFixture->model != nullptr)) {
             return {kernel->cuelistView->currentFixture->model->id};
+        } else if ((itemType == Keys::Model) && (kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup != nullptr)) {
+            QStringList ids;
+            for (Fixture* fixture : kernel->cuelistView->currentGroup->fixtures) {
+                if (fixture->model != nullptr) {
+                    ids.append(fixture->model->id);
+                }
+            }
+            return ids;
         } else if ((itemType == Keys::Fixture) && (kernel->cuelistView->currentFixture != nullptr)) {
             return {kernel->cuelistView->currentFixture->id};
         } else if ((itemType == Keys::Fixture) && (kernel->cuelistView->currentFixture == nullptr) && (kernel->cuelistView->currentGroup != nullptr)) {

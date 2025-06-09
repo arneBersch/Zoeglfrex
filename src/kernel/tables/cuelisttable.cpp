@@ -8,7 +8,53 @@
 
 #include "cuelisttable.h"
 
-CuelistTable::CuelistTable(Kernel *core) : ItemTable(core, Keys::Cuelist, "Cuelist", "Cuelists") {}
+CuelistTable::CuelistTable(Kernel *core) : ItemTable(core, Keys::Cuelist, "Cuelist", "Cuelists") {
+    floatAttributes[kernel->CUELISTDIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
+}
+
+void CuelistTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+    QString attribute = attributes.value(Keys::Attribute);
+    if (attribute == kernel->CUELISTCUEATTRIBUTEID) {
+        if (!((value.size() >= 2) && (value.first() == Keys::Cue)) && text.isEmpty()) {
+            kernel->terminal->error("Can' set the current Cue of Cuelists because an invalid value was given.");
+            return;
+        }
+        if (!value.isEmpty()) {
+            value.removeFirst();
+        }
+        QString cueId = kernel->terminal->keysToId(value);
+        if (!text.isEmpty()) {
+            cueId = text;
+        }
+        if (cueId.isEmpty()) {
+            kernel->terminal->error("Can't set Cue of Cuelists because of no valid Cue ID was given.");
+            return;
+        }
+        int cuelistCounter = 0;
+        for (QString id : ids) {
+            Cuelist* cuelist = getItem(id);
+            if (cuelist == nullptr) {
+                cuelist = addItem(id);
+            }
+            Cue *cue = cuelist->cues->getItem(cueId);
+            if (cue == nullptr) {
+                kernel->terminal->warning("Can't set Cue of Cuelist " + cuelist->name() + " because Cue " + cueId + " doesn't exist in this Cuelist.");
+            } else {
+                cuelist->lastCue = cuelist->currentCue;
+                cuelist->currentCue = cue;
+                cuelist->totalFadeFrames = 0;
+                cuelist->remainingFadeFrames = 0;
+                cuelistCounter++;
+            }
+            emit dataChanged(index(getItemRow(cuelist->id), 0), index(getItemRow(cuelist->id), 0), {Qt::DisplayRole, Qt::EditRole});
+        }
+        if (cuelistCounter >= 1) {
+            kernel->terminal->success("Set Cue of " + QString::number(cuelistCounter) + " Cuelists to Cue " + cueId + ".");
+        }
+    } else {
+        ItemTable::setAttribute(ids, attributes, value, text);
+    }
+}
 
 Cuelist* CuelistTable::addItem(QString id) {
     Cuelist* cuelist = ItemTable<Cuelist>::addItem(id);

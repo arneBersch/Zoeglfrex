@@ -26,12 +26,24 @@ Cuelist::~Cuelist() {
 
 QString Cuelist::info() {
     QString info = Item::info();
+    QString cue = "No Cue selected.";
+    if (currentCue != nullptr) {
+        cue = currentCue->name();
+    }
+    info += "\n" + kernel->CUELISTCUEATTRIBUTEID + " Current Cue: " + cue;
+    info += "\n" + kernel->CUELISTDIMMERATTRIBUTEID + " Dimmer: " + QString::number(floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID)) + "%";
     return info;
 }
 
 void Cuelist::writeAttributesToFile(QXmlStreamWriter* fileStream) {
-    Item::writeAttributesToFile(fileStream);
     cues->saveItemsToFile(fileStream);
+    Item::writeAttributesToFile(fileStream);
+    if (currentCue != nullptr) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", kernel->CUELISTCUEATTRIBUTEID);
+        fileStream->writeCharacters(currentCue->id);
+        fileStream->writeEndElement();
+    }
 }
 
 void Cuelist::go() {

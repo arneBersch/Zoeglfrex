@@ -97,6 +97,9 @@ public:
     const QString RAWMOVEINBLACKATTRIBUTEID = "3";
     const QString RAWFADEATTRIBUTEID = "4";
 
+    const QString CUELISTCUEATTRIBUTEID = "2";
+    const QString CUELISTDIMMERATTRIBUTEID = "3";
+
     const QString CUEINTENSITIESATTRIBUTEID = "2";
     const QString CUECOLORSATTRIBUTEID = "3";
     const QString CUEPOSITIONSATTRIBUTEID = "4";

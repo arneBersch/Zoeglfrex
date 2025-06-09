@@ -21,6 +21,7 @@ class CuelistTable : public ItemTable<Cuelist> {
     Q_OBJECT
 public:
     CuelistTable(Kernel *core);
+    void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 private:
     Cuelist* addItem(QString id) override;
 };

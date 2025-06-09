@@ -41,6 +41,10 @@ void FixtureTable::setAttribute(QStringList ids, QMap<int, QString> attributes, 
             if (!text.isEmpty()) {
                 modelId = text;
             }
+            if (modelId.isEmpty()) {
+                kernel->terminal->error("Can't set Fixture Model because of no valid Model was given.");
+                return;
+            }
             Model *model = kernel->models->getItem(modelId);
             if (model == nullptr) {
                 kernel->terminal->error("Can't set Model of Fixtures because Model " + modelId + " doesn't exist.");
