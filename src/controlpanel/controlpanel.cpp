@@ -200,6 +200,7 @@ void ControlPanel::setAttribute(int itemKey, QMap<int, QString> attributes, QLis
 
 void ControlPanel::setExceptions(int column, int itemKey, QString attributeId) {
     if (!reloading) {
+        QMutexLocker locker(kernel->mutex);
         kernel->terminal->printMessages = false;
 
         if (modelValueButtons[column]->isEnabled()) {
@@ -231,6 +232,7 @@ void ControlPanel::setExceptions(int column, int itemKey, QString attributeId) {
 
 void ControlPanel::setValue(int column, int itemKey, QString attributeId) {
     if (!reloading) {
+        QMutexLocker locker(kernel->mutex);
         kernel->terminal->printMessages = false;
 
         QMap<int, QString> attributes = QMap<int, QString>();

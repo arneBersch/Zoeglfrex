@@ -22,6 +22,8 @@ public:
     QString info() override;
     void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
     CueTable* cues;
+    void go();
+    void goBack();
     Cue* currentCue = nullptr;
     Cue* lastCue = nullptr;
     unsigned int remainingFadeFrames = 0;

@@ -28,11 +28,11 @@ void PlaybackView::reset() {
     for (Cuelist* cuelist : kernel->cuelists->items) {
         int cuelistRow = kernel->cuelists->items.indexOf(cuelist);
         QPushButton* goButton = new QPushButton("GO");
-        // connect(goButton, &QPushButton::clicked, this, [cuelist] () { qInfo() << "GO Cuelist" << cuelist->name(); });
+        connect(goButton, &QPushButton::clicked, this, [cuelist] { cuelist->go(); });
         tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::goButton), goButton);
 
         QPushButton* goBackButton = new QPushButton("GO BACK");
-        // connect(goBackButton, &QPushButton::clicked, this, [cuelist] () { qInfo() << "GO BACK Cuelist" << cuelist->name(); });
+        connect(goBackButton, &QPushButton::clicked, this, [cuelist] { cuelist->goBack(); });
         tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::goBackButton), goBackButton);
     }
 }

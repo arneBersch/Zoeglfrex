@@ -33,3 +33,31 @@ void Cuelist::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     Item::writeAttributesToFile(fileStream);
     cues->saveItemsToFile(fileStream);
 }
+
+void Cuelist::go() {
+    QMutexLocker locker(kernel->mutex);
+    if (currentCue == nullptr) {
+        return;
+    }
+    if ((cues->items.indexOf(currentCue) + 1) < cues->items.size()) {
+        lastCue = currentCue;
+        currentCue = cues->items[cues->items.indexOf(currentCue) + 1];
+        totalFadeFrames = kernel->dmxEngine->PROCESSINGRATE * currentCue->floatAttributes[kernel->CUEFADEATTRIBUTEID] + 0.5;
+        remainingFadeFrames = totalFadeFrames;
+        kernel->cuelistView->reload();
+    }
+}
+
+void Cuelist::goBack() {
+    QMutexLocker locker(kernel->mutex);
+    if (currentCue == nullptr) {
+        return;
+    }
+    if (cues->items.indexOf(currentCue) > 0) {
+        lastCue = currentCue;
+        currentCue = cues->items[cues->items.indexOf(currentCue) - 1];
+        totalFadeFrames = kernel->dmxEngine->PROCESSINGRATE * currentCue->floatAttributes[kernel->CUEFADEATTRIBUTEID] + 0.5;
+        remainingFadeFrames = totalFadeFrames;
+        kernel->cuelistView->reload();
+    }
+}
