@@ -39,6 +39,208 @@ DmxEngine::DmxEngine(Kernel *core, QWidget* parent) : QWidget(parent) {
 
 void DmxEngine::generateDmx() {
     QMutexLocker(kernel->mutex);
+
+    QMap<Fixture*, float> fixtureDimmer;
+    QMap<Fixture*, rgbColor> fixtureColor;
+    QMap<Fixture*, positionAngles> fixturePosition;
+    QMap<Fixture*, QMap<int, uint8_t>> fixtureRaws;
+
+    for (Cuelist* cuelist : kernel->cuelists->items) {
+        if (cuelist->currentCue != nullptr) {
+            for (Group* group : kernel->groups->items) {
+                if (cuelist->currentCue->intensities.contains(group)) {
+                    for (Fixture* fixture : group->fixtures) {
+                        float dimmer = cuelist->currentCue->intensities.value(group)->getDimmer(fixture) * cuelist->floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID) / 100;
+                        if (!fixtureDimmer.contains(fixture) || (fixtureDimmer.value(fixture) < dimmer)) {
+                            fixtureDimmer[fixture] = dimmer;
+                        }
+                    }
+                }
+                if (cuelist->currentCue->colors.contains(group)) {
+                    for (Fixture* fixture : group->fixtures) {
+                        fixtureColor[fixture] = cuelist->currentCue->colors.value(group)->getRGB(fixture);
+                    }
+                }
+                if (cuelist->currentCue->positions.contains(group)) {
+                    for (Fixture* fixture : group->fixtures) {
+                        fixturePosition[fixture] = cuelist->currentCue->positions.value(group)->getAngles(fixture);
+                    }
+                }
+                if (cuelist->currentCue->raws.contains(group)) {
+                    for (Raw* raw : cuelist->currentCue->raws.value(group)) {
+                        for (Fixture* fixture : group->fixtures) {
+                            if (!fixtureRaws.contains(fixture)) {
+                                fixtureRaws[fixture] = QMap<int, uint8_t>();
+                            }
+                            const QMap<int, uint8_t> channels = raw->getChannels(fixture);
+                            for (int channel : channels.keys()) {
+                                fixtureRaws[fixture][channel] = channels.value(channel);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    QMap<int, QByteArray> dmxUniverses;
+
+    QMap<Fixture*, float> lastFrameFixturePan = fixturePan;
+    fixturePan.clear();
+
+    for (Fixture* fixture : kernel->fixtures->items) {
+        float dimmer = 0;
+        rgbColor color = {};
+        positionAngles position = {};
+        if (fixtureDimmer.contains(fixture)) {
+            dimmer = fixtureDimmer.value(fixture);
+        }
+        if (fixtureColor.contains(fixture)) {
+            color = fixtureColor.value(fixture);
+        }
+        if (fixturePosition.contains(fixture)) {
+            position = fixturePosition.value(fixture);
+        }
+
+        if (highlightButton->isChecked() && kernel->cuelistView->isSelected(fixture)) { // Highlight
+            dimmer = 100;
+            color = {100, 100, 100, 0};
+        }
+        if (soloButton->isChecked() && !kernel->cuelistView->isSelected(fixture)) { // Solo
+            dimmer = 0;
+        }
+
+        kernel->preview2d->fixtureCircles.value(fixture)->red = (color.red / 100 * dimmer / 100 * 255);
+        kernel->preview2d->fixtureCircles.value(fixture)->green = (color.green / 100 * dimmer / 100 * 255);
+        kernel->preview2d->fixtureCircles.value(fixture)->blue = (color.blue / 100 * dimmer / 100 * 255);
+        kernel->preview2d->fixtureCircles.value(fixture)->pan = position.pan;
+        kernel->preview2d->fixtureCircles.value(fixture)->tilt = position.tilt;
+        kernel->preview2d->fixtureCircles.value(fixture)->zoom = position.zoom;
+
+        const int address = fixture->intAttributes.value(kernel->FIXTUREADDRESSATTRIBUTEID);
+        if ((address > 0) && (fixture->model != nullptr)) {
+            const QString channels = fixture->model->stringAttributes.value(kernel->MODELCHANNELSATTRIBUTEID);
+            const int universe = fixture->intAttributes.value(kernel->FIXTUREUNIVERSEATTRIBUTEID);
+            if (!dmxUniverses.contains(universe)) {
+                dmxUniverses[universe] = QByteArray(512, 0);
+            }
+
+            if (!channels.contains('D')) {
+                color.red *= (dimmer / 100);
+                color.green *= (dimmer / 100);
+                color.blue *= (dimmer / 100);
+            }
+
+            const float white = std::min(std::min(color.red, color.green), color.blue);
+            if (channels.contains('W')) {
+                color.red -= white * (color.quality / 100);
+                color.green -= white * (color.quality / 100);
+                color.blue -= white * (color.quality / 100);
+            }
+
+            if (!fixture->boolAttributes.value(kernel->FIXTUREINVERTPANATTRIBUTE)) {
+                position.pan = fixture->angleAttributes.value(kernel->FIXTUREROTATIONATTRIBUTEID) + position.pan;
+            } else {
+                position.pan = fixture->angleAttributes.value(kernel->FIXTUREROTATIONATTRIBUTEID) - position.pan;
+            }
+            while (position.pan >= 360) {
+                position.pan -= 360;
+            }
+            while (position.pan < 0) {
+                position.pan += 360;
+            }
+            if (!lastFrameFixturePan.contains(fixture)) {
+                lastFrameFixturePan[fixture] = 0;
+            }
+            float pan = position.pan / fixture->model->floatAttributes.value(kernel->MODELPANRANGEATTRIBUTEID) * 100;
+            pan = std::min<float>(pan, 100);
+            for (float angle = position.pan; angle <= fixture->model->floatAttributes.value(kernel->MODELPANRANGEATTRIBUTEID); angle += 360) {
+                if (std::abs(lastFrameFixturePan.value(fixture) - (angle / fixture->model->floatAttributes.value(kernel->MODELPANRANGEATTRIBUTEID) * 100)) < std::abs(lastFrameFixturePan.value(fixture) - pan)) {
+                    pan = angle / fixture->model->floatAttributes.value(kernel->MODELPANRANGEATTRIBUTEID) * 100;
+                }
+            }
+            fixturePan[fixture] = pan;
+            float tilt = 50 + (position.tilt / (fixture->model->floatAttributes.value(kernel->MODELTILTRANGEATTRIBUTEID) / 2) * 50);
+            tilt = std::min<float>(tilt, 100);
+            tilt = std::max<float>(tilt, 0);
+            float zoom = (position.zoom - fixture->model->floatAttributes.value(kernel->MODELMINZOOMATTRIBUTEID)) / (fixture->model->floatAttributes.value(kernel->MODELMAXZOOMATTRIBUTEID) - fixture->model->floatAttributes.value(kernel->MODELMINZOOMATTRIBUTEID)) * 100;
+            zoom = std::min<float>(zoom, 100);
+            zoom = std::max<float>(zoom, 0);
+
+            for (int channel = fixture->intAttributes.value(kernel->FIXTUREADDRESSATTRIBUTEID); channel < (address + channels.size()); channel++) {
+                float value = 0;
+                QChar channelType = channels.at(channel - address);
+                bool fine = (
+                    (channelType == QChar('d')) ||
+                    (channelType == QChar('r')) ||
+                    (channelType == QChar('g')) ||
+                    (channelType == QChar('b')) ||
+                    (channelType == QChar('w')) ||
+                    (channelType == QChar('c')) ||
+                    (channelType == QChar('m')) ||
+                    (channelType == QChar('y')) ||
+                    (channelType == QChar('p')) ||
+                    (channelType == QChar('t')) ||
+                    (channelType == QChar('z'))
+                );
+                if (fine) {
+                    channelType = channelType.toUpper();
+                }
+
+                if (channelType == QChar('D')) { // Dimmer
+                    value = dimmer;
+                } else if (channelType == QChar('R')) { // Red
+                    value = color.red;
+                } else if (channelType == QChar('G')) { // Green
+                    value = color.green;
+                } else if (channelType == QChar('B')) { // Blue
+                    value = color.blue;
+                } else if (channelType == QChar('W')) { // White
+                    value = white;
+                } else if (channelType == QChar('C')) { // Cyan
+                    value = (100 - color.red);
+                } else if (channelType == QChar('M')) { // Magenta
+                    value = (100 - color.green);
+                } else if (channelType == QChar('Y')) { // Yellow
+                    value = (100 - color.blue);
+                } else if (channelType == QChar('P')) { // Pan
+                    value = pan;
+                } else if (channelType == QChar('T')) { // Tilt
+                    value = tilt;
+                } else if (channelType == QChar('Z')) { // Zoom
+                    value = zoom;
+                } else if (channelType == QChar('0')) { // DMX 0
+                    value = 0;
+                } else if (channelType == QChar('1')) { // DMX 255
+                    value = 100;
+                } else {
+                    Q_ASSERT(false);
+                }
+                Q_ASSERT((value <= 100) && (value >= 0));;
+
+                if (channel <= 512) {
+                    value *= 655.35;
+                    if (fine) {
+                        dmxUniverses[universe][channel - 1] = (uchar)((int)value % 256);
+                    } else {
+                        dmxUniverses[universe][channel - 1] = (uchar)((int)value / 256);
+                    }
+                }
+            }
+
+            for (int channel = 1; ((channel <= channels.size()) && ((address + channel - 1) <= 512)); channel++) {
+                if (fixtureRaws.contains(fixture) && fixtureRaws.value(fixture).contains(channel)) {
+                    dmxUniverses[universe][address + channel - 2] = fixtureRaws.value(fixture).value(channel);
+                }
+            }
+        }
+    }
+    sacnServer->send(dmxUniverses);
+    kernel->preview2d->updateImage();
+}
+
+/*void DmxEngine::generateDmx() {
+    QMutexLocker(kernel->mutex);
     QMap<Fixture*, float> currentCueFixtureDimmer;
     QMap<Fixture*, rgbColor> currentCueFixtureColor;
     QMap<Fixture*, positionAngles> currentCueFixturePosition;
@@ -457,4 +659,4 @@ QMap<Group*, QMap<Effect*, int>> DmxEngine::renderCue(Cue* cue, QMap<Fixture*, f
         }
     }
     return newGroupEffectFrames;
-}
+}*/
