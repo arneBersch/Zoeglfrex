@@ -9,6 +9,8 @@ namespace CuelistModelColumns {
 enum {
     cuelistName,
     currentCue,
+    goButton,
+    goBackButton,
 };
 }
 

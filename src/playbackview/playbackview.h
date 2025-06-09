@@ -5,12 +5,15 @@
 #include "cuelistmodel.h"
 
 class Kernel;
+class Cuelist;
 
 class PlaybackView : public QWidget {
 public:
     PlaybackView(Kernel* core);
-    CuelistModel* cuelistModel;
+    void reset();
 private:
+    QTableView* tableView;
+    CuelistModel* cuelistModel;
     Kernel* kernel;
 };
 

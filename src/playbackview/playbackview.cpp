@@ -11,7 +11,7 @@ PlaybackView::PlaybackView(Kernel* core) {
     QVBoxLayout *layout = new QVBoxLayout();
     setLayout(layout);
 
-    QTableView* tableView = new QTableView();
+    tableView = new QTableView();
     layout->addWidget(tableView);
     tableView->setSelectionMode(QAbstractItemView::NoSelection);
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -21,4 +21,18 @@ PlaybackView::PlaybackView(Kernel* core) {
 
     cuelistModel = new CuelistModel(kernel);
     tableView->setModel(cuelistModel);
+}
+
+void PlaybackView::reset() {
+    cuelistModel->reset();
+    for (Cuelist* cuelist : kernel->cuelists->items) {
+        int cuelistRow = kernel->cuelists->items.indexOf(cuelist);
+        QPushButton* goButton = new QPushButton("GO");
+        // connect(goButton, &QPushButton::clicked, this, [cuelist] () { qInfo() << "GO Cuelist" << cuelist->name(); });
+        tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::goButton), goButton);
+
+        QPushButton* goBackButton = new QPushButton("GO BACK");
+        // connect(goBackButton, &QPushButton::clicked, this, [cuelist] () { qInfo() << "GO BACK Cuelist" << cuelist->name(); });
+        tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::goBackButton), goBackButton);
+    }
 }

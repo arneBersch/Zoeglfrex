@@ -10,7 +10,7 @@ int CuelistModel::rowCount(const QModelIndex&) const {
 }
 
 int CuelistModel::columnCount(const QModelIndex&) const {
-    return 2;
+    return 4;
 }
 
 QVariant CuelistModel::data(const QModelIndex &index, const int role) const {
