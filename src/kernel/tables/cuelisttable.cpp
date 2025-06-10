@@ -41,7 +41,7 @@ void CuelistTable::setAttribute(QStringList ids, QMap<int, QString> attributes, 
             if (cue == nullptr) {
                 kernel->terminal->warning("Can't set Cue of Cuelist " + cuelist->name() + " because Cue " + cueId + " doesn't exist in this Cuelist.");
             } else {
-                cuelist->lastCue = cuelist->currentCue;
+                cuelist->previousCue = cuelist->currentCue;
                 cuelist->currentCue = cue;
                 cuelist->totalFadeFrames = 0;
                 cuelist->remainingFadeFrames = 0;

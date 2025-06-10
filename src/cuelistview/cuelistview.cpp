@@ -120,7 +120,7 @@ void CuelistView::loadCue(QString cueId) {
     if (cue == currentCuelist->currentCue) {
         return;
     }
-    currentCuelist->lastCue = currentCuelist->currentCue;
+    currentCuelist->previousCue = currentCuelist->currentCue;
     currentCuelist->currentCue = cue;
     currentCuelist->totalFadeFrames = kernel->dmxEngine->PROCESSINGRATE * cue->floatAttributes[kernel->CUEFADEATTRIBUTEID] + 0.5;
     currentCuelist->remainingFadeFrames = currentCuelist->totalFadeFrames;

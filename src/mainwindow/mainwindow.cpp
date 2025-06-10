@@ -145,6 +145,7 @@ void MainWindow::setupShortcuts(QWidget* widget) {
     connect(new QShortcut(QKeySequence(Qt::Key_Left), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousFixture(); }); // Go to previous Fixture
     connect(new QShortcut(QKeySequence(Qt::Key_Escape), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->noFixture(); }); // Deselect Fixture
 
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_B), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->blindButton->click(); }); // Blind
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->skipFadeButton->click(); }); // Skip Fade
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_G), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->cueViewModeComboBox->setCurrentIndex(CuelistViewModes::groupMode); }); // Cuelist View Group Mode
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_H), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->highlightButton->click(); }); // Highlight

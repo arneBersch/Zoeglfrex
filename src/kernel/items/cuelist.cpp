@@ -54,7 +54,7 @@ void Cuelist::go() {
         return;
     }
     if ((cues->items.indexOf(currentCue) + 1) < cues->items.size()) {
-        lastCue = currentCue;
+        previousCue = currentCue;
         currentCue = cues->items[cues->items.indexOf(currentCue) + 1];
         totalFadeFrames = kernel->dmxEngine->PROCESSINGRATE * currentCue->floatAttributes[kernel->CUEFADEATTRIBUTEID] + 0.5;
         remainingFadeFrames = totalFadeFrames;
@@ -68,7 +68,7 @@ void Cuelist::goBack() {
         return;
     }
     if (cues->items.indexOf(currentCue) > 0) {
-        lastCue = currentCue;
+        previousCue = currentCue;
         currentCue = cues->items[cues->items.indexOf(currentCue) - 1];
         totalFadeFrames = kernel->dmxEngine->PROCESSINGRATE * currentCue->floatAttributes[kernel->CUEFADEATTRIBUTEID] + 0.5;
         remainingFadeFrames = totalFadeFrames;

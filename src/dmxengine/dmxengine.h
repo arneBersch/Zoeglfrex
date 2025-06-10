@@ -25,6 +25,7 @@ class DmxEngine : public QWidget {
 public:
     DmxEngine(Kernel *core, QWidget *parent = nullptr);
     SacnServer *sacnServer;
+    QPushButton *blindButton;
     QPushButton *highlightButton;
     QPushButton *soloButton;
     QPushButton* skipFadeButton;

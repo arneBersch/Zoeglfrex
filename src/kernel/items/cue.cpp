@@ -23,8 +23,8 @@ Cue::~Cue() {
     if (cuelist->currentCue == this) {
         cuelist->currentCue = nullptr;
     }
-    if (cuelist->lastCue == this) {
-        cuelist->lastCue = nullptr;
+    if (cuelist->previousCue == this) {
+        cuelist->previousCue = nullptr;
     }
 }
 

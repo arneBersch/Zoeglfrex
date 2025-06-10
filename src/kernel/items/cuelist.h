@@ -25,7 +25,7 @@ public:
     void go();
     void goBack();
     Cue* currentCue = nullptr;
-    Cue* lastCue = nullptr;
+    Cue* previousCue = nullptr;
     unsigned int remainingFadeFrames = 0;
     unsigned int totalFadeFrames = 0;
 };
