@@ -45,8 +45,11 @@ void DmxEngine::generateDmx() {
 
     QMap<Fixture*, float> fixtureDimmer;
     QMap<Fixture*, rgbColor> fixtureColor;
+    QMap<Fixture*, int> fixtureColorPriority;
     QMap<Fixture*, positionAngles> fixturePosition;
-    QMap<Fixture*, QMap<int, uint8_t>> fixtureRaws;
+    QMap<Fixture*, int> fixturePositionPriority;
+    QMap<Fixture*, QMap<int, uint8_t>> fixtureRawChannels;
+    QMap<Fixture*, QMap<int, int>> fixtureRawChannelsPriority;
 
     if (kernel->cuelistView->currentCuelist == nullptr) {
         fadeProgress->setRange(0, 1);
@@ -94,14 +97,74 @@ void DmxEngine::generateDmx() {
                 if (currentCueFixtureDimmer.contains(fixture)) {
                     dimmer = currentCueFixtureDimmer.value(fixture);
                 }
-                float lastCueDimmer = 0;
-                if (lastCueFixtureDimmer.contains(fixture)) {
-                    lastCueDimmer = lastCueFixtureDimmer.value(fixture);
+
+                rgbColor color = {};
+                if (currentCueFixtureColor.contains(fixture)) {
+                    color = currentCueFixtureColor.value(fixture);
                 }
-                dimmer += (lastCueDimmer - dimmer) * fade;
+
+                positionAngles position = {};
+                if (currentCueFixturePosition.contains(fixture)) {
+                    position = currentCueFixturePosition.value(fixture);
+                }
+
+                if (cuelist->remainingFadeFrames > 0) {
+                    float lastCueDimmer = 0;
+                    if (lastCueFixtureDimmer.contains(fixture)) {
+                        lastCueDimmer = lastCueFixtureDimmer.value(fixture);
+                    }
+                    dimmer += (lastCueDimmer - dimmer) * fade;
+
+                    rgbColor lastCueColor = {};
+                    if (lastCueFixtureColor.contains(fixture)) {
+                        lastCueColor = lastCueFixtureColor.value(fixture);
+                    } else if (!lastCueFixtureDimmer.contains(fixture)) {
+                        lastCueColor = color;
+                    }
+
+                    positionAngles lastCuePosition = {};
+                    if (lastCueFixturePosition.contains(fixture)) {
+                        lastCuePosition = lastCueFixturePosition.value(fixture);
+                    } else if (!lastCueFixtureDimmer.contains(fixture)) {
+                        lastCuePosition = position;
+                    }
+
+                    if (!currentCueFixtureDimmer.contains(fixture)) {
+                        color = lastCueColor;
+                        position = lastCuePosition;
+                    }
+
+                    color.red += (lastCueColor.red - color.red) * fade;
+                    color.green += (lastCueColor.green - color.green) * fade;
+                    color.blue += (lastCueColor.blue - color.blue) * fade;
+                    color.quality += (lastCueColor.quality - color.quality) * fade;
+
+                    if (std::abs(lastCuePosition.pan - position.pan) > 180) {
+                        if (lastCuePosition.pan > position.pan) {
+                            position.pan += 360;
+                        } else if (lastCuePosition.pan < position.pan) {
+                            lastCuePosition.pan += 360;
+                        }
+                    }
+                    position.pan += (lastCuePosition.pan - position.pan) * fade;
+                    while (position.pan >= 360) {
+                        position.pan -= 360;
+                    }
+                    position.tilt += (lastCuePosition.tilt - position.tilt) * fade;
+                    position.zoom += (lastCuePosition.zoom - position.zoom) * fade;
+                }
                 dimmer *= (cuelist->floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID) / 100);
-                if (fixtureDimmer.value(fixture, 0) < dimmer) {
+                if (dimmer > fixtureDimmer.value(fixture, 0)) {
                     fixtureDimmer[fixture] = dimmer;
+                }
+
+                if ((cuelist->intAttributes.value(kernel->CUELISTPRIORITYATTRIBUTEID) >= fixtureColorPriority.value(fixture, 0)) && (currentCueFixtureColor.contains(fixture) || ((cuelist->remainingFadeFrames > 0) && lastCueFixtureColor.contains(fixture)))) {
+                    fixtureColor[fixture] = color;
+                    fixtureColorPriority[fixture] = cuelist->intAttributes.value(kernel->CUELISTPRIORITYATTRIBUTEID);
+                }
+                if ((cuelist->intAttributes.value(kernel->CUELISTPRIORITYATTRIBUTEID) >= fixturePositionPriority.value(fixture, 0)) && (currentCueFixturePosition.contains(fixture) || ((cuelist->remainingFadeFrames > 0) && lastCueFixturePosition.contains(fixture)))) {
+                    fixturePosition[fixture] = position;
+                    fixturePositionPriority[fixture] = cuelist->intAttributes.value(kernel->CUELISTPRIORITYATTRIBUTEID);
                 }
             }
         }
@@ -253,8 +316,8 @@ void DmxEngine::generateDmx() {
             }
 
             for (int channel = 1; ((channel <= channels.size()) && ((address + channel - 1) <= 512)); channel++) {
-                if (fixtureRaws.contains(fixture) && fixtureRaws.value(fixture).contains(channel)) {
-                    dmxUniverses[universe][address + channel - 2] = fixtureRaws.value(fixture).value(channel);
+                if (fixtureRawChannels.contains(fixture) && fixtureRawChannels.value(fixture).contains(channel)) {
+                    dmxUniverses[universe][address + channel - 2] = fixtureRawChannels.value(fixture).value(channel);
                 }
             }
         }
@@ -269,7 +332,10 @@ void DmxEngine::renderCue(Cue* cue, QMap<Group*, QMap<Effect*, int>> oldGroupEff
     for (Group* group : kernel->groups->items) {
         if (cue->intensities.contains(group)) {
             for (Fixture* fixture : group->fixtures) {
-                (*fixtureDimmers)[fixture] = cue->intensities.value(group)->getDimmer(fixture);
+                float dimmer = cue->intensities.value(group)->getDimmer(fixture);
+                if (dimmer > fixtureDimmers->value(fixture, 0)) {
+                    (*fixtureDimmers)[fixture] = dimmer;
+                }
             }
         }
         if (cue->colors.contains(group)) {
@@ -305,7 +371,10 @@ void DmxEngine::renderCue(Cue* cue, QMap<Group*, QMap<Effect*, int>> oldGroupEff
                 }
                 if (!effect->intensitySteps.isEmpty()) {
                     for (Fixture* fixture : group->fixtures) {
-                        (*fixtureDimmers)[fixture] = effect->getDimmer(fixture, groupEffectFrames[group][effect]);
+                        float dimmer = effect->getDimmer(fixture, groupEffectFrames[group][effect]);
+                        if (dimmer > fixtureDimmers->value(fixture, 0)) {
+                            (*fixtureDimmers)[fixture] = dimmer;
+                        }
                     }
                 }
                 if (!effect->colorSteps.isEmpty()) {

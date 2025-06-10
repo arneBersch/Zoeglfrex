@@ -32,6 +32,7 @@ QString Cuelist::info() {
     }
     info += "\n" + kernel->CUELISTCUEATTRIBUTEID + " Current Cue: " + cue;
     info += "\n" + kernel->CUELISTDIMMERATTRIBUTEID + " Dimmer: " + QString::number(floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID)) + "%";
+    info += "\n" + kernel->CUELISTPRIORITYATTRIBUTEID + " Priority: " + QString::number(intAttributes.value(kernel->CUELISTPRIORITYATTRIBUTEID));
     return info;
 }
 

@@ -99,6 +99,7 @@ public:
 
     const QString CUELISTCUEATTRIBUTEID = "2";
     const QString CUELISTDIMMERATTRIBUTEID = "3";
+    const QString CUELISTPRIORITYATTRIBUTEID = "4";
 
     const QString CUEINTENSITIESATTRIBUTEID = "2";
     const QString CUECOLORSATTRIBUTEID = "3";
