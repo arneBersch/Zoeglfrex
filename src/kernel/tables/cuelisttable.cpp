@@ -9,7 +9,7 @@
 #include "cuelisttable.h"
 
 CuelistTable::CuelistTable(Kernel *core) : ItemTable(core, Keys::Cuelist, "Cuelist", "Cuelists") {
-    floatAttributes[kernel->CUELISTDIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
+    floatAttributes[kernel->CUELISTDIMMERATTRIBUTEID] = {"Dimmer", 100, 0, 100, "%"};
 }
 
 void CuelistTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {

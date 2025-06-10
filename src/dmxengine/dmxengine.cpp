@@ -40,44 +40,68 @@ DmxEngine::DmxEngine(Kernel *core, QWidget* parent) : QWidget(parent) {
 void DmxEngine::generateDmx() {
     QMutexLocker(kernel->mutex);
 
+    QMap<Group*, QMap<Effect*, int>> oldGroupEffectFrames = groupEffectFrames;
+    groupEffectFrames.clear();
+
     QMap<Fixture*, float> fixtureDimmer;
     QMap<Fixture*, rgbColor> fixtureColor;
     QMap<Fixture*, positionAngles> fixturePosition;
     QMap<Fixture*, QMap<int, uint8_t>> fixtureRaws;
 
+    if (kernel->cuelistView->currentCuelist == nullptr) {
+        fadeProgress->setRange(0, 1);
+        fadeProgress->setValue(0);
+    }
+
     for (Cuelist* cuelist : kernel->cuelists->items) {
-        if (cuelist->currentCue != nullptr) {
-            for (Group* group : kernel->groups->items) {
-                if (cuelist->currentCue->intensities.contains(group)) {
-                    for (Fixture* fixture : group->fixtures) {
-                        float dimmer = cuelist->currentCue->intensities.value(group)->getDimmer(fixture) * cuelist->floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID) / 100;
-                        if (!fixtureDimmer.contains(fixture) || (fixtureDimmer.value(fixture) < dimmer)) {
-                            fixtureDimmer[fixture] = dimmer;
-                        }
-                    }
+        if (cuelist == kernel->cuelistView->currentCuelist) {
+            if (cuelist->remainingFadeFrames > 0) {
+                if (skipFadeButton->isChecked()) {
+                    cuelist->remainingFadeFrames = 0;
                 }
-                if (cuelist->currentCue->colors.contains(group)) {
-                    for (Fixture* fixture : group->fixtures) {
-                        fixtureColor[fixture] = cuelist->currentCue->colors.value(group)->getRGB(fixture);
-                    }
+                fadeProgress->setRange(0, cuelist->totalFadeFrames);
+                fadeProgress->setValue(cuelist->totalFadeFrames - cuelist->remainingFadeFrames);
+            } else {
+                fadeProgress->setRange(0, 1);
+                fadeProgress->setValue(1);
+            }
+        }
+        if (cuelist->remainingFadeFrames > 0) {
+            cuelist->remainingFadeFrames--;
+        }
+        if ((cuelist->currentCue != nullptr) && (cuelist->floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID) > 0)) {
+            QMap<Fixture*, float> currentCueFixtureDimmer;
+            QMap<Fixture*, rgbColor> currentCueFixtureColor;
+            QMap<Fixture*, positionAngles> currentCueFixturePosition;
+            QMap<Fixture*, QMap<int, uint8_t>> currentCueFixtureRaws;
+            QMap<Fixture*, QMap<int, bool>> currentCueFixtureRawsFade;
+            renderCue(cuelist->currentCue, oldGroupEffectFrames, &currentCueFixtureDimmer, &currentCueFixtureColor, &currentCueFixturePosition, &currentCueFixtureRaws, &currentCueFixtureRawsFade);
+
+            QMap<Fixture*, float> lastCueFixtureDimmer;
+            QMap<Fixture*, rgbColor> lastCueFixtureColor;
+            QMap<Fixture*, positionAngles> lastCueFixturePosition;
+            QMap<Fixture*, QMap<int, uint8_t>> lastCueFixtureRaws;
+            QMap<Fixture*, QMap<int, bool>> lastCueFixtureRawsFade;
+
+            Q_ASSERT(cuelist->remainingFadeFrames <= cuelist->totalFadeFrames);
+            const float fade = (float)cuelist->remainingFadeFrames / (float)cuelist->totalFadeFrames;
+            if ((cuelist->lastCue != nullptr) && (cuelist->remainingFadeFrames > 0)) {
+                renderCue(cuelist->lastCue, oldGroupEffectFrames, &lastCueFixtureDimmer, &lastCueFixtureColor, &lastCueFixturePosition, &lastCueFixtureRaws, &lastCueFixtureRawsFade);
+            }
+
+            for (Fixture* fixture : kernel->fixtures->items) {
+                float dimmer = 0;
+                if (currentCueFixtureDimmer.contains(fixture)) {
+                    dimmer = currentCueFixtureDimmer.value(fixture);
                 }
-                if (cuelist->currentCue->positions.contains(group)) {
-                    for (Fixture* fixture : group->fixtures) {
-                        fixturePosition[fixture] = cuelist->currentCue->positions.value(group)->getAngles(fixture);
-                    }
+                float lastCueDimmer = 0;
+                if (lastCueFixtureDimmer.contains(fixture)) {
+                    lastCueDimmer = lastCueFixtureDimmer.value(fixture);
                 }
-                if (cuelist->currentCue->raws.contains(group)) {
-                    for (Raw* raw : cuelist->currentCue->raws.value(group)) {
-                        for (Fixture* fixture : group->fixtures) {
-                            if (!fixtureRaws.contains(fixture)) {
-                                fixtureRaws[fixture] = QMap<int, uint8_t>();
-                            }
-                            const QMap<int, uint8_t> channels = raw->getChannels(fixture);
-                            for (int channel : channels.keys()) {
-                                fixtureRaws[fixture][channel] = channels.value(channel);
-                            }
-                        }
-                    }
+                dimmer += (lastCueDimmer - dimmer) * fade;
+                dimmer *= (cuelist->floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID) / 100);
+                if (fixtureDimmer.value(fixture, 0) < dimmer) {
+                    fixtureDimmer[fixture] = dimmer;
                 }
             }
         }
@@ -237,6 +261,79 @@ void DmxEngine::generateDmx() {
     }
     sacnServer->send(dmxUniverses);
     kernel->preview2d->updateImage();
+}
+
+
+void DmxEngine::renderCue(Cue* cue, QMap<Group*, QMap<Effect*, int>> oldGroupEffectFrames, QMap<Fixture*, float>* fixtureDimmers, QMap<Fixture*, rgbColor>* fixtureColors, QMap<Fixture*, positionAngles>* fixturePositions, QMap<Fixture*, QMap<int, uint8_t>>* fixtureRaws, QMap<Fixture*, QMap<int, bool>>* fixtureRawFade) {
+    Q_ASSERT(cue != nullptr);
+    for (Group* group : kernel->groups->items) {
+        if (cue->intensities.contains(group)) {
+            for (Fixture* fixture : group->fixtures) {
+                (*fixtureDimmers)[fixture] = cue->intensities.value(group)->getDimmer(fixture);
+            }
+        }
+        if (cue->colors.contains(group)) {
+            for (Fixture* fixture : group->fixtures) {
+                (*fixtureColors)[fixture] = cue->colors.value(group)->getRGB(fixture);
+            }
+        }
+        if (cue->positions.contains(group)) {
+            for (Fixture* fixture : group->fixtures) {
+                (*fixturePositions)[fixture] = cue->positions.value(group)->getAngles(fixture);
+            }
+        }
+        if (cue->raws.contains(group)) {
+            for (Raw* raw : cue->raws[group]) {
+                for (Fixture* fixture : group->fixtures) {
+                    if (!(*fixtureRaws).contains(fixture)) {
+                        (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
+                        (*fixtureRawFade)[fixture] = QMap<int, bool>();
+                    }
+                    const QMap<int, uint8_t> channels = raw->getChannels(fixture);
+                    for (int channel : channels.keys()) {
+                        (*fixtureRaws)[fixture][channel] = channels.value(channel);
+                        (*fixtureRawFade)[fixture][channel] = raw->boolAttributes.value(kernel->RAWFADEATTRIBUTEID);
+                    }
+                }
+            }
+        }
+        if (cue->effects.contains(group)) {
+            for (Effect* effect : cue->effects.value(group)) {
+                groupEffectFrames[group][effect] = 0;
+                if (oldGroupEffectFrames.contains(group) && oldGroupEffectFrames.value(group).contains(effect)) {
+                    groupEffectFrames[group][effect] = (oldGroupEffectFrames.value(group).value(effect) + 1);
+                }
+                if (!effect->intensitySteps.isEmpty()) {
+                    for (Fixture* fixture : group->fixtures) {
+                        (*fixtureDimmers)[fixture] = effect->getDimmer(fixture, groupEffectFrames[group][effect]);
+                    }
+                }
+                if (!effect->colorSteps.isEmpty()) {
+                    for (Fixture* fixture : group->fixtures) {
+                        (*fixtureColors)[fixture] = effect->getRGB(fixture, groupEffectFrames[group][effect]);
+                    }
+                }
+                if (!effect->positionSteps.isEmpty()) {
+                    for (Fixture* fixture : group->fixtures) {
+                        (*fixturePositions)[fixture] = effect->getPosition(fixture, groupEffectFrames[group][effect]);
+                    }
+                }
+                if (!effect->rawSteps.isEmpty()) {
+                    for (Fixture* fixture : group->fixtures) {
+                        if (!fixtureRaws->contains(fixture)) {
+                            (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
+                            (*fixtureRawFade)[fixture] = QMap<int, bool>();
+                        }
+                        const QMap<int, uint8_t> channels = effect->getRaws(fixture, groupEffectFrames[group][effect]);
+                        for (int channel : channels.keys()) {
+                            (*fixtureRaws)[fixture][channel] = channels.value(channel);
+                            (*fixtureRawFade)[fixture][channel] = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /*void DmxEngine::generateDmx() {
