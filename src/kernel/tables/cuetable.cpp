@@ -14,6 +14,8 @@ CueTable::CueTable(Kernel *core) : ItemTable(core, Keys::Cue, "Cue", "Cues") {
     boolAttributes[kernel->CUEBLOCKATTRIBUTEID] = {"Block", false};
 }
 
+CueTable::CueTable(CueTable *table) : ItemTable(table) {}
+
 void CueTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if (attribute == kernel->CUEINTENSITIESATTRIBUTEID) { // Intensities

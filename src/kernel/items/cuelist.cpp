@@ -14,10 +14,11 @@ Cuelist::Cuelist(Kernel* core) : Item(core) {
 }
 
 Cuelist::Cuelist(const Cuelist* item) : Item(item) {
-    delete cues;
+    cues = new CueTable(item->cues);
 }
 
 Cuelist::~Cuelist() {
+    delete cues;
     if (kernel->cuelistView->currentCuelist == this) {
         kernel->cuelistView->currentCuelist = nullptr;
         kernel->cuelistView->reload();

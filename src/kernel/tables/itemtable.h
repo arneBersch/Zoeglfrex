@@ -50,6 +50,7 @@ class Kernel;
 template <class T> class ItemTable : public QAbstractTableModel {
 public:
     ItemTable(Kernel* core, int key, QString singularName, QString pluralName);
+    ItemTable(ItemTable<T>* table);
     ~ItemTable();
     T* getItem(QString id) const;
     int getItemRow(QString id) const;
@@ -57,10 +58,10 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
-    QList<T*> items;
     virtual void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> values, QString text = QString());
     void saveItemsToFile(QXmlStreamWriter* fileStream);
     void reset();
+    QList<T*> items;
     QMap<QString, StringAttribute> stringAttributes;
     QMap<QString, IntAttribute> intAttributes;
     QMap<QString, FloatAttribute> floatAttributes;
@@ -76,8 +77,8 @@ protected:
 private:
     int findRow(QString id);
     int itemKey;
-    QString singularItemName = "item";
-    QString pluralItemName = "items";
+    QString singularItemName = "Item";
+    QString pluralItemName = "Items";
 };
 
 #endif // ITEMTABLE_H

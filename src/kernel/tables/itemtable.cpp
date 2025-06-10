@@ -17,6 +17,25 @@ template <class T> ItemTable<T>::ItemTable(Kernel* core, int key, QString singul
     stringAttributes[kernel->LABELATTRIBUTEID] = {"Label", QString(), QString()};
 }
 
+template <class T> ItemTable<T>::ItemTable(ItemTable<T>* table) {
+    kernel = table->kernel;
+    stringAttributes = table->stringAttributes;
+    intAttributes = table->intAttributes;
+    floatAttributes = table->floatAttributes;
+    modelSpecificFloatAttributes = table->modelSpecificFloatAttributes;
+    fixtureSpecificFloatAttributes = table->fixtureSpecificFloatAttributes;
+    angleAttributes = table->angleAttributes;
+    modelSpecificAngleAttributes = table->modelSpecificAngleAttributes;
+    fixtureSpecificAngleAttributes = table->fixtureSpecificAngleAttributes;
+    boolAttributes = table->boolAttributes;
+    items = QList<T*>();
+    for (T* tableItem : table->items) {
+        T* item = new T(tableItem);
+        item->id = tableItem->id;
+        items.append(item);
+    }
+}
+
 template <class T> ItemTable<T>::~ItemTable() {
     reset();
 }
