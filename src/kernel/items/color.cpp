@@ -89,6 +89,11 @@ QString Color::info() {
     info += "\n    Model Exceptions: " + modelSaturationValues.join("; ");
     info += "\n    Fixture Exceptions: " + fixtureSaturationValues.join("; ");
     info += "\n" + kernel->COLORQUALITYATTRIBUTEID + " Quality: " + QString::number(floatAttributes.value(kernel->COLORQUALITYATTRIBUTEID)) + "%";
+    QStringList raws;
+    for (Raw* raw : rawListAttributes.value(kernel->COLORRAWSATTRIBUTEID)) {
+        raws.append(raw->name());
+    }
+    info += "\n" + kernel->COLORRAWSATTRIBUTEID + raws.join(" + ");
     return info;
 }
 

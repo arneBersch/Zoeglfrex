@@ -56,6 +56,11 @@ QString Intensity::info() {
         }
     }
     info += "\n    Fixture Exceptions: " + fixtureDimmerValues.join("; ");
+    QStringList raws;
+    for (Raw* raw : rawListAttributes.value(kernel->INTENSITYRAWSATTRIBUTEID)) {
+        raws.append(raw->name());
+    }
+    info += "\n" + kernel->INTENSITYRAWSATTRIBUTEID + raws.join(" + ");
     return info;
 }
 

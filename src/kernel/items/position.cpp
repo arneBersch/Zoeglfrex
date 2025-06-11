@@ -78,6 +78,11 @@ QString Position::info() {
     info += "\n" + kernel->POSITIONZOOMATTRIBUTEID + " Zoom: " + QString::number(floatAttributes.value(kernel->POSITIONZOOMATTRIBUTEID)) + "°";
     info += "\n    Model Exceptions: " + modelZoomValues.join("; ");
     info += "\n    Fixture Exceptions: " + fixtureZoomValues.join("; ");
+    QStringList raws;
+    for (Raw* raw : rawListAttributes.value(kernel->POSITIONRAWSATTRIBUTEID)) {
+        raws.append(raw->name());
+    }
+    info += "\n" + kernel->POSITIONRAWSATTRIBUTEID + raws.join(" + ");
     return info;
 }
 

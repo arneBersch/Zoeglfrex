@@ -18,4 +18,5 @@ PositionTable::PositionTable(Kernel *core) : ItemTable(core, Keys::Position, "Po
     floatAttributes[kernel->POSITIONZOOMATTRIBUTEID] = {"Zoom", 15, 0, 180, "°"};
     modelSpecificFloatAttributes[kernel->POSITIONZOOMATTRIBUTEID] = {"Zoom", 15, 0, 180, "°"};
     fixtureSpecificFloatAttributes[kernel->POSITIONZOOMATTRIBUTEID] = {"Zoom", 15, 0, 180, "°"};
+    rawListAttributes[kernel->POSITIONRAWSATTRIBUTEID] = {"Raws", QList<Raw*>()};
 }

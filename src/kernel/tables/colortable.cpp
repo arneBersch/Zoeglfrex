@@ -16,4 +16,5 @@ ColorTable::ColorTable(Kernel *core) : ItemTable(core, Keys::Color, "Color", "Co
     modelSpecificFloatAttributes[kernel->COLORSATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
     fixtureSpecificFloatAttributes[kernel->COLORSATURATIONATTRIBUTEID] = {"Saturation", 100, 0, 100, "%"};
     floatAttributes[kernel->COLORQUALITYATTRIBUTEID] = {"Quality", 100, 0, 100, "%"};
+    rawListAttributes[kernel->COLORRAWSATTRIBUTEID] = {"Raws", QList<Raw*>()};
 }

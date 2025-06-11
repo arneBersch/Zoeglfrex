@@ -12,4 +12,5 @@ IntensityTable::IntensityTable(Kernel *core) : ItemTable(core, Keys::Intensity, 
     floatAttributes[kernel->INTENSITYDIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
     modelSpecificFloatAttributes[kernel->INTENSITYDIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
     fixtureSpecificFloatAttributes[kernel->INTENSITYDIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
+    rawListAttributes[kernel->INTENSITYRAWSATTRIBUTEID] = {"Raws", QList<Raw*>()};
 }
