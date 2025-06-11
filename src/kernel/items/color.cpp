@@ -93,7 +93,7 @@ QString Color::info() {
     for (Raw* raw : rawListAttributes.value(kernel->COLORRAWSATTRIBUTEID)) {
         raws.append(raw->name());
     }
-    info += "\n" + kernel->COLORRAWSATTRIBUTEID + raws.join(" + ");
+    info += "\n" + kernel->COLORRAWSATTRIBUTEID + " Raws: " + raws.join(" + ");
     return info;
 }
 

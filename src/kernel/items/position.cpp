@@ -82,7 +82,7 @@ QString Position::info() {
     for (Raw* raw : rawListAttributes.value(kernel->POSITIONRAWSATTRIBUTEID)) {
         raws.append(raw->name());
     }
-    info += "\n" + kernel->POSITIONRAWSATTRIBUTEID + raws.join(" + ");
+    info += "\n" + kernel->POSITIONRAWSATTRIBUTEID + " Raws: " + raws.join(" + ");
     return info;
 }
 

@@ -60,7 +60,7 @@ QString Intensity::info() {
     for (Raw* raw : rawListAttributes.value(kernel->INTENSITYRAWSATTRIBUTEID)) {
         raws.append(raw->name());
     }
-    info += "\n" + kernel->INTENSITYRAWSATTRIBUTEID + raws.join(" + ");
+    info += "\n" + kernel->INTENSITYRAWSATTRIBUTEID + " Raws: " + raws.join(" + ");
     return info;
 }
 

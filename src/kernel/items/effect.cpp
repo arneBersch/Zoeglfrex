@@ -242,12 +242,23 @@ positionAngles Effect::getPosition(Fixture* fixture, int frame) {
 QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMoveWhileDarkRaws) {
     QMap<int, uint8_t> channels;
     for (int step = 1; step <= intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID); step++) {
+        QList<Raw*> raws = QList<Raw*>();
+        if (intensitySteps.contains(step)) {
+            raws.append(intensitySteps.value(step)->rawListAttributes.value(kernel->INTENSITYRAWSATTRIBUTEID));
+        }
+        if (colorSteps.contains(step)) {
+            raws.append(colorSteps.value(step)->rawListAttributes.value(kernel->COLORRAWSATTRIBUTEID));
+        }
+        if (positionSteps.contains(step)) {
+            raws.append(positionSteps.value(step)->rawListAttributes.value(kernel->POSITIONRAWSATTRIBUTEID));
+        }
         if (rawSteps.contains(step)) {
-            for (Raw* raw : rawSteps.value(step)) {
-                if (renderMoveWhileDarkRaws || raw->boolAttributes.value(kernel->RAWMOVEWHILEDARKATTRIBUTEID)) {
-                    for (int channel : raw->getChannels(fixture).keys()) {
-                        channels[channel] = 0;
-                    }
+            raws.append(rawSteps.value(step));
+        }
+        for (Raw* raw : raws) {
+            if (renderMoveWhileDarkRaws || raw->boolAttributes.value(kernel->RAWMOVEWHILEDARKATTRIBUTEID)) {
+                for (int channel : raw->getChannels(fixture).keys()) {
+                    channels[channel] = 0;
                 }
             }
         }
@@ -255,11 +266,39 @@ QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMoveW
     if (!channels.keys().isEmpty()) {
         float fade = 0;
         int step = getStep(fixture, frame, &fade);
-        QList<Raw*> formerRaws;
-        if ((step > 1) && rawSteps.contains(step - 1)) {
-            formerRaws = rawSteps.value(step - 1);
-        } else if ((step == 1) && rawSteps.contains(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID))) {
-            formerRaws = rawSteps.value(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID));
+        QList<Raw*> raws = QList<Raw*>();
+        QList<Raw*> formerRaws = QList<Raw*>();
+        int formerStep = step - 1;
+        if (formerStep < 1) {
+            formerStep = intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID);
+        }
+
+        if (intensitySteps.contains(step)) {
+            raws.append(intensitySteps.value(step)->rawListAttributes.value(kernel->INTENSITYRAWSATTRIBUTEID));
+        }
+        if (intensitySteps.contains(formerStep)) {
+            formerRaws.append(intensitySteps.value(formerStep)->rawListAttributes.value(kernel->INTENSITYRAWSATTRIBUTEID));
+        }
+
+        if (colorSteps.contains(step)) {
+            raws.append(colorSteps.value(step)->rawListAttributes.value(kernel->COLORRAWSATTRIBUTEID));
+        }
+        if (colorSteps.contains(formerStep)) {
+            formerRaws.append(colorSteps.value(formerStep)->rawListAttributes.value(kernel->COLORRAWSATTRIBUTEID));
+        }
+
+        if (positionSteps.contains(step)) {
+            raws.append(positionSteps.value(step)->rawListAttributes.value(kernel->POSITIONRAWSATTRIBUTEID));
+        }
+        if (positionSteps.contains(formerStep)) {
+            formerRaws.append(positionSteps.value(formerStep)->rawListAttributes.value(kernel->POSITIONRAWSATTRIBUTEID));
+        }
+
+        if (rawSteps.contains(step)) {
+            raws.append(rawSteps.value(step));
+        }
+        if (rawSteps.contains(formerStep)) {
+            formerRaws.append(rawSteps.value(formerStep));
         }
         for (int channel : channels.keys()) {
             uint8_t formerValue = 0;
@@ -270,12 +309,10 @@ QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMoveW
             }
             uint8_t value = 0;
             bool fadeThisChannel = true;
-            if (rawSteps.contains(step)) {
-                for (Raw* raw : rawSteps.value(step)) {
-                    if ((renderMoveWhileDarkRaws || raw->boolAttributes.value(kernel->RAWMOVEWHILEDARKATTRIBUTEID)) && raw->getChannels(fixture).contains(channel)) {
-                        fadeThisChannel = raw->boolAttributes.value(kernel->RAWFADEATTRIBUTEID);
-                        value = raw->getChannels(fixture).value(channel);
-                    }
+            for (Raw* raw : raws) {
+                if ((renderMoveWhileDarkRaws || raw->boolAttributes.value(kernel->RAWMOVEWHILEDARKATTRIBUTEID)) && raw->getChannels(fixture).contains(channel)) {
+                    fadeThisChannel = raw->boolAttributes.value(kernel->RAWFADEATTRIBUTEID);
+                    value = raw->getChannels(fixture).value(channel);
                 }
             }
             if (fadeThisChannel) {

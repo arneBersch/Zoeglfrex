@@ -18,7 +18,45 @@ Raw::Raw(const Raw* item) : Item(item) {
 }
 
 Raw::~Raw() {
-    for (Effect *effect : kernel->effects->items) {
+    for (Model* model : kernel->models->items) {
+        for (QString attribute : model->rawListAttributes.keys()) {
+            model->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Fixture* fixture : kernel->fixtures->items) {
+        for (QString attribute : fixture->rawListAttributes.keys()) {
+            fixture->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Group* group : kernel->groups->items) {
+        for (QString attribute : group->rawListAttributes.keys()) {
+            group->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Intensity* intensity : kernel->intensities->items) {
+        for (QString attribute : intensity->rawListAttributes.keys()) {
+            intensity->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Color* color : kernel->colors->items) {
+        for (QString attribute : color->rawListAttributes.keys()) {
+            color->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Position* position : kernel->positions->items) {
+        for (QString attribute : position->rawListAttributes.keys()) {
+            position->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Raw* raw : kernel->raws->items) {
+        for (QString attribute : raw->rawListAttributes.keys()) {
+            raw->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Effect* effect : kernel->effects->items) {
+        for (QString attribute : effect->rawListAttributes.keys()) {
+            effect->rawListAttributes[attribute].removeAll(this);
+        }
         for (int step : effect->rawSteps.keys()) {
             if (effect->rawSteps.contains(step)) {
                 effect->rawSteps[step].removeAll(this);
@@ -28,8 +66,14 @@ Raw::~Raw() {
             }
         }
     }
-    for (Cuelist *cuelist : kernel->cuelists->items) {
-        for (Cue *cue : cuelist->cues->items) {
+    for (Cuelist* cuelist : kernel->cuelists->items) {
+        for (QString attribute : cuelist->rawListAttributes.keys()) {
+            cuelist->rawListAttributes[attribute].removeAll(this);
+        }
+        for (Cue* cue : cuelist->cues->items) {
+            for (QString attribute : cue->rawListAttributes.keys()) {
+                cue->rawListAttributes[attribute].removeAll(this);
+            }
             for (Group *group : cue->raws.keys()) {
                 if (cue->raws.contains(group)) {
                     cue->raws[group].removeAll(this);

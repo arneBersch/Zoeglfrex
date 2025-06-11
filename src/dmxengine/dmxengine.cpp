@@ -373,6 +373,7 @@ void DmxEngine::generateDmx() {
 void DmxEngine::renderCue(Cue* cue, QMap<Group*, QMap<Effect*, int>> oldGroupEffectFrames, QMap<Fixture*, float>* fixtureDimmers, QMap<Fixture*, rgbColor>* fixtureColors, QMap<Fixture*, positionAngles>* fixturePositions, QMap<Fixture*, QMap<int, uint8_t>>* fixtureRaws, QMap<Fixture*, QMap<int, bool>>* fixtureRawFade) {
     Q_ASSERT(cue != nullptr);
     for (Group* group : kernel->groups->items) {
+        QList<Raw*> raws = QList<Raw*>();
         if (cue->intensities.contains(group)) {
             for (Fixture* fixture : group->fixtures) {
                 float dimmer = cue->intensities.value(group)->getDimmer(fixture);
@@ -380,29 +381,33 @@ void DmxEngine::renderCue(Cue* cue, QMap<Group*, QMap<Effect*, int>> oldGroupEff
                     (*fixtureDimmers)[fixture] = dimmer;
                 }
             }
+            raws.append(cue->intensities.value(group)->rawListAttributes.value(kernel->INTENSITYRAWSATTRIBUTEID));
         }
         if (cue->colors.contains(group)) {
             for (Fixture* fixture : group->fixtures) {
                 (*fixtureColors)[fixture] = cue->colors.value(group)->getRGB(fixture);
             }
+            raws.append(cue->colors.value(group)->rawListAttributes.value(kernel->COLORRAWSATTRIBUTEID));
         }
         if (cue->positions.contains(group)) {
             for (Fixture* fixture : group->fixtures) {
                 (*fixturePositions)[fixture] = cue->positions.value(group)->getAngles(fixture);
             }
+            raws.append(cue->positions.value(group)->rawListAttributes.value(kernel->POSITIONRAWSATTRIBUTEID));
         }
         if (cue->raws.contains(group)) {
-            for (Raw* raw : cue->raws[group]) {
-                for (Fixture* fixture : group->fixtures) {
-                    if (!(*fixtureRaws).contains(fixture)) {
-                        (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
-                        (*fixtureRawFade)[fixture] = QMap<int, bool>();
-                    }
-                    const QMap<int, uint8_t> channels = raw->getChannels(fixture);
-                    for (int channel : channels.keys()) {
-                        (*fixtureRaws)[fixture][channel] = channels.value(channel);
-                        (*fixtureRawFade)[fixture][channel] = raw->boolAttributes.value(kernel->RAWFADEATTRIBUTEID);
-                    }
+            raws.append(cue->raws.value(group));
+        }
+        for (Raw* raw : raws) {
+            for (Fixture* fixture : group->fixtures) {
+                if (!fixtureRaws->contains(fixture)) {
+                    (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
+                    (*fixtureRawFade)[fixture] = QMap<int, bool>();
+                }
+                const QMap<int, uint8_t> channels = raw->getChannels(fixture);
+                for (int channel : channels.keys()) {
+                    (*fixtureRaws)[fixture][channel] = channels.value(channel);
+                    (*fixtureRawFade)[fixture][channel] = raw->boolAttributes.value(kernel->RAWFADEATTRIBUTEID);
                 }
             }
         }
