@@ -94,7 +94,7 @@ public:
     const QString EFFECTPHASEATTRIBUTEID = "9";
 
     const QString RAWCHANNELVALUEATTRIBUTEID = "2";
-    const QString RAWMOVEINBLACKATTRIBUTEID = "3";
+    const QString RAWMOVEWHILEDARKATTRIBUTEID = "3";
     const QString RAWFADEATTRIBUTEID = "4";
 
     const QString CUELISTCUEATTRIBUTEID = "2";

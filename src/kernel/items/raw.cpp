@@ -77,10 +77,10 @@ QString Raw::info() {
         }
     }
     info += "\n    Fixture Exceptions: " + fixtureChannelValue.join("; ");
-    if (boolAttributes.value(kernel->RAWMOVEINBLACKATTRIBUTEID)) {
-        info += "\n" + kernel->RAWMOVEINBLACKATTRIBUTEID + " MiB (Move in Black): True";
+    if (boolAttributes.value(kernel->RAWMOVEWHILEDARKATTRIBUTEID)) {
+        info += "\n" + kernel->RAWMOVEWHILEDARKATTRIBUTEID + " Move while Dark: True";
     } else {
-        info += "\n" + kernel->RAWMOVEINBLACKATTRIBUTEID + " MiB (Move in Black): False";
+        info += "\n" + kernel->RAWMOVEWHILEDARKATTRIBUTEID + " Move while Dark: False";
     }
     if (boolAttributes.value(kernel->RAWFADEATTRIBUTEID)) {
         info += "\n" + kernel->RAWFADEATTRIBUTEID + " Fade: True";

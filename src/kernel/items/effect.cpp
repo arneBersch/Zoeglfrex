@@ -239,12 +239,12 @@ positionAngles Effect::getPosition(Fixture* fixture, int frame) {
     return position;
 }
 
-QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMiBRaws) {
+QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMoveWhileDarkRaws) {
     QMap<int, uint8_t> channels;
     for (int step = 1; step <= intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID); step++) {
         if (rawSteps.contains(step)) {
             for (Raw* raw : rawSteps.value(step)) {
-                if (renderMiBRaws || raw->boolAttributes.value(kernel->RAWMOVEINBLACKATTRIBUTEID)) {
+                if (renderMoveWhileDarkRaws || raw->boolAttributes.value(kernel->RAWMOVEWHILEDARKATTRIBUTEID)) {
                     for (int channel : raw->getChannels(fixture).keys()) {
                         channels[channel] = 0;
                     }
@@ -264,7 +264,7 @@ QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMiBRa
         for (int channel : channels.keys()) {
             uint8_t formerValue = 0;
             for (Raw* raw : formerRaws) {
-                if ((renderMiBRaws || raw->boolAttributes.value(kernel->RAWMOVEINBLACKATTRIBUTEID)) && raw->getChannels(fixture).contains(channel)) {
+                if ((renderMoveWhileDarkRaws || raw->boolAttributes.value(kernel->RAWMOVEWHILEDARKATTRIBUTEID)) && raw->getChannels(fixture).contains(channel)) {
                     formerValue = raw->getChannels(fixture).value(channel);
                 }
             }
@@ -272,7 +272,7 @@ QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMiBRa
             bool fadeThisChannel = true;
             if (rawSteps.contains(step)) {
                 for (Raw* raw : rawSteps.value(step)) {
-                    if ((renderMiBRaws || raw->boolAttributes.value(kernel->RAWMOVEINBLACKATTRIBUTEID)) && raw->getChannels(fixture).contains(channel)) {
+                    if ((renderMoveWhileDarkRaws || raw->boolAttributes.value(kernel->RAWMOVEWHILEDARKATTRIBUTEID)) && raw->getChannels(fixture).contains(channel)) {
                         fadeThisChannel = raw->boolAttributes.value(kernel->RAWFADEATTRIBUTEID);
                         value = raw->getChannels(fixture).value(channel);
                     }

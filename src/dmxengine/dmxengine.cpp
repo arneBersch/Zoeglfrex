@@ -17,6 +17,7 @@ DmxEngine::DmxEngine(Kernel *core, QWidget* parent) : QWidget(parent) {
 
     blindButton = new QPushButton("Blind");
     blindButton->setCheckable(true);
+    connect(blindButton, &QPushButton::clicked, kernel->cuelistView, &CuelistView::reload);
     layout->addWidget(blindButton);
 
     highlightButton = new QPushButton("Highlight");
@@ -509,7 +510,7 @@ void DmxEngine::renderCue(Cue* cue, QMap<Group*, QMap<Effect*, int>> oldGroupEff
                         }
                         if (currentCue->raws.contains(group)) {
                             for (Raw* raw : currentCue->raws.value(group)) {
-                                if (raw->boolAttributes.value(kernel->RAWMOVEINBLACKATTRIBUTEID)) {
+                                if (raw->boolAttributes.value(kernel->RAWMOVEWHILEDARKATTRIBUTEID)) {
                                     if (!fixtureRaws->contains(fixture)) {
                                         (*fixtureRaws)[fixture] = QMap<int, uint8_t>();
                                         (*fixtureRawFade)[fixture] = QMap<int, bool>();

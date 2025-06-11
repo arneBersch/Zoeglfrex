@@ -9,7 +9,7 @@
 #include "rawtable.h"
 
 RawTable::RawTable(Kernel *core) : ItemTable(core, Keys::Raw, "Raw", "Raws") {
-    boolAttributes[kernel->RAWMOVEINBLACKATTRIBUTEID] = {"MiB", true};
+    boolAttributes[kernel->RAWMOVEWHILEDARKATTRIBUTEID] = {"Move while Dark", true};
     boolAttributes[kernel->RAWFADEATTRIBUTEID] = {"Fade", false};
 }
 
