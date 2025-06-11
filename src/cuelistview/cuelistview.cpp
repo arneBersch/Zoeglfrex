@@ -122,6 +122,15 @@ void CuelistView::loadCuelist(QString cuelistId) {
     reload();
 }
 
+Cue* CuelistView::selectedCue() const {
+    if (kernel->dmxEngine->blindButton->isChecked() && (currentCue != nullptr)) {
+        return currentCue;
+    } else if ((currentCuelist != nullptr) && (currentCuelist->currentCue != nullptr)) {
+        return currentCuelist->currentCue;
+    }
+    return nullptr;
+}
+
 void CuelistView::loadCue(QString cueId) {
     if (currentCuelist == nullptr) {
         kernel->terminal->error("Can't select Cue because no Cuelist is currently selected.");

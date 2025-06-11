@@ -97,7 +97,7 @@ QVariant GroupModel::data(const QModelIndex &index, const int role) const {
         if (columnValueChanged) {
             return QColor(48, 0, 0);
         }
-        if (cue == kernel->cuelistView->currentCuelist->currentCue) {
+        if (cue == kernel->cuelistView->selectedCue()) {
             return QColor(48, 48, 48);
         }
     }

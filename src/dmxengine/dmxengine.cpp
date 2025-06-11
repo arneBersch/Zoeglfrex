@@ -63,7 +63,7 @@ void DmxEngine::generateDmx() {
 
     for (Cuelist* cuelist : kernel->cuelists->items) {
         if (cuelist == kernel->cuelistView->currentCuelist) {
-            if (cuelist->remainingFadeFrames > 0) {
+            if ((cuelist->remainingFadeFrames > 0) && (kernel->cuelistView->currentCuelist->currentCue == kernel->cuelistView->selectedCue())) {
                 if (skipFadeButton->isChecked()) {
                     cuelist->remainingFadeFrames = 0;
                 }
