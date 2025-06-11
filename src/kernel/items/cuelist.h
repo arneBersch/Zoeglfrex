@@ -19,9 +19,11 @@ public:
     Cuelist(Kernel* core);
     Cuelist(const Cuelist* item);
     ~Cuelist();
+    QString name() override;
     QString info() override;
     void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
     CueTable* cues;
+    void goToCue(QString cueId);
     void go();
     void goBack();
     Cue* currentCue = nullptr;

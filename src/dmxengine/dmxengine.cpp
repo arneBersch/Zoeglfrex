@@ -17,7 +17,7 @@ DmxEngine::DmxEngine(Kernel *core, QWidget* parent) : QWidget(parent) {
 
     blindButton = new QPushButton("Blind");
     blindButton->setCheckable(true);
-    connect(blindButton, &QPushButton::clicked, kernel->cuelistView, &CuelistView::reload);
+    connect(blindButton, &QPushButton::clicked, this, [this] { kernel->cuelistView->reload(); });
     layout->addWidget(blindButton);
 
     highlightButton = new QPushButton("Highlight");

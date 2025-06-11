@@ -21,8 +21,16 @@ Cuelist::~Cuelist() {
     delete cues;
     if (kernel->cuelistView->currentCuelist == this) {
         kernel->cuelistView->currentCuelist = nullptr;
+        kernel->cuelistView->currentCue = nullptr;
         kernel->cuelistView->reload();
     }
+}
+
+QString Cuelist::name() {
+    if (stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
+        return Item::name() + QString::number(cues->items.size()) + " Cues";
+    }
+    return Item::name();
 }
 
 QString Cuelist::info() {
@@ -48,17 +56,26 @@ void Cuelist::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     }
 }
 
+void Cuelist::goToCue(QString cueId) {
+    Cue* cue = cues->getItem(cueId);
+    if (cue == nullptr) {
+        kernel->terminal->error("Can't load Cue " + cueId + " of Cuelist " + name() + " because this Cue doesn't exist.");
+        return;
+    }
+    previousCue = currentCue;
+    currentCue = cue;
+    totalFadeFrames = kernel->dmxEngine->PROCESSINGRATE * currentCue->floatAttributes[kernel->CUEFADEATTRIBUTEID] + 0.5;
+    remainingFadeFrames = totalFadeFrames;
+    kernel->cuelistView->reload();
+}
+
 void Cuelist::go() {
     QMutexLocker locker(kernel->mutex);
     if (currentCue == nullptr) {
         return;
     }
     if ((cues->items.indexOf(currentCue) + 1) < cues->items.size()) {
-        previousCue = currentCue;
-        currentCue = cues->items[cues->items.indexOf(currentCue) + 1];
-        totalFadeFrames = kernel->dmxEngine->PROCESSINGRATE * currentCue->floatAttributes[kernel->CUEFADEATTRIBUTEID] + 0.5;
-        remainingFadeFrames = totalFadeFrames;
-        kernel->cuelistView->reload();
+        goToCue(cues->items[cues->items.indexOf(currentCue) + 1]->id);
     }
 }
 
@@ -68,10 +85,6 @@ void Cuelist::goBack() {
         return;
     }
     if (cues->items.indexOf(currentCue) > 0) {
-        previousCue = currentCue;
-        currentCue = cues->items[cues->items.indexOf(currentCue) - 1];
-        totalFadeFrames = kernel->dmxEngine->PROCESSINGRATE * currentCue->floatAttributes[kernel->CUEFADEATTRIBUTEID] + 0.5;
-        remainingFadeFrames = totalFadeFrames;
-        kernel->cuelistView->reload();
+        goToCue(cues->items[cues->items.indexOf(currentCue) - 1]->id);
     }
 }

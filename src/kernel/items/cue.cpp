@@ -26,6 +26,10 @@ Cue::~Cue() {
     if (cuelist->previousCue == this) {
         cuelist->previousCue = nullptr;
     }
+    if (kernel->cuelistView->currentCue == this) {
+        kernel->cuelistView->currentCue = nullptr;
+        kernel->cuelistView->reload();
+    }
 }
 
 QString Cue::info() {

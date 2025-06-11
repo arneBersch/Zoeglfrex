@@ -51,6 +51,7 @@ public:
     void noFixture();
     bool isSelected(Fixture* fixture);
     Cuelist* currentCuelist = nullptr;
+    Cue* currentCue = nullptr;
     Fixture* currentFixture = nullptr;
     Group* currentGroup = nullptr;
     QPushButton* trackingButton;
