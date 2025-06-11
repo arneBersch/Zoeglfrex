@@ -28,6 +28,7 @@ template <class T> ItemTable<T>::ItemTable(ItemTable<T>* table) {
     modelSpecificAngleAttributes = table->modelSpecificAngleAttributes;
     fixtureSpecificAngleAttributes = table->fixtureSpecificAngleAttributes;
     boolAttributes = table->boolAttributes;
+    rawListAttributes = table->rawListAttributes;
     items = QList<T*>();
     for (T* tableItem : table->items) {
         T* item = new T(tableItem);
@@ -755,6 +756,68 @@ template <class T> void ItemTable<T>::setAttribute(QStringList ids, QMap<int, QS
         } else {
             kernel->terminal->success("Set " + boolAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + ".");
         }
+    } else if (rawListAttributes.contains(attribute)) { // Raw List Attribute
+        RawListAttribute rawListAttribute = rawListAttributes.value(attribute);
+        bool addRaws = value.startsWith(Keys::Plus);
+        if (addRaws) {
+            value.removeFirst();
+        }
+        QList<Raw*> rawSelection = QList<Raw*>();
+        if (!value.isEmpty() || !text.isEmpty()) {
+            if (!value.isEmpty()) {
+                if (value.first() != Keys::Raw) {
+                    kernel->terminal->error("Can't set " + singularItemName + " " + rawListAttribute.name + " because this requires Raws.");
+                    return;
+                }
+                value.removeFirst();
+            }
+            QStringList rawIds = kernel->terminal->keysToSelection(value, Keys::Raw);
+            if (!text.isEmpty()) {
+                rawIds = text.split("+");
+            }
+            if (rawIds.isEmpty()) {
+                kernel->terminal->error("Can't set " + singularItemName + " " + rawListAttribute.name + " because of an invalid Raw selection.");
+                return;
+            }
+            for (QString rawId : rawIds) {
+                Raw* raw = kernel->raws->getItem(rawId);
+                if (raw == nullptr) {
+                    kernel->terminal->warning("Can't add Raw " + rawId + " to " + singularItemName + " " + rawListAttribute.name + " because it doesn't exist.");
+                } else {
+                    if (!rawSelection.contains(raw)) {
+                        rawSelection.append(raw);
+                    }
+                }
+            }
+        }
+        for (QString id : ids) {
+            T* item = getItem(id);
+            if (item == nullptr) {
+                item = addItem(id);
+            }
+            if (addRaws) {
+                for (Raw* raw : rawSelection) {
+                    if (!item->rawListAttributes[attribute].contains(raw)) {
+                        item->rawListAttributes[attribute].append(raw);
+                    }
+                }
+            } else {
+                item->rawListAttributes[attribute] = rawSelection;
+            }
+            emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+        }
+        if ((kernel->cuelistView->currentGroup != nullptr) && !kernel->cuelistView->currentGroup->fixtures.contains(kernel->cuelistView->currentFixture)) {
+            kernel->cuelistView->currentFixture = nullptr;
+        }
+        if (ids.size() == 1) {
+            kernel->terminal->success("Set " + rawListAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(getItem(ids.first())->rawListAttributes.value(attribute).length()) + " Raws.");
+        } else {
+            if (addRaws) {
+                kernel->terminal->success("Added " + QString::number(rawSelection.length()) + " Raws to the " + rawListAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + ".");
+            } else {
+                kernel->terminal->success("Set Raws of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(rawSelection.length()) + " Raws.");
+            }
+        }
     } else {
         kernel->terminal->error("Can't set " + singularItemName + " Attribute " + attributes.value(Keys::Attribute) + ".");
     }
@@ -861,6 +924,9 @@ template <class T> T* ItemTable<T>::addItem(QString id) {
     }
     for (QString attribute : boolAttributes.keys()) {
         item->boolAttributes[attribute] = boolAttributes.value(attribute).value;
+    }
+    for (QString attribute : rawListAttributes.keys()) {
+        item->rawListAttributes[attribute] = rawListAttributes.value(attribute).value;
     }
     int row = findRow(id);
     beginInsertRows(QModelIndex(), row, row);

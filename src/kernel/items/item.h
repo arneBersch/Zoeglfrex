@@ -15,6 +15,7 @@ class Kernel;
 class Model;
 class Fixture;
 class Group;
+class Raw;
 
 class Item {
 public:
@@ -33,6 +34,7 @@ public:
     QMap<QString, float> angleAttributes;
     QMap<QString, QMap<Model*, float>> modelSpecificAngleAttributes;
     QMap<QString, QMap<Fixture*, float>> fixtureSpecificAngleAttributes;
+    QMap<QString, QList<Raw*>> rawListAttributes;
     QMap<QString, bool> boolAttributes;
 protected:
     Kernel *kernel;

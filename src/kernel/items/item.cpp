@@ -24,6 +24,7 @@ Item::Item(const Item* item) {
     modelSpecificAngleAttributes = item->modelSpecificAngleAttributes;
     fixtureSpecificAngleAttributes = item->fixtureSpecificAngleAttributes;
     boolAttributes = item->boolAttributes;
+    rawListAttributes = item->rawListAttributes;
 }
 
 Item::~Item() {}
@@ -45,18 +46,21 @@ void Item::writeAttributesToFile(QXmlStreamWriter *fileStream) {
         fileStream->writeCharacters(stringAttributes.value(attribute));
         fileStream->writeEndElement();
     }
+
     for (QString attribute : intAttributes.keys()) {
         fileStream->writeStartElement("Attribute");
         fileStream->writeAttribute("ID", attribute);
         fileStream->writeCharacters(QString::number(intAttributes.value(attribute)));
         fileStream->writeEndElement();
     }
+
     for (QString attribute : floatAttributes.keys()) {
         fileStream->writeStartElement("Attribute");
         fileStream->writeAttribute("ID", attribute);
         fileStream->writeCharacters(QString::number(floatAttributes.value(attribute)));
         fileStream->writeEndElement();
     }
+
     for (QString attribute : modelSpecificFloatAttributes.keys()) {
         for (Model* model : modelSpecificFloatAttributes.value(attribute).keys()) {
             fileStream->writeStartElement("Attribute");
@@ -66,6 +70,7 @@ void Item::writeAttributesToFile(QXmlStreamWriter *fileStream) {
             fileStream->writeEndElement();
         }
     }
+
     for (QString attribute : fixtureSpecificFloatAttributes.keys()) {
         for (Fixture* fixture : fixtureSpecificFloatAttributes.value(attribute).keys()) {
             fileStream->writeStartElement("Attribute");
@@ -75,12 +80,14 @@ void Item::writeAttributesToFile(QXmlStreamWriter *fileStream) {
             fileStream->writeEndElement();
         }
     }
+
     for (QString attribute : angleAttributes.keys()) {
         fileStream->writeStartElement("Attribute");
         fileStream->writeAttribute("ID", attribute);
         fileStream->writeCharacters(QString::number(angleAttributes.value(attribute)));
         fileStream->writeEndElement();
     }
+
     for (QString attribute : modelSpecificAngleAttributes.keys()) {
         for (Model* model : modelSpecificAngleAttributes.value(attribute).keys()) {
             fileStream->writeStartElement("Attribute");
@@ -90,6 +97,7 @@ void Item::writeAttributesToFile(QXmlStreamWriter *fileStream) {
             fileStream->writeEndElement();
         }
     }
+
     for (QString attribute : fixtureSpecificAngleAttributes.keys()) {
         for (Fixture* fixture : fixtureSpecificAngleAttributes.value(attribute).keys()) {
             fileStream->writeStartElement("Attribute");
@@ -99,6 +107,7 @@ void Item::writeAttributesToFile(QXmlStreamWriter *fileStream) {
             fileStream->writeEndElement();
         }
     }
+
     for (QString attribute : boolAttributes.keys()) {
         fileStream->writeStartElement("Attribute");
         fileStream->writeAttribute("ID", attribute);
@@ -107,6 +116,17 @@ void Item::writeAttributesToFile(QXmlStreamWriter *fileStream) {
             valueText = "1";
         }
         fileStream->writeCharacters(valueText);
+        fileStream->writeEndElement();
+    }
+
+    for (QString attribute : rawListAttributes.keys()) {
+        fileStream->writeStartElement("Attribute");
+        fileStream->writeAttribute("ID", attribute);
+        QStringList raws;
+        for (Raw* raw : rawListAttributes.value(attribute)) {
+            raws.append(raw->id);
+        }
+        fileStream->writeCharacters(raws.join("+"));
         fileStream->writeEndElement();
     }
 }

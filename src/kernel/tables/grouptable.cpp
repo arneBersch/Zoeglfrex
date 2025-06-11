@@ -70,7 +70,7 @@ void GroupTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QL
             if (addFixtures) {
                 kernel->terminal->success("Added " + QString::number(fixtureSelection.length()) + " Fixtures to " + QString::number(ids.length()) + " Groups.");
             } else {
-                kernel->terminal->success("Set Fixtures of " + QString::number(ids.length()) + " Groups to " + QString::number(fixtureSelection.length()) + " Fixtures.");
+                kernel->terminal->success("Added " + QString::number(fixtureSelection.length()) + " Fixtures to " + QString::number(ids.length()) + " Groups.");
             }
         }
     } else {

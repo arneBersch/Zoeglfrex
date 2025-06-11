@@ -11,7 +11,7 @@
 
 #include <QtWidgets>
 
-class Fixture;
+class Raw;
 
 struct StringAttribute {
     QString name = QString();
@@ -45,6 +45,11 @@ struct BoolAttribute {
     bool value = false;
 };
 
+struct RawListAttribute {
+    QString name = QString();
+    QList<Raw*> value = QList<Raw*>();
+};
+
 class Kernel;
 
 template <class T> class ItemTable : public QAbstractTableModel {
@@ -71,6 +76,7 @@ public:
     QMap<QString, AngleAttribute> modelSpecificAngleAttributes;
     QMap<QString, AngleAttribute> fixtureSpecificAngleAttributes;
     QMap<QString, BoolAttribute> boolAttributes;
+    QMap<QString, RawListAttribute> rawListAttributes;
 protected:
     virtual T* addItem(QString id);
     Kernel *kernel;
