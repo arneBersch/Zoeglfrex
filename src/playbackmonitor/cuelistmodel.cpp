@@ -18,7 +18,7 @@ int CuelistModel::rowCount(const QModelIndex&) const {
 }
 
 int CuelistModel::columnCount(const QModelIndex&) const {
-    return 4;
+    return 5;
 }
 
 QVariant CuelistModel::data(const QModelIndex &index, const int role) const {
@@ -44,6 +44,8 @@ QVariant CuelistModel::data(const QModelIndex &index, const int role) const {
             }
             return "No Cue selected";
             return QVariant();
+        } else if (column == CuelistModelColumns::dimmer) {
+            return QString::number(cuelist->floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID)) + "%";
         } else {
             return QVariant();
         }
@@ -64,6 +66,8 @@ QVariant CuelistModel::headerData(int column, Qt::Orientation orientation, int r
             return "Cuelist";
         } else if (column == CuelistModelColumns::currentCue) {
             return "Cue";
+        } else if (column == CuelistModelColumns::dimmer) {
+            return "Dimmer";
         } else {
             return QVariant();
         }

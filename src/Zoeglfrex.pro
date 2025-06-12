@@ -44,8 +44,8 @@ SOURCES += \
     kernel/tables/rawtable.cpp \
     main.cpp \
     mainwindow/mainwindow.cpp \
-    playbackview/cuelistmodel.cpp \
-    playbackview/playbackview.cpp \
+    playbackmonitor/cuelistmodel.cpp \
+    playbackmonitor/playbackmonitor.cpp \
     preview2d/fixturegraphicsitem.cpp \
     preview2d/preview2d.cpp \
     terminal/terminal.cpp
@@ -83,8 +83,8 @@ HEADERS += \
     kernel/tables/positiontable.h \
     kernel/tables/rawtable.h \
     mainwindow/mainwindow.h \
-    playbackview/cuelistmodel.h \
-    playbackview/playbackview.h \
+    playbackmonitor/cuelistmodel.h \
+    playbackmonitor/playbackmonitor.h \
     preview2d/fixturegraphicsitem.h \
     preview2d/preview2d.h \
     terminal/terminal.h

@@ -26,7 +26,7 @@
 #include "dmxengine/dmxengine.h"
 #include "preview2d/preview2d.h"
 #include "controlpanel/controlpanel.h"
-#include "playbackview/playbackview.h"
+#include "playbackmonitor/playbackmonitor.h"
 #include "mainwindow/mainwindow.h"
 
 class Kernel {
@@ -51,7 +51,7 @@ public:
     DmxEngine *dmxEngine;
     Preview2d *preview2d;
     ControlPanel *controlPanel;
-    PlaybackView *playbackView;
+    PlaybackMonitor *playbackMonitor;
     QMutex *mutex;
     const QString VERSION = "0.5.0";
 

@@ -6,8 +6,8 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef PLAYBACKVIEW_H
-#define PLAYBACKVIEW_H
+#ifndef PLAYBACKMONITOR_H
+#define PLAYBACKMONITOR_H
 
 #include <QtWidgets>
 #include "cuelistmodel.h"
@@ -15,9 +15,9 @@
 class Kernel;
 class Cuelist;
 
-class PlaybackView : public QWidget {
+class PlaybackMonitor : public QWidget {
 public:
-    PlaybackView(Kernel* core);
+    PlaybackMonitor(Kernel* core);
     void reset();
 private:
     QTableView* tableView;
@@ -25,4 +25,4 @@ private:
     Kernel* kernel;
 };
 
-#endif // PLAYBACKVIEW_H
+#endif // PLAYBACKMONITOR_H

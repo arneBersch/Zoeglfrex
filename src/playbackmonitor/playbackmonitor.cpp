@@ -6,14 +6,14 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "playbackview.h"
+#include "playbackmonitor.h"
 #include "kernel/kernel.h"
 
-PlaybackView::PlaybackView(Kernel* core) {
+PlaybackMonitor::PlaybackMonitor(Kernel* core) {
     kernel = core;
 
     kernel->mainWindow->setupShortcuts(this);
-    setWindowTitle("Zöglfrex Playback View");
+    setWindowTitle("Zöglfrex Playback Monitor");
     resize(500, 300);
 
     QVBoxLayout *layout = new QVBoxLayout();
@@ -31,7 +31,7 @@ PlaybackView::PlaybackView(Kernel* core) {
     tableView->setModel(cuelistModel);
 }
 
-void PlaybackView::reset() {
+void PlaybackMonitor::reset() {
     cuelistModel->reset();
     for (Cuelist* cuelist : kernel->cuelists->items) {
         int cuelistRow = kernel->cuelists->items.indexOf(cuelist);
