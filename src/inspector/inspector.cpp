@@ -8,8 +8,7 @@
 
 #include "inspector.h"
 
-Inspector::Inspector(Kernel *core, QWidget *parent) : QWidget{parent}
-{
+Inspector::Inspector(Kernel *core, QWidget *parent) : QWidget(parent) {
     kernel = core;
     QVBoxLayout *layout = new QVBoxLayout(this);
     title = new QLabel();
@@ -26,8 +25,7 @@ Inspector::Inspector(Kernel *core, QWidget *parent) : QWidget{parent}
     infos->hide();
 }
 
-void Inspector::load(QList<int> keys)
-{
+void Inspector::load(QList<int> keys) {
     table->reset();
     int itemType = Keys::Zero;
     QList<int> itemIdKeys;
@@ -106,8 +104,6 @@ void Inspector::load(QList<int> keys)
             table->setModel(cuelist->cues);
             item = cuelist->cues->getItem(id);
         }
-    } else {
-        return;
     }
     if (item == nullptr) {
         infos->hide();
