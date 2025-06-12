@@ -46,8 +46,8 @@ QString Cuelist::info() {
 }
 
 void Cuelist::writeAttributesToFile(QXmlStreamWriter* fileStream) {
-    cues->saveItemsToFile(fileStream);
     Item::writeAttributesToFile(fileStream);
+    cues->saveItemsToFile(fileStream);
     if (currentCue != nullptr) {
         fileStream->writeStartElement("Attribute");
         fileStream->writeAttribute("ID", kernel->CUELISTCUEATTRIBUTEID);
