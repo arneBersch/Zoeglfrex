@@ -14,8 +14,13 @@ QWidget, QFrame, QInputDialog, QMessageBox, QDialog, QMenu::item:selected {
     background-color: #151515;
 }
 
-QPushButton, QComboBox, QTextEdit, QSpinBox, QLineEdit, QHeaderView {
+QPushButton, QComboBox, QTextEdit, QSpinBox, QLineEdit, QHeaderView, QSlider::sub-page:horizontal, QSlider::add-page:horizontal {
     background-color: #303030;
+    border-radius: 0px;
+}
+
+QSlider::handle:horizontal {
+    background-color: white;
     border-radius: 0px;
 }
 

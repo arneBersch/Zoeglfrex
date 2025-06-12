@@ -49,11 +49,9 @@ void PlaybackMonitor::reset() {
         dimmerSlider->setRange(0, 100);
         dimmerSlider->setValue(cuelist->floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID));
         connect(dimmerSlider, &QSlider::sliderReleased, this, [this, cuelist, dimmerSlider] {
-            kernel->terminal->printMessages = false;
             QMap<int, QString> attributes;
             attributes[Keys::Attribute] = kernel->CUELISTDIMMERATTRIBUTEID;
             kernel->cuelists->setAttribute({cuelist->id}, attributes, QList<int>(), QString::number(dimmerSlider->value()));
-            kernel->terminal->printMessages = true;
             kernel->cuelistView->reload();
         });
         tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::dimmer), dimmerSlider);
