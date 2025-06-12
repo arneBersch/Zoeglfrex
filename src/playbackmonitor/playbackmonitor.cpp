@@ -35,12 +35,27 @@ void PlaybackMonitor::reset() {
     cuelistModel->reset();
     for (Cuelist* cuelist : kernel->cuelists->items) {
         int cuelistRow = kernel->cuelists->items.indexOf(cuelist);
-        QPushButton* goButton = new QPushButton("GO");
-        connect(goButton, &QPushButton::clicked, this, [cuelist] { cuelist->go(); });
-        tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::goButton), goButton);
 
         QPushButton* goBackButton = new QPushButton("GO BACK");
         connect(goBackButton, &QPushButton::clicked, this, [cuelist] { cuelist->goBack(); });
         tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::goBackButton), goBackButton);
+
+        QPushButton* goButton = new QPushButton("GO");
+        connect(goButton, &QPushButton::clicked, this, [cuelist] { cuelist->go(); });
+        tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::goButton), goButton);
+
+        QSlider* dimmerSlider = new QSlider();
+        dimmerSlider->setOrientation(Qt::Horizontal);
+        dimmerSlider->setRange(0, 100);
+        dimmerSlider->setValue(cuelist->floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID));
+        connect(dimmerSlider, &QSlider::sliderReleased, this, [this, cuelist, dimmerSlider] {
+            kernel->terminal->printMessages = false;
+            QMap<int, QString> attributes;
+            attributes[Keys::Attribute] = kernel->CUELISTDIMMERATTRIBUTEID;
+            kernel->cuelists->setAttribute({cuelist->id}, attributes, QList<int>(), QString::number(dimmerSlider->value()));
+            kernel->terminal->printMessages = true;
+            kernel->cuelistView->reload();
+        });
+        tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::dimmer), dimmerSlider);
     }
 }

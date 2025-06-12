@@ -44,8 +44,6 @@ QVariant CuelistModel::data(const QModelIndex &index, const int role) const {
             }
             return "No Cue selected";
             return QVariant();
-        } else if (column == CuelistModelColumns::dimmer) {
-            return QString::number(cuelist->floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID)) + "%";
         } else {
             return QVariant();
         }

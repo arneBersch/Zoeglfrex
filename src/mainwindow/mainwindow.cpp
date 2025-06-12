@@ -46,13 +46,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QAction *playbackMonitorAction = new QAction("Playback Monitor");
     outputMenu->addAction(playbackMonitorAction);
     connect(playbackMonitorAction, &QAction::triggered, this, [this]{ kernel->playbackMonitor->show(); });
-    outputMenu->addSeparator();
-    QAction *goAction = new QAction("Go to next Cue (Space)");
-    outputMenu->addAction(goAction);
-    connect(goAction, &QAction::triggered, this, [this]{ kernel->cuelistView->nextCue(); });
-    QAction *goBackAction = new QAction("Go to previous Cue (SHIFT+Space)");
-    outputMenu->addAction(goBackAction);
-    connect(goBackAction, &QAction::triggered, this, [this]{ kernel->cuelistView->previousCue(); });
 
     QMenu *helpMenu = menuBar()->addMenu("Help");
     QAction *aboutAction = new QAction("About Zöglfrex");
