@@ -140,9 +140,27 @@ void MainWindow::setupShortcuts(QWidget* widget) {
 
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_B), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->blindButton->click(); }); // Blind
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->skipFadeButton->click(); }); // Skip Fade
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_G), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->cueViewModeComboBox->setCurrentIndex(CuelistViewModes::groupMode); }); // Cuelist View Group Mode
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_H), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->highlightButton->click(); }); // Highlight
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Q), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->cueViewModeComboBox->setCurrentIndex(CuelistViewModes::cueMode); }); // Cuelist View Cue Mode
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_M), widget), &QShortcut::activated, this, [this]{
+        if (kernel->cuelistView->cueViewModeComboBox->currentIndex() == CuelistViewModes::cueMode) {
+            kernel->cuelistView->cueViewModeComboBox->setCurrentIndex(CuelistViewModes::groupMode);
+        } else if (kernel->cuelistView->cueViewModeComboBox->currentIndex() == CuelistViewModes::groupMode) {
+            kernel->cuelistView->cueViewModeComboBox->setCurrentIndex(CuelistViewModes::cueMode);
+        } else {
+            Q_ASSERT(false);
+        }
+    }); // Set Cuelist View Mode
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_R), widget), &QShortcut::activated, this, [this]{
+        if (kernel->cuelistView->cueViewRowFilterComboBox->currentIndex() == CuelistViewRowFilters::noFilter) {
+            kernel->cuelistView->cueViewRowFilterComboBox->setCurrentIndex(CuelistViewRowFilters::activeRowsFilter);
+        } else if (kernel->cuelistView->cueViewRowFilterComboBox->currentIndex() == CuelistViewRowFilters::activeRowsFilter) {
+            kernel->cuelistView->cueViewRowFilterComboBox->setCurrentIndex(CuelistViewRowFilters::changedRowsFilter);
+        } else if (kernel->cuelistView->cueViewRowFilterComboBox->currentIndex() == CuelistViewRowFilters::changedRowsFilter) {
+            kernel->cuelistView->cueViewRowFilterComboBox->setCurrentIndex(CuelistViewRowFilters::noFilter);
+        } else {
+            Q_ASSERT(false);
+        }
+    }); // Set Cuelist View Rows Filter
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_S), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->soloButton->click(); }); // Solo
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_T), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->trackingButton->click(); }); // Tracking
 

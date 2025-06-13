@@ -38,12 +38,12 @@ CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
     trackingButton->setChecked(true);
     buttonHeader->addWidget(trackingButton);
 
-    filterComboBox = new QComboBox();
-    filterComboBox->insertItem(CuelistViewFilters::noFilter, "All Rows");
-    filterComboBox->insertItem(CuelistViewFilters::activeRowsFilter, "Active Rows only");
-    filterComboBox->insertItem(CuelistViewFilters::changedRowsFilter, "Changed Rows only");
-    connect(filterComboBox, &QComboBox::currentIndexChanged, this, &CuelistView::updateCuelistView);
-    buttonHeader->addWidget(filterComboBox);
+    cueViewRowFilterComboBox = new QComboBox();
+    cueViewRowFilterComboBox->insertItem(CuelistViewRowFilters::noFilter, "All Rows");
+    cueViewRowFilterComboBox->insertItem(CuelistViewRowFilters::activeRowsFilter, "Active Rows only");
+    cueViewRowFilterComboBox->insertItem(CuelistViewRowFilters::changedRowsFilter, "Changed Rows only");
+    connect(cueViewRowFilterComboBox, &QComboBox::currentIndexChanged, this, &CuelistView::updateCuelistView);
+    buttonHeader->addWidget(cueViewRowFilterComboBox);
 
     cueModel = new CueModel(kernel);
     groupModel = new GroupModel(kernel);

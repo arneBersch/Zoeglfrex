@@ -132,9 +132,9 @@ QVariant CueModel::headerData(int column, Qt::Orientation orientation, int role)
 
 QList<Group*> CueModel::getGroupRows() const {
     QList<Group*> groups;
-    if (kernel->cuelistView->filterComboBox->currentIndex() == CuelistViewFilters::noFilter) {
+    if (kernel->cuelistView->cueViewRowFilterComboBox->currentIndex() == CuelistViewRowFilters::noFilter) {
         groups = kernel->groups->items;
-    } else if (kernel->cuelistView->filterComboBox->currentIndex() == CuelistViewFilters::activeRowsFilter) {
+    } else if (kernel->cuelistView->cueViewRowFilterComboBox->currentIndex() == CuelistViewRowFilters::activeRowsFilter) {
         if (kernel->cuelistView->selectedCue() == nullptr) {
             return QList<Group*>();
         }
@@ -147,7 +147,7 @@ QList<Group*> CueModel::getGroupRows() const {
                 groups.append(group);
             }
         }
-    } else if (kernel->cuelistView->filterComboBox->currentIndex() == CuelistViewFilters::changedRowsFilter) {
+    } else if (kernel->cuelistView->cueViewRowFilterComboBox->currentIndex() == CuelistViewRowFilters::changedRowsFilter) {
         if (kernel->cuelistView->selectedCue() == nullptr) {
             return QList<Group*>();
         }

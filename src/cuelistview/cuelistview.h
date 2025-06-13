@@ -26,7 +26,7 @@ enum {
 };
 }
 
-namespace CuelistViewFilters {
+namespace CuelistViewRowFilters {
 enum {
     noFilter,
     activeRowsFilter,
@@ -58,7 +58,7 @@ public:
     QPushButton* trackingButton;
     void updateCuelistView();
     QComboBox *cueViewModeComboBox;
-    QComboBox *filterComboBox;
+    QComboBox *cueViewRowFilterComboBox;
 private:
     Kernel *kernel;
     QTableView *cuelistTableView;

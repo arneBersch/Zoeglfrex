@@ -133,9 +133,9 @@ QList<Cue*> GroupModel::getCueRows() const {
         return QList<Cue*>();
     }
     QList<Cue*> cues;
-    if (kernel->cuelistView->filterComboBox->currentIndex() == CuelistViewFilters::noFilter) {
+    if (kernel->cuelistView->cueViewRowFilterComboBox->currentIndex() == CuelistViewRowFilters::noFilter) {
         cues = kernel->cuelistView->currentCuelist->cues->items;
-    } else if (kernel->cuelistView->filterComboBox->currentIndex() == CuelistViewFilters::activeRowsFilter) {
+    } else if (kernel->cuelistView->cueViewRowFilterComboBox->currentIndex() == CuelistViewRowFilters::activeRowsFilter) {
         for (Cue* cue : kernel->cuelistView->currentCuelist->cues->items) {
             if (cue->intensities.contains(kernel->cuelistView->currentGroup)
                 || cue->colors.contains(kernel->cuelistView->currentGroup)
@@ -145,7 +145,7 @@ QList<Cue*> GroupModel::getCueRows() const {
                 cues.append(cue);
             }
         }
-    } else if (kernel->cuelistView->filterComboBox->currentIndex() == CuelistViewFilters::changedRowsFilter) {
+    } else if (kernel->cuelistView->cueViewRowFilterComboBox->currentIndex() == CuelistViewRowFilters::changedRowsFilter) {
         for (Cue* cue : kernel->cuelistView->currentCuelist->cues->items) {
             if (kernel->cuelistView->currentCuelist->cues->items.indexOf(cue) <= 0) {
                 if (cue->intensities.contains(kernel->cuelistView->currentGroup)
