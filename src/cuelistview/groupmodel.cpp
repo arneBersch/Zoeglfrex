@@ -156,7 +156,7 @@ QList<Cue*> GroupModel::getCueRows() const {
                     cues.append(cue);
                 }
             } else {
-                Cue* formerCue = kernel->cuelistView->currentCuelist->cues->items[getCueRows().indexOf(cue) - 1];
+                Cue* formerCue = kernel->cuelistView->currentCuelist->cues->items[kernel->cuelistView->currentCuelist->cues->items.indexOf(cue) - 1];
                 if ((cue->intensities.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->intensities.value(kernel->cuelistView->currentGroup, nullptr))
                     || (cue->colors.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->colors.value(kernel->cuelistView->currentGroup, nullptr))
                     || (cue->positions.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->positions.value(kernel->cuelistView->currentGroup, nullptr))

@@ -143,8 +143,7 @@ QList<Group*> CueModel::getGroupRows() const {
                 || kernel->cuelistView->selectedCue()->colors.contains(group)
                 || kernel->cuelistView->selectedCue()->positions.contains(group)
                 || kernel->cuelistView->selectedCue()->raws.contains(group)
-                || kernel->cuelistView->selectedCue()->effects.contains(kernel->cuelistView->currentGroup)
-            ) {
+                || kernel->cuelistView->selectedCue()->effects.contains(group)) {
                 groups.append(group);
             }
         }
@@ -163,11 +162,11 @@ QList<Group*> CueModel::getGroupRows() const {
                 }
             } else {
                 Cue* formerCue = kernel->cuelistView->currentCuelist->cues->items[kernel->cuelistView->currentCuelist->cues->items.indexOf(kernel->cuelistView->selectedCue()) - 1];
-                if ((kernel->cuelistView->selectedCue()->intensities.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->intensities.value(kernel->cuelistView->currentGroup, nullptr))
-                    || (kernel->cuelistView->selectedCue()->colors.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->colors.value(kernel->cuelistView->currentGroup, nullptr))
-                    || (kernel->cuelistView->selectedCue()->positions.value(kernel->cuelistView->currentGroup, nullptr) != formerCue->positions.value(kernel->cuelistView->currentGroup, nullptr))
-                    || (kernel->cuelistView->selectedCue()->raws.value(kernel->cuelistView->currentGroup, QList<Raw*>()) != formerCue->raws.value(kernel->cuelistView->currentGroup, QList<Raw*>()))
-                    || (kernel->cuelistView->selectedCue()->effects.value(kernel->cuelistView->currentGroup, QList<Effect*>()) != formerCue->effects.value(kernel->cuelistView->currentGroup, QList<Effect*>()))
+                if ((kernel->cuelistView->selectedCue()->intensities.value(group, nullptr) != formerCue->intensities.value(group, nullptr))
+                    || (kernel->cuelistView->selectedCue()->colors.value(group, nullptr) != formerCue->colors.value(group, nullptr))
+                    || (kernel->cuelistView->selectedCue()->positions.value(group, nullptr) != formerCue->positions.value(group, nullptr))
+                    || (kernel->cuelistView->selectedCue()->raws.value(group, QList<Raw*>()) != formerCue->raws.value(group, QList<Raw*>()))
+                    || (kernel->cuelistView->selectedCue()->effects.value(group, QList<Effect*>()) != formerCue->effects.value(group, QList<Effect*>()))
                     ) {
                     groups.append(group);
                 }
