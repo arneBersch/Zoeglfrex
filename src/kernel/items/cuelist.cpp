@@ -40,8 +40,16 @@ QString Cuelist::info() {
         cue = currentCue->name();
     }
     info += "\n" + kernel->CUELISTCUEATTRIBUTEID + " Current Cue: " + cue;
-    info += "\n" + kernel->CUELISTDIMMERATTRIBUTEID + " Dimmer: " + QString::number(floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID)) + "%";
+
     info += "\n" + kernel->CUELISTPRIORITYATTRIBUTEID + " Priority: " + QString::number(intAttributes.value(kernel->CUELISTPRIORITYATTRIBUTEID));
+
+    info += "\n" + kernel->CUELISTMOVEWHILEDARKATTRIBUTEID + " Move while Dark: ";
+    if (boolAttributes.value(kernel->CUELISTMOVEWHILEDARKATTRIBUTEID)) {
+        info += "True";
+    } else {
+        info += "False";
+    }
+
     return info;
 }
 

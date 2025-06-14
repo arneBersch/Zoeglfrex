@@ -186,7 +186,6 @@ void DmxEngine::generateDmx() {
                         fixtureRaws[fixture][channel] = value;
                     }
                 }
-                dimmer *= (cuelist->floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID) / 100);
                 if (dimmer > fixtureDimmer.value(fixture, 0)) {
                     fixtureDimmer[fixture] = dimmer;
                 }
@@ -218,7 +217,7 @@ void DmxEngine::generateDmx() {
             int cueDifference = -1;
             int cuelistPriority = 0;
             for (Cuelist* cuelist : kernel->cuelists->items) {
-                if (cuelist->currentCue != nullptr) {
+                if ((cuelist->currentCue != nullptr) && cuelist->boolAttributes.value(kernel->CUELISTMOVEWHILEDARKATTRIBUTEID)) {
                     int cueRow = cuelist->cues->getItemRow(cuelist->currentCue->id);
                     rgbColor color = {};
                     positionAngles position = {};
@@ -349,7 +348,7 @@ void DmxEngine::generateDmx() {
                 color.blue -= white * (color.quality / 100);
             }
 
-            if (!fixture->boolAttributes.value(kernel->FIXTUREINVERTPANATTRIBUTE)) {
+            if (!fixture->boolAttributes.value(kernel->FIXTUREINVERTPANATTRIBUTEID)) {
                 position.pan = fixture->angleAttributes.value(kernel->FIXTUREROTATIONATTRIBUTEID) + position.pan;
             } else {
                 position.pan = fixture->angleAttributes.value(kernel->FIXTUREROTATIONATTRIBUTEID) - position.pan;

@@ -19,7 +19,6 @@ enum {
     currentCue,
     goBackButton,
     goButton,
-    dimmer,
 };
 }
 

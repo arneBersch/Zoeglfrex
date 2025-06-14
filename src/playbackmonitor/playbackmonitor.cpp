@@ -43,17 +43,5 @@ void PlaybackMonitor::reset() {
         QPushButton* goButton = new QPushButton("GO");
         connect(goButton, &QPushButton::clicked, this, [cuelist] { cuelist->go(); });
         tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::goButton), goButton);
-
-        QSlider* dimmerSlider = new QSlider();
-        dimmerSlider->setOrientation(Qt::Horizontal);
-        dimmerSlider->setRange(0, 100);
-        dimmerSlider->setValue(cuelist->floatAttributes.value(kernel->CUELISTDIMMERATTRIBUTEID));
-        connect(dimmerSlider, &QSlider::sliderReleased, this, [this, cuelist, dimmerSlider] {
-            QMap<int, QString> attributes;
-            attributes[Keys::Attribute] = kernel->CUELISTDIMMERATTRIBUTEID;
-            kernel->cuelists->setAttribute({cuelist->id}, attributes, QList<int>(), QString::number(dimmerSlider->value()));
-            kernel->cuelistView->reload();
-        });
-        tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::dimmer), dimmerSlider);
     }
 }

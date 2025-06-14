@@ -133,14 +133,18 @@ QString Fixture::info() {
     }
     info += "\n" + kernel->FIXTUREADDRESSATTRIBUTEID + " Address: " + QString::number(intAttributes.value(kernel->FIXTUREADDRESSATTRIBUTEID));
     info += "\n" + kernel->FIXTUREUNIVERSEATTRIBUTEID + " Universe: " + QString::number(intAttributes.value(kernel->FIXTUREUNIVERSEATTRIBUTEID));
+
     info += "\n" + kernel->FIXTUREPOSITIONXATTRIBUTEID + " X Position: " + QString::number(floatAttributes.value(kernel->FIXTUREPOSITIONXATTRIBUTEID));
     info += "\n" + kernel->FIXTUREPOSITIONYATTRIBUTEID + " Y Position: " + QString::number(floatAttributes.value(kernel->FIXTUREPOSITIONYATTRIBUTEID));
     info += "\n" + kernel->FIXTUREROTATIONATTRIBUTEID + " Rotation: " + QString::number(angleAttributes.value(kernel->FIXTUREROTATIONATTRIBUTEID)) + "°";
-    if (boolAttributes.value(kernel->FIXTUREINVERTPANATTRIBUTE)) {
-        info += "\n" + kernel->FIXTUREINVERTPANATTRIBUTE + " Invert Pan: True";
+
+    info += "\n" + kernel->FIXTUREINVERTPANATTRIBUTEID + " Invert Pan: ";
+    if (boolAttributes.value(kernel->FIXTUREINVERTPANATTRIBUTEID)) {
+        info += "True";
     } else {
-        info += "\n" + kernel->FIXTUREINVERTPANATTRIBUTE + " Invert Pan: False";
+        info += "False";
     }
+
     return info;
 }
 

@@ -9,8 +9,8 @@
 #include "cuelisttable.h"
 
 CuelistTable::CuelistTable(Kernel *core) : ItemTable(core, Keys::Cuelist, "Cuelist", "Cuelists") {
-    floatAttributes[kernel->CUELISTDIMMERATTRIBUTEID] = {"Dimmer", 100, 0, 100, "%"};
     intAttributes[kernel->CUELISTPRIORITYATTRIBUTEID] = {"Priority", 100, 0, 200};
+    boolAttributes[kernel->CUELISTMOVEWHILEDARKATTRIBUTEID] = {"Move while Dark", true};
 }
 
 void CuelistTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {

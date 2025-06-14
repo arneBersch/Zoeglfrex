@@ -14,7 +14,7 @@ FixtureTable::FixtureTable(Kernel *core) : ItemTable(core, Keys::Fixture, "Fixtu
     floatAttributes[kernel->FIXTUREPOSITIONXATTRIBUTEID] = {"X Position", 0, -100, 100};
     floatAttributes[kernel->FIXTUREPOSITIONYATTRIBUTEID] = {"Y Position", 0, -100, 100};
     angleAttributes[kernel->FIXTUREROTATIONATTRIBUTEID] = {"Rotation", 0};
-    boolAttributes[kernel->FIXTUREINVERTPANATTRIBUTE] = {"Invert Pan", false};
+    boolAttributes[kernel->FIXTUREINVERTPANATTRIBUTEID] = {"Invert Pan", false};
 }
 
 void FixtureTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {

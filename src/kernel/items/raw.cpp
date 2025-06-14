@@ -88,6 +88,7 @@ Raw::~Raw() {
 
 QString Raw::info() {
     QString info = Item::info();
+
     QStringList channelValue;
     for (int channel = 1; channel <= 512; channel++) {
         if (channelValues.contains(channel)) {
@@ -121,16 +122,21 @@ QString Raw::info() {
         }
     }
     info += "\n    Fixture Exceptions: " + fixtureChannelValue.join("; ");
+
+    info += "\n" + kernel->RAWMOVEWHILEDARKATTRIBUTEID + " Move while Dark: ";
     if (boolAttributes.value(kernel->RAWMOVEWHILEDARKATTRIBUTEID)) {
-        info += "\n" + kernel->RAWMOVEWHILEDARKATTRIBUTEID + " Move while Dark: True";
+        info += "True";
     } else {
-        info += "\n" + kernel->RAWMOVEWHILEDARKATTRIBUTEID + " Move while Dark: False";
+        info += "False";
     }
+
+    info += "\n" + kernel->RAWFADEATTRIBUTEID + " Fade: ";
     if (boolAttributes.value(kernel->RAWFADEATTRIBUTEID)) {
-        info += "\n" + kernel->RAWFADEATTRIBUTEID + " Fade: True";
+        info += "True";
     } else {
-        info += "\n" + kernel->RAWFADEATTRIBUTEID + " Fade: False";
+        info += "False";
     }
+
     return info;
 }
 

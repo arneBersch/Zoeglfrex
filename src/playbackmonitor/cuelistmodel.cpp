@@ -18,7 +18,7 @@ int CuelistModel::rowCount(const QModelIndex&) const {
 }
 
 int CuelistModel::columnCount(const QModelIndex&) const {
-    return 5;
+    return 4;
 }
 
 QVariant CuelistModel::data(const QModelIndex &index, const int role) const {
@@ -64,8 +64,6 @@ QVariant CuelistModel::headerData(int column, Qt::Orientation orientation, int r
             return "Cuelist";
         } else if (column == CuelistModelColumns::currentCue) {
             return "Cue";
-        } else if (column == CuelistModelColumns::dimmer) {
-            return "Dimmer";
         } else {
             return QVariant();
         }
