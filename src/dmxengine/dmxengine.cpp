@@ -98,28 +98,13 @@ void DmxEngine::generateDmx() {
             }
 
             for (Fixture* fixture : kernel->fixtures->items) {
-                float dimmer = 0;
-                if (currentCueFixtureDimmer.contains(fixture)) {
-                    dimmer = currentCueFixtureDimmer.value(fixture);
-                }
-                rgbColor color = {};
-                if (currentCueFixtureColor.contains(fixture)) {
-                    color = currentCueFixtureColor.value(fixture);
-                }
-                positionAngles position = {};
-                if (currentCueFixturePosition.contains(fixture)) {
-                    position = currentCueFixturePosition.value(fixture);
-                }
-                QMap<int, uint8_t> raws = QMap<int, uint8_t>();
-                if (currentCueFixtureRaws.contains(fixture)) {
-                    raws = currentCueFixtureRaws.value(fixture);
-                }
+                float dimmer = currentCueFixtureDimmer.value(fixture, 0);
+                rgbColor color = currentCueFixtureColor.value(fixture);
+                positionAngles position = currentCueFixturePosition.value(fixture, {});
+                QMap<int, uint8_t> raws = currentCueFixtureRaws.value(fixture, QMap<int, uint8_t>());;
 
                 if (cuelist->remainingFadeFrames > 0) {
-                    float lastCueDimmer = 0;
-                    if (lastCueFixtureDimmer.contains(fixture)) {
-                        lastCueDimmer = lastCueFixtureDimmer.value(fixture);
-                    }
+                    float lastCueDimmer = lastCueFixtureDimmer.value(fixture, 0);
                     dimmer += (lastCueDimmer - dimmer) * fade;
 
                     rgbColor lastCueColor = {};
@@ -161,29 +146,24 @@ void DmxEngine::generateDmx() {
 
                     QList<int> rawChannels;
                     rawChannels.append(currentCueFixtureRaws.value(fixture, QMap<int, uint8_t>()).keys());
-                    if (cuelist->remainingFadeFrames > 0) {
-                        rawChannels.append(lastCueFixtureRaws.value(fixture, QMap<int, uint8_t>()).keys());
-                    }
+                    rawChannels.append(lastCueFixtureRaws.value(fixture, QMap<int, uint8_t>()).keys());
                     for (int channel : rawChannels) {
-                        if (!fixtureRaws.contains(fixture)) {
-                            fixtureRaws[fixture] = QMap<int, uint8_t>();
-                        }
                         uint8_t value = 0;
                         if (currentCueFixtureRaws.value(fixture, QMap<int, uint8_t>()).contains(channel)) {
                             if (lastCueFixtureRaws.value(fixture, QMap<int, uint8_t>()).contains(channel)) {
                                 value = lastCueFixtureRaws.value(fixture).value(channel);
                             }
-                            if (currentCueFixtureRawsFade.value(fixture).value(channel) && (cuelist->remainingFadeFrames > 0)) {
+                            if (currentCueFixtureRawsFade.value(fixture).value(channel)) {
                                 value = currentCueFixtureRaws.value(fixture).value(channel) + (value - currentCueFixtureRaws.value(fixture).value(channel)) * fade;
                             } else {
                                 value = currentCueFixtureRaws.value(fixture).value(channel);
                             }
-                        } else if (!currentCueFixtureDimmer.contains(fixture) && lastCueFixtureDimmer.contains(fixture) && (cuelist->remainingFadeFrames > 0) && lastCueFixtureRaws.value(fixture, QMap<int, uint8_t>()).contains(channel)) {
+                        } else if (!currentCueFixtureDimmer.contains(fixture) && lastCueFixtureDimmer.contains(fixture) && lastCueFixtureRaws.value(fixture, QMap<int, uint8_t>()).contains(channel)) {
                             value = lastCueFixtureRaws.value(fixture).value(channel);
-                        } else if (lastCueFixtureRaws.value(fixture, QMap<int, uint8_t>()).contains(channel) && (cuelist->remainingFadeFrames > 0) && lastCueFixtureRawsFade.value(fixture, QMap<int, bool>()).value(channel)) {
+                        } else if (lastCueFixtureRaws.value(fixture, QMap<int, uint8_t>()).contains(channel) && lastCueFixtureRawsFade.value(fixture, QMap<int, bool>()).value(channel)) {
                             value = lastCueFixtureRaws.value(fixture).value(channel) * fade;
                         }
-                        fixtureRaws[fixture][channel] = value;
+                        raws[channel] = value;
                     }
                 }
                 if (dimmer > fixtureDimmer.value(fixture, 0)) {
@@ -204,7 +184,7 @@ void DmxEngine::generateDmx() {
                             fixtureRaws[fixture] = QMap<int, uint8_t>();
                             fixtureRawsPriority[fixture] = QMap<int, int>();
                         }
-                        fixtureRaws[fixture][channel] = fixtureRaws.value(fixture).value(channel);
+                        fixtureRaws[fixture][channel] = raws.value(channel);
                         fixtureRawsPriority[fixture][channel] = cuelist->intAttributes.value(kernel->CUELISTPRIORITYATTRIBUTEID);
                     }
                 }
@@ -426,7 +406,7 @@ void DmxEngine::generateDmx() {
                 } else {
                     Q_ASSERT(false);
                 }
-                Q_ASSERT((value <= 100) && (value >= 0));;
+                Q_ASSERT((value <= 100) && (value >= 0));
 
                 if (channel <= 512) {
                     value *= 655.35;
@@ -438,7 +418,7 @@ void DmxEngine::generateDmx() {
                 }
             }
 
-            for (int channel : fixtureRaws.value(fixture, QMap<int, uint8_t>())) {
+            for (int channel : fixtureRaws.value(fixture, QMap<int, uint8_t>()).keys()) {
                 if ((channel <= channels.size()) && ((address + channel - 1) <= 512)) {
                     dmxUniverses[universe][address + channel - 2] = fixtureRaws.value(fixture).value(channel);
                 }
@@ -463,18 +443,21 @@ void DmxEngine::renderCue(Cue* cue, QMap<Group*, QMap<Effect*, int>> oldGroupEff
             }
             raws.append(cue->intensities.value(group)->rawListAttributes.value(kernel->INTENSITYRAWSATTRIBUTEID));
         }
+
         if (cue->colors.contains(group)) {
             for (Fixture* fixture : group->fixtures) {
                 (*fixtureColors)[fixture] = cue->colors.value(group)->getRGB(fixture);
             }
             raws.append(cue->colors.value(group)->rawListAttributes.value(kernel->COLORRAWSATTRIBUTEID));
         }
+
         if (cue->positions.contains(group)) {
             for (Fixture* fixture : group->fixtures) {
                 (*fixturePositions)[fixture] = cue->positions.value(group)->getAngles(fixture);
             }
             raws.append(cue->positions.value(group)->rawListAttributes.value(kernel->POSITIONRAWSATTRIBUTEID));
         }
+
         if (cue->raws.contains(group)) {
             raws.append(cue->raws.value(group));
         }
@@ -491,6 +474,7 @@ void DmxEngine::renderCue(Cue* cue, QMap<Group*, QMap<Effect*, int>> oldGroupEff
                 }
             }
         }
+
         if (cue->effects.contains(group)) {
             for (Effect* effect : cue->effects.value(group)) {
                 groupEffectFrames[group][effect] = 0;

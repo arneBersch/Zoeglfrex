@@ -128,7 +128,7 @@ void Effect::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     }
 }
 
-int Effect::getStep(Fixture* fixture, int frame, float* fade) {
+int Effect::getStep(Fixture* fixture, int frame, float* fade) const {
     QList<int> stepFrames = QList<int>(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID), 0);
     QList<int> fadeFrames = QList<int>(intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID), 0);
     int totalFrames = 0;
@@ -167,7 +167,7 @@ int Effect::getStep(Fixture* fixture, int frame, float* fade) {
     return step;
 }
 
-float Effect::getDimmer(Fixture* fixture, int frame) {
+float Effect::getDimmer(Fixture* fixture, int frame) const {
     float dimmer = 0;
     if (!intensitySteps.isEmpty()) {
         float fade = 0;
@@ -186,7 +186,7 @@ float Effect::getDimmer(Fixture* fixture, int frame) {
     return dimmer;
 }
 
-rgbColor Effect::getRGB(Fixture* fixture, int frame) {
+rgbColor Effect::getRGB(Fixture* fixture, int frame) const {
     rgbColor color = {};
     if (!colorSteps.isEmpty()) {
         float fade = 0;
@@ -208,7 +208,7 @@ rgbColor Effect::getRGB(Fixture* fixture, int frame) {
     return color;
 }
 
-positionAngles Effect::getPosition(Fixture* fixture, int frame) {
+positionAngles Effect::getPosition(Fixture* fixture, int frame) const {
     positionAngles position = {};
     if (!positionSteps.isEmpty()) {
         float fade = 0;
@@ -239,7 +239,7 @@ positionAngles Effect::getPosition(Fixture* fixture, int frame) {
     return position;
 }
 
-QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMoveWhileDarkRaws) {
+QMap<int, uint8_t> Effect::getRaws(Fixture* fixture, int frame, bool renderMoveWhileDarkRaws) const {
     QMap<int, uint8_t> channels;
     for (int step = 1; step <= intAttributes.value(kernel->EFFECTSTEPSATTRIBUTEID); step++) {
         QList<Raw*> raws = QList<Raw*>();
