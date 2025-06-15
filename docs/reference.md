@@ -9,6 +9,7 @@
 - Position: P
 - Raw: R
 - Effect: E
+- Cuelist: L
 - Cue: Q
 
 ### Other keys
@@ -43,6 +44,15 @@
 - Execute command without clearing the Terminal: Shift + Return/Enter
 - Undo the last keypress in the command input: Backspace
 - Clear command input: Shift + Backspace
+
+- Toggle Blind: Shift + B
+- Toggle Highlight: Shift + H
+- Toggle Solo: Shift + S
+- Toggle Skip Fade: Shift + F
+- Toggle Tracking: Shift + T
+- Scroll through the Modes of the Cuelist View: Shift + M
+- Scroll through the Row filters of the Cuelist View: Shift + R
+
 - New File: Ctrl + N
 - Open File: Ctrl + O
 - Save File: Ctrl + S
@@ -50,7 +60,7 @@
 - Quit Zöglfrex: Ctrl + Q
 
 ## Item commands
-These commands can be executed with all types of Items (Models, Fixtures, Groups, Intensities, Colors, Raws, Cues).
+These commands can be executed with all types of Items (Models, Fixtures, Groups, Intensities, Colors, Positions, Raws, Cuelists, Cues).
 
 ### Item Attribute 0 Set (Move / Set ID)
 This command changes Attribute 0 (the ID) of the selected Item.
@@ -93,13 +103,15 @@ This command will remove Model 1 and 2.
 > - When deleting an Intensity, it will be removed from all Effects and Cues.
 > - When deleting a Color, it will be removed from all Effects and Cues.
 > - When deleting a Position, it will be removed from all Effects and Cues.
-> - When deleting a Raw, it will be removed from all Effects and Cues.
+> - When deleting a Raw, it will be removed from all Intensities, Colors, Positions, Effects and Cues.
 > - When deleting an Effect, it will be removed from all Cues.
+> - When deleting a Cuelist, all of its Cues will be deleted.
 
 ## Models
 If no Model Attribute is given, the standard Attribute 2 will be used.
 
 If no Model ID is given, the Model of the current Fixture will be used.
+If no Fixture is currently selected, all the Models of the Fixtures of the current Group will be used instead.
 
 ### Model Attribute 2 Set (Channels)
 This command doesn't take a value. Instead, it will open a popup where you can insert the Model's channels. These channels are currently supported:
@@ -123,6 +135,8 @@ This command doesn't take a value. Instead, it will open a popup where you can i
 - p (Pan fine)
 - T (Tilt)
 - t (Tilt fine)
+- Z (Zoom)
+- z (Zoom fine)
 - 0 (DMX value 0)
 - 1 (DMX value 255)
 
@@ -135,6 +149,14 @@ The Pan Range is given in degree.
 ### Model Attribute 3.2 Set (Tilt Range)
 If your Model supports the Tilt Attribute, you should set its Tilt Range so that Positions are rendered correctly.
 The Tilt Range is given in degree.
+
+### Model Attribute 4.1 Set (Minimal Zoom)
+If your Model supports the Zoom Attribute, you should set its Minimal and Maximal Zoom so that the Zoom can be rendered correctly.
+This value is given in degree.
+
+### Model Attribute 4.2 Set (Maximal Zoom)
+If your Model supports the Zoom Attribute, you should set its Minimal and Maximal Zoom so that the Zoom can be rendered correctly.
+This value is given in degree.
 
 ## Fixtures
 If no Fixture Attribute is given, the standard Attribute 3 will be used.
