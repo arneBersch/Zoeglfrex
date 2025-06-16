@@ -185,7 +185,7 @@ Note that as soon as you insert "Model", "Fixture" or "Group" in the Terminal, t
 Especially in situations when your setup is very complex, this can help you finding the right ID.
 
 ## Adding Values
-Now that we have finished setting up our rig, we have to add some values that we can add to our Cue.
+Now that we have finished setting up our rig, we have to add some values that we can add to our Cues.
 
 ### Adding Intensities
 An **Intensity** only holds one value, the Dimmer, which is given in percent:
@@ -223,7 +223,13 @@ You can call this Raw "Gobo".
 ## Adding Cues
 ### Adding Cues
 So let's finally generate some DMX output!
-Therefore, we need to add some **Cues** first.
+Therefore, we need to add a **Cuelist** first:
+```
+Cuelist 1 Attribute 1 Set
+```
+We will call this Cuelist "Main Playback".
+
+Now, we can add **Cues** to the Cuelist.
 `Cue Set` takes the Fade time of the Cue (in seconds) as an parameter:
 ```
 Cue 0 Set 0

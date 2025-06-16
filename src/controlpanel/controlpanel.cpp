@@ -14,7 +14,7 @@ ControlPanel::ControlPanel(Kernel* core) {
 
     kernel->mainWindow->setupShortcuts(this);
     setWindowTitle("Zöglfrex Control Panel");
-    resize(500, 300);
+    resize(700, 300);
 
     QGridLayout *layout = new QGridLayout();
     setLayout(layout);
