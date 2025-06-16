@@ -129,42 +129,18 @@ void Terminal::execute() {
             QStringList cueIds;
             cueIds.append(kernel->cuelistView->selectedCue()->id);
             int cueRow = kernel->cuelistView->currentCuelist->cues->getItemRow(kernel->cuelistView->selectedCue()->id) + 1;
+            Intensity* oldIntensity = kernel->cuelistView->selectedCue()->intensities.value(kernel->cuelistView->currentGroup, nullptr);
+            while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->intensities.value(kernel->cuelistView->currentGroup, nullptr) == oldIntensity)
+                && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
+                && kernel->cuelistView->trackingButton->isChecked()
+            ) {
+                cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
+                cueRow++;
+            }
             if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
-                if (kernel->cuelistView->selectedCue()->intensities.contains(kernel->cuelistView->currentGroup)) {
-                    Intensity* oldIntensity = kernel->cuelistView->selectedCue()->intensities.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->intensities.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->intensities.value(kernel->cuelistView->currentGroup) == oldIntensity)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                        && kernel->cuelistView->trackingButton->isChecked()
-                    ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                }
                 kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
             } else {
-                if (kernel->cuelistView->selectedCue()->intensities.contains(kernel->cuelistView->currentGroup)) {
-                    Intensity* oldIntensity = kernel->cuelistView->selectedCue()->intensities.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->intensities.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->intensities.value(kernel->cuelistView->currentGroup) == oldIntensity)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                        && kernel->cuelistView->trackingButton->isChecked()
-                    ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                } else {
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->intensities.contains(kernel->cuelistView->currentGroup)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                        && kernel->cuelistView->trackingButton->isChecked()
-                    ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                }
                 kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, command);
             }
         } else if (selectionType == Keys::Color) {
@@ -181,39 +157,18 @@ void Terminal::execute() {
             QStringList cueIds;
             cueIds.append(kernel->cuelistView->selectedCue()->id);
             int cueRow = kernel->cuelistView->currentCuelist->cues->getItemRow(kernel->cuelistView->selectedCue()->id) + 1;
+            Color* oldColor = kernel->cuelistView->selectedCue()->colors.value(kernel->cuelistView->currentGroup, nullptr);
+            while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                   && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->colors.value(kernel->cuelistView->currentGroup, nullptr) == oldColor)
+                   && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
+                   && kernel->cuelistView->trackingButton->isChecked()
+                   ) {
+                cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
+                cueRow++;
+            }
             if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
-                if (kernel->cuelistView->selectedCue()->colors.contains(kernel->cuelistView->currentGroup)) {
-                    Color* oldColor = kernel->cuelistView->selectedCue()->colors.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->colors.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->colors.value(kernel->cuelistView->currentGroup) == oldColor)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                    ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                }
                 kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
             } else {
-                if (kernel->cuelistView->selectedCue()->colors.contains(kernel->cuelistView->currentGroup)) {
-                    Color* oldColor = kernel->cuelistView->selectedCue()->colors.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->colors.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->colors.value(kernel->cuelistView->currentGroup) == oldColor)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                           ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                } else {
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->colors.contains(kernel->cuelistView->currentGroup)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                    ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                }
                 kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, command);
             }
         } else if (selectionType == Keys::Position) {
@@ -230,39 +185,18 @@ void Terminal::execute() {
             QStringList cueIds;
             cueIds.append(kernel->cuelistView->selectedCue()->id);
             int cueRow = kernel->cuelistView->currentCuelist->cues->getItemRow(kernel->cuelistView->selectedCue()->id) + 1;
+            Position* oldPosition = kernel->cuelistView->selectedCue()->positions.value(kernel->cuelistView->currentGroup, nullptr);
+            while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                   && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->positions.value(kernel->cuelistView->currentGroup, nullptr) == oldPosition)
+                   && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
+                   && kernel->cuelistView->trackingButton->isChecked()
+                   ) {
+                cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
+                cueRow++;
+            }
             if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
-                if (kernel->cuelistView->selectedCue()->positions.contains(kernel->cuelistView->currentGroup)) {
-                    Position* oldPosition = kernel->cuelistView->selectedCue()->positions.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->positions.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->positions.value(kernel->cuelistView->currentGroup) == oldPosition)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                    ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                }
                 kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
             } else {
-                if (kernel->cuelistView->selectedCue()->positions.contains(kernel->cuelistView->currentGroup)) {
-                    Position* oldPosition = kernel->cuelistView->selectedCue()->positions.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->positions.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->positions.value(kernel->cuelistView->currentGroup) == oldPosition)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                    ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                } else {
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->positions.contains(kernel->cuelistView->currentGroup)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                    ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                }
                 kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, command);
             }
         } else if (selectionType == Keys::Raw) {
@@ -279,39 +213,18 @@ void Terminal::execute() {
             QStringList cueIds;
             cueIds.append(kernel->cuelistView->selectedCue()->id);
             int cueRow = kernel->cuelistView->currentCuelist->cues->getItemRow(kernel->cuelistView->selectedCue()->id) + 1;
+            QList<Raw*> oldRaws = kernel->cuelistView->selectedCue()->raws.value(kernel->cuelistView->currentGroup, QList<Raw*>());
+            while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                   && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->raws.value(kernel->cuelistView->currentGroup, QList<Raw*>()) == oldRaws)
+                   && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
+                   && kernel->cuelistView->trackingButton->isChecked()
+                   ) {
+                cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
+                cueRow++;
+            }
             if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
-                if (kernel->cuelistView->selectedCue()->raws.contains(kernel->cuelistView->currentGroup)) {
-                    QList<Raw*> oldRaws = kernel->cuelistView->selectedCue()->raws.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->raws.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->raws.value(kernel->cuelistView->currentGroup) == oldRaws)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                    ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                }
                 kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
             } else {
-                if (kernel->cuelistView->selectedCue()->raws.contains(kernel->cuelistView->currentGroup)) {
-                    QList<Raw*> oldRaws = kernel->cuelistView->selectedCue()->raws.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->raws.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->raws.value(kernel->cuelistView->currentGroup) == oldRaws)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                    ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                } else {
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->raws.contains(kernel->cuelistView->currentGroup)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                    ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                }
                 kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, command);
             }
         } else if (selectionType == Keys::Effect) {
@@ -328,39 +241,18 @@ void Terminal::execute() {
             QStringList cueIds;
             cueIds.append(kernel->cuelistView->selectedCue()->id);
             int cueRow = kernel->cuelistView->currentCuelist->cues->getItemRow(kernel->cuelistView->selectedCue()->id) + 1;
+            QList<Effect*> oldEffects = kernel->cuelistView->selectedCue()->effects.value(kernel->cuelistView->currentGroup, QList<Effect*>());
+            while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
+                   && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->effects.value(kernel->cuelistView->currentGroup, QList<Effect*>()) == oldEffects)
+                   && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
+                   && kernel->cuelistView->trackingButton->isChecked()
+                   ) {
+                cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
+                cueRow++;
+            }
             if ((commandWithoutSelectionType.size() == 1) && (commandWithoutSelectionType.first() == Keys::Minus)) {
-                if (kernel->cuelistView->selectedCue()->effects.contains(kernel->cuelistView->currentGroup)) {
-                    QList<Effect*> oldEffects = kernel->cuelistView->selectedCue()->effects.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->effects.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->effects.value(kernel->cuelistView->currentGroup) == oldEffects)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                           ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                }
                 kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, commandWithoutSelectionType);
             } else {
-                if (kernel->cuelistView->selectedCue()->effects.contains(kernel->cuelistView->currentGroup)) {
-                    QList<Effect*> oldEffects = kernel->cuelistView->selectedCue()->effects.value(kernel->cuelistView->currentGroup);
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                        && kernel->cuelistView->currentCuelist->cues->items[cueRow]->effects.contains(kernel->cuelistView->currentGroup)
-                        && (kernel->cuelistView->currentCuelist->cues->items[cueRow]->effects.value(kernel->cuelistView->currentGroup) == oldEffects)
-                        && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                    ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                } else {
-                    while ((cueRow < kernel->cuelistView->currentCuelist->cues->items.size())
-                           && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->effects.contains(kernel->cuelistView->currentGroup)
-                           && !kernel->cuelistView->currentCuelist->cues->items[cueRow]->boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)
-                           ) {
-                        cueIds.append(kernel->cuelistView->currentCuelist->cues->items[cueRow]->id);
-                        cueRow++;
-                    }
-                }
                 kernel->cuelistView->currentCuelist->cues->setAttribute(cueIds, attributeMap, command);
             }
         } else if (selectionType == Keys::Cuelist) {
