@@ -46,6 +46,7 @@ public:
     void loadGroup(QString groupId);
     void nextGroup();
     void previousGroup();
+    void loadFixture(QString fixtureId);
     void nextFixture();
     void previousFixture();
     void noFixture();

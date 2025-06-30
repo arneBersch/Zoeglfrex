@@ -220,6 +220,24 @@ void CuelistView::nextGroup() {
     }
 }
 
+void CuelistView::loadFixture(QString fixtureId) {
+    Fixture* fixture = kernel->fixtures->getItem(fixtureId);
+    if (fixture == nullptr) {
+        kernel->terminal->error("Can't select Fixture because Fixture " + fixtureId + " doesn't exist.");
+        return;
+    }
+    if (currentGroup == nullptr) {
+        kernel->terminal->error("Can't select Fixture because no Group is currently selected.");
+        return;
+    }
+    if (!currentGroup->fixtures.contains(fixture)) {
+        kernel->terminal->error("Can't select Fixture " + fixture->name() + " because the current Group " + kernel->cuelistView->currentGroup->name() + " doesn't contain this Fixture.");
+        return;
+    }
+    currentFixture = fixture;
+    reload();
+}
+
 void CuelistView::previousFixture() {
     QMutexLocker locker(kernel->mutex);
     if (currentGroup == nullptr) {
@@ -233,15 +251,8 @@ void CuelistView::previousFixture() {
         return;
     }
     if (currentGroup->fixtures.indexOf(currentFixture) > 0) {
-        currentFixture = currentGroup->fixtures[currentGroup->fixtures.indexOf(currentFixture) - 1];
-        reload();
+        loadFixture(currentGroup->fixtures[currentGroup->fixtures.indexOf(currentFixture) - 1]->id);
     }
-}
-
-void CuelistView::noFixture() {
-    QMutexLocker locker(kernel->mutex);
-    currentFixture = nullptr;
-    reload();
 }
 
 void CuelistView::nextFixture() {
@@ -257,9 +268,14 @@ void CuelistView::nextFixture() {
         return;
     }
     if ((currentGroup->fixtures.indexOf(currentFixture) + 1) < currentGroup->fixtures.length()) {
-        currentFixture = currentGroup->fixtures[currentGroup->fixtures.indexOf(currentFixture) + 1];
-        reload();
+        loadFixture(currentGroup->fixtures[currentGroup->fixtures.indexOf(currentFixture) + 1]->id);
     }
+}
+
+void CuelistView::noFixture() {
+    QMutexLocker locker(kernel->mutex);
+    currentFixture = nullptr;
+    reload();
 }
 
 bool CuelistView::isSelected(Fixture* fixture) {

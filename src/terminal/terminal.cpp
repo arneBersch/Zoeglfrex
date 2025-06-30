@@ -91,24 +91,11 @@ void Terminal::execute() {
     QMap<int, QString> attributeMap = QMap<int, QString>();
     if (!valueReached && !attributeReached) {
         if (selectionType == Keys::Fixture) {
-            if (kernel->cuelistView->currentGroup == nullptr) {
-                error("Can't update Fixtures of current Group because no Group is currently selected.");
-                return;
-            }
             if (ids.size() != 1) {
                 error("Can't select Fixture because Fixture only allows one Fixture ID.");
                 return;
             }
-            Fixture* fixture = kernel->fixtures->getItem(ids.first());
-            if (fixture == nullptr) {
-                error("Can't select Fixture because Fixture " + ids.first() + " doesn't exist.");
-                return;
-            }
-            if (!kernel->cuelistView->currentGroup->fixtures.contains(fixture)) {
-                error("Can't select Fixture " + fixture->name() + " because the current Group " + kernel->cuelistView->currentGroup->name() + " doesn't contain this Fixture.");
-                return;
-            }
-            kernel->cuelistView->currentFixture = fixture;
+            kernel->cuelistView->loadFixture(ids.first());
         } else if (selectionType == Keys::Group) {
             if (ids.size() != 1) {
                 error("Can't select Group because Group only allows one Group ID.");

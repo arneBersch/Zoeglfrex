@@ -75,6 +75,22 @@ void Kernel::saveFile(QString fileName) {
     effects->saveItemsToFile(&fileStream);
     cuelists->saveItemsToFile(&fileStream);
 
+    fileStream.writeStartElement("Interface");
+    fileStream.writeTextElement("CuelistViewMode", QString::number(cuelistView->cueViewModeComboBox->currentIndex()));
+    fileStream.writeTextElement("Tracking", QString::number(cuelistView->trackingButton->isChecked()));
+    fileStream.writeTextElement("CuelistViewRowFilter", QString::number(cuelistView->cueViewRowFilterComboBox->currentIndex()));
+    fileStream.writeTextElement("Blind", QString::number(dmxEngine->blindButton->isChecked()));
+    fileStream.writeTextElement("Highlight", QString::number(dmxEngine->highlightButton->isChecked()));
+    fileStream.writeTextElement("Solo", QString::number(dmxEngine->soloButton->isChecked()));
+    fileStream.writeTextElement("SkipFade", QString::number(dmxEngine->skipFadeButton->isChecked()));
+    if (cuelistView->currentGroup != nullptr) {
+        fileStream.writeTextElement("CurrentGroup", cuelistView->currentGroup->id);
+    }
+    if (cuelistView->currentFixture != nullptr) {
+        fileStream.writeTextElement("CurrentFixture", cuelistView->currentFixture->id);
+    }
+    fileStream.writeEndElement();
+
     fileStream.writeEndElement();
     fileStream.writeEndDocument();
 
@@ -121,6 +137,83 @@ void Kernel::openFile(QString fileName) {
                         dmxEngine->sacnServer->prioritySpinBox->setValue(priority);
                     } else {
                         terminal->error("Error reading file: Received unknown Output attribute " + fileStream.name().toString());
+                        return;
+                    }
+                }
+            } else if (fileStream.name().toString() == "Interface") {
+                while (fileStream.readNextStartElement()) {
+                    if (fileStream.name().toString() == "CuelistViewMode") {
+                        bool ok;
+                        int index = fileStream.readElementText().toInt(&ok);
+                        if (!ok) {
+                            terminal->error("Error reading file: Invalid Cue View Mode given.");
+                            return;
+                        }
+                        cuelistView->cueViewModeComboBox->setCurrentIndex(index);
+                    } else if (fileStream.name().toString() == "Tracking") {
+                        QString trackingValue = fileStream.readElementText();
+                        if (trackingValue == "0") {
+                            cuelistView->trackingButton->setChecked(false);
+                        } else if (trackingValue == "1") {
+                            cuelistView->trackingButton->setChecked(true);
+                        } else {
+                            terminal->error("Error reading file: Invalid Cuelist View Tracking value given.");
+                            return;
+                        }
+                    } else if (fileStream.name().toString() == "CuelistViewRowFilter") {
+                        bool ok;
+                        int index = fileStream.readElementText().toInt(&ok);
+                        if (!ok) {
+                            terminal->error("Error reading file: Invalid Cue View Row Filter given.");
+                            return;
+                        }
+                        cuelistView->cueViewRowFilterComboBox->setCurrentIndex(index);
+                    } else if (fileStream.name().toString() == "Blind") {
+                        QString blindValue = fileStream.readElementText();
+                        if (blindValue == "0") {
+                            dmxEngine->blindButton->setChecked(false);
+                        } else if (blindValue == "1") {
+                            dmxEngine->blindButton->setChecked(true);
+                        } else {
+                            terminal->error("Error reading file: Invalid Blind value given.");
+                            return;
+                        }
+                    } else if (fileStream.name().toString() == "Highlight") {
+                        QString highlightValue = fileStream.readElementText();
+                        if (highlightValue == "0") {
+                            dmxEngine->highlightButton->setChecked(false);
+                        } else if (highlightValue == "1") {
+                            dmxEngine->highlightButton->setChecked(true);
+                        } else {
+                            terminal->error("Error reading file: Invalid Highlight value given.");
+                            return;
+                        }
+                    } else if (fileStream.name().toString() == "Solo") {
+                        QString soloValue = fileStream.readElementText();
+                        if (soloValue == "0") {
+                            dmxEngine->soloButton->setChecked(false);
+                        } else if (soloValue == "1") {
+                            dmxEngine->soloButton->setChecked(true);
+                        } else {
+                            terminal->error("Error reading file: Invalid Solo value given.");
+                            return;
+                        }
+                    } else if (fileStream.name().toString() == "Skip Fade") {
+                        QString skipFadeValue = fileStream.readElementText();
+                        if (skipFadeValue == "0") {
+                            dmxEngine->skipFadeButton->setChecked(false);
+                        } else if (skipFadeValue == "1") {
+                            dmxEngine->skipFadeButton->setChecked(true);
+                        } else {
+                            terminal->error("Error reading file: Invalid Skip Fade value given.");
+                            return;
+                        }
+                    } else if (fileStream.name().toString() == "CurrentGroup") {
+                        cuelistView->loadGroup(fileStream.readElementText());
+                    } else if (fileStream.name().toString() == "CurrentFixture") {
+                        cuelistView->loadFixture(fileStream.readElementText());
+                    } else {
+                        terminal->error("Error reading file: Received unknown Interface attribute " + fileStream.name().toString());
                         return;
                     }
                 }
