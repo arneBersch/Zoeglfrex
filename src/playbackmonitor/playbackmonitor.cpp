@@ -36,6 +36,16 @@ void PlaybackMonitor::reset() {
     for (Cuelist* cuelist : kernel->cuelists->items) {
         int cuelistRow = kernel->cuelists->items.indexOf(cuelist);
 
+        QComboBox* cueComboBox = new QComboBox();
+        for (Cue* cue : cuelist->cues->items) {
+            cueComboBox->addItem(cue->id);
+        }
+        if (cuelist->currentCue != nullptr) {
+            cueComboBox->setCurrentIndex(cuelist->cues->getItemRow(cuelist->currentCue->id));
+        }
+        connect(cueComboBox, &QComboBox::currentIndexChanged, this, [cuelist, cueComboBox] { cuelist->goToCue(cuelist->cues->items[cueComboBox->currentIndex()]->id); });
+        tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::currentCue), cueComboBox);
+
         QPushButton* goBackButton = new QPushButton("GO BACK");
         connect(goBackButton, &QPushButton::clicked, this, [cuelist] { cuelist->goBack(); });
         tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::goBackButton), goBackButton);
