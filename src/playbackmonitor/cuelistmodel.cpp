@@ -43,7 +43,6 @@ QVariant CuelistModel::data(const QModelIndex &index, const int role) const {
                 return cuelist->currentCue->name();
             }
             return "No Cue selected";
-            return QVariant();
         } else {
             return QVariant();
         }
