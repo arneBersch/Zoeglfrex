@@ -40,7 +40,15 @@ void Kernel::reset() {
     raws->reset();
     effects->reset();
     cuelists->reset();
-    dmxEngine->sacnServer->prioritySpinBox->setValue(dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
+
+    dmxEngine->sacnServer->prioritySpinBox->setValue(dmxEngine->sacnServer->SACN_STANDARD_PRIORITY);
+    cuelistView->cueViewModeComboBox->setCurrentIndex(CuelistViewModes::cueMode);
+    cuelistView->trackingButton->setChecked(true);
+    cuelistView->cueViewRowFilterComboBox->setCurrentIndex(CuelistViewRowFilters::noFilter);
+    dmxEngine->blindButton->setChecked(false);
+    dmxEngine->highlightButton->setChecked(false);
+    dmxEngine->soloButton->setChecked(false);
+    dmxEngine->skipFadeButton->setChecked(false);
     cuelistView->reload();
 }
 
@@ -198,7 +206,7 @@ void Kernel::openFile(QString fileName) {
                             terminal->error("Error reading file: Invalid Solo value given.");
                             return;
                         }
-                    } else if (fileStream.name().toString() == "Skip Fade") {
+                    } else if (fileStream.name().toString() == "SkipFade") {
                         QString skipFadeValue = fileStream.readElementText();
                         if (skipFadeValue == "0") {
                             dmxEngine->skipFadeButton->setChecked(false);
