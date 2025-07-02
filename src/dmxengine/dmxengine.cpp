@@ -113,7 +113,7 @@ void DmxEngine::generateDmx() {
                     } else if (!lastCueFixtureDimmer.contains(fixture)) {
                         lastCueColor = color;
                     }
-                    if (!currentCueFixtureDimmer.contains(fixture)) {
+                    if (lastCueFixtureDimmer.contains(fixture) && !currentCueFixtureDimmer.contains(fixture)) {
                         color = lastCueColor;
                     }
                     color.red += (lastCueColor.red - color.red) * fade;
@@ -127,7 +127,7 @@ void DmxEngine::generateDmx() {
                     } else if (!lastCueFixtureDimmer.contains(fixture)) {
                         lastCuePosition = position;
                     }
-                    if (!currentCueFixtureDimmer.contains(fixture)) {
+                    if (lastCueFixtureDimmer.contains(fixture) && !currentCueFixtureDimmer.contains(fixture)) {
                         position = lastCuePosition;
                     }
                     if (std::abs(lastCuePosition.pan - position.pan) > 180) {
