@@ -97,6 +97,9 @@ void Kernel::saveFile(QString fileName) {
     if (cuelistView->currentFixture != nullptr) {
         fileStream.writeTextElement("CurrentFixture", cuelistView->currentFixture->id);
     }
+    if (cuelistView->currentCuelist != nullptr) {
+        fileStream.writeTextElement("CurrentCuelist", cuelistView->currentCuelist->id);
+    }
     fileStream.writeEndElement();
 
     fileStream.writeEndElement();
@@ -220,6 +223,8 @@ void Kernel::openFile(QString fileName) {
                         cuelistView->loadGroup(fileStream.readElementText());
                     } else if (fileStream.name().toString() == "CurrentFixture") {
                         cuelistView->loadFixture(fileStream.readElementText());
+                    } else if (fileStream.name().toString() == "CurrentCuelist") {
+                        cuelistView->loadCuelist(fileStream.readElementText());
                     } else {
                         terminal->error("Error reading file: Received unknown Interface attribute " + fileStream.name().toString());
                         return;
