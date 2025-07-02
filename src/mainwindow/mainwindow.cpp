@@ -178,7 +178,6 @@ void MainWindow::openFile() {
     }
     fileName = newFileName;
     kernel->terminal->printMessages = false;
-    kernel->cuelistView->trackingButton->setChecked(false);
     kernel->openFile(fileName);
     kernel->terminal->printMessages = true;
     kernel->terminal->success("Opened File " + fileName);

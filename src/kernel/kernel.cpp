@@ -116,6 +116,7 @@ void Kernel::openFile(QString fileName) {
     }
     QXmlStreamReader fileStream(&file);
     reset();
+    cuelistView->trackingButton->setChecked(false);
     QMutexLocker locker(mutex);
     if (fileStream.readNextStartElement() && (fileStream.name().toString() == "Workspace")) {
         while (fileStream.readNextStartElement()) {
