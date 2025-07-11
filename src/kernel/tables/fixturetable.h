@@ -6,26 +6,24 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef COLORLIST_H
-#define COLORLIST_H
+#ifndef FIXTURETABLE_H
+#define FIXTURETABLE_H
 
 #include <QtWidgets>
 
-#include "itemlist.h"
-#include "../items/color.h"
+#include "itemtable.h"
+#include "../items/fixture.h"
 
 class Kernel;
 
-template class ItemList<Color>;
-class ColorList : public ItemList<Color> {
+template class ItemTable<Fixture>;
+class FixtureTable : public ItemTable<Fixture> {
     Q_OBJECT
 public:
-    ColorList(Kernel *core);
-    const QString HUEATTRIBUTEID = "2";
-    const QString SATURATIONATTRIBUTEID = "3";
-    const QString QUALITYATTRIBUTEID = "4";
+    FixtureTable(Kernel *core);
+    void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 };
 
 #include "kernel/kernel.h"
 
-#endif // COLORLIST_H
+#endif // FIXTURETABLE_H

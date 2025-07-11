@@ -14,37 +14,60 @@
 #include "cuelistview/cuemodel.h"
 #include "cuelistview/groupmodel.h"
 class Kernel;
+class Cuelist;
 class Fixture;
 class Group;
 class Cue;
+
+namespace CuelistViewModes {
+enum {
+    cueMode,
+    groupMode,
+};
+}
+
+namespace CuelistViewRowFilters {
+enum {
+    noFilter,
+    activeRowsFilter,
+    changedRowsFilter,
+};
+}
 
 class CuelistView : public QWidget {
     Q_OBJECT
 public:
     CuelistView(Kernel *core, QWidget *parent = nullptr);
     void reload();
+    void loadCuelist(QString cuelistId);
     void loadCue(QString cueId);
     void nextCue();
     void previousCue();
     void loadGroup(QString groupId);
     void nextGroup();
     void previousGroup();
+    void loadFixture(QString fixtureId);
     void nextFixture();
     void previousFixture();
     void noFixture();
+    bool isSelected(Fixture* fixture);
+    Cuelist* currentCuelist = nullptr;
+    Cue* selectedCue() const;
+    Cue* currentCue = nullptr;
     Fixture* currentFixture = nullptr;
     Group* currentGroup = nullptr;
-    Cue* currentCue = nullptr;
-private:
+    QPushButton* trackingButton;
     void updateCuelistView();
-    Kernel *kernel;
     QComboBox *cueViewModeComboBox;
-    const QString CUEVIEWCUEMODE = "Cue Mode";
-    const QString CUEVIEWGROUPMODE = "Group Mode";
+    QComboBox *cueViewRowFilterComboBox;
+private:
+    Kernel *kernel;
     QTableView *cuelistTableView;
     CueModel *cueModel;
     GroupModel *groupModel;
-    QLabel *cueOrGroupLabel;
+    QLabel *cuelistLabel;
+    QLabel *cueLabel;
+    QLabel *groupLabel;
     QLabel *fixtureLabel;
 };
 

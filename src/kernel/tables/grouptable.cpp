@@ -6,13 +6,13 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "grouplist.h"
+#include "grouptable.h"
 
-GroupList::GroupList(Kernel *core) : ItemList(core, Keys::Group, "Group", "Groups") {}
+GroupTable::GroupTable(Kernel *core) : ItemTable(core, Keys::Group, "Group", "Groups") {}
 
-void GroupList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+void GroupTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
-    if (attribute == FIXTURESATTRIBUTEID) {
+    if (attribute == kernel->GROUPFIXTURESATTRIBUTEID) {
         bool addFixtures = value.startsWith(Keys::Plus);
         if (addFixtures) {
             value.removeFirst();
@@ -70,10 +70,10 @@ void GroupList::setAttribute(QStringList ids, QMap<int, QString> attributes, QLi
             if (addFixtures) {
                 kernel->terminal->success("Added " + QString::number(fixtureSelection.length()) + " Fixtures to " + QString::number(ids.length()) + " Groups.");
             } else {
-                kernel->terminal->success("Set Fixtures of " + QString::number(ids.length()) + " Groups to " + QString::number(fixtureSelection.length()) + " Fixtures.");
+                kernel->terminal->success("Added " + QString::number(fixtureSelection.length()) + " Fixtures to " + QString::number(ids.length()) + " Groups.");
             }
         }
     } else {
-        ItemList::setAttribute(ids, attributes, value, text);
+        ItemTable::setAttribute(ids, attributes, value, text);
     }
 }

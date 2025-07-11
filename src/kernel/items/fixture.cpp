@@ -88,12 +88,20 @@ Fixture::~Fixture() {
             effect->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
         }
     }
-    for (Cue* cue : kernel->cues->items) {
-        for (QString fixtureSpecificFloatAttribute : cue->fixtureSpecificFloatAttributes.keys()) {
-            cue->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
+    for (Cuelist *cuelist : kernel->cuelists->items) {
+        for (QString fixtureSpecificFloatAttribute : cuelist->fixtureSpecificFloatAttributes.keys()) {
+            cuelist->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
         }
-        for (QString fixtureSpecificAngleAttribute : cue->fixtureSpecificAngleAttributes.keys()) {
-            cue->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
+        for (QString fixtureSpecificAngleAttribute : cuelist->fixtureSpecificAngleAttributes.keys()) {
+            cuelist->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
+        }
+        for (Cue* cue : cuelist->cues->items) {
+            for (QString fixtureSpecificFloatAttribute : cue->fixtureSpecificFloatAttributes.keys()) {
+                cue->fixtureSpecificFloatAttributes[fixtureSpecificFloatAttribute].remove(this);
+            }
+            for (QString fixtureSpecificAngleAttribute : cue->fixtureSpecificAngleAttributes.keys()) {
+                cue->fixtureSpecificAngleAttributes[fixtureSpecificAngleAttribute].remove(this);
+            }
         }
     }
     FixtureGraphicsItem *previewCircle = kernel->preview2d->fixtureCircles.value(this);
@@ -104,35 +112,39 @@ Fixture::~Fixture() {
 QString Fixture::name() {
     QString channels = "None";
     if (model != nullptr) {
-        channels = model->stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
-        if (!model->stringAttributes.value(kernel->models->LABELATTRIBUTEID).isEmpty()) {
-            channels = model->stringAttributes.value(kernel->models->LABELATTRIBUTEID);
+        channels = model->stringAttributes.value(kernel->MODELCHANNELSATTRIBUTEID);
+        if (!model->stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
+            channels = model->stringAttributes.value(kernel->LABELATTRIBUTEID);
         }
     }
-    if (stringAttributes.value(kernel->fixtures->LABELATTRIBUTEID).isEmpty()) {
-        return Item::name() + channels + " (" + QString::number(intAttributes.value(kernel->fixtures->UNIVERSEATTRIBUTEID)) + "." + QString::number(intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID)) + ")";
+    if (stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
+        return Item::name() + channels + " (" + QString::number(intAttributes.value(kernel->FIXTUREUNIVERSEATTRIBUTEID)) + "." + QString::number(intAttributes.value(kernel->FIXTUREADDRESSATTRIBUTEID)) + ")";
     }
     return Item::name();
 }
 
 QString Fixture::info() {
     QString info = Item::info();
-    info += "\n" + kernel->fixtures->MODELATTRIBUTEID + " Model: ";
+    info += "\n" + kernel->FIXTUREMODELATTRIBUTEID + " Model: ";
     if (model == nullptr) {
         info += "None";
     } else {
         info += model->name();
     }
-    info += "\n" + kernel->fixtures->ADDRESSATTRIBUTEID + " Address: " + QString::number(intAttributes.value(kernel->fixtures->ADDRESSATTRIBUTEID));
-    info += "\n" + kernel->fixtures->UNIVERSEATTRIBUTEID + " Universe: " + QString::number(intAttributes.value(kernel->fixtures->UNIVERSEATTRIBUTEID));
-    info += "\n" + kernel->fixtures->POSITIONXATTRIBUTEID + " X Position: " + QString::number(floatAttributes.value(kernel->fixtures->POSITIONXATTRIBUTEID));
-    info += "\n" + kernel->fixtures->POSITIONYATTRIBUTEID + " Y Position: " + QString::number(floatAttributes.value(kernel->fixtures->POSITIONYATTRIBUTEID));
-    info += "\n" + kernel->fixtures->ROTATIONATTRIBUTEID + " Rotation: " + QString::number(angleAttributes.value(kernel->fixtures->ROTATIONATTRIBUTEID)) + "°";
-    if (boolAttributes.value(kernel->fixtures->INVERTPANATTRIBUTE)) {
-        info += "\n" + kernel->fixtures->INVERTPANATTRIBUTE + " Invert Pan: True";
+    info += "\n" + kernel->FIXTUREADDRESSATTRIBUTEID + " Address: " + QString::number(intAttributes.value(kernel->FIXTUREADDRESSATTRIBUTEID));
+    info += "\n" + kernel->FIXTUREUNIVERSEATTRIBUTEID + " Universe: " + QString::number(intAttributes.value(kernel->FIXTUREUNIVERSEATTRIBUTEID));
+
+    info += "\n" + kernel->FIXTUREPOSITIONXATTRIBUTEID + " X Position: " + QString::number(floatAttributes.value(kernel->FIXTUREPOSITIONXATTRIBUTEID));
+    info += "\n" + kernel->FIXTUREPOSITIONYATTRIBUTEID + " Y Position: " + QString::number(floatAttributes.value(kernel->FIXTUREPOSITIONYATTRIBUTEID));
+    info += "\n" + kernel->FIXTUREROTATIONATTRIBUTEID + " Rotation: " + QString::number(angleAttributes.value(kernel->FIXTUREROTATIONATTRIBUTEID)) + "°";
+
+    info += "\n" + kernel->FIXTUREINVERTPANATTRIBUTEID + " Invert Pan: ";
+    if (boolAttributes.value(kernel->FIXTUREINVERTPANATTRIBUTEID)) {
+        info += "True";
     } else {
-        info += "\n" + kernel->fixtures->INVERTPANATTRIBUTE + " Invert Pan: False";
+        info += "False";
     }
+
     return info;
 }
 
@@ -140,7 +152,7 @@ void Fixture::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     Item::writeAttributesToFile(fileStream);
     if (model != nullptr) {
         fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", kernel->fixtures->MODELATTRIBUTEID);
+        fileStream->writeAttribute("ID", kernel->FIXTUREMODELATTRIBUTEID);
         fileStream->writeCharacters(model->id);
         fileStream->writeEndElement();
     }

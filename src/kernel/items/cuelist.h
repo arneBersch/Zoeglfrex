@@ -6,28 +6,30 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef TABLEMODEL_H
-#define TABLEMODEL_H
+#ifndef CUELIST_H
+#define CUELIST_H
 
 #include <QtWidgets>
 
-struct TableRow {
-    QString id;
-    QString label;
-};
+#include "item.h"
+#include "../tables/cuetable.h"
 
-class TableModel : public QAbstractTableModel
-{
-    Q_OBJECT
+class Cuelist : public Item {
 public:
-    TableModel();
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, const int role) const override;
-    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
-    void setRows(QList<TableRow> rows);
-private:
-    QList<TableRow> rowList;
+    Cuelist(Kernel* core);
+    Cuelist(const Cuelist* item);
+    ~Cuelist();
+    QString name() override;
+    QString info() override;
+    void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
+    CueTable* cues;
+    void goToCue(QString cueId);
+    void go();
+    void goBack();
+    Cue* currentCue = nullptr;
+    Cue* previousCue = nullptr;
+    unsigned int remainingFadeFrames = 0;
+    unsigned int totalFadeFrames = 0;
 };
 
-#endif // TABLEMODEL_H
+#endif // CUELIST_H

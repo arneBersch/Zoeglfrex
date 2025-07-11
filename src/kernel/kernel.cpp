@@ -10,21 +10,22 @@
 
 Kernel::Kernel(MainWindow* window) {
     mainWindow = window;
-    models = new ModelList(this);
-    fixtures = new FixtureList(this);
-    groups = new GroupList(this);
-    intensities = new IntensityList(this);
-    colors = new ColorList(this);
-    positions = new PositionList(this);
-    raws = new RawList(this);
-    effects = new EffectList(this);
-    cues = new CueList(this);
+    models = new ModelTable(this);
+    fixtures = new FixtureTable(this);
+    groups = new GroupTable(this);
+    intensities = new IntensityTable(this);
+    colors = new ColorTable(this);
+    positions = new PositionTable(this);
+    raws = new RawTable(this);
+    effects = new EffectTable(this);
+    cuelists = new CuelistTable(this);
     terminal = new Terminal(this);
     inspector = new Inspector(this);
     dmxEngine = new DmxEngine(this);
     cuelistView = new CuelistView(this);
     preview2d = new Preview2d(this);
     controlPanel = new ControlPanel(this);
+    playbackMonitor = new PlaybackMonitor(this);
     mutex = new QMutex();
 }
 
@@ -38,8 +39,16 @@ void Kernel::reset() {
     positions->reset();
     raws->reset();
     effects->reset();
-    cues->reset();
-    dmxEngine->sacnServer->prioritySpinBox->setValue(dmxEngine->sacnServer->SACN_STANDARD_PRIORITY); // reset sACN priority
+    cuelists->reset();
+
+    dmxEngine->sacnServer->prioritySpinBox->setValue(dmxEngine->sacnServer->SACN_STANDARD_PRIORITY);
+    cuelistView->cueViewModeComboBox->setCurrentIndex(CuelistViewModes::cueMode);
+    cuelistView->trackingButton->setChecked(true);
+    cuelistView->cueViewRowFilterComboBox->setCurrentIndex(CuelistViewRowFilters::noFilter);
+    dmxEngine->blindButton->setChecked(false);
+    dmxEngine->highlightButton->setChecked(false);
+    dmxEngine->soloButton->setChecked(false);
+    dmxEngine->skipFadeButton->setChecked(false);
     cuelistView->reload();
 }
 
@@ -72,7 +81,26 @@ void Kernel::saveFile(QString fileName) {
     positions->saveItemsToFile(&fileStream);
     raws->saveItemsToFile(&fileStream);
     effects->saveItemsToFile(&fileStream);
-    cues->saveItemsToFile(&fileStream);
+    cuelists->saveItemsToFile(&fileStream);
+
+    fileStream.writeStartElement("Interface");
+    fileStream.writeTextElement("CuelistViewMode", QString::number(cuelistView->cueViewModeComboBox->currentIndex()));
+    fileStream.writeTextElement("Tracking", QString::number(cuelistView->trackingButton->isChecked()));
+    fileStream.writeTextElement("CuelistViewRowFilter", QString::number(cuelistView->cueViewRowFilterComboBox->currentIndex()));
+    fileStream.writeTextElement("Blind", QString::number(dmxEngine->blindButton->isChecked()));
+    fileStream.writeTextElement("Highlight", QString::number(dmxEngine->highlightButton->isChecked()));
+    fileStream.writeTextElement("Solo", QString::number(dmxEngine->soloButton->isChecked()));
+    fileStream.writeTextElement("SkipFade", QString::number(dmxEngine->skipFadeButton->isChecked()));
+    if (cuelistView->currentGroup != nullptr) {
+        fileStream.writeTextElement("CurrentGroup", cuelistView->currentGroup->id);
+    }
+    if (cuelistView->currentFixture != nullptr) {
+        fileStream.writeTextElement("CurrentFixture", cuelistView->currentFixture->id);
+    }
+    if (cuelistView->currentCuelist != nullptr) {
+        fileStream.writeTextElement("CurrentCuelist", cuelistView->currentCuelist->id);
+    }
+    fileStream.writeEndElement();
 
     fileStream.writeEndElement();
     fileStream.writeEndDocument();
@@ -88,6 +116,7 @@ void Kernel::openFile(QString fileName) {
     }
     QXmlStreamReader fileStream(&file);
     reset();
+    cuelistView->trackingButton->setChecked(false);
     QMutexLocker locker(mutex);
     if (fileStream.readNextStartElement() && (fileStream.name().toString() == "Workspace")) {
         while (fileStream.readNextStartElement()) {
@@ -123,70 +152,143 @@ void Kernel::openFile(QString fileName) {
                         return;
                     }
                 }
-            } else {
-                QString pluralName = fileStream.name().toString();
+            } else if (fileStream.name().toString() == "Interface") {
                 while (fileStream.readNextStartElement()) {
+                    if (fileStream.name().toString() == "CuelistViewMode") {
+                        bool ok;
+                        int index = fileStream.readElementText().toInt(&ok);
+                        if (!ok) {
+                            terminal->error("Error reading file: Invalid Cue View Mode given.");
+                            return;
+                        }
+                        cuelistView->cueViewModeComboBox->setCurrentIndex(index);
+                    } else if (fileStream.name().toString() == "Tracking") {
+                        QString trackingValue = fileStream.readElementText();
+                        if (trackingValue == "0") {
+                            cuelistView->trackingButton->setChecked(false);
+                        } else if (trackingValue == "1") {
+                            cuelistView->trackingButton->setChecked(true);
+                        } else {
+                            terminal->error("Error reading file: Invalid Cuelist View Tracking value given.");
+                            return;
+                        }
+                    } else if (fileStream.name().toString() == "CuelistViewRowFilter") {
+                        bool ok;
+                        int index = fileStream.readElementText().toInt(&ok);
+                        if (!ok) {
+                            terminal->error("Error reading file: Invalid Cue View Row Filter given.");
+                            return;
+                        }
+                        cuelistView->cueViewRowFilterComboBox->setCurrentIndex(index);
+                    } else if (fileStream.name().toString() == "Blind") {
+                        QString blindValue = fileStream.readElementText();
+                        if (blindValue == "0") {
+                            dmxEngine->blindButton->setChecked(false);
+                        } else if (blindValue == "1") {
+                            dmxEngine->blindButton->setChecked(true);
+                        } else {
+                            terminal->error("Error reading file: Invalid Blind value given.");
+                            return;
+                        }
+                    } else if (fileStream.name().toString() == "Highlight") {
+                        QString highlightValue = fileStream.readElementText();
+                        if (highlightValue == "0") {
+                            dmxEngine->highlightButton->setChecked(false);
+                        } else if (highlightValue == "1") {
+                            dmxEngine->highlightButton->setChecked(true);
+                        } else {
+                            terminal->error("Error reading file: Invalid Highlight value given.");
+                            return;
+                        }
+                    } else if (fileStream.name().toString() == "Solo") {
+                        QString soloValue = fileStream.readElementText();
+                        if (soloValue == "0") {
+                            dmxEngine->soloButton->setChecked(false);
+                        } else if (soloValue == "1") {
+                            dmxEngine->soloButton->setChecked(true);
+                        } else {
+                            terminal->error("Error reading file: Invalid Solo value given.");
+                            return;
+                        }
+                    } else if (fileStream.name().toString() == "SkipFade") {
+                        QString skipFadeValue = fileStream.readElementText();
+                        if (skipFadeValue == "0") {
+                            dmxEngine->skipFadeButton->setChecked(false);
+                        } else if (skipFadeValue == "1") {
+                            dmxEngine->skipFadeButton->setChecked(true);
+                        } else {
+                            terminal->error("Error reading file: Invalid Skip Fade value given.");
+                            return;
+                        }
+                    } else if (fileStream.name().toString() == "CurrentGroup") {
+                        cuelistView->loadGroup(fileStream.readElementText());
+                    } else if (fileStream.name().toString() == "CurrentFixture") {
+                        cuelistView->loadFixture(fileStream.readElementText());
+                    } else if (fileStream.name().toString() == "CurrentCuelist") {
+                        cuelistView->loadCuelist(fileStream.readElementText());
+                    } else {
+                        terminal->error("Error reading file: Received unknown Interface attribute " + fileStream.name().toString());
+                        return;
+                    }
+                }
+            } else { // <Items>
+                QString pluralName = fileStream.name().toString();
+                while (fileStream.readNextStartElement()) { // <Item>
                     QString singularName = fileStream.name().toString();
                     if (!fileStream.attributes().hasAttribute("ID")) {
-                        terminal->error("Error reading file: No ID for " + singularName + " was given.");
+                        terminal->error("Error reading file: No " + singularName + " ID was given.");
                         return;
                     }
                     QStringList ids = {fileStream.attributes().value("ID").toString()};
-                    while (fileStream.readNextStartElement()) {
-                        if ((fileStream.name().toString() != "Attribute") || !fileStream.attributes().hasAttribute("ID")) {
-                            terminal->error("Error reading file: Expected " + singularName + " Attribute.");
-                            return;
-                        }
-                        QMap<int, QString> attributes;
-                        attributes[Keys::Attribute] = fileStream.attributes().value("ID").toString();
-                        if (fileStream.attributes().hasAttribute("Model")) {
-                            attributes[Keys::Model] = fileStream.attributes().value("Model").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Fixture")) {
-                            attributes[Keys::Fixture] = fileStream.attributes().value("Fixture").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Group")) {
-                            attributes[Keys::Group] = fileStream.attributes().value("Group").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Intensity")) {
-                            attributes[Keys::Intensity] = fileStream.attributes().value("Intensity").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Color")) {
-                            attributes[Keys::Color] = fileStream.attributes().value("Color").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Position")) {
-                            attributes[Keys::Position] = fileStream.attributes().value("Position").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Raw")) {
-                            attributes[Keys::Raw] = fileStream.attributes().value("Raw").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Effect")) {
-                            attributes[Keys::Effect] = fileStream.attributes().value("Effect").toString();
-                        }
-                        if (fileStream.attributes().hasAttribute("Cue")) {
-                            attributes[Keys::Cue] = fileStream.attributes().value("Cue").toString();
-                        }
-                        QString text = fileStream.readElementText();
-                        if ((pluralName == "Models") && (singularName == "Model")) {
-                            models->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Fixtures") && (singularName == "Fixture")) {
-                            fixtures->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Groups") && (singularName == "Group")) {
-                            groups->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Intensities") && (singularName == "Intensity")) {
-                            intensities->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Colors") && (singularName == "Color")) {
-                            colors->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Positions") && (singularName == "Position")) {
-                            positions->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Raws") && (singularName == "Raw")) {
-                            raws->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Effects") && (singularName == "Effect")) {
-                            effects->setAttribute(ids, attributes, QList<int>(), text);
-                        } else if ((pluralName == "Cues") && (singularName == "Cue")) {
-                            cues->setAttribute(ids, attributes, QList<int>(), text);
+                    while (fileStream.readNextStartElement()) { // <Attribute> or <Cues>
+                        if ((fileStream.name().toString() == "Attribute") && fileStream.attributes().hasAttribute("ID")) {
+                            QMap<int, QString> attributes = xmlToCommandAttributes(fileStream.attributes());
+                            QString text = fileStream.readElementText();
+                            if ((pluralName == "Models") && (singularName == "Model")) {
+                                models->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Fixtures") && (singularName == "Fixture")) {
+                                fixtures->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Groups") && (singularName == "Group")) {
+                                groups->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Intensities") && (singularName == "Intensity")) {
+                                intensities->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Colors") && (singularName == "Color")) {
+                                colors->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Positions") && (singularName == "Position")) {
+                                positions->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Raws") && (singularName == "Raw")) {
+                                raws->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Effects") && (singularName == "Effect")) {
+                                effects->setAttribute(ids, attributes, QList<int>(), text);
+                            } else if ((pluralName == "Cuelists") && (singularName == "Cuelist")) {
+                                cuelists->setAttribute(ids, attributes, QList<int>(), text);
+                            } else {
+                                terminal->error("Error reading file: Expected Object Type");
+                                return;
+                            }
+                        } else if ((fileStream.name().toString() == "Cues") && (pluralName == "Cuelists") && (singularName == "Cuelist")) {
+                            cuelistView->loadCuelist(ids.first());
+                            while (fileStream.readNextStartElement()) { // <Cue>
+                                if (fileStream.name().toString() != "Cue") {
+                                    terminal->error("Error reading file: Expected Cue.");
+                                    return;
+                                }
+                                if (!fileStream.attributes().hasAttribute("ID")) {
+                                    terminal->error("Error reading file: No Cue ID was given.");
+                                    return;
+                                }
+                                QString cueId = fileStream.attributes().value("ID").toString();
+                                while (fileStream.readNextStartElement()) { // <Attribute>
+                                    if ((fileStream.name().toString() != "Attribute") || !fileStream.attributes().hasAttribute("ID")) {
+                                        terminal->error("Error reading file: Expected Cue Attribute.");
+                                        return;
+                                    }
+                                    QMap<int, QString> attributes = xmlToCommandAttributes(fileStream.attributes());
+                                    cuelistView->currentCuelist->cues->setAttribute({cueId}, attributes, QList<int>(), fileStream.readElementText());
+                                }
+                            }
                         } else {
-                            terminal->error("Error reading file: Expected Object Type");
+                            terminal->error("Error reading file: Expected " + singularName + " Attribute.");
                             return;
                         }
                     }
@@ -203,3 +305,39 @@ void Kernel::openFile(QString fileName) {
     }
     cuelistView->reload();
 }
+
+QMap<int, QString> Kernel::xmlToCommandAttributes(QXmlStreamAttributes streamAttributes) {
+    QMap<int, QString> attributes;
+    attributes[Keys::Attribute] = streamAttributes.value("ID").toString();
+    if (streamAttributes.hasAttribute("Model")) {
+        attributes[Keys::Model] = streamAttributes.value("Model").toString();
+    }
+    if (streamAttributes.hasAttribute("Fixture")) {
+        attributes[Keys::Fixture] = streamAttributes.value("Fixture").toString();
+    }
+    if (streamAttributes.hasAttribute("Group")) {
+        attributes[Keys::Group] = streamAttributes.value("Group").toString();
+    }
+    if (streamAttributes.hasAttribute("Intensity")) {
+        attributes[Keys::Intensity] = streamAttributes.value("Intensity").toString();
+    }
+    if (streamAttributes.hasAttribute("Color")) {
+        attributes[Keys::Color] = streamAttributes.value("Color").toString();
+    }
+    if (streamAttributes.hasAttribute("Position")) {
+        attributes[Keys::Position] = streamAttributes.value("Position").toString();
+    }
+    if (streamAttributes.hasAttribute("Raw")) {
+        attributes[Keys::Raw] = streamAttributes.value("Raw").toString();
+    }
+    if (streamAttributes.hasAttribute("Effect")) {
+        attributes[Keys::Effect] = streamAttributes.value("Effect").toString();
+    }
+    if (streamAttributes.hasAttribute("Cuelist")) {
+        attributes[Keys::Cuelist] = streamAttributes.value("Cuelist").toString();
+    }
+    if (streamAttributes.hasAttribute("Cue")) {
+        attributes[Keys::Cue] = streamAttributes.value("Cue").toString();
+    }
+    return attributes;
+};

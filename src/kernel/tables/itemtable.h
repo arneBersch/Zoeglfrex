@@ -6,12 +6,12 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ITEMLIST_H
-#define ITEMLIST_H
+#ifndef ITEMTABLE_H
+#define ITEMTABLE_H
 
 #include <QtWidgets>
 
-class Fixture;
+class Raw;
 
 struct StringAttribute {
     QString name = QString();
@@ -45,23 +45,28 @@ struct BoolAttribute {
     bool value = false;
 };
 
+struct RawListAttribute {
+    QString name = QString();
+    QList<Raw*> value = QList<Raw*>();
+};
+
 class Kernel;
 
-template <class T> class ItemList : public QAbstractTableModel {
+template <class T> class ItemTable : public QAbstractTableModel {
 public:
-    ItemList(Kernel* core, int key, QString singularName, QString pluralName);
+    ItemTable(Kernel* core, int key, QString singularName, QString pluralName);
+    ItemTable(ItemTable<T>* table);
+    ~ItemTable();
     T* getItem(QString id) const;
     int getItemRow(QString id) const;
     QStringList getIds() const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, const int role) const override;
-    QList<T*> items;
     virtual void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> values, QString text = QString());
     void saveItemsToFile(QXmlStreamWriter* fileStream);
     void reset();
-    const QString IDATTRIBUTEID = "0";
-    const QString LABELATTRIBUTEID = "1";
+    QList<T*> items;
     QMap<QString, StringAttribute> stringAttributes;
     QMap<QString, IntAttribute> intAttributes;
     QMap<QString, FloatAttribute> floatAttributes;
@@ -71,14 +76,15 @@ public:
     QMap<QString, AngleAttribute> modelSpecificAngleAttributes;
     QMap<QString, AngleAttribute> fixtureSpecificAngleAttributes;
     QMap<QString, BoolAttribute> boolAttributes;
+    QMap<QString, RawListAttribute> rawListAttributes;
 protected:
     virtual T* addItem(QString id);
     Kernel *kernel;
 private:
     int findRow(QString id);
     int itemKey;
-    QString singularItemName = "item";
-    QString pluralItemName = "items";
+    QString singularItemName = "Item";
+    QString pluralItemName = "Items";
 };
 
-#endif // ITEMLIST_H
+#endif // ITEMTABLE_H

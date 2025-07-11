@@ -21,16 +21,18 @@ Group::~Group() {
         kernel->cuelistView->currentFixture = nullptr;
         kernel->cuelistView->reload();
     }
-    for (Cue *cue : kernel->cues->items) {
-        cue->intensities.remove(this);
-        cue->colors.remove(this);
-        cue->positions.remove(this);
-        cue->raws.remove(this);
+    for (Cuelist *cuelist : kernel->cuelists->items) {
+        for (Cue *cue : cuelist->cues->items) {
+            cue->intensities.remove(this);
+            cue->colors.remove(this);
+            cue->positions.remove(this);
+            cue->raws.remove(this);
+        }
     }
 }
 
 QString Group::name() {
-    if (stringAttributes.value(kernel->groups->LABELATTRIBUTEID).isEmpty()) {
+    if (stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
         QString response = Item::name();
         QStringList fixtureIds;
         for (Fixture* fixture : fixtures) {
@@ -48,14 +50,14 @@ QString Group::info() {
     for (Fixture* fixture : fixtures) {
         fixtureIds.append(fixture->name());
     }
-    info += "\n" + kernel->groups->FIXTURESATTRIBUTEID + " Fixtures: " + fixtureIds.join(" + ");
+    info += "\n" + kernel->GROUPFIXTURESATTRIBUTEID + " Fixtures: " + fixtureIds.join(" + ");
     return info;
 }
 
 void Group::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     Item::writeAttributesToFile(fileStream);
     fileStream->writeStartElement("Attribute");
-    fileStream->writeAttribute("ID", kernel->groups->FIXTURESATTRIBUTEID);
+    fileStream->writeAttribute("ID", kernel->GROUPFIXTURESATTRIBUTEID);
     QStringList fixtureIds;
     for (Fixture* fixture : fixtures) {
         fixtureIds.append(fixture->id);

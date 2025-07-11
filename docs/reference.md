@@ -9,6 +9,7 @@
 - Position: P
 - Raw: R
 - Effect: E
+- Cuelist: L
 - Cue: Q
 
 ### Other keys
@@ -43,6 +44,15 @@
 - Execute command without clearing the Terminal: Shift + Return/Enter
 - Undo the last keypress in the command input: Backspace
 - Clear command input: Shift + Backspace
+
+- Toggle Blind: Shift + B
+- Toggle Highlight: Shift + H
+- Toggle Solo: Shift + S
+- Toggle Skip Fade: Shift + F
+- Toggle Tracking: Shift + T
+- Scroll through the Modes of the Cuelist View: Shift + M
+- Scroll through the Row filters of the Cuelist View: Shift + R
+
 - New File: Ctrl + N
 - Open File: Ctrl + O
 - Save File: Ctrl + S
@@ -50,7 +60,7 @@
 - Quit Zöglfrex: Ctrl + Q
 
 ## Item commands
-These commands can be executed with all types of Items (Models, Fixtures, Groups, Intensities, Colors, Raws, Cues).
+These commands can be executed with all types of Items (Models, Fixtures, Groups, Intensities, Colors, Positions, Raws, Cuelists, Cues).
 
 ### Item Attribute 0 Set (Move / Set ID)
 This command changes Attribute 0 (the ID) of the selected Item.
@@ -93,13 +103,15 @@ This command will remove Model 1 and 2.
 > - When deleting an Intensity, it will be removed from all Effects and Cues.
 > - When deleting a Color, it will be removed from all Effects and Cues.
 > - When deleting a Position, it will be removed from all Effects and Cues.
-> - When deleting a Raw, it will be removed from all Effects and Cues.
+> - When deleting a Raw, it will be removed from all Intensities, Colors, Positions, Effects and Cues.
 > - When deleting an Effect, it will be removed from all Cues.
+> - When deleting a Cuelist, all of its Cues will be deleted.
 
 ## Models
 If no Model Attribute is given, the standard Attribute 2 will be used.
 
 If no Model ID is given, the Model of the current Fixture will be used.
+If no Fixture is currently selected, all the Models of the Fixtures of the current Group will be used instead.
 
 ### Model Attribute 2 Set (Channels)
 This command doesn't take a value. Instead, it will open a popup where you can insert the Model's channels. These channels are currently supported:
@@ -123,6 +135,8 @@ This command doesn't take a value. Instead, it will open a popup where you can i
 - p (Pan fine)
 - T (Tilt)
 - t (Tilt fine)
+- Z (Zoom)
+- z (Zoom fine)
 - 0 (DMX value 0)
 - 1 (DMX value 255)
 
@@ -135,6 +149,14 @@ The Pan Range is given in degree.
 ### Model Attribute 3.2 Set (Tilt Range)
 If your Model supports the Tilt Attribute, you should set its Tilt Range so that Positions are rendered correctly.
 The Tilt Range is given in degree.
+
+### Model Attribute 4.1 Set (Minimal Zoom)
+If your Model supports the Zoom Attribute, you should set its Minimal and Maximal Zoom so that the Zoom can be rendered correctly.
+This value is given in degree.
+
+### Model Attribute 4.2 Set (Maximal Zoom)
+If your Model supports the Zoom Attribute, you should set its Minimal and Maximal Zoom so that the Zoom can be rendered correctly.
+This value is given in degree.
 
 ## Fixtures
 If no Fixture Attribute is given, the standard Attribute 3 will be used.
@@ -216,7 +238,7 @@ Group 1 Attribute 2 Set + Fixture 1.4 + 1.5
 ## Intensities
 If no Itensity Attribute is given, the standard Attribute 2 will be used.
 
-If no Intensity ID is given, the ID of the Intensity of the currently selected Group in the current Cue will be used.
+If no Intensity ID is given, the ID of the Intensity of the currently selected Group in the currently selected Cue will be used.
 
 ### Intensity Attribute 2 Set (Dimmer)
 This command sets the Dimmer Attribute to the selected Intensities:
@@ -251,10 +273,27 @@ The second command will reduce the Dimmer value of Intensity 2 by 5 percent.
 > Intensity 2 Attribute 2 Set - 10
 > ```
 
+### Intensity Attribute 3 Set (Raws)
+This command allows you to set Raws which will be called together with the Intensity:
+```
+Intensity 1 Attribute 3 Set Raw 1 + 2 + 3
+```
+For example, you could use this Attribute to call a Raw which controls the shutter of a Moving Head.
+
+You can remove all Raws again like this:
+```
+Intensity 1 Attribute 3 Set
+```
+
+You can also add Raws to the Intensity without overwriting all the Raws like this:
+```
+Intensity 1 Attribute 3 Set + Raw 4
+```
+
 ## Colors
 If no Color Attribute is given, the standard Attribute 2 will be used.
 
-If no Color ID is given, the ID of the Color of the currently selected Group in the current Cue will be used.
+If no Color ID is given, the ID of the Color of the currently selected Group in the currently selected Cue will be used.
 
 ### Color Attribute 2 Set (Hue)
 This command sets the Hue Attribute of the selected Colors.
@@ -278,10 +317,27 @@ Color 1 Attribute 4 Set 75
 This is important in combination with RGBW color mixing:
 The color white can be producted with only the white LEDs turned on (Quality = 100%) or with all LEDs turned on (Quality = 0%).
 
+### Color Attribute 5 Set (Raws)
+This command allows you to set Raws which will be called together with the Color:
+```
+Color 1 Attribute 5 Set Raw 1 + 2 + 3
+```
+For example, you could use this Attribute to call a Raw which controls the color wheel of a Moving Head.
+
+You can remove all Raws again like this:
+```
+Color 1 Attribute 5 Set
+```
+
+You can also add Raws to the Color without overwriting all the Raws like this:
+```
+Color 1 Attribute 5 Set + Raw 4
+```
+
 ## Positions
 If no Position Attribute is given, the standard Attribute 2 will be used.
 
-If no Position ID is given, the ID of the Position of the currently selected Group in the current Cue will be used.
+If no Position ID is given, the ID of the Position of the currently selected Group in the currently selected Cue will be used.
 
 ### Position Attribute 2 Set (Pan)
 This command sets the Pan Attribute of the selected Positions.
@@ -294,6 +350,29 @@ This command sets the Tilt of the selected Positions.
 The value is given in degree.
 
 For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2.
+
+### Position Attribute 4 Set (Zoom)
+This command sets the Zoom of the selected Positions.
+The value is given in degree.
+
+For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2.
+
+### Position Attribute 5 Set (Raws)
+This command allows you to set Raws which will be called together with the Position:
+```
+Position 1 Attribute 5 Set Raw 1 + 2 + 3
+```
+For example, you could use this Attribute to call a Raw which controls the focus of a Moving Head.
+
+You can remove all Raws again like this:
+```
+Position 1 Attribute 5 Set
+```
+
+You can also add Raws to the Position without overwriting all the Raws like this:
+```
+Position 1 Attribute 5 Set + Raw 4
+```
 
 ## Raws
 If no Raw Attribute is given, the standard Attribute 2 will be used.
@@ -320,12 +399,12 @@ Raw 1 Attribute 2 Model 4 Set -
 Raw 2 Attribute 2.7 Fixture 5 Set -
 ```
 
-### Raw Attribute 3 Set (Move in Black)
+### Raw Attribute 3 Set (Move while Dark)
 This command sets if the Raw channels are allowed to be set before the actual Cue where they are requested takes place.
 
-The accepted values are 0 (False / MiB deactivated) and 1 (True / MiB activated).
+The accepted values are 0 (False / Move while Dark deactivated) and 1 (True / Move while Dark activated).
 
-### Raw Attribute 4 Set (Fading)
+### Raw Attribute 4 Set (Fade)
 This command sets if the Raw is allowed to fade the Channels.
 
 The accepted values are 0 (False / Fading deactivated) and 1 (True / Fading activated).
@@ -423,16 +502,45 @@ You can remove the Fixture exceptions again like this:
 Effect 1 Attribute 9 Fixture 4 Set -
 ```
 
+## Cuelists
+If no Cuelist Attribute is given, the standard Attribute 2 will be used.
+
+If no Cuelist ID is given, the ID of the current Cuelist will be used.
+You can select the current Cuelist like this:
+```
+Cuelist 1
+```
+
+### Cuelist Attribute 2 Set (Current Cue)
+This command sets the Cue of the selected Cuelists:
+```
+Cuelist 1 Attribute 2 Set Cue 3
+```
+
+### Cuelist Attribute 3 Set (Priority)
+This command sets the Priority of a Cuelist.
+This is a number between 0 and 200.
+
+If multiple Cuelists try to control the same Fixture, the Cuelist with the highest ID will win.
+
+### Cuelist Attribute 4 Set (Move while Dark)
+This command sets if the Fixtures which are not set are allowed to be set before the actual Cue where they are requested takes place.
+
+The accepted values are 0 (False / Move while Dark deactivated) and 1 (True / Move while Dark activated).
+
 
 ## Cues
+You can only edit Cues of the currently selected Cuelist.
+All Cues must be member of one Cuelist.
+
 If no Cue Attribute is given, the standard Attribute 7 will be used.
 
-If no Cue ID is given, the ID of current Cue will be used.
-You can select the current Cue like this:
+If no Cue ID is given, the ID of the selected Cue of the selected Cuelist will be used.
+You can select a Cue like this:
 ```
 Cue 1
 ```
-Please note that when you add a new Cue, the cue will use the values of Attribute 2, 3, 4, 5 and 6 of the previouse Cue as these values will be tracked.
+Please note that when you add a new Cue while Tracking is enabled, the cue will use the values of Attribute 2, 3, 4, 5 and 6 of the previouse Cue in the Cuelist as these values will be tracked.
 
 ### Cue Attribute 2 Set (Intensities)
 This command sets the Intensity of the selected Groups in the selected Cues:
@@ -453,7 +561,7 @@ Cue 1 + 2 Attribute 2 Group 4 Set -
 > ```
 > Intensity -
 > ```
-> If you use this syntax, the Intensity will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds a different Intensity.
+> If you use this syntax while Tracking is enabled, the Intensity will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds a different Intensity.
 
 ### Cue Attribute 3 Set (Colors)
 This command sets the Color of the selected Groups in the selected Cues:
@@ -474,7 +582,7 @@ Cue 1 + 2 Attribute 3 Group 4 Set -
 > ```
 > Color -
 > ```
-> If you use this syntax, the Color will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds a different Color.
+> If you use this syntax while Tracking is enabled, the Color will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds a different Color.
 
 ### Cue Attribute 4 Set (Positions)
 This command sets the Position of the selected Groups in the selected Cues:
@@ -495,7 +603,7 @@ Cue 1 + 2 Attribute 4 Group 4 Set -
 > ```
 > Position -
 > ```
-> If you use this syntax, the Position will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds a different Position.
+> If you use this syntax while Tracking is enabled, the Position will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds a different Position.
 
 ### Cue Attribute 5 Set (Raws)
 This command sets the Raws of the selected Groups in the selected Cues:
@@ -515,7 +623,7 @@ Cue 1 + 2 Attribute 5 Group 3 Set -
 > ```
 > Raw -
 > ```
-> If you use this syntax, the Raws will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds different Raws.
+> If you use this syntax while Tracking is enabled, the Raws will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds different Raws.
 
 ### Cue Attribute 6 Set (Effects)
 This command sets the Effects of the selected Groups in the selected Cues:
@@ -535,7 +643,7 @@ Cue 1 + 2 Attribute 6 Group 3 Set -
 > ```
 > Effect -
 > ```
-> If you use this syntax, the Effects will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds different Effects.
+> If you use this syntax while Tracking is enabled, the Effects will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds different Effects.
 
 ### Cue Attribute 7 Set (Fade)
 This command sets the Fade time of the selected Cues:
@@ -605,9 +713,11 @@ This command deletes all Intensities starting with Intensity 1.1 and ending with
 ## Control Panel
 The Control panel can be used to control the values of the current Group or Fixture:
 
-When selecting a Cue and a Group, you can see and change the Dimmer of the current Intensity, the Hue and Saturation of the current Color and the Pan and Tilt of the current Position.
-When you now also select a Fixture, not the standard value but instead the value for this Fixture will be changed.
+When selecting a Cue and a Group, you can see and change the Dimmer of the current Intensity, the Hue and Saturation of the current Color and the Pan, Tilt and Zoom of the current Position.
+When you now also select a Fixture which has defined an exception for the Attribute, not the standard value but instead the value for this Fixture will be changed.
 So, for example, if your current Intensity holds a Dimmer exception for the current Fixture, rotating the Dial will change this exception.
+You can also add and remove exceptions by clicking the exception buttons.
+
 > [!CAUTION]
 > Please note that the precision of the dials cannot be smaller than 1.
 > When you need a more precise control, you can of course still set the values with the Terminal.

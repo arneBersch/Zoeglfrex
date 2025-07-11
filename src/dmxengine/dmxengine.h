@@ -25,20 +25,18 @@ class DmxEngine : public QWidget {
 public:
     DmxEngine(Kernel *core, QWidget *parent = nullptr);
     SacnServer *sacnServer;
+    QPushButton *blindButton;
+    QPushButton *highlightButton;
+    QPushButton *soloButton;
+    QPushButton* skipFadeButton;
     const int PROCESSINGRATE = 40; // 40 FPS
 private:
     void generateDmx();
-    QMap<Group*, QMap<Effect*, int>> renderCue(Cue* cue, QMap<Fixture*, float>* dimmerValues, QMap<Fixture*, rgbColor>* colorValues, QMap<Fixture*, positionAngles>* positionValues, QMap<Fixture*, QMap<int, uint8_t>>* rawValues, QMap<Fixture*, QMap<int, bool>>* rawFade);
+    void renderCue(Cue* cue, QMap<Group*, QMap<Effect*, int>> oldGroupEffectFrames, QMap<Fixture*, float>* dimmerValues, QMap<Fixture*, rgbColor>* colorValues, QMap<Fixture*, positionAngles>* positionValues, QMap<Fixture*, QMap<int, uint8_t>>* rawValues, QMap<Fixture*, QMap<int, bool>>* rawFade);
     QTimer *timer;
-    Cue* currentCue = nullptr;
-    Cue* lastCue = nullptr;
     QMap<Group*, QMap<Effect*, int>> groupEffectFrames;
     QMap<Fixture*, float> fixturePan;
-    int remainingFadeFrames = 0;
-    int totalFadeFrames = 0;
-    QPushButton *highlightButton;
     QProgressBar* fadeProgress;
-    QPushButton* skipFadeButton;
     Kernel *kernel;
 };
 

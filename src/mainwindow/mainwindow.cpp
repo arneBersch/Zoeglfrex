@@ -43,13 +43,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QAction *outputSettingsAction = new QAction("DMX Output Settings");
     outputMenu->addAction(outputSettingsAction);
     connect(outputSettingsAction, &QAction::triggered, this, [this]{ kernel->dmxEngine->sacnServer->show(); });
-    outputMenu->addSeparator();
-    QAction *goAction = new QAction("Go to next Cue (Space)");
-    outputMenu->addAction(goAction);
-    connect(goAction, &QAction::triggered, this, [this]{ kernel->cuelistView->nextCue(); });
-    QAction *goBackAction = new QAction("Go to previous Cue (SHIFT+Space)");
-    outputMenu->addAction(goBackAction);
-    connect(goBackAction, &QAction::triggered, this, [this]{ kernel->cuelistView->previousCue(); });
+    QAction *playbackMonitorAction = new QAction("Playback Monitor");
+    outputMenu->addAction(playbackMonitorAction);
+    connect(playbackMonitorAction, &QAction::triggered, this, [this]{ kernel->playbackMonitor->show(); });
 
     QMenu *helpMenu = menuBar()->addMenu("Help");
     QAction *aboutAction = new QAction("About Zöglfrex");
@@ -64,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     kernel = new Kernel(this);
     setupShortcuts(this);
+    kernel->cuelistView->updateCuelistView();
     kernel->cuelistView->reload();
 
     QSplitter *leftColumn = new QSplitter();
@@ -119,17 +116,20 @@ void MainWindow::setupShortcuts(QWidget* widget) {
     connect(new QShortcut(QKeySequence(Qt::Key_F), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Fixture); }); // Fixture
     connect(new QShortcut(QKeySequence(Qt::Key_G), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Group); }); // Group
     connect(new QShortcut(QKeySequence(Qt::Key_I), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Intensity); }); // Intensity
+    connect(new QShortcut(QKeySequence(Qt::Key_L), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Cuelist); }); // Cue List
     connect(new QShortcut(QKeySequence(Qt::Key_M), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Model); }); // Model
     connect(new QShortcut(QKeySequence(Qt::Key_P), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Position); }); // Model
     connect(new QShortcut(QKeySequence(Qt::Key_Q), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Cue); }); // Cue
     connect(new QShortcut(QKeySequence(Qt::Key_R), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Raw); }); // Raw
     connect(new QShortcut(QKeySequence(Qt::Key_S), widget), &QShortcut::activated, this, [this]{ kernel->terminal->write(Keys::Set); }); // Set
+
     connect(new QShortcut(QKeySequence(Qt::Key_Return), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); kernel->terminal->clear(); }); // Enter Command (via Return key)
     connect(new QShortcut(QKeySequence(Qt::Key_Enter), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); kernel->terminal->clear(); }); // Enter Command (via Keypad Enter key)
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Return), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Shift + Return key)
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Enter), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Shift + Enter key)
     connect(new QShortcut(QKeySequence(Qt::Key_Backspace), widget), &QShortcut::activated, this, [this]{ kernel->terminal->backspace(); }); // Backspace (Remove last keypress)
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Backspace), widget), &QShortcut::activated, this, [this]{ kernel->terminal->clear(); }); // Clear Terminal
+
     connect(new QShortcut(QKeySequence(Qt::Key_Space), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextCue(); }); // Go to next Cue
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Space), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousCue(); }); // Go to previous Cue
     connect(new QShortcut(QKeySequence(Qt::Key_Down), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextGroup(); }); // Go to next Group
@@ -137,6 +137,33 @@ void MainWindow::setupShortcuts(QWidget* widget) {
     connect(new QShortcut(QKeySequence(Qt::Key_Right), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextFixture(); }); // Go to next Fixture
     connect(new QShortcut(QKeySequence(Qt::Key_Left), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousFixture(); }); // Go to previous Fixture
     connect(new QShortcut(QKeySequence(Qt::Key_Escape), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->noFixture(); }); // Deselect Fixture
+
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_B), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->blindButton->click(); }); // Blind
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->skipFadeButton->click(); }); // Skip Fade
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_H), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->highlightButton->click(); }); // Highlight
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_M), widget), &QShortcut::activated, this, [this]{
+        if (kernel->cuelistView->cueViewModeComboBox->currentIndex() == CuelistViewModes::cueMode) {
+            kernel->cuelistView->cueViewModeComboBox->setCurrentIndex(CuelistViewModes::groupMode);
+        } else if (kernel->cuelistView->cueViewModeComboBox->currentIndex() == CuelistViewModes::groupMode) {
+            kernel->cuelistView->cueViewModeComboBox->setCurrentIndex(CuelistViewModes::cueMode);
+        } else {
+            Q_ASSERT(false);
+        }
+    }); // Set Cuelist View Mode
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_R), widget), &QShortcut::activated, this, [this]{
+        if (kernel->cuelistView->cueViewRowFilterComboBox->currentIndex() == CuelistViewRowFilters::noFilter) {
+            kernel->cuelistView->cueViewRowFilterComboBox->setCurrentIndex(CuelistViewRowFilters::activeRowsFilter);
+        } else if (kernel->cuelistView->cueViewRowFilterComboBox->currentIndex() == CuelistViewRowFilters::activeRowsFilter) {
+            kernel->cuelistView->cueViewRowFilterComboBox->setCurrentIndex(CuelistViewRowFilters::changedRowsFilter);
+        } else if (kernel->cuelistView->cueViewRowFilterComboBox->currentIndex() == CuelistViewRowFilters::changedRowsFilter) {
+            kernel->cuelistView->cueViewRowFilterComboBox->setCurrentIndex(CuelistViewRowFilters::noFilter);
+        } else {
+            Q_ASSERT(false);
+        }
+    }); // Set Cuelist View Rows Filter
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_S), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->soloButton->click(); }); // Solo
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_T), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->trackingButton->click(); }); // Tracking
+
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_N), widget), &QShortcut::activated, this, &MainWindow::newFile); // New File
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_O), widget), &QShortcut::activated, this, &MainWindow::openFile); // Open File
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), widget), &QShortcut::activated, this, &MainWindow::saveFile); // Save File
@@ -200,6 +227,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         kernel->dmxEngine->sacnServer->close();
         kernel->preview2d->close();
         kernel->controlPanel->close();
+        kernel->playbackMonitor->close();
         event->accept();
     }
 }

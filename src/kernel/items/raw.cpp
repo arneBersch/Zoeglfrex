@@ -18,7 +18,45 @@ Raw::Raw(const Raw* item) : Item(item) {
 }
 
 Raw::~Raw() {
-    for (Effect *effect : kernel->effects->items) {
+    for (Model* model : kernel->models->items) {
+        for (QString attribute : model->rawListAttributes.keys()) {
+            model->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Fixture* fixture : kernel->fixtures->items) {
+        for (QString attribute : fixture->rawListAttributes.keys()) {
+            fixture->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Group* group : kernel->groups->items) {
+        for (QString attribute : group->rawListAttributes.keys()) {
+            group->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Intensity* intensity : kernel->intensities->items) {
+        for (QString attribute : intensity->rawListAttributes.keys()) {
+            intensity->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Color* color : kernel->colors->items) {
+        for (QString attribute : color->rawListAttributes.keys()) {
+            color->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Position* position : kernel->positions->items) {
+        for (QString attribute : position->rawListAttributes.keys()) {
+            position->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Raw* raw : kernel->raws->items) {
+        for (QString attribute : raw->rawListAttributes.keys()) {
+            raw->rawListAttributes[attribute].removeAll(this);
+        }
+    }
+    for (Effect* effect : kernel->effects->items) {
+        for (QString attribute : effect->rawListAttributes.keys()) {
+            effect->rawListAttributes[attribute].removeAll(this);
+        }
         for (int step : effect->rawSteps.keys()) {
             if (effect->rawSteps.contains(step)) {
                 effect->rawSteps[step].removeAll(this);
@@ -28,12 +66,20 @@ Raw::~Raw() {
             }
         }
     }
-    for (Cue *cue : kernel->cues->items) {
-        for (Group *group : cue->raws.keys()) {
-            if (cue->raws.contains(group)) {
-                cue->raws[group].removeAll(this);
-                if (cue->raws[group].isEmpty()) {
-                    cue->raws.remove(group);
+    for (Cuelist* cuelist : kernel->cuelists->items) {
+        for (QString attribute : cuelist->rawListAttributes.keys()) {
+            cuelist->rawListAttributes[attribute].removeAll(this);
+        }
+        for (Cue* cue : cuelist->cues->items) {
+            for (QString attribute : cue->rawListAttributes.keys()) {
+                cue->rawListAttributes[attribute].removeAll(this);
+            }
+            for (Group *group : cue->raws.keys()) {
+                if (cue->raws.contains(group)) {
+                    cue->raws[group].removeAll(this);
+                    if (cue->raws[group].isEmpty()) {
+                        cue->raws.remove(group);
+                    }
                 }
             }
         }
@@ -42,13 +88,14 @@ Raw::~Raw() {
 
 QString Raw::info() {
     QString info = Item::info();
+
     QStringList channelValue;
     for (int channel = 1; channel <= 512; channel++) {
         if (channelValues.contains(channel)) {
             channelValue.append(QString::number(channel) + " @ " + QString::number(channelValues.value(channel)));
         }
     }
-    info += "\n" + kernel->raws->CHANNELVALUEATTRIBUTEID + ".x Channel Values: " + channelValue.join(", ");
+    info += "\n" + kernel->RAWCHANNELVALUEATTRIBUTEID + ".x Channel Values: " + channelValue.join(", ");
     QStringList modelChannelValue;
     for (Model* model : kernel->models->items) {
         if (modelSpecificChannelValues.contains(model)) {
@@ -75,16 +122,21 @@ QString Raw::info() {
         }
     }
     info += "\n    Fixture Exceptions: " + fixtureChannelValue.join("; ");
-    if (boolAttributes.value(kernel->raws->MOVEINBLACKATTRIBUTEID)) {
-        info += "\n" + kernel->raws->MOVEINBLACKATTRIBUTEID + " MiB (Move in Black): True";
+
+    info += "\n" + kernel->RAWMOVEWHILEDARKATTRIBUTEID + " Move while Dark: ";
+    if (boolAttributes.value(kernel->RAWMOVEWHILEDARKATTRIBUTEID)) {
+        info += "True";
     } else {
-        info += "\n" + kernel->raws->MOVEINBLACKATTRIBUTEID + " MiB (Move in Black): False";
+        info += "False";
     }
-    if (boolAttributes.value(kernel->raws->FADEATTRIBUTEID)) {
-        info += "\n" + kernel->raws->FADEATTRIBUTEID + " Fade: True";
+
+    info += "\n" + kernel->RAWFADEATTRIBUTEID + " Fade: ";
+    if (boolAttributes.value(kernel->RAWFADEATTRIBUTEID)) {
+        info += "True";
     } else {
-        info += "\n" + kernel->raws->FADEATTRIBUTEID + " Fade: False";
+        info += "False";
     }
+
     return info;
 }
 
@@ -92,14 +144,14 @@ void Raw::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     Item::writeAttributesToFile(fileStream);
     for (int channel : channelValues.keys()) {
         fileStream->writeStartElement("Attribute");
-        fileStream->writeAttribute("ID", (kernel->raws->CHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
+        fileStream->writeAttribute("ID", (kernel->RAWCHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
         fileStream->writeCharacters(QString::number(channelValues.value(channel)));
         fileStream->writeEndElement();
     }
     for (Model* model : modelSpecificChannelValues.keys()) {
         for (int channel : modelSpecificChannelValues.value(model).keys()) {
             fileStream->writeStartElement("Attribute");
-            fileStream->writeAttribute("ID", (kernel->raws->CHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
+            fileStream->writeAttribute("ID", (kernel->RAWCHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
             fileStream->writeAttribute("Model", model->id);
             fileStream->writeCharacters(QString::number(modelSpecificChannelValues.value(model).value(channel)));
             fileStream->writeEndElement();
@@ -108,7 +160,7 @@ void Raw::writeAttributesToFile(QXmlStreamWriter* fileStream) {
     for (Fixture* fixture : fixtureSpecificChannelValues.keys()) {
         for (int channel : fixtureSpecificChannelValues.value(fixture).keys()) {
             fileStream->writeStartElement("Attribute");
-            fileStream->writeAttribute("ID", (kernel->raws->CHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
+            fileStream->writeAttribute("ID", (kernel->RAWCHANNELVALUEATTRIBUTEID + "." + QString::number(channel)));
             fileStream->writeAttribute("Fixture", fixture->id);
             fileStream->writeCharacters(QString::number(fixtureSpecificChannelValues.value(fixture).value(channel)));
             fileStream->writeEndElement();

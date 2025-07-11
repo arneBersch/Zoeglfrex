@@ -1,7 +1,7 @@
 # Zöglfrex
 Zöglfrex is a Free and Open Source stage lighting software.
 
-It currently only runs on Linux (via AppImage). However, Windows support is planned, too.
+It currently runs on Linux (via AppImage) and Windows.
 
 See the [Releases page](https://github.com/arneBersch/Zoeglfrex/releases/) to download the latest version of Zöglfrex.
 
@@ -13,14 +13,9 @@ See the [Releases page](https://github.com/arneBersch/Zoeglfrex/releases/) to do
 ## Documentation
 For documentation, you can find the complete [Zöglfrex Reference](docs/reference.md) and also a [Quick Start Guide](docs/quick_start_guide.md).
 
-## Known Limitations
-- DMX Output only via sACN (ANSI E1.31)
-- only one Cue can be played back simultanously
-- only English UI, no other languages are supported yet
-
 ## How to contribute
 Please DO NOT post feature requests.
-I am aware that there are many things that you can't do with Zöglfrex (see the Known Limitations above), but most of them will get implemented over time.
+I am aware that there are many things that you can't do with Zöglfrex, but most of them will get implemented over time.
 However, you can help by testing Zöglfrex, reporting bugs in the Issues tab and therefore making this software more stable.
 Please check this points before creating an Issue:
 1. First of all, make sure you're using the latest version of Zöglfrex.

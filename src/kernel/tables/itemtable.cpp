@@ -6,18 +6,42 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "itemlist.h"
+#include "itemtable.h"
 #include "kernel/kernel.h"
 
-template <class T> ItemList<T>::ItemList(Kernel* core, int key, QString singular, QString plural) {
+template <class T> ItemTable<T>::ItemTable(Kernel* core, int key, QString singular, QString plural) {
     kernel = core;
     itemKey = key;
     singularItemName = singular;
     pluralItemName = plural;
-    stringAttributes[LABELATTRIBUTEID] = {"Label", QString(), QString()};
+    stringAttributes[kernel->LABELATTRIBUTEID] = {"Label", QString(), QString()};
 }
 
-template <class T> T* ItemList<T>::getItem(QString id) const {
+template <class T> ItemTable<T>::ItemTable(ItemTable<T>* table) {
+    kernel = table->kernel;
+    stringAttributes = table->stringAttributes;
+    intAttributes = table->intAttributes;
+    floatAttributes = table->floatAttributes;
+    modelSpecificFloatAttributes = table->modelSpecificFloatAttributes;
+    fixtureSpecificFloatAttributes = table->fixtureSpecificFloatAttributes;
+    angleAttributes = table->angleAttributes;
+    modelSpecificAngleAttributes = table->modelSpecificAngleAttributes;
+    fixtureSpecificAngleAttributes = table->fixtureSpecificAngleAttributes;
+    boolAttributes = table->boolAttributes;
+    rawListAttributes = table->rawListAttributes;
+    items = QList<T*>();
+    for (T* tableItem : table->items) {
+        T* item = new T(tableItem);
+        item->id = tableItem->id;
+        items.append(item);
+    }
+}
+
+template <class T> ItemTable<T>::~ItemTable() {
+    reset();
+}
+
+template <class T> T* ItemTable<T>::getItem(QString id) const {
     int itemRow = getItemRow(id);
     if (itemRow < 0 || itemRow >= items.size()) {
         return nullptr;
@@ -25,7 +49,7 @@ template <class T> T* ItemList<T>::getItem(QString id) const {
     return items[itemRow];
 }
 
-template <class T> int ItemList<T>::getItemRow(QString id) const {
+template <class T> int ItemTable<T>::getItemRow(QString id) const {
     for (int itemRow = 0; itemRow < items.size(); itemRow++) {
         if (items[itemRow]->id == id) {
             return itemRow;
@@ -34,7 +58,7 @@ template <class T> int ItemList<T>::getItemRow(QString id) const {
     return -1;
 }
 
-template <class T> QStringList ItemList<T>::getIds() const {
+template <class T> QStringList ItemTable<T>::getIds() const {
     QStringList ids;
     for (T* item : items) {
         ids.append(item->id);
@@ -42,7 +66,7 @@ template <class T> QStringList ItemList<T>::getIds() const {
     return ids;
 }
 
-template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+template <class T> void ItemTable<T>::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
     if ((!attributes.contains(Keys::Attribute)) && (value.size() == 1) && (value.first() == Keys::Minus)) { // Delete Item
         QStringList existingIds;
@@ -88,7 +112,7 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
             }
         }
         kernel->terminal->success("Copied " + QString::number(itemCounter) + " " + pluralItemName + " from " + singularItemName + " " + sourceItem->name() + " .");
-    } else if (attribute == IDATTRIBUTEID) { // Move Item
+    } else if (attribute == kernel->IDATTRIBUTEID) { // Move Item
         QString targetId = kernel->terminal->keysToId(value);
         if (targetId.isEmpty()) {
             kernel->terminal->error("Couldn't set " + singularItemName + " ID because the given ID is not valid.");
@@ -732,15 +756,76 @@ template <class T> void ItemList<T>::setAttribute(QStringList ids, QMap<int, QSt
         } else {
             kernel->terminal->success("Set " + boolAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(newValue) + ".");
         }
+    } else if (rawListAttributes.contains(attribute)) { // Raw List Attribute
+        RawListAttribute rawListAttribute = rawListAttributes.value(attribute);
+        bool addRaws = value.startsWith(Keys::Plus);
+        if (addRaws) {
+            value.removeFirst();
+        }
+        QList<Raw*> rawSelection = QList<Raw*>();
+        if (!value.isEmpty() || !text.isEmpty()) {
+            if (!value.isEmpty()) {
+                if (value.first() != Keys::Raw) {
+                    kernel->terminal->error("Can't set " + singularItemName + " " + rawListAttribute.name + " because this requires Raws.");
+                    return;
+                }
+                value.removeFirst();
+            }
+            QStringList rawIds = kernel->terminal->keysToSelection(value, Keys::Raw);
+            if (!text.isEmpty()) {
+                rawIds = text.split("+");
+            }
+            if (rawIds.isEmpty()) {
+                kernel->terminal->error("Can't set " + singularItemName + " " + rawListAttribute.name + " because of an invalid Raw selection.");
+                return;
+            }
+            for (QString rawId : rawIds) {
+                Raw* raw = kernel->raws->getItem(rawId);
+                if (raw == nullptr) {
+                    kernel->terminal->warning("Can't add Raw " + rawId + " to " + singularItemName + " " + rawListAttribute.name + " because it doesn't exist.");
+                } else {
+                    if (!rawSelection.contains(raw)) {
+                        rawSelection.append(raw);
+                    }
+                }
+            }
+        }
+        for (QString id : ids) {
+            T* item = getItem(id);
+            if (item == nullptr) {
+                item = addItem(id);
+            }
+            if (addRaws) {
+                for (Raw* raw : rawSelection) {
+                    if (!item->rawListAttributes[attribute].contains(raw)) {
+                        item->rawListAttributes[attribute].append(raw);
+                    }
+                }
+            } else {
+                item->rawListAttributes[attribute] = rawSelection;
+            }
+            emit dataChanged(index(getItemRow(item->id), 0), index(getItemRow(item->id), 0), {Qt::DisplayRole, Qt::EditRole});
+        }
+        if ((kernel->cuelistView->currentGroup != nullptr) && !kernel->cuelistView->currentGroup->fixtures.contains(kernel->cuelistView->currentFixture)) {
+            kernel->cuelistView->currentFixture = nullptr;
+        }
+        if (ids.size() == 1) {
+            kernel->terminal->success("Set " + rawListAttribute.name + " of " + singularItemName + " " + getItem(ids.first())->name() + " to " + QString::number(getItem(ids.first())->rawListAttributes.value(attribute).length()) + " Raws.");
+        } else {
+            if (addRaws) {
+                kernel->terminal->success("Added " + QString::number(rawSelection.length()) + " Raws to the " + rawListAttribute.name + " of " + QString::number(ids.length()) + " " + pluralItemName + ".");
+            } else {
+                kernel->terminal->success("Set Raws of " + QString::number(ids.length()) + " " + pluralItemName + " to " + QString::number(rawSelection.length()) + " Raws.");
+            }
+        }
     } else {
         kernel->terminal->error("Can't set " + singularItemName + " Attribute " + attributes.value(Keys::Attribute) + ".");
     }
 }
 
-template <class T> void ItemList<T>::saveItemsToFile(QXmlStreamWriter* fileStream) {
+template <class T> void ItemTable<T>::saveItemsToFile(QXmlStreamWriter* fileStream) {
     fileStream->writeStartElement(pluralItemName);
-    for (int itemRow = (items.size() - 1); itemRow >= 0; itemRow--) {
-        T* item = items[itemRow];
+    for (T* item : items) {
         fileStream->writeStartElement(singularItemName);
         fileStream->writeAttribute("ID", item->id);
         item->writeAttributesToFile(fileStream);
@@ -749,7 +834,7 @@ template <class T> void ItemList<T>::saveItemsToFile(QXmlStreamWriter* fileStrea
     fileStream->writeEndElement();
 }
 
-template <class T> void ItemList<T>::reset() {
+template <class T> void ItemTable<T>::reset() {
     for (int itemIndex = (items.length() - 1); itemIndex >= 0; itemIndex--) {
         T* item = items[itemIndex];
         items.removeAt(itemIndex);
@@ -757,15 +842,15 @@ template <class T> void ItemList<T>::reset() {
     }
 }
 
-template <class T> int ItemList<T>::rowCount(const QModelIndex&) const {
+template <class T> int ItemTable<T>::rowCount(const QModelIndex&) const {
     return items.size();
 }
 
-template <class T> int ItemList<T>::columnCount(const QModelIndex&) const {
+template <class T> int ItemTable<T>::columnCount(const QModelIndex&) const {
     return 1;
 }
 
-template <class T> QVariant ItemList<T>::data(const QModelIndex &index, const int role) const {
+template <class T> QVariant ItemTable<T>::data(const QModelIndex &index, const int role) const {
     const int row = index.row();
     const int column = index.column();
     if (row >= rowCount() || row < 0) {
@@ -774,13 +859,17 @@ template <class T> QVariant ItemList<T>::data(const QModelIndex &index, const in
     if (column >= columnCount() || column < 0) {
         return QVariant();
     }
-    if (index.isValid() && role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole) {
         return items[row]->name();
+    } else if (role == Qt::BackgroundRole) {
+        if (kernel->inspector->ids.contains(items[row]->id)) {
+            return QColor(48, 48, 48);
+        }
     }
     return QVariant();
 }
 
-template <class T> int ItemList<T>::findRow(QString id) {
+template <class T> int ItemTable<T>::findRow(QString id) {
     int position = 0;
     QStringList idParts = id.split(".");
     for (T* item : items) {
@@ -806,7 +895,7 @@ template <class T> int ItemList<T>::findRow(QString id) {
     return position;
 }
 
-template <class T> T* ItemList<T>::addItem(QString id) {
+template <class T> T* ItemTable<T>::addItem(QString id) {
     T* item = new T(kernel);
     item->id = id;
     for (QString attribute : stringAttributes.keys()) {
@@ -835,6 +924,9 @@ template <class T> T* ItemList<T>::addItem(QString id) {
     }
     for (QString attribute : boolAttributes.keys()) {
         item->boolAttributes[attribute] = boolAttributes.value(attribute).value;
+    }
+    for (QString attribute : rawListAttributes.keys()) {
+        item->rawListAttributes[attribute] = rawListAttributes.value(attribute).value;
     }
     int row = findRow(id);
     beginInsertRows(QModelIndex(), row, row);

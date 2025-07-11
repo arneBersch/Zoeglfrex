@@ -21,9 +21,10 @@ public:
     int blue = 0;
     int pan = 0;
     int tilt = 0;
+    int zoom = 0;
 private:
     const int ellipseWidth = 50;
-    const int maxBeamLength = 120;
+    const int maxBeamLength = 150;
 };
 
 #endif // FIXTUREGRAPHICSITEM_H

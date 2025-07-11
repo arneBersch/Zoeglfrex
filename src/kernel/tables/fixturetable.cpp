@@ -6,20 +6,20 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "fixturelist.h"
+#include "fixturetable.h"
 
-FixtureList::FixtureList(Kernel *core) : ItemList(core, Keys::Fixture, "Fixture", "Fixtures") {
-    intAttributes[ADDRESSATTRIBUTEID] = {"Address", 0, 0, 512};
-    intAttributes[UNIVERSEATTRIBUTEID] = {"Universe", 1, 1, 63999};
-    floatAttributes[POSITIONXATTRIBUTEID] = {"X Position", 0, -100, 100};
-    floatAttributes[POSITIONYATTRIBUTEID] = {"Y Position", 0, -100, 100};
-    angleAttributes[ROTATIONATTRIBUTEID] = {"Rotation", 0};
-    boolAttributes[INVERTPANATTRIBUTE] = {"Invert Pan", false};
+FixtureTable::FixtureTable(Kernel *core) : ItemTable(core, Keys::Fixture, "Fixture", "Fixtures") {
+    intAttributes[kernel->FIXTUREADDRESSATTRIBUTEID] = {"Address", 0, 0, 512};
+    intAttributes[kernel->FIXTUREUNIVERSEATTRIBUTEID] = {"Universe", 1, 1, 63999};
+    floatAttributes[kernel->FIXTUREPOSITIONXATTRIBUTEID] = {"X Position", 0, -100, 100};
+    floatAttributes[kernel->FIXTUREPOSITIONYATTRIBUTEID] = {"Y Position", 0, -100, 100};
+    angleAttributes[kernel->FIXTUREROTATIONATTRIBUTEID] = {"Rotation", 0};
+    boolAttributes[kernel->FIXTUREINVERTPANATTRIBUTEID] = {"Invert Pan", false};
 }
 
-void FixtureList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+void FixtureTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
-    if (attribute == MODELATTRIBUTEID) {
+    if (attribute == kernel->FIXTUREMODELATTRIBUTEID) {
         if ((value.size() == 1) && (value.first() == Keys::Minus)) {
             for (QString id : ids) {
                 Fixture* fixture = getItem(id);
@@ -40,6 +40,10 @@ void FixtureList::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
             QString modelId = kernel->terminal->keysToId(value);
             if (!text.isEmpty()) {
                 modelId = text;
+            }
+            if (modelId.isEmpty()) {
+                kernel->terminal->error("Can't set Fixture Model because of no valid Model was given.");
+                return;
             }
             Model *model = kernel->models->getItem(modelId);
             if (model == nullptr) {
@@ -64,6 +68,6 @@ void FixtureList::setAttribute(QStringList ids, QMap<int, QString> attributes, Q
             return;
         }
     } else {
-        ItemList::setAttribute(ids, attributes, value, text);
+        ItemTable::setAttribute(ids, attributes, value, text);
     }
 }

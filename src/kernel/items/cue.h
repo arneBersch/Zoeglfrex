@@ -17,6 +17,7 @@
 #include "position.h"
 #include "raw.h"
 #include "effect.h"
+class Cuelist;
 
 class Cue : public Item {
 public:
@@ -30,6 +31,7 @@ public:
     QMap<Group*, QList<Effect*>> effects;
     QString info() override;
     void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
+    Cuelist* cuelist;
 };
 
 #endif // CUE_H

@@ -6,10 +6,24 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "intensitylist.h"
+#ifndef GROUPTABLE_H
+#define GROUPTABLE_H
 
-IntensityList::IntensityList(Kernel *core) : ItemList(core, Keys::Intensity, "Intensity", "Intensities") {
-    floatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    modelSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-    fixtureSpecificFloatAttributes[DIMMERATTRIBUTEID] = {"Dimmer", 0, 0, 100, "%"};
-}
+#include <QtWidgets>
+
+#include "itemtable.h"
+#include "../items/group.h"
+
+class Kernel;
+
+template class ItemTable<Group>;
+class GroupTable : public ItemTable<Group> {
+    Q_OBJECT
+public:
+    GroupTable(Kernel *core);
+    void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
+};
+
+#include "kernel/kernel.h"
+
+#endif // GROUPTABLE_H

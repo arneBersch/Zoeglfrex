@@ -6,27 +6,27 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef POSITION_H
-#define POSITION_H
+#ifndef EFFECTTABLE_H
+#define EFFECTTABLE_H
 
 #include <QtWidgets>
 
-#include "item.h"
+#include "itemtable.h"
+#include "../items/effect.h"
 
-struct positionAngles {
-    float pan = 0;
-    float tilt = 0;
-    float zoom = 0;
-};
+class Kernel;
 
-class Position : public Item {
+template class ItemTable<Effect>;
+class EffectTable : public ItemTable<Effect> {
+    Q_OBJECT
 public:
-    Position(Kernel* core);
-    Position(const Position* item);
-    ~Position();
-    QString name() override;
-    QString info() override;
-    positionAngles getAngles(Fixture* fixture);
+    EffectTable(Kernel *core);
+    void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
+private:
+    Effect* addItem(QString id) override;
+    QMap<QString, FloatAttribute> stepSpecificFloatAttributes;
 };
 
-#endif // POSITION_H
+#include "kernel/kernel.h"
+
+#endif // EFFECTTABLE_H

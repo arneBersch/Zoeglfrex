@@ -82,27 +82,37 @@ Model::~Model() {
             effect->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
         }
     }
-    for (Cue* cue : kernel->cues->items) {
-        for (QString modelSpecificFloatAttribute : cue->modelSpecificFloatAttributes.keys()) {
-            cue->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+    for (Cuelist* cuelist : kernel->cuelists->items) {
+        for (QString modelSpecificFloatAttribute : cuelist->modelSpecificFloatAttributes.keys()) {
+            cuelist->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
         }
-        for (QString modelSpecificAngleAttribute : cue->modelSpecificAngleAttributes.keys()) {
-            cue->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
+        for (QString modelSpecificAngleAttribute : cuelist->modelSpecificAngleAttributes.keys()) {
+            cuelist->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
+        }
+        for (Cue* cue : cuelist->cues->items) {
+            for (QString modelSpecificFloatAttribute : cue->modelSpecificFloatAttributes.keys()) {
+                cue->modelSpecificFloatAttributes[modelSpecificFloatAttribute].remove(this);
+            }
+            for (QString modelSpecificAngleAttribute : cue->modelSpecificAngleAttributes.keys()) {
+                cue->modelSpecificAngleAttributes[modelSpecificAngleAttribute].remove(this);
+            }
         }
     }
 }
 
 QString Model::name() {
-    if (stringAttributes.value(kernel->models->LABELATTRIBUTEID).isEmpty()) {
-        return Item::name() + stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
+    if (stringAttributes.value(kernel->LABELATTRIBUTEID).isEmpty()) {
+        return Item::name() + stringAttributes.value(kernel->MODELCHANNELSATTRIBUTEID);
     }
     return Item::name();
 }
 
 QString Model::info() {
     QString info = Item::info();
-    info += "\n" + kernel->models->CHANNELSATTRIBUTEID + " Channels: " + stringAttributes.value(kernel->models->CHANNELSATTRIBUTEID);
-    info += "\n" + kernel->models->PANRANGEATTRIBUTEID + " Pan Range: " + QString::number(floatAttributes.value(kernel->models->PANRANGEATTRIBUTEID)) + "°";
-    info += "\n" + kernel->models->TILTRANGEATTRIBUTEID + " Tilt Range: " + QString::number(floatAttributes.value(kernel->models->TILTRANGEATTRIBUTEID)) + "°";
+    info += "\n" + kernel->MODELCHANNELSATTRIBUTEID + " Channels: " + stringAttributes.value(kernel->MODELCHANNELSATTRIBUTEID);
+    info += "\n" + kernel->MODELPANRANGEATTRIBUTEID + " Pan Range: " + QString::number(floatAttributes.value(kernel->MODELPANRANGEATTRIBUTEID)) + "°";
+    info += "\n" + kernel->MODELTILTRANGEATTRIBUTEID + " Tilt Range: " + QString::number(floatAttributes.value(kernel->MODELTILTRANGEATTRIBUTEID)) + "°";
+    info += "\n" + kernel->MODELMINZOOMATTRIBUTEID + " Minimal Zoom: " + QString::number(floatAttributes.value(kernel->MODELMINZOOMATTRIBUTEID)) + "°";
+    info += "\n" + kernel->MODELMAXZOOMATTRIBUTEID + " Maximal Zoom: " + QString::number(floatAttributes.value(kernel->MODELMAXZOOMATTRIBUTEID)) + "°";
     return info;
 }

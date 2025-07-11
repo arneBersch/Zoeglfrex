@@ -6,25 +6,23 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef GROUPLIST_H
-#define GROUPLIST_H
+#ifndef PLAYBACKMONITOR_H
+#define PLAYBACKMONITOR_H
 
 #include <QtWidgets>
-
-#include "itemlist.h"
-#include "../items/group.h"
+#include "cuelistmodel.h"
 
 class Kernel;
+class Cuelist;
 
-template class ItemList<Group>;
-class GroupList : public ItemList<Group> {
-    Q_OBJECT
+class PlaybackMonitor : public QWidget {
 public:
-    GroupList(Kernel *core);
-    const QString FIXTURESATTRIBUTEID = "2";
-    void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
+    PlaybackMonitor(Kernel* core);
+    void reset();
+private:
+    QTableView* tableView;
+    CuelistModel* cuelistModel;
+    Kernel* kernel;
 };
 
-#include "kernel/kernel.h"
-
-#endif // GROUPLIST_H
+#endif // PLAYBACKMONITOR_H

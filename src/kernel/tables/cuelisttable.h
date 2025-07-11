@@ -6,35 +6,26 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef EFFECTLIST_H
-#define EFFECTLIST_H
+#ifndef CUELISTTABLE_H
+#define CUELISTTABLE_H
 
 #include <QtWidgets>
 
-#include "itemlist.h"
-#include "../items/effect.h"
+#include "itemtable.h"
+#include "../items/cuelist.h"
 
 class Kernel;
 
-template class ItemList<Effect>;
-class EffectList : public ItemList<Effect> {
+template class ItemTable<Cuelist>;
+class CuelistTable : public ItemTable<Cuelist> {
     Q_OBJECT
 public:
-    EffectList(Kernel *core);
-    const QString STEPSATTRIBUTEID = "2";
-    const QString INTENSITYSTEPSATTRIBUTEID = "3";
-    const QString COLORSTEPSATTRIBUTEID = "4";
-    const QString POSITIONSTEPSATTRIBUTEID = "5";
-    const QString RAWSTEPSATTRIBUTEID = "6";
-    const QString STEPHOLDATTRIBUTEID = "7";
-    const QString STEPFADEATTRIBUTEID = "8";
-    const QString PHASEATTRIBUTEID = "9";
+    CuelistTable(Kernel *core);
     void setAttribute(QStringList ids, QMap<int, QString> attribute, QList<int> value, QString text = QString()) override;
 private:
-    Effect* addItem(QString id) override;
-    QMap<QString, FloatAttribute> stepSpecificFloatAttributes;
+    Cuelist* addItem(QString id) override;
 };
 
 #include "kernel/kernel.h"
 
-#endif // EFFECTLIST_H
+#endif // CUELISTTABLE_H

@@ -6,10 +6,32 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "modellist.h"
+#ifndef CUELISTMODEL_H
+#define CUELISTMODEL_H
 
-ModelList::ModelList(Kernel *core) : ItemList(core, Keys::Model, "Model", "Models") {
-    stringAttributes[CHANNELSATTRIBUTEID] = {"Channels", "D", "^[01DdRrGgBbWwCcMmYyPpTt]+$"};
-    floatAttributes[PANRANGEATTRIBUTEID] = {"Pan Range", 540, 0, 3600, "°"};
-    floatAttributes[TILTRANGEATTRIBUTEID] = {"Tilt Range", 270, 0, 360, "°"};
+#include <QtWidgets>
+
+class Kernel;
+
+namespace CuelistModelColumns {
+enum {
+    cuelistName,
+    currentCue,
+    goBackButton,
+    goButton,
+};
 }
+
+class CuelistModel : public QAbstractTableModel {
+public:
+    CuelistModel(Kernel* core);
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, const int role) const override;
+    QVariant headerData(int column, Qt::Orientation orientation, int role) const override;
+    void reset();
+private:
+    Kernel* kernel;
+};
+
+#endif // CUELISTMODEL_H

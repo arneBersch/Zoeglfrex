@@ -6,17 +6,17 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "rawlist.h"
+#include "rawtable.h"
 
-RawList::RawList(Kernel *core) : ItemList(core, Keys::Raw, "Raw", "Raws") {
-    boolAttributes[MOVEINBLACKATTRIBUTEID] = {"MiB", true};
-    boolAttributes[FADEATTRIBUTEID] = {"Fade", false};
+RawTable::RawTable(Kernel *core) : ItemTable(core, Keys::Raw, "Raw", "Raws") {
+    boolAttributes[kernel->RAWMOVEWHILEDARKATTRIBUTEID] = {"Move while Dark", true};
+    boolAttributes[kernel->RAWFADEATTRIBUTEID] = {"Fade", false};
 }
 
-void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
+void RawTable::setAttribute(QStringList ids, QMap<int, QString> attributes, QList<int> value, QString text) {
     QString attribute = attributes.value(Keys::Attribute);
-    if (attribute.startsWith(CHANNELVALUEATTRIBUTEID + ".")) {
-        attribute.remove(0, QString(CHANNELVALUEATTRIBUTEID + ".").length());
+    if (attribute.startsWith(kernel->RAWCHANNELVALUEATTRIBUTEID + ".")) {
+        attribute.remove(0, QString(kernel->RAWCHANNELVALUEATTRIBUTEID + ".").length());
         bool ok = true;
         int channel = attribute.toInt(&ok);
         if (!ok) {
@@ -253,7 +253,7 @@ void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
                 }
             }
         }
-    } else if (attribute == CHANNELVALUEATTRIBUTEID) {
+    } else if (attribute == kernel->RAWCHANNELVALUEATTRIBUTEID) {
         if ((value.size() != 1) || (value.first() != Keys::Minus)) {
             kernel->terminal->error("Can't set Raw Channel Value because no Channel was given.");
             return;
@@ -297,6 +297,6 @@ void RawList::setAttribute(QStringList ids, QMap<int, QString> attributes, QList
             return;
         }
     } else {
-        ItemList::setAttribute(ids, attributes, value, text);
+        ItemTable::setAttribute(ids, attributes, value, text);
     }
 }

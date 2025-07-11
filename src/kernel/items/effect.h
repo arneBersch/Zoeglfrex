@@ -29,12 +29,12 @@ public:
     QMap<QString, QMap<int, float>> stepSpecificFloatAttributes;
     QString info() override;
     void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
-    float getDimmer(Fixture* fixture, int frame);
-    rgbColor getRGB(Fixture* fixture, int frame);
-    positionAngles getPosition(Fixture* fixture, int frame);
-    QMap<int, uint8_t> getRaws(Fixture* fixture, int frame, bool renderMiBRaws = true);
+    float getDimmer(Fixture* fixture, int frame) const;
+    rgbColor getRGB(Fixture* fixture, int frame) const;
+    positionAngles getPosition(Fixture* fixture, int frame) const;
+    QMap<int, uint8_t> getRaws(Fixture* fixture, int frame, bool renderMoveWhileDarkRaws = true) const;
 private:
-    int getStep(Fixture* fixture, int frame, float* fade);
+    int getStep(Fixture* fixture, int frame, float* fade) const;
 };
 
 #endif // EFFECT_H
