@@ -51,6 +51,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QAction *aboutAction = new QAction("About Zöglfrex");
     helpMenu->addAction(aboutAction);
     connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
+    QAction *aboutQtAction = new QAction("About Qt");
+    helpMenu->addAction(aboutQtAction);
+    connect(aboutQtAction, &QAction::triggered, this, &QApplication::aboutQt);
+    helpMenu->addSeparator();
     QAction *openGuideAction = new QAction("Quick Start Guide");
     helpMenu->addAction(openGuideAction);
     connect(openGuideAction, &QAction::triggered, this, []{ QDesktopServices::openUrl(QUrl("https://github.com/arneBersch/Zoeglfrex/blob/main/docs/quick_start_guide.md")); });

@@ -53,7 +53,7 @@ public:
     ControlPanel *controlPanel;
     PlaybackMonitor *playbackMonitor;
     QMutex *mutex;
-    const QString VERSION = "0.5.0";
+    const QString VERSION = "1.0.0";
 
     const QString IDATTRIBUTEID = "0";
     const QString LABELATTRIBUTEID = "1";
