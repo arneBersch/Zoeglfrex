@@ -15,10 +15,11 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(zoeglfrex);
 
     QApplication app(argc, argv);
-    QFile file(":/resources/style.qss");
-    file.open(QFile::ReadOnly);
-    QString styleSheet = QString::fromLatin1(file.readAll());
-    app.setStyleSheet(styleSheet);
+
+    QFile stylesheet(":/resources/style.qss");
+    stylesheet.open(QFile::ReadOnly);
+    QString style = QString::fromLatin1(stylesheet.readAll());
+    app.setStyleSheet(style);
 
     MainWindow window;
 

@@ -29,7 +29,8 @@ private:
     void saveFile();
     void saveFileAs();
     void about();
-    QString fileName;
+    QString fileName = QString();
+    const QString filenameEnding = "zfr";
     const QString COPYRIGHT = "Copyright (c) 2025 Arne Bersch (zoeglfrex-dmx@web.de)";
 };
 #endif // MAINWINDOW_H

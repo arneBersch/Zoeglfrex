@@ -34,18 +34,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QMenu *programmingMenu = menuBar()->addMenu("Programming");
     QAction *controlPanelAction = new QAction("Control Panel");
     programmingMenu->addAction(controlPanelAction);
-    connect(controlPanelAction, &QAction::triggered, this, [this]{ kernel->controlPanel->show(); });
+    connect(controlPanelAction, &QAction::triggered, kernel->controlPanel, &ControlPanel::show);
     QAction *preview2dAction = new QAction("2D Preview");
     programmingMenu->addAction(preview2dAction);
-    connect(preview2dAction, &QAction::triggered, this, [this]{ kernel->preview2d->show(); });
+    connect(preview2dAction, &QAction::triggered, kernel->preview2d, &Preview2d::show);
 
     QMenu *outputMenu = menuBar()->addMenu("Output");
     QAction *outputSettingsAction = new QAction("DMX Output Settings");
     outputMenu->addAction(outputSettingsAction);
-    connect(outputSettingsAction, &QAction::triggered, this, [this]{ kernel->dmxEngine->sacnServer->show(); });
+    connect(outputSettingsAction, &QAction::triggered, kernel->dmxEngine->sacnServer, &SacnServer::show);
     QAction *playbackMonitorAction = new QAction("Playback Monitor");
     outputMenu->addAction(playbackMonitorAction);
-    connect(playbackMonitorAction, &QAction::triggered, this, [this]{ kernel->playbackMonitor->show(); });
+    connect(playbackMonitorAction, &QAction::triggered, kernel->playbackMonitor, &PlaybackMonitor::show);
 
     QMenu *helpMenu = menuBar()->addMenu("Help");
     QAction *aboutAction = new QAction("About Zöglfrex");
@@ -79,7 +79,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     rightColumn->setChildrenCollapsible(false);
     rightColumn->addWidget(kernel->inspector);
 
-    QSplitter *mainColumns = new QSplitter(); // The main window consists of the left and right column
+    QSplitter *mainColumns = new QSplitter();
     mainColumns->setChildrenCollapsible(false);
     mainColumns->addWidget(leftColumn);
     mainColumns->addWidget(rightColumn);
@@ -92,7 +92,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     qInfo() << "Zöglfrex is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.";
     qInfo() << "You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.";
 
-    this->show();
+    show();
     about(); // Open about window
 }
 
@@ -129,22 +129,22 @@ void MainWindow::setupShortcuts(QWidget* widget) {
 
     connect(new QShortcut(QKeySequence(Qt::Key_Return), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); kernel->terminal->clear(); }); // Enter Command (via Return key)
     connect(new QShortcut(QKeySequence(Qt::Key_Enter), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); kernel->terminal->clear(); }); // Enter Command (via Keypad Enter key)
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Return), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Shift + Return key)
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Enter), widget), &QShortcut::activated, this, [this]{ kernel->terminal->execute(); }); // Enter Command (via Shift + Enter key)
-    connect(new QShortcut(QKeySequence(Qt::Key_Backspace), widget), &QShortcut::activated, this, [this]{ kernel->terminal->backspace(); }); // Backspace (Remove last keypress)
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Backspace), widget), &QShortcut::activated, this, [this]{ kernel->terminal->clear(); }); // Clear Terminal
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Return), widget), &QShortcut::activated, kernel->terminal, &Terminal::execute); // Enter Command (via Shift + Return key)
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Enter), widget), &QShortcut::activated, kernel->terminal, &Terminal::execute); // Enter Command (via Shift + Enter key)
+    connect(new QShortcut(QKeySequence(Qt::Key_Backspace), widget), &QShortcut::activated, kernel->terminal, &Terminal::backspace); // Backspace (Remove last keypress)
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Backspace), widget), &QShortcut::activated, kernel->terminal, &Terminal::clear); // Clear Terminal
 
-    connect(new QShortcut(QKeySequence(Qt::Key_Space), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextCue(); }); // Go to next Cue
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Space), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousCue(); }); // Go to previous Cue
-    connect(new QShortcut(QKeySequence(Qt::Key_Down), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextGroup(); }); // Go to next Group
-    connect(new QShortcut(QKeySequence(Qt::Key_Up), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousGroup(); }); // Go to previous Group
-    connect(new QShortcut(QKeySequence(Qt::Key_Right), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->nextFixture(); }); // Go to next Fixture
-    connect(new QShortcut(QKeySequence(Qt::Key_Left), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->previousFixture(); }); // Go to previous Fixture
-    connect(new QShortcut(QKeySequence(Qt::Key_Escape), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->noFixture(); }); // Deselect Fixture
+    connect(new QShortcut(QKeySequence(Qt::Key_Space), widget), &QShortcut::activated, kernel->cuelistView, &CuelistView::nextCue); // Go to next Cue
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Space), widget), &QShortcut::activated, kernel->cuelistView, &CuelistView::previousCue); // Go to previous Cue
+    connect(new QShortcut(QKeySequence(Qt::Key_Down), widget), &QShortcut::activated, kernel->cuelistView, &CuelistView::nextGroup); // Go to next Group
+    connect(new QShortcut(QKeySequence(Qt::Key_Up), widget), &QShortcut::activated, kernel->cuelistView, &CuelistView::previousGroup); // Go to previous Group
+    connect(new QShortcut(QKeySequence(Qt::Key_Right), widget), &QShortcut::activated, kernel->cuelistView, &CuelistView::nextFixture); // Go to next Fixture
+    connect(new QShortcut(QKeySequence(Qt::Key_Left), widget), &QShortcut::activated, kernel->cuelistView, &CuelistView::previousFixture); // Go to previous Fixture
+    connect(new QShortcut(QKeySequence(Qt::Key_Escape), widget), &QShortcut::activated, kernel->cuelistView, &CuelistView::noFixture); // Deselect Fixture
 
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_B), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->blindButton->click(); }); // Blind
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->skipFadeButton->click(); }); // Skip Fade
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_H), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->highlightButton->click(); }); // Highlight
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_B), widget), &QShortcut::activated, kernel->dmxEngine->blindButton, &QPushButton::click); // Blind
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F), widget), &QShortcut::activated, kernel->dmxEngine->skipFadeButton, &QPushButton::click); // Skip Fade
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_H), widget), &QShortcut::activated, kernel->dmxEngine->highlightButton, &QPushButton::click); // Highlight
     connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_M), widget), &QShortcut::activated, this, [this]{
         if (kernel->cuelistView->cueViewModeComboBox->currentIndex() == CuelistViewModes::cueMode) {
             kernel->cuelistView->cueViewModeComboBox->setCurrentIndex(CuelistViewModes::groupMode);
@@ -165,8 +165,8 @@ void MainWindow::setupShortcuts(QWidget* widget) {
             Q_ASSERT(false);
         }
     }); // Set Cuelist View Rows Filter
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_S), widget), &QShortcut::activated, this, [this]{ kernel->dmxEngine->soloButton->click(); }); // Solo
-    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_T), widget), &QShortcut::activated, this, [this]{ kernel->cuelistView->trackingButton->click(); }); // Tracking
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_S), widget), &QShortcut::activated, kernel->dmxEngine->soloButton, &QPushButton::click); // Solo
+    connect(new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_T), widget), &QShortcut::activated, kernel->cuelistView->trackingButton, &QPushButton::click); // Tracking
 
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_N), widget), &QShortcut::activated, this, &MainWindow::newFile); // New File
     connect(new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_O), widget), &QShortcut::activated, this, &MainWindow::openFile); // Open File
@@ -176,7 +176,7 @@ void MainWindow::setupShortcuts(QWidget* widget) {
 }
 
 void MainWindow::openFile() {
-    QString newFileName = QFileDialog::getOpenFileName(this, "Open File", QString(), "zfr Files (*.zfr)");
+    QString newFileName = QFileDialog::getOpenFileName(this, "Open File", QString(), filenameEnding + " Files (*." + filenameEnding + ")");
     if (newFileName.isEmpty()) {
         return;
     }
@@ -203,13 +203,13 @@ void MainWindow::newFile() {
 
 void MainWindow::saveFile() {
     if (fileName.isEmpty()) {
-        QString filenameFilter = "zfr Files (*.zfr)";
+        QString filenameFilter = filenameEnding + " Files (*." + filenameEnding + ")";
         fileName = QFileDialog::getSaveFileName(this, "Save File", QString(), filenameFilter, &filenameFilter);
         if (fileName.isEmpty()) {
             return;
         }
-        if (!fileName.endsWith(".zfr")) {
-            fileName += ".zfr";
+        if (!fileName.endsWith("." + filenameEnding)) {
+            fileName += "." + filenameEnding;
         }
     }
     kernel->saveFile(fileName);

@@ -8,7 +8,7 @@
 
 #include "aboutwindow.h"
 
-AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : QDialog{parent} {
+AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : QDialog(parent) {
     QVBoxLayout *layout = new QVBoxLayout();
     QHBoxLayout *headerLayout = new QHBoxLayout();
     layout->addLayout(headerLayout);
