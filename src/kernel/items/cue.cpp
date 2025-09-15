@@ -70,6 +70,12 @@ QString Cue::info() {
     info += "\n" + kernel->CUERAWSATTRIBUTEID + " Raws: " + rawValues.join("; ");
     info += "\n" + kernel->CUEEFFECTSATTRIBUTEID + " Effects: " + effectValues.join("; ");
     info += "\n" + kernel->CUEFADEATTRIBUTEID + " Fade: " + QString::number(floatAttributes.value(kernel->CUEFADEATTRIBUTEID)) + "s";
+    info += "\n" + kernel->CUEFOLLOWATTRIBUTEID + " Follow: ";
+    if (boolAttributes.value(kernel->CUEFOLLOWATTRIBUTEID)) {
+        info += "True";
+    } else {
+        info += "False";
+    }
     info += "\n" + kernel->CUEBLOCKATTRIBUTEID + " Block: ";
     if (boolAttributes.value(kernel->CUEBLOCKATTRIBUTEID)) {
         info += "True";

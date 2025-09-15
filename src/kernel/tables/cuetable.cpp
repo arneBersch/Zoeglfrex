@@ -11,6 +11,7 @@
 
 CueTable::CueTable(Kernel *core) : ItemTable(core, Keys::Cue, "Cue", "Cues") {
     floatAttributes[kernel->CUEFADEATTRIBUTEID] = {"Fade", 0, 0, 600, "s"};
+    boolAttributes[kernel->CUEFOLLOWATTRIBUTEID] = {"Follow", false};
     boolAttributes[kernel->CUEBLOCKATTRIBUTEID] = {"Block", false};
 }
 

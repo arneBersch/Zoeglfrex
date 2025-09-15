@@ -76,6 +76,12 @@ void DmxEngine::generateDmx() {
         }
         if (cuelist->remainingFadeFrames > 0) {
             cuelist->remainingFadeFrames--;
+        } else if (cuelist->currentCue != nullptr) {
+            int cueIndex = cuelist->cues->items.indexOf(cuelist->currentCue);
+            cueIndex++;
+            if ((cueIndex < cuelist->cues->items.size()) && cuelist->cues->items[cueIndex]->boolAttributes.value(kernel->CUEFOLLOWATTRIBUTEID)) {
+                cuelist->go();
+            }
         }
         if (cuelist->currentCue != nullptr) {
             QMap<Fixture*, float> currentCueFixtureDimmer;

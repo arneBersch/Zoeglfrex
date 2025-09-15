@@ -110,7 +110,9 @@ public:
     const QString CUERAWSATTRIBUTEID = "5";
     const QString CUEEFFECTSATTRIBUTEID = "6";
     const QString CUEFADEATTRIBUTEID = "7";
-    const QString CUEBLOCKATTRIBUTEID = "8";
+    const QString CUEDELAYATTRIBUTEID = "8";
+    const QString CUEFOLLOWATTRIBUTEID = "9";
+    const QString CUEBLOCKATTRIBUTEID = "10";
 private:
     QMap<int, QString> xmlToCommandAttributes(QXmlStreamAttributes streamAttributes);
 };
