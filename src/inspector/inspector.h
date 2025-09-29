@@ -10,22 +10,21 @@
 #define INSPECTOR_H
 
 #include <QtWidgets>
-
-class Kernel;
+#include <QtSql>
 
 class Inspector : public QWidget {
     Q_OBJECT
 public:
-    Inspector(Kernel *core, QWidget *parent = nullptr);
-    void load(QList<int> keys);
-    QStringList ids;
+    Inspector(QWidget *parent = nullptr);
+public slots:
+    void reload();
+    void loadTable(QString table);
 private:
-    Kernel *kernel;
-    QListView *table;
-    QLabel *title;
-    QLabel *infos;
+    QSqlQueryModel* model;
+    QString modelTable = "cues";
+    QListView* list;
+    QLabel* title;
+    QLabel* infos;
 };
-
-#include "kernel/kernel.h"
 
 #endif // INSPECTOR_H

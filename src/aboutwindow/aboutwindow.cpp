@@ -29,11 +29,11 @@ AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : 
     QLabel *licenseNotice = new QLabel("This application is licensed under the terms of the GNU General Public License.");
     layout->addWidget(licenseNotice);
 
-    QTextEdit *license = new QTextEdit();
+    QPlainTextEdit *license = new QPlainTextEdit();
     license->setReadOnly(true);
     QFile licenseFile(":/resources/license.txt");
     licenseFile.open(QFile::ReadOnly);
-    license->setText(licenseFile.readAll());
+    license->setPlainText(licenseFile.readAll());
     layout->addWidget(license);
 
     setLayout(layout);

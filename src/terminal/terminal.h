@@ -10,71 +10,25 @@
 #define TERMINAL_H
 
 #include <QtWidgets>
+#include <QtSql>
 
-class Kernel;
+#include "prompt.h"
 
-namespace Keys {
-enum {
-    Zero, // 0
-    One, // 1
-    Two, // 2
-    Three, // 3
-    Four, // 4
-    Five, // 5
-    Six, // 6
-    Seven, // 7
-    Eight, // 8
-    Nine, // 9
-    Plus, // +
-    Minus, // -
-    Period, // .
-    Thru, // T
-    Set, // S
-    Attribute, // A
-    Model, // M
-    Fixture, // F
-    Group, // G
-    Intensity, // I
-    Color, // C
-    Position, // P
-    Raw, // R
-    Effect, // E
-    Cuelist, // L
-    Cue, // Q
-};
-}
-
-class Terminal : public QWidget
-{
+class Terminal : public QWidget {
     Q_OBJECT
 public:
-    Terminal(Kernel *core, QWidget *parent = nullptr);
-    void write(int key);
-    void backspace();
-    void clear();
-    void execute();
+    Terminal(QWidget *parent = nullptr);
     void info(QString message);
     void success(QString message);
     void warning(QString message);
     void error(QString message);
-    bool printMessages = true;
-    bool isItem(int key);
-    bool isNumber(int key);
-    int keyToNumber(int key);
-    QString keysToId(QList<int> keys, bool removeTrailingZeros = true);
-    float keysToValue(QList<int> keys);
-    QStringList keysToSelection(QList<int> keys, int itemType);
-    QList<int> command;
+signals:
+    void dbChanged();
+    void promptTableChanged(QString table);
 private:
-    Kernel *kernel;
-    QString promptText(QList<int> keys);
-    QVBoxLayout *messages;
-    QScrollArea *scrollArea;
-    QLabel *prompt;
-private slots:
-    void scrollToLastMessage(int min, int max);
+    void executePrompt();
+    QPlainTextEdit *messages;
+    Prompt* prompt;
 };
-
-#include "kernel/kernel.h"
 
 #endif // TERMINAL_H
