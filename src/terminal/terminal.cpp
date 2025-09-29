@@ -137,12 +137,22 @@ void Terminal::executePrompt() {
     }
 
     if (attributeType == text) {
+        QSqlQuery query;
+        query.prepare("SELECT " + attributeName + " FROM " + tableName + " WHERE id = :id");
+        query.bindValue(":id", selectionId);
+        if (!query.exec()) {
+            error("Failed setting load current Attribute value.");
+            return;
+        }
+        QString textValue = QString();
+        while (query.next()) {
+            textValue = query.value(0).toString();
+        }
         bool ok;
-        const QString textValue = QInputDialog::getText(this, QString(), "Insert Text", QLineEdit::Normal, QString(), &ok);;
+        textValue = QInputDialog::getText(this, QString(), "Insert Text", QLineEdit::Normal, textValue, &ok);;
         if (!ok) {
             return;
         }
-        QSqlQuery query;
         query.prepare("UPDATE " + tableName + " SET " + attributeName + " = :value WHERE id = :id");
         query.bindValue(":id", selectionId);
         query.bindValue(":value", textValue);
