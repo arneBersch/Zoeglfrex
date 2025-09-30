@@ -12,68 +12,18 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
     prompt = new Prompt();
+    connect(prompt, &Prompt::info, this, &Terminal::info);
+    connect(prompt, &Prompt::error, this, &Terminal::error);
     connect(prompt, &Prompt::tableChanged, this, &Terminal::promptTableChanged);
+    connect(prompt, &Prompt::executed, this, &Terminal::execute);
     layout->addWidget(prompt);
 
     messages = new QPlainTextEdit();
     messages->setReadOnly(true);
     layout->addWidget(messages);
-
-    new QShortcut(Qt::Key_Enter, this, [this] { executePrompt(); });
-    new QShortcut(Qt::Key_Return, this, [this] { executePrompt(); });
 }
 
-void Terminal::executePrompt() {
-    QList<Prompt::Key> keys = prompt->getPromptKeys();
-    if (keys.isEmpty()) {
-        return;
-    }
-    info("> " + prompt->promptToString());
-    prompt->clearPrompt();
-
-    Prompt::Key selectionType = keys.first();
-    keys.removeFirst();
-    if (!prompt->isItemKey(selectionType)) {
-        error("No item type specified.");
-        return;
-    }
-
-    QList<Prompt::Key> selectionIdKeys;
-    QList<Prompt::Key> attributeKeys;
-    QList<Prompt::Key> value;
-    bool attributeReached = false;
-    bool valueReached = false;
-    for (const Prompt::Key key : keys) {
-        if (key == Prompt::Set) {
-            if (valueReached) {
-                error("Can't use Set more than one time in one command.");
-                return;
-            }
-            valueReached = true;
-        } else if ((prompt->isItemKey(key) || (key == Prompt::Attribute)) && !valueReached) {
-            //attribute.append(key);
-            attributeReached = true;
-        } else {
-            if (valueReached) {
-                value.append(key);
-            } else if (attributeReached) {
-                attributeKeys.append(key);
-            } else {
-                selectionIdKeys.append(key);
-            }
-        }
-    }
-    const int selectionId = prompt->keysToNumber(selectionIdKeys);
-    if (selectionId < 0) {
-        error("Invalid ID selection.");
-        return;
-    }
-    const int attributeId = prompt->keysToNumber(attributeKeys);
-    if (attributeId < 0) {
-        error("Invalid Attribute ID.");
-        return;
-    }
-
+void Terminal::execute(Prompt::Key selectionType, int id, int attribute, int value) {
     enum attributeTypes {
         text,
         number,
@@ -81,13 +31,13 @@ void Terminal::executePrompt() {
     attributeTypes attributeType;
     QString tableName;
     QString attributeName = "";
-    if (attributeId == 1) {
+    if (attribute == 1) {
         attributeName = "label";
         attributeType = text;
     }
     if (selectionType == Prompt::Model) {
         tableName = "models";
-        if (attributeId == 2) {
+        if (attribute == 2) {
             attributeName = "channels";
             attributeType = text;
         }
@@ -97,16 +47,16 @@ void Terminal::executePrompt() {
         tableName = "groups";
     } else if (selectionType == Prompt::Intensity) {
         tableName = "intensities";
-        if (attributeId == 2) {
+        if (attribute == 2) {
             attributeName = "intensity";
             attributeType = number;
         }
     } else if (selectionType == Prompt::Color) {
         tableName = "colors";
-        if (attributeId == 2) {
+        if (attribute == 2) {
             attributeName = "hue";
             attributeType = number;
-        } else if (attributeId == 3) {
+        } else if (attribute == 3) {
             attributeName = "saturation";
             attributeType = number;
         }
@@ -123,7 +73,7 @@ void Terminal::executePrompt() {
 
     QSqlQuery existsQuery;
     existsQuery.prepare("SELECT id FROM " + tableName + " WHERE id = :id");
-    existsQuery.bindValue(":id", selectionId);
+    existsQuery.bindValue(":id", id);
     if (!existsQuery.exec()) {
         error("Error executing Item check.");
         return;
@@ -131,15 +81,15 @@ void Terminal::executePrompt() {
     if (!existsQuery.next()) {
         QSqlQuery insertQuery;
         insertQuery.prepare("INSERT INTO " + tableName + " (id) VALUES (:id)");
-        insertQuery.bindValue(":id", selectionId);
+        insertQuery.bindValue(":id", id);
         insertQuery.exec();
-        success("Created Item with ID " + QString::number(selectionId) + ".");
+        success("Created Item with ID " + QString::number(id) + ".");
     }
 
     if (attributeType == text) {
         QSqlQuery query;
         query.prepare("SELECT " + attributeName + " FROM " + tableName + " WHERE id = :id");
-        query.bindValue(":id", selectionId);
+        query.bindValue(":id", id);
         if (!query.exec()) {
             error("Failed setting load current Attribute value.");
             return;
@@ -154,24 +104,23 @@ void Terminal::executePrompt() {
             return;
         }
         query.prepare("UPDATE " + tableName + " SET " + attributeName + " = :value WHERE id = :id");
-        query.bindValue(":id", selectionId);
+        query.bindValue(":id", id);
         query.bindValue(":value", textValue);
         if (query.exec()) {
-            success("Set Attribute " + QString::number(attributeId) + " of Item " + QString::number(selectionId) + " to \"" + textValue + "\".");
+            success("Set Attribute " + QString::number(attribute) + " of Item " + QString::number(id) + " to \"" + textValue + "\".");
         } else {
-            error("Failed setting Attribute " + QString::number(attributeId) + " of Item " + QString::number(selectionId) + ".");
+            error("Failed setting Attribute " + QString::number(attribute) + " of Item " + QString::number(id) + ".");
             return;
         }
     } else if (attributeType == number) {
-        int numberValue = prompt->keysToNumber(value);
         QSqlQuery query;
         query.prepare("UPDATE " + tableName + " SET " + attributeName + " = :value WHERE id = :id");
-        query.bindValue(":id", selectionId);
-        query.bindValue(":value", numberValue);
+        query.bindValue(":id", id);
+        query.bindValue(":value", value);
         if (query.exec()) {
-            success("Set Attribute " + QString::number(attributeId) + " of Item " + QString::number(selectionId) + " to " + QString::number(numberValue) + ".");
+            success("Set Attribute " + QString::number(id) + " of Item " + QString::number(id) + " to " + QString::number(value) + ".");
         } else {
-            error("Failed setting Attribute " + QString::number(attributeId) + " of Item " + QString::number(selectionId) + ".");
+            error("Failed setting Attribute " + QString::number(id) + " of Item " + QString::number(id) + ".");
             return;
         }
     } else {

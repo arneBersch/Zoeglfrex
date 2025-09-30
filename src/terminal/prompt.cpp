@@ -36,6 +36,8 @@ Prompt::Prompt(QWidget* parent) : QWidget(parent) {
 
     new QShortcut(Qt::Key_Backspace, this, [this] { removeLastKey(); });
     new QShortcut(Qt::SHIFT | Qt::Key_Backspace, this, [this] { clearPrompt(); });
+    new QShortcut(Qt::Key_Enter, this, [this] { execute(); });
+    new QShortcut(Qt::Key_Return, this, [this] { execute(); });
 }
 
 QList<Prompt::Key> Prompt::getPromptKeys() const {
@@ -71,6 +73,60 @@ void Prompt::removeLastKey() {
 void Prompt::clearPrompt() {
     promptKeys.clear();
     promptLabel->setText(promptToString());
+}
+
+void Prompt::execute() {
+    QList<Prompt::Key> keys = getPromptKeys();
+    if (keys.isEmpty()) {
+        return;
+    }
+    emit info("> " + promptToString());
+    clearPrompt();
+
+    Prompt::Key selectionType = keys.first();
+    keys.removeFirst();
+    if (!isItemKey(selectionType)) {
+        emit error("No item type specified.");
+        return;
+    }
+
+    QList<Prompt::Key> selectionIdKeys;
+    QList<Prompt::Key> attributeKeys;
+    QList<Prompt::Key> value;
+    bool attributeReached = false;
+    bool valueReached = false;
+    for (const Prompt::Key key : keys) {
+        if (key == Prompt::Set) {
+            if (valueReached) {
+                emit error("Can't use Set more than one time in one command.");
+                return;
+            }
+            valueReached = true;
+        } else if ((isItemKey(key) || (key == Prompt::Attribute)) && !valueReached) {
+            //attribute.append(key);
+            attributeReached = true;
+        } else {
+            if (valueReached) {
+                value.append(key);
+            } else if (attributeReached) {
+                attributeKeys.append(key);
+            } else {
+                selectionIdKeys.append(key);
+            }
+        }
+    }
+    const int selectionId = keysToNumber(selectionIdKeys);
+    if (selectionId < 0) {
+        emit error("Invalid selection ID.");
+        return;
+    }
+    const int attributeId = keysToNumber(attributeKeys);
+    if (attributeId < 0) {
+        emit error("Invalid Attribute ID.");
+        return;
+    }
+    const int valueId = keysToNumber(attributeKeys);
+    emit executed(selectionType, selectionId, attributeId, valueId);
 }
 
 int Prompt::keysToNumber(QList<Key> keys) const {

@@ -35,14 +35,18 @@ public:
         Cue, // Q
     };
     Prompt(QWidget* parent = nullptr);
+signals:
+    void info(QString info);
+    void error(QString error);
+    void tableChanged(QString table);
+    void executed(Key selectionType, int id, int attribute, int value);
+private:
     QString promptToString() const;
     QList<Key> getPromptKeys() const;
     void clearPrompt();
     bool isItemKey(Key key) const;
     int keysToNumber(QList<Key> keys) const;
-signals:
-    void tableChanged(QString table);
-private:
+    void execute();
     void writeKey(Key key);
     void removeLastKey();
     QLabel* promptLabel;

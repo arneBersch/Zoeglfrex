@@ -25,8 +25,9 @@ public:
 signals:
     void dbChanged();
     void promptTableChanged(QString table);
+private slots:
+    void execute(Prompt::Key selectionType, int id, int attribute, int value);
 private:
-    void executePrompt();
     QPlainTextEdit *messages;
     Prompt* prompt;
 };
