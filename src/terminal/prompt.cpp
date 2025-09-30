@@ -25,14 +25,16 @@ Prompt::Prompt(QWidget* parent) : QWidget(parent) {
     new QShortcut(Qt::Key_8, this, [this] { writeKey(Eight); });
     new QShortcut(Qt::Key_9, this, [this] { writeKey(Nine); });
 
+    new QShortcut(Qt::Key_Plus, this, [this] { writeKey(Plus); });
+    new QShortcut(Qt::Key_A, this, [this] { writeKey(Attribute); });
+    new QShortcut(Qt::Key_S, this, [this] { writeKey(Set); });
+
     new QShortcut(Qt::Key_M, this, [this] { writeKey(Model); });
     new QShortcut(Qt::Key_F, this, [this] { writeKey(Fixture); });
     new QShortcut(Qt::Key_G, this, [this] { writeKey(Group); });
     new QShortcut(Qt::Key_I, this, [this] { writeKey(Intensity); });
     new QShortcut(Qt::Key_C, this, [this] { writeKey(Color); });
     new QShortcut(Qt::Key_Q, this, [this] { writeKey(Cue); });
-    new QShortcut(Qt::Key_S, this, [this] { writeKey(Set); });
-    new QShortcut(Qt::Key_A, this, [this] { writeKey(Attribute); });
 
     new QShortcut(Qt::Key_Backspace, this, [this] { removeLastKey(); });
     new QShortcut(Qt::SHIFT | Qt::Key_Backspace, this, [this] { clearPrompt(); });
@@ -128,18 +130,18 @@ void Prompt::execute() {
             }
         }
     }
-    bool ok;
-    const int selectionId = keysToFloat(selectionIdKeys, &ok);
-    if (!ok) {
+    const QList<int> selectionIds = keysToIds(selectionIdKeys);
+    if (selectionIds.isEmpty()) {
         emit error("Invalid selection ID.");
         return;
     }
+    bool ok;
     const int attributeId = keysToFloat(attributeKeys, &ok);
     if (!ok) {
         emit error("Invalid Attribute ID.");
         return;
     }
-    emit executed(selectionType, selectionId, attributeId, value);
+    emit executed(selectionType, selectionIds, attributeId, value);
 }
 
 float Prompt::keysToFloat(QList<Key> keys, bool* ok) const {
@@ -172,6 +174,26 @@ float Prompt::keysToFloat(QList<Key> keys, bool* ok) const {
     }
     *ok = true;
     return number;
+}
+
+QList<int> Prompt::keysToIds(QList<Key> keys) const {
+    keys.append(Plus);
+    QList<int> ids;
+    QList<Key> currentIdKeys;
+    for (const Key key : keys) {
+        if (key == Plus) {
+            bool ok;
+            const int id = keysToFloat(currentIdKeys, &ok);
+            if (!ok) {
+                return QList<int>();
+            }
+            ids.append(id);
+            currentIdKeys.clear();
+        } else {
+            currentIdKeys.append(key);
+        }
+    }
+    return ids;
 }
 
 bool Prompt::isItemKey(Key key) const {
@@ -224,6 +246,8 @@ QString Prompt::promptToString() const {
             promptString += " Set ";
         } else if (key == Attribute) {
             promptString += " Attribute ";
+        } else if (key == Plus) {
+            promptString += " + ";
         } else {
             Q_ASSERT(false);
         }

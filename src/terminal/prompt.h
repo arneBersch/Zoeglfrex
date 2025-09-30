@@ -25,6 +25,7 @@ public:
         Seven, // 7
         Eight, // 8
         Nine, // 9
+        Plus, // +
         Set, // S
         Attribute, // A
         Model, // M
@@ -36,11 +37,12 @@ public:
     };
     Prompt(QWidget* parent = nullptr);
     float keysToFloat(QList<Key> keys, bool* ok) const;
+    QList<int> keysToIds(QList<Key> keys) const;
 signals:
     void info(QString info);
     void error(QString error);
     void itemChanged(QString table, int id);
-    void executed(Key selectionType, int id, int attribute, QList<Key> value);
+    void executed(Key selectionType, QList<int> ids, int attribute, QList<Key> value);
 private:
     QString promptToString() const;
     void clearPrompt();
