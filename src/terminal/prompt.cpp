@@ -60,14 +60,17 @@ void Prompt::writeKey(Key key) {
         QList<Prompt::Key> idKeys;
         bool id = true;
         for (const Key key : promptKeys.sliced(1, (promptKeys.length() - 1))) {
-            if (keysToNumber({key}) < 0) {
+            bool ok;
+            keysToFloat({key}, &ok);
+            if (!ok) {
                 id = false;
             }
             if (id) {
                 idKeys.append(key);
             }
         }
-        emit itemChanged(table, keysToNumber(idKeys));
+        bool ok;
+        emit itemChanged(table, keysToFloat(idKeys, &ok));
     }
     promptLabel->setText(promptToString());
 }
@@ -125,21 +128,22 @@ void Prompt::execute() {
             }
         }
     }
-    const int selectionId = keysToNumber(selectionIdKeys);
-    if (selectionId < 0) {
+    bool ok;
+    const int selectionId = keysToFloat(selectionIdKeys, &ok);
+    if (!ok) {
         emit error("Invalid selection ID.");
         return;
     }
-    const int attributeId = keysToNumber(attributeKeys);
-    if (attributeId < 0) {
+    const int attributeId = keysToFloat(attributeKeys, &ok);
+    if (!ok) {
         emit error("Invalid Attribute ID.");
         return;
     }
     emit executed(selectionType, selectionId, attributeId, value);
 }
 
-int Prompt::keysToNumber(QList<Key> keys) const {
-    int number = 0;
+float Prompt::keysToFloat(QList<Key> keys, bool* ok) const {
+    float number = 0;
     for (const Key key : keys) {
         number *= 10;
         if (key == Zero) {
@@ -162,9 +166,11 @@ int Prompt::keysToNumber(QList<Key> keys) const {
         } else if (key == Nine) {
             number += 9;
         } else {
+            *ok = false;
             return -1;
         }
     }
+    *ok = true;
     return number;
 }
 

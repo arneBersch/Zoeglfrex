@@ -35,7 +35,7 @@ public:
         Cue, // Q
     };
     Prompt(QWidget* parent = nullptr);
-    int keysToNumber(QList<Key> keys) const;
+    float keysToFloat(QList<Key> keys, bool* ok) const;
 signals:
     void info(QString info);
     void error(QString error);

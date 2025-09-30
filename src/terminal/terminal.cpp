@@ -71,8 +71,6 @@ void Terminal::execute(Prompt::Key selectionType, int id, int attribute, QList<P
     } else {
         error("Unknown Item type.");
     }
-
-    error("Unknown Attribute given.");
 }
 
 void Terminal::createItem(QString table, QString itemName, int id) {
@@ -123,8 +121,9 @@ void Terminal::setTextAttribute(QString table, QString itemName, QString attribu
 }
 
 void Terminal::setIntegerAttribute(QString table, QString itemName, QString attribute, QString attributeName, int id, QList<Prompt::Key> valueKeys, int minValue, int maxValue) {
-    const int value = prompt->keysToNumber(valueKeys);
-    if (value < 0) {
+    bool ok;
+    const int value = prompt->keysToFloat(valueKeys, &ok);
+    if (!ok) {
         error("Invalid value given.");
         return;
     }
@@ -146,10 +145,14 @@ void Terminal::setIntegerAttribute(QString table, QString itemName, QString attr
 }
 
 void Terminal::setAngleAttribute(QString table, QString itemName, QString attribute, QString attributeName, int id, QList<Prompt::Key> valueKeys) {
-    int value = prompt->keysToNumber(valueKeys);
-    if (value < 0) {
+    bool ok;
+    float value = prompt->keysToFloat(valueKeys, &ok);
+    if (!ok) {
         error("Invalid value given.");
         return;
+    }
+    while (value < 0) {
+        value += 360;
     }
     while (value >= 360) {
         value -= 360;

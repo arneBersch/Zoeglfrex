@@ -36,7 +36,7 @@ Inspector::Inspector(QWidget *parent) : QWidget(parent) {
 void Inspector::reload() {
     delete model;
     model = new QSqlQueryModel();
-    model->setQuery("SELECT CONCAT(id, ' ', label) FROM " + itemTable);
+    model->setQuery("SELECT CONCAT(id, ' ', label) FROM " + itemTable + " ORDER BY id");
     list->setModel(model);
 
     QSqlQuery itemQuery;
