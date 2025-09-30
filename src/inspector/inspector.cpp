@@ -40,11 +40,11 @@ void Inspector::reload() {
     list->setModel(model);
 
     QSqlQuery itemQuery;
-    itemQuery.prepare("SELECT * FROM " + itemTable + " WHERE id = :id");
+    itemQuery.prepare("SELECT label FROM " + itemTable + " WHERE id = :id");
     itemQuery.bindValue(":id", itemId);
     itemQuery.exec();
     if (itemQuery.next()) {
-        infos->setText(itemQuery.value(1).toString());
+        infos->setText(itemQuery.value(0).toString());
         infos->show();
     } else {
         infos->hide();

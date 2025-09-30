@@ -29,7 +29,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     QString fileName = QFileInfo(parser.positionalArguments().first()).absoluteFilePath();
-    const bool fileExists = QFileInfo(fileName).exists();
     if (!fileName.endsWith(".zfr")) {
         qFatal("Can't open files because Zöglfrex files have to end with .zfr");
         return 1;
@@ -41,21 +40,19 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (!fileExists) {
-        QStringList createTableQueries = {
-            "CREATE TABLE models (id INTEGER, label TEXT DEFAULT '', channels TEXT DEFAULT 'D', PRIMARY KEY (id))",
-            "CREATE TABLE fixtures (id INTEGER, label TEXT DEFAULT '', PRIMARY KEY (id))",
-            "CREATE TABLE groups (id INTEGER, label TEXT DEFAULT '', PRIMARY KEY (id))",
-            "CREATE TABLE intensities (id INTEGER, label TEXT DEFAULT '', dimmer INTEGER DEFAULT 0, PRIMARY KEY (id))",
-            "CREATE TABLE colors (id INTEGER, label TEXT DEFAULT '', hue INTEGER DEFAULT 0, saturation INTEGER DEFAULT 0, PRIMARY KEY (id))",
-            "CREATE TABLE cues (id INTEGER, label TEXT DEFAULT '', PRIMARY KEY (id))",
-        };
-        QSqlQuery query;
-        for (QString createTableQuery : createTableQueries) {
-            if (!query.exec(createTableQuery)) {
-                qFatal("Failed to create table.");
-                return 1;
-            }
+    QStringList createTableQueries = {
+        "CREATE TABLE IF NOT EXISTS models (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', channels TEXT DEFAULT 'D', PRIMARY KEY (key))",
+        "CREATE TABLE IF NOT EXISTS fixtures (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', PRIMARY KEY (key))",
+        "CREATE TABLE IF NOT EXISTS groups (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', PRIMARY KEY (key))",
+        "CREATE TABLE IF NOT EXISTS intensities (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', dimmer INTEGER DEFAULT 0, PRIMARY KEY (key))",
+        "CREATE TABLE IF NOT EXISTS colors (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', hue INTEGER DEFAULT 0, saturation INTEGER DEFAULT 0, PRIMARY KEY (key))",
+        "CREATE TABLE IF NOT EXISTS cues (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', PRIMARY KEY (key))",
+    };
+    QSqlQuery query;
+    for (QString createTableQuery : createTableQueries) {
+        if (!query.exec(createTableQuery)) {
+            qFatal("Failed to create table.");
+            return 1;
         }
     }
 
