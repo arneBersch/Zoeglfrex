@@ -11,11 +11,11 @@
 Inspector::Inspector(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    title = new QLabel("Cues");
-    QFont titleFont = title->font();
+    titleLabel = new QLabel("Cues");
+    QFont titleFont = titleLabel->font();
     titleFont.setCapitalization(QFont::Capitalize);
-    title->setFont(titleFont);
-    layout->addWidget(title);
+    titleLabel->setFont(titleFont);
+    layout->addWidget(titleLabel);
 
     list = new QListView();
     list->setSelectionMode(QAbstractItemView::NoSelection);
@@ -23,11 +23,11 @@ Inspector::Inspector(QWidget *parent) : QWidget(parent) {
     list->setFocusPolicy(Qt::NoFocus);
     layout->addWidget(list);
 
-    infos = new QLabel();
-    infos->setWordWrap(true);
-    infos->setStyleSheet("border: 1px solid white; padding: 10px;");
-    layout->addWidget(infos);
-    infos->hide();
+    infosLabel = new QLabel();
+    infosLabel->setWordWrap(true);
+    infosLabel->setStyleSheet("border: 1px solid white; padding: 10px;");
+    layout->addWidget(infosLabel);
+    infosLabel->hide();
 
     model = new QSqlQueryModel();
     reload();
@@ -39,21 +39,51 @@ void Inspector::reload() {
     model->setQuery("SELECT CONCAT(id, ' ', label) FROM " + itemTable + " ORDER BY id");
     list->setModel(model);
 
+    struct Attribute {
+        QString attribute;
+        QString name;
+        QString unit;
+    };
+    QList<Attribute> attributes;
+    attributes.append({"id", "ID", ""});
+    attributes.append({"label", "1 Label", ""});
+    if (itemTable == "models") {
+        attributes.append({"channels", "2 Channels", "",
+        });
+    } else if (itemTable == "fixtures") {
+    } else if (itemTable == "groups") {
+    } else if (itemTable == "intensities") {
+        attributes.append({"dimmer", "2 Dimmer", "%"});
+    } else if (itemTable == "colors") {
+        attributes.append({"hue", "2 Hue", ""});
+        attributes.append({"saturation", "3 Saturation", ""});
+    } else if (itemTable == "cues") {
+    } else {
+        Q_ASSERT(false);
+    }
     QSqlQuery itemQuery;
-    itemQuery.prepare("SELECT label FROM " + itemTable + " WHERE id = :id");
+    QStringList itemAttributes;
+    for (Attribute attribute : attributes) {
+        itemAttributes.append(attribute.attribute);
+    }
+    itemQuery.prepare("SELECT " + itemAttributes.join(", ") + " FROM " + itemTable + " WHERE id = :id");
     itemQuery.bindValue(":id", itemId);
     itemQuery.exec();
     if (itemQuery.next()) {
-        infos->setText(itemQuery.value(0).toString());
-        infos->show();
+        QStringList infos;
+        for (int attributeIndex = 0; attributeIndex < attributes.length(); attributeIndex++) {
+            infos.append(attributes.at(attributeIndex).name + ": " + itemQuery.value(attributeIndex).toString() + attributes.at(attributeIndex).unit);
+        }
+        infosLabel->setText(infos.join("\n"));
+        infosLabel->show();
     } else {
-        infos->hide();
+        infosLabel->hide();
     }
 }
 
 void Inspector::loadItem(QString table, int id) {
     itemTable = table;
     itemId = id;
-    title->setText(table);
+    titleLabel->setText(table);
     reload();
 }

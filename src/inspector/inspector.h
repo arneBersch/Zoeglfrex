@@ -24,8 +24,8 @@ private:
     QString itemTable = "cues";
     int itemId = -1;
     QListView* list;
-    QLabel* title;
-    QLabel* infos;
+    QLabel* titleLabel;
+    QLabel* infosLabel;
 };
 
 #endif // INSPECTOR_H
