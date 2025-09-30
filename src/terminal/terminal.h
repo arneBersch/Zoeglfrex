@@ -31,6 +31,7 @@ private:
     void createItem(QString table, QString itemName, int id);
     void setTextAttribute(QString table, QString itemName, QString attribute, QString attributeName, int id);
     void setIntegerAttribute(QString table, QString itemName, QString attribute, QString attributeName, int id, QList<Prompt::Key> valueKeys, int minValue, int maxValue);
+    void setItemAttribute(QString table, QString itemName, QString attribute, QString attributeName, int id, QList<Prompt::Key> valueKeys, QString foreignItemTable, QString foreignItemName, Prompt::Key foreignItemKey);
     void setAngleAttribute(QString table, QString itemName, QString attribute, QString attributeName, int id, QList<Prompt::Key> valueKeys);
     QPlainTextEdit *messages;
     Prompt* prompt;

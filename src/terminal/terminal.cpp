@@ -35,6 +35,8 @@ void Terminal::execute(Prompt::Key selectionType, int id, int attribute, QList<P
     } else if (selectionType == Prompt::Fixture) {
         if (attribute == 1) {
             setTextAttribute("fixtures", "Fixture", "label", "Label", id);
+        } else if (attribute == 2) {
+            setItemAttribute("fixtures", "Fixture", "model", "Model", id, valueKeys, "models", "Model", Prompt::Model);
         } else {
             error("Unknown Fixture Attribute.");
         }
@@ -78,7 +80,7 @@ void Terminal::createItem(QString table, QString itemName, int id) {
     existsQuery.prepare("SELECT id FROM " + table + " WHERE id = :id");
     existsQuery.bindValue(":id", id);
     if (!existsQuery.exec()) {
-        error("Error executing Item check.");
+        error("Error executing check if " + itemName + " exists.");
         return;
     }
     if (!existsQuery.next()) {
@@ -112,11 +114,11 @@ void Terminal::setTextAttribute(QString table, QString itemName, QString attribu
     query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
     query.bindValue(":id", id);
     query.bindValue(":value", textValue);
-    if (query.exec()) {
-        success("Set " + attributeName + " of " + itemName + " " + QString::number(id) + " to \"" + textValue + "\".");
-    } else {
+    if (!query.exec()) {
         error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ".");
+        return;
     }
+    success("Set " + attributeName + " of " + itemName + " " + QString::number(id) + " to \"" + textValue + "\".");
     emit dbChanged();
 }
 
@@ -136,11 +138,11 @@ void Terminal::setIntegerAttribute(QString table, QString itemName, QString attr
     query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
     query.bindValue(":id", id);
     query.bindValue(":value", value);
-    if (query.exec()) {
-        success("Set " + attributeName + " of " + itemName + " " + QString::number(id) + " to " + QString::number(value) + ".");
-    } else {
+    if (!query.exec()) {
         error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ".");
+        return;
     }
+    success("Set " + attributeName + " of " + itemName + " " + QString::number(id) + " to " + QString::number(value) + ".");
     emit dbChanged();
 }
 
@@ -162,11 +164,48 @@ void Terminal::setAngleAttribute(QString table, QString itemName, QString attrib
     query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
     query.bindValue(":id", id);
     query.bindValue(":value", value);
-    if (query.exec()) {
-        success("Set " + attributeName + " of " + itemName + " " + QString::number(id) + " to " + QString::number(value) + ".");
-    } else {
+    if (!query.exec()) {
         error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ".");
+        return;
     }
+    success("Set " + attributeName + " of " + itemName + " " + QString::number(id) + " to " + QString::number(value) + ".");
+    emit dbChanged();
+}
+
+void Terminal::setItemAttribute(QString table, QString itemName, QString attribute, QString attributeName, int id, QList<Prompt::Key> valueKeys, QString foreignItemTable, QString foreignItemName, Prompt::Key foreignItemKey) {
+    if (!valueKeys.startsWith(foreignItemKey)) {
+        error("Can't set " + itemName + " " + attributeName + " because no " + foreignItemName + " was given.");
+        return;
+    }
+    valueKeys.removeFirst();
+    bool ok;
+    const int foreignItemId = prompt->keysToFloat(valueKeys, &ok);
+    if (!ok) {
+        error("Can't set " + itemName + " " + attributeName + " because the given " + foreignItemName + " ID is invalid.");
+        return;
+    }
+    QSqlQuery foreignItemQuery;
+    foreignItemQuery.prepare("SELECT key FROM " + foreignItemTable + " WHERE id = :id");
+    foreignItemQuery.bindValue(":id", foreignItemId);
+    if (!foreignItemQuery.exec()) {
+        error("Failed to execute check if " + foreignItemName + " exists.");
+        return;
+    }
+    if (!foreignItemQuery.next()) {
+        error("Can't set " + itemName + " " + attributeName + " because " + foreignItemName + " " + QString::number(foreignItemId) + " doesn't exist.");
+        return;
+    }
+    const int foreignItem = foreignItemQuery.value(0).toInt();
+    createItem(table, itemName, id);
+    QSqlQuery query;
+    query.prepare("UPDATE " + table + " SET " + attribute + " = :item WHERE id = :id");
+    query.bindValue(":id", id);
+    query.bindValue(":item", foreignItem);
+    if (!query.exec()) {
+        error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ".");
+        return;
+    }
+    success("Set " + attributeName + " of " + itemName + " " + QString::number(id) + " to " + foreignItemName + " " + QString::number(foreignItem) + ".");
     emit dbChanged();
 }
 

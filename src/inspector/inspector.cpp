@@ -48,15 +48,15 @@ void Inspector::reload() {
     attributes.append({"id", "ID", ""});
     attributes.append({"label", "1 Label", ""});
     if (itemTable == "models") {
-        attributes.append({"channels", "2 Channels", "",
-        });
+        attributes.append({"channels", "2 Channels", ""});
     } else if (itemTable == "fixtures") {
+        attributes.append({"model", "2 Model", ""});
     } else if (itemTable == "groups") {
     } else if (itemTable == "intensities") {
         attributes.append({"dimmer", "2 Dimmer", "%"});
     } else if (itemTable == "colors") {
-        attributes.append({"hue", "2 Hue", ""});
-        attributes.append({"saturation", "3 Saturation", ""});
+        attributes.append({"hue", "2 Hue", "°"});
+        attributes.append({"saturation", "3 Saturation", "%"});
     } else if (itemTable == "cues") {
     } else {
         Q_ASSERT(false);

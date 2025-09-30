@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 
     QStringList createTableQueries = {
         "CREATE TABLE IF NOT EXISTS models (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', channels TEXT DEFAULT 'D', PRIMARY KEY (key))",
-        "CREATE TABLE IF NOT EXISTS fixtures (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', PRIMARY KEY (key))",
+        "CREATE TABLE IF NOT EXISTS fixtures (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', model INTEGER REFERENCES models (key) ON DELETE SET NULL, PRIMARY KEY (key))",
         "CREATE TABLE IF NOT EXISTS groups (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', PRIMARY KEY (key))",
         "CREATE TABLE IF NOT EXISTS intensities (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', dimmer INTEGER DEFAULT 0, PRIMARY KEY (key), CHECK (dimmer BETWEEN 0 AND 100))",
         "CREATE TABLE IF NOT EXISTS colors (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', hue INTEGER DEFAULT 0, saturation INTEGER DEFAULT 0, PRIMARY KEY (key), CHECK (hue BETWEEN 0 AND 360), CHECK (saturation BETWEEN 0 AND 100))",
