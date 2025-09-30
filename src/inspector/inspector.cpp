@@ -23,25 +23,37 @@ Inspector::Inspector(QWidget *parent) : QWidget(parent) {
     list->setFocusPolicy(Qt::NoFocus);
     layout->addWidget(list);
 
-    model = new QSqlQueryModel();
-    reload();
-
     infos = new QLabel();
     infos->setWordWrap(true);
     infos->setStyleSheet("border: 1px solid white; padding: 10px;");
     layout->addWidget(infos);
     infos->hide();
+
+    model = new QSqlQueryModel();
+    reload();
 }
 
 void Inspector::reload() {
     delete model;
     model = new QSqlQueryModel();
-    model->setQuery("SELECT CONCAT(id, ' ', label) FROM " + modelTable);
+    model->setQuery("SELECT CONCAT(id, ' ', label) FROM " + itemTable);
     list->setModel(model);
+
+    QSqlQuery itemQuery;
+    itemQuery.prepare("SELECT * FROM " + itemTable + " WHERE id = :id");
+    itemQuery.bindValue(":id", itemId);
+    itemQuery.exec();
+    if (itemQuery.next()) {
+        infos->setText(itemQuery.value(1).toString());
+        infos->show();
+    } else {
+        infos->hide();
+    }
 }
 
-void Inspector::loadTable(QString table) {
-    modelTable = table;
+void Inspector::loadItem(QString table, int id) {
+    itemTable = table;
+    itemId = id;
     title->setText(table);
     reload();
 }

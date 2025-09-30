@@ -14,7 +14,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     prompt = new Prompt();
     connect(prompt, &Prompt::info, this, &Terminal::info);
     connect(prompt, &Prompt::error, this, &Terminal::error);
-    connect(prompt, &Prompt::tableChanged, this, &Terminal::promptTableChanged);
+    connect(prompt, &Prompt::itemChanged, this, &Terminal::promptItemChanged);
     connect(prompt, &Prompt::executed, this, &Terminal::execute);
     layout->addWidget(prompt);
 

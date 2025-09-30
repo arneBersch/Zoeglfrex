@@ -24,7 +24,7 @@ public:
     void error(QString message);
 signals:
     void dbChanged();
-    void promptTableChanged(QString table);
+    void promptItemChanged(QString table, int id);
 private slots:
     void execute(Prompt::Key selectionType, int id, int attribute, QList<Prompt::Key> value);
 private:

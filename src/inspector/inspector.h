@@ -18,10 +18,11 @@ public:
     Inspector(QWidget *parent = nullptr);
 public slots:
     void reload();
-    void loadTable(QString table);
+    void loadItem(QString table, int id);
 private:
     QSqlQueryModel* model;
-    QString modelTable = "cues";
+    QString itemTable = "cues";
+    int itemId = -1;
     QListView* list;
     QLabel* title;
     QLabel* infos;

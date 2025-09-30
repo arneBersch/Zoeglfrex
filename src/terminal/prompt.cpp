@@ -42,18 +42,32 @@ Prompt::Prompt(QWidget* parent) : QWidget(parent) {
 
 void Prompt::writeKey(Key key) {
     promptKeys.append(key);
+    QString table = QString();
     if (promptKeys.first() == Model) {
-        emit tableChanged("models");
+        table = "models";
     } else if (promptKeys.first() == Fixture) {
-        emit tableChanged("fixtures");
+        table = "fixtures";
     } else if (promptKeys.first() == Group) {
-        emit tableChanged("groups");
+        table = "groups";
     } else if (promptKeys.first() == Intensity) {
-        emit tableChanged("intensities");
+        table = "intensities";
     } else if (promptKeys.first() == Color) {
-        emit tableChanged("colors");
+        table = "colors";
     } else if (promptKeys.first() == Cue) {
-        emit tableChanged("cues");
+        table = "cues";
+    }
+    if (!table.isEmpty()) {
+        QList<Prompt::Key> idKeys;
+        bool id = true;
+        for (const Key key : promptKeys.sliced(1, (promptKeys.length() - 1))) {
+            if (keysToNumber({key}) < 0) {
+                id = false;
+            }
+            if (id) {
+                idKeys.append(key);
+            }
+        }
+        emit itemChanged(table, keysToNumber(idKeys));
     }
     promptLabel->setText(promptToString());
 }

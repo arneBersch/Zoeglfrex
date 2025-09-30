@@ -39,7 +39,7 @@ public:
 signals:
     void info(QString info);
     void error(QString error);
-    void tableChanged(QString table);
+    void itemChanged(QString table, int id);
     void executed(Key selectionType, int id, int attribute, QList<Key> value);
 private:
     QString promptToString() const;
