@@ -28,6 +28,10 @@ signals:
 private slots:
     void execute(Prompt::Key selectionType, int id, int attribute, QList<Prompt::Key> value);
 private:
+    void createItem(QString table, QString itemName, int id);
+    void setTextAttribute(QString table, QString itemName, QString attribute, QString attributeName, int id);
+    void setIntegerAttribute(QString table, QString itemName, QString attribute, QString attributeName, int id, QList<Prompt::Key> valueKeys, int minValue, int maxValue);
+    void setAngleAttribute(QString table, QString itemName, QString attribute, QString attributeName, int id, QList<Prompt::Key> valueKeys);
     QPlainTextEdit *messages;
     Prompt* prompt;
 };
