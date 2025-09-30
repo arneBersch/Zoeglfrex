@@ -40,10 +40,6 @@ Prompt::Prompt(QWidget* parent) : QWidget(parent) {
     new QShortcut(Qt::Key_Return, this, [this] { execute(); });
 }
 
-QList<Prompt::Key> Prompt::getPromptKeys() const {
-    return promptKeys;
-}
-
 void Prompt::writeKey(Key key) {
     promptKeys.append(key);
     if (promptKeys.first() == Model) {
@@ -76,7 +72,7 @@ void Prompt::clearPrompt() {
 }
 
 void Prompt::execute() {
-    QList<Prompt::Key> keys = getPromptKeys();
+    QList<Prompt::Key> keys = promptKeys;
     if (keys.isEmpty()) {
         return;
     }
@@ -125,8 +121,7 @@ void Prompt::execute() {
         emit error("Invalid Attribute ID.");
         return;
     }
-    const int valueId = keysToNumber(attributeKeys);
-    emit executed(selectionType, selectionId, attributeId, valueId);
+    emit executed(selectionType, selectionId, attributeId, value);
 }
 
 int Prompt::keysToNumber(QList<Key> keys) const {

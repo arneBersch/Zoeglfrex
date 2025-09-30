@@ -23,7 +23,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     layout->addWidget(messages);
 }
 
-void Terminal::execute(Prompt::Key selectionType, int id, int attribute, int value) {
+void Terminal::execute(Prompt::Key selectionType, int id, int attribute, QList<Prompt::Key> valueKeys) {
     enum attributeTypes {
         text,
         number,
@@ -101,6 +101,7 @@ void Terminal::execute(Prompt::Key selectionType, int id, int attribute, int val
         bool ok;
         textValue = QInputDialog::getText(this, QString(), "Insert Text", QLineEdit::Normal, textValue, &ok);;
         if (!ok) {
+            error("Popup closed.");
             return;
         }
         query.prepare("UPDATE " + tableName + " SET " + attributeName + " = :value WHERE id = :id");
@@ -116,6 +117,11 @@ void Terminal::execute(Prompt::Key selectionType, int id, int attribute, int val
         QSqlQuery query;
         query.prepare("UPDATE " + tableName + " SET " + attributeName + " = :value WHERE id = :id");
         query.bindValue(":id", id);
+        int value = prompt->keysToNumber(valueKeys);
+        if (value < 0) {
+            error("Invalid value given.");
+            return;
+        }
         query.bindValue(":value", value);
         if (query.exec()) {
             success("Set Attribute " + QString::number(id) + " of Item " + QString::number(id) + " to " + QString::number(value) + ".");
