@@ -40,33 +40,34 @@ void Inspector::reload() {
     list->setModel(model);
 
     struct Attribute {
-        QString attribute;
         QString name;
         QString unit;
+        Attribute(QString nm, QString un) : name(nm), unit(un) {}
     };
     QList<Attribute> attributes;
-    attributes.append({"id", "ID", ""});
-    attributes.append({"label", "1 Label", ""});
+    attributes.append(Attribute("ID", ""));
+    attributes.append(Attribute("1 Label", ""));
+    QSqlQuery itemQuery;
     if (itemTable == "models") {
-        attributes.append({"channels", "2 Channels", ""});
+        itemQuery.prepare("SELECT id, label, channels FROM models WHERE id = :id");
+        attributes.append(Attribute("2 Channels", ""));
     } else if (itemTable == "fixtures") {
-        attributes.append({"model", "2 Model", ""});
+        itemQuery.prepare("SELECT fixtures.id, fixtures.label, CONCAT(models.id, ' ', models.label) FROM fixtures, models WHERE fixtures.id = :id AND model = models.key");
+        attributes.append(Attribute("2 Model", ""));
     } else if (itemTable == "groups") {
+        itemQuery.prepare("SELECT id, label FROM groups WHERE id = :id");
     } else if (itemTable == "intensities") {
-        attributes.append({"dimmer", "2 Dimmer", "%"});
+        itemQuery.prepare("SELECT id, label, dimmer FROM intensities WHERE id = :id");
+        attributes.append(Attribute("2 Dimmer", "%"));
     } else if (itemTable == "colors") {
-        attributes.append({"hue", "2 Hue", "°"});
-        attributes.append({"saturation", "3 Saturation", "%"});
+        itemQuery.prepare("SELECT id, label, hue, saturation FROM colors WHERE id = :id");
+        attributes.append(Attribute("2 Hue", "°"));
+        attributes.append(Attribute("3 Saturation", "%"));
     } else if (itemTable == "cues") {
+        itemQuery.prepare("SELECT id, label FROM cues WHERE id = :id");
     } else {
         Q_ASSERT(false);
     }
-    QSqlQuery itemQuery;
-    QStringList itemAttributes;
-    for (Attribute attribute : attributes) {
-        itemAttributes.append(attribute.attribute);
-    }
-    itemQuery.prepare("SELECT " + itemAttributes.join(", ") + " FROM " + itemTable + " WHERE id = :id");
     itemQuery.bindValue(":id", itemId);
     itemQuery.exec();
     if (itemQuery.next()) {
