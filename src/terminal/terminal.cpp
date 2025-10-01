@@ -82,6 +82,14 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         } else {
             error("Unknown Cue Attribute.");
         }
+    } else if (selectionType == Prompt::Cuelist) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+            deleteItems("cuelists", "Cuelist", ids);
+        } else if (attribute == 1) {
+            setTextAttribute("cuelists", "Cuelist", "label", "Label", ids, "");
+        } else {
+            error("Unknown Cuelist Attribute.");
+        }
     } else {
         error("Unknown Item type.");
     }

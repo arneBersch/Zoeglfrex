@@ -55,14 +55,16 @@ void Inspector::reload() {
     } else if (itemTable == "groups") {
         itemQuery.prepare("SELECT id, label FROM groups WHERE id = :id");
     } else if (itemTable == "intensities") {
-        itemQuery.prepare("SELECT id, label, dimmer FROM intensities WHERE id = :id");
+        itemQuery.prepare("SELECT id, label, ROUND(dimmer, 3) FROM intensities WHERE id = :id");
         attributes.append({"2 Dimmer", "", "%"});
     } else if (itemTable == "colors") {
-        itemQuery.prepare("SELECT id, label, hue, saturation FROM colors WHERE id = :id");
+        itemQuery.prepare("SELECT id, label, ROUND(hue, 3), ROUND(saturation, 3) FROM colors WHERE id = :id");
         attributes.append({"2 Hue", "", "°"});
         attributes.append({"3 Saturation", "", "%"});
     } else if (itemTable == "cues") {
         itemQuery.prepare("SELECT id, label FROM cues WHERE id = :id");
+    } else if (itemTable == "cuelists") {
+        itemQuery.prepare("SELECT id, label FROM cuelists WHERE id = :id");
     } else {
         Q_ASSERT(false);
     }

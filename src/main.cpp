@@ -47,6 +47,7 @@ int main(int argc, char *argv[]) {
         "CREATE TABLE IF NOT EXISTS intensities (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', dimmer REAL DEFAULT 0, PRIMARY KEY (key), CHECK (dimmer BETWEEN 0 AND 100))",
         "CREATE TABLE IF NOT EXISTS colors (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', hue REAL DEFAULT 0, saturation REAL DEFAULT 0, PRIMARY KEY (key), CHECK (hue BETWEEN 0 AND 360), CHECK (saturation BETWEEN 0 AND 100))",
         "CREATE TABLE IF NOT EXISTS cues (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', PRIMARY KEY (key))",
+        "CREATE TABLE IF NOT EXISTS cuelists (key INTEGER, id INTEGER UNIQUE, label TEXT DEFAULT '', PRIMARY KEY (key))",
     };
     QSqlQuery query;
     for (QString createTableQuery : createTableQueries) {

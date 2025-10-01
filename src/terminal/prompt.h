@@ -36,6 +36,7 @@ public:
         Intensity, // I
         Color, // C
         Cue, // Q
+        Cuelist, // L
     };
     Prompt(QWidget* parent = nullptr);
     float keysToFloat(QList<Key> keys, bool* ok) const;

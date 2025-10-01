@@ -38,6 +38,7 @@ Prompt::Prompt(QWidget* parent) : QWidget(parent) {
     new QShortcut(Qt::Key_I, this, [this] { writeKey(Intensity); });
     new QShortcut(Qt::Key_C, this, [this] { writeKey(Color); });
     new QShortcut(Qt::Key_Q, this, [this] { writeKey(Cue); });
+    new QShortcut(Qt::Key_L, this, [this] { writeKey(Cuelist); });
 
     new QShortcut(Qt::Key_Backspace, this, [this] { removeLastKey(); });
     new QShortcut(Qt::SHIFT | Qt::Key_Backspace, this, [this] { clearPrompt(); });
@@ -60,6 +61,8 @@ void Prompt::writeKey(Key key) {
         table = "colors";
     } else if (promptKeys.first() == Cue) {
         table = "cues";
+    } else if (promptKeys.first() == Cuelist) {
+        table = "cuelists";
     }
     if (!table.isEmpty()) {
         QList<Key> idKeys;
@@ -180,58 +183,61 @@ bool Prompt::isItemKey(Key key) const {
         (key == Group) ||
         (key == Intensity) ||
         (key == Color) ||
-        (key == Cue)
+        (key == Cue) ||
+        (key == Cuelist)
     );
 }
 
 QString Prompt::keysToString(QList<Key> keys) const {
-    QString promptString;
+    QString string;
     for(const int key: keys) {
         if (key == Zero) {
-            promptString += "0";
+            string.append("0");
         } else if (key == One) {
-            promptString += "1";
+            string.append("1");
         } else if (key == Two) {
-            promptString += "2";
+            string.append("2");
         } else if (key == Three) {
-            promptString += "3";
+            string.append("3");
         } else if (key == Four) {
-            promptString += "4";
+            string.append("4");
         } else if (key == Five) {
-            promptString += "5";
+            string.append("5");
         } else if (key == Six) {
-            promptString += "6";
+            string.append("6");
         } else if (key == Seven) {
-            promptString += "7";
+            string.append("7");
         } else if (key == Eight) {
-            promptString += "8";
+            string.append("8");
         } else if (key == Nine) {
-            promptString += "9";
+            string.append("9");
         } else if (key == Model) {
-            promptString += " Model ";
+            string.append(" Model ");
         } else if (key == Fixture) {
-            promptString += " Fixture ";
+            string.append(" Fixture ");
         } else if (key == Group) {
-            promptString += " Group ";
+            string.append(" Group ");
         } else if (key == Intensity) {
-            promptString += " Intensity ";
+            string.append(" Intensity ");
         } else if (key == Color) {
-            promptString += " Color ";
+            string.append(" Color ");
         } else if (key == Cue) {
-            promptString += " Cue ";
+            string.append(" Cue ");
+        } else if (key == Cuelist) {
+            string.append(" Cuelist ");
         } else if (key == Set) {
-            promptString += " Set ";
+            string.append(" Set ");
         } else if (key == Attribute) {
-            promptString += " Attribute ";
+            string.append(" Attribute ");
         } else if (key == Plus) {
-            promptString += " + ";
+            string.append(" + ");
         } else if (key == Minus) {
-            promptString += " - ";
+            string.append(" - ");
         } else if (key == Period) {
-            promptString += ".";
+            string.append(".");
         } else {
             Q_ASSERT(false);
         }
     }
-    return promptString.simplified();
+    return string.simplified();
 }
