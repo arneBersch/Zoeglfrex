@@ -41,6 +41,10 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
             setTextAttribute("fixtures", "Fixture", "label", "Label", ids, "");
         } else if (attribute == 2) {
             setItemAttribute("fixtures", "Fixture", "model", "Model", ids, valueKeys, "models", "Model", Prompt::Model);
+        } else if (attribute == 3) {
+            setNumberAttribute<int>("fixtures", "Fixture", "universe", "Universe", ids, valueKeys, 1, 63999);
+        } else if (attribute == 4) {
+            setNumberAttribute<int>("fixtures", "Fixture", "address", "Address", ids, valueKeys, 0, 512);
         } else {
             error("Unknown Fixture Attribute.");
         }
@@ -58,7 +62,7 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         } else if (attribute == 1) {
             setTextAttribute("intensities", "Intensity", "label", "Label", ids, "");
         } else if (attribute == 2) {
-            setFloatAttribute("intensities", "Intensity", "dimmer", "Dimmer", ids, valueKeys, 0, 100);
+            setNumberAttribute<float>("intensities", "Intensity", "dimmer", "Dimmer", ids, valueKeys, 0, 100);
         } else {
             error("Unknown Intensity Attribute.");
         }
@@ -70,7 +74,7 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         } else if (attribute == 2) {
             setAngleAttribute("colors", "Color", "hue", "Hue", ids, valueKeys);
         } else if (attribute == 3) {
-            setFloatAttribute("colors", "Color", "saturation", "Saturation", ids, valueKeys, 0, 100);
+            setNumberAttribute<float>("colors", "Color", "saturation", "Saturation", ids, valueKeys, 0, 100);
         } else {
             error("Unknown Color Attribute.");
         }
@@ -116,15 +120,21 @@ void Terminal::createItem(QString table, QString itemName, int id) {
 }
 
 void Terminal::deleteItems(QString table, QString itemName, QList<int> ids) {
+    QStringList successfulIds;
     for (int id : ids) {
         QSqlQuery query;
         query.prepare("DELETE FROM " + table + " WHERE id = :id");
         query.bindValue(":id", id);
         if (query.exec()) {
-            success("Deleted " + itemName + " " + QString::number(id) + ".");
+            successfulIds.append(QString::number(id));
         } else {
             error("Can't delete " + itemName + " because the request failed: " + query.lastError().text());
         }
+    }
+    if (successfulIds.size() == 1) {
+        success("Deleted " + itemName + " " + successfulIds.first() + ".");
+    } else if (successfulIds.size() > 1) {
+        success("Deleted " + itemName + "s " + successfulIds.join(", ") + ".");
     }
     emit dbChanged();
 }
@@ -175,10 +185,10 @@ void Terminal::setTextAttribute(QString table, QString itemName, QString attribu
     emit dbChanged();
 }
 
-void Terminal::setFloatAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, int minValue, int maxValue) {
+template <typename T> void Terminal::setNumberAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, int minValue, int maxValue) {
     Q_ASSERT(!ids.isEmpty());
     bool ok;
-    const float value = prompt->keysToFloat(valueKeys, &ok);
+    const T value = prompt->keysToFloat(valueKeys, &ok);
     if (!ok) {
         error("Invalid value given.");
         return;

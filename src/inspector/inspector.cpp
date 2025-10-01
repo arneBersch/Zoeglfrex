@@ -50,8 +50,10 @@ void Inspector::reload() {
         itemQuery.prepare("SELECT id, label, channels FROM models WHERE id = :id");
         attributes.append({"2 Channels", "\"", "\""});
     } else if (itemTable == "fixtures") {
-        itemQuery.prepare("SELECT fixtures.id, fixtures.label, CONCAT(models.id, ' ', models.label) FROM fixtures, models WHERE fixtures.id = :id AND model = models.key");
+        itemQuery.prepare("SELECT fixtures.id, fixtures.label, CONCAT(models.id, ' ', models.label), universe, address FROM fixtures, models WHERE fixtures.id = :id AND model = models.key");
         attributes.append({"2 Model", "", ""});
+        attributes.append({"3 Universe", "", ""});
+        attributes.append({"4 Address", "", ""});
     } else if (itemTable == "groups") {
         itemQuery.prepare("SELECT id, label FROM groups WHERE id = :id");
     } else if (itemTable == "intensities") {
