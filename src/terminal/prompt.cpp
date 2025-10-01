@@ -27,6 +27,8 @@ Prompt::Prompt(QWidget* parent) : QWidget(parent) {
 
     new QShortcut(Qt::Key_Plus, this, [this] { writeKey(Plus); });
     new QShortcut(Qt::Key_Minus, this, [this] { writeKey(Minus); });
+    new QShortcut(Qt::Key_Period, this, [this] { writeKey(Period); });
+    new QShortcut(Qt::Key_Comma, this, [this] { writeKey(Period); });
     new QShortcut(Qt::Key_A, this, [this] { writeKey(Attribute); });
     new QShortcut(Qt::Key_S, this, [this] { writeKey(Set); });
 
@@ -225,6 +227,8 @@ QString Prompt::keysToString(QList<Key> keys) const {
             promptString += " + ";
         } else if (key == Minus) {
             promptString += " - ";
+        } else if (key == Period) {
+            promptString += ".";
         } else {
             Q_ASSERT(false);
         }

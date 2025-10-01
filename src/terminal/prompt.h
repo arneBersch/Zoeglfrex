@@ -27,6 +27,7 @@ public:
         Nine, // 9
         Plus, // +
         Minus, // -
+        Period, // .
         Set, // S
         Attribute, // A
         Model, // M

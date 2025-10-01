@@ -203,14 +203,15 @@ void Terminal::setAngleAttribute(QString table, QString itemName, QString attrib
         valueKeys.removeFirst();
     }
     bool ok;
-    int value = prompt->keysToFloat(valueKeys, &ok);
+    const float value = prompt->keysToFloat(valueKeys, &ok);
     if (!ok) {
         error("Invalid value given.");
         return;
     }
-    if (difference) {
-        for (int id : ids) {
-            createItem(table, itemName, id);
+    for (int id : ids) {
+        float currentValue = value;
+        createItem(table, itemName, id);
+        if (difference) {
             QSqlQuery currentValueQuery;
             currentValueQuery.prepare("SELECT " + attribute + " FROM " + table + " WHERE id = :id");
             currentValueQuery.bindValue(":id", id);
@@ -222,47 +223,32 @@ void Terminal::setAngleAttribute(QString table, QString itemName, QString attrib
                 error("Can't set " + attributeName + " of " + itemName + " " + QString::number(id) + " because the request for the current Value didn't return any items.");
                 return;
             }
-            int currentValue = currentValueQuery.value(0).toInt();
-            currentValue += value;
-            while (currentValue < 0) {
-                currentValue += 360;
-            }
-            while (currentValue >= 360) {
-                currentValue -= 360;
-            }
-            QSqlQuery query;
-            query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
-            query.bindValue(":id", id);
-            query.bindValue(":value", currentValue);
-            if (!query.exec()) {
-                error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
-                return;
-            }
+            currentValue += currentValueQuery.value(0).toFloat();
         }
-    } else {
-        while (value < 0) {
-            value += 360;
+        while (currentValue < 0) {
+            currentValue += 360;
         }
-        while (value >= 360) {
-            value -= 360;
+        while (currentValue >= 360) {
+            currentValue -= 360;
         }
-        for (int id : ids) {
-            createItem(table, itemName, id);
-            QSqlQuery query;
-            query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
-            query.bindValue(":id", id);
-            query.bindValue(":value", value);
-            if (!query.exec()) {
-                error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
-                return;
-            }
+        QSqlQuery updateQuery;
+        updateQuery.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
+        updateQuery.bindValue(":id", id);
+        updateQuery.bindValue(":value", currentValue);
+        if (!updateQuery.exec()) {
+            error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + updateQuery.lastError().text());
+            return;
         }
     }
-    if (ids.length() == 1) {
-        success("Set " + attributeName + " of " + itemName + " " + QString::number(ids.first()) + " to " + QString::number(value) + ".");
-    } else {
-        if (difference) {
+    if (difference) {
+        if (ids.length() == 1) {
+            success("Increased " + attributeName + " of " + itemName + " " + QString::number(ids.first()) + " by " + QString::number(value) + ".");
+        } else {
             success("Increased " + attributeName + " of " + QString::number(ids.length()) + itemName + "s by " + QString::number(value) + ".");
+        }
+    } else {
+        if (ids.length() == 1) {
+            success("Set " + attributeName + " of " + itemName + " " + QString::number(ids.first()) + " to " + QString::number(value) + ".");
         } else {
             success("Set " + attributeName + " of " + QString::number(ids.length()) + itemName + "s to " + QString::number(value) + ".");
         }
