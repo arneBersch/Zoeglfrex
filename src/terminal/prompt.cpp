@@ -133,7 +133,7 @@ void Prompt::execute() {
     }
     const QList<int> selectionIds = keysToIds(selectionIdKeys);
     if (selectionIds.isEmpty()) {
-        emit error("Invalid selection ID.");
+        emit error("Invalid selection ID given.");
         return;
     }
     bool ok;
@@ -141,14 +141,14 @@ void Prompt::execute() {
     if (attributeKeys.isEmpty()) {
         attributeId = -1;
     } else if (!ok) {
-        emit error("Invalid Attribute ID.");
+        emit error("Invalid Attribute ID given.");
         return;
     }
     emit executed(selectionType, selectionIds, attributeId, value);
 }
 
 float Prompt::keysToFloat(QList<Key> keys, bool* ok) const {
-    return keysToString(keys).toFloat(ok);
+    return keysToString(keys).replace(" ", "").toFloat(ok);
 }
 
 QList<int> Prompt::keysToIds(QList<Key> keys) const {
@@ -159,7 +159,7 @@ QList<int> Prompt::keysToIds(QList<Key> keys) const {
         if (key == Plus) {
             bool ok;
             const int id = keysToFloat(currentIdKeys, &ok);
-            if (!ok) {
+            if (!ok || (id < 0)) {
                 return QList<int>();
             }
             ids.append(id);

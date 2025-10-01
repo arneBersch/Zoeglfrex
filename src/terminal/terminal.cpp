@@ -129,7 +129,7 @@ void Terminal::setTextAttribute(QString table, QString itemName, QString attribu
         query.prepare("SELECT " + attribute + " FROM " + table + " WHERE id = :id");
         query.bindValue(":id", ids.first());
         if (!query.exec()) {
-            error("Failed setting load current Attribute value: " + query.lastError().text());
+            error("Failed to load current " + attributeName + " of " + itemName + " " + QString::number(ids.first()) + ": " + query.lastError().text());
             return;
         }
         while (query.next()) {
@@ -137,7 +137,7 @@ void Terminal::setTextAttribute(QString table, QString itemName, QString attribu
         }
     }
     bool ok;
-    textValue = QInputDialog::getText(this, QString(), "Insert Text", QLineEdit::Normal, textValue, &ok);;
+    textValue = QInputDialog::getText(this, QString(), (itemName + " " + attributeName), QLineEdit::Normal, textValue, &ok);
     if (!ok) {
         error("Popup canceled.");
         return;
@@ -198,33 +198,74 @@ void Terminal::setIntegerAttribute(QString table, QString itemName, QString attr
 
 void Terminal::setAngleAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    const bool difference = (!valueKeys.isEmpty() && (valueKeys.first() == Prompt::Plus));
+    if (difference) {
+        valueKeys.removeFirst();
+    }
     bool ok;
-    float value = prompt->keysToFloat(valueKeys, &ok);
+    int value = prompt->keysToFloat(valueKeys, &ok);
     if (!ok) {
         error("Invalid value given.");
         return;
     }
-    while (value < 0) {
-        value += 360;
-    }
-    while (value >= 360) {
-        value -= 360;
-    }
-    for (int id : ids) {
-        createItem(table, itemName, id);
-        QSqlQuery query;
-        query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
-        query.bindValue(":id", id);
-        query.bindValue(":value", value);
-        if (!query.exec()) {
-            error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
-            return;
+    if (difference) {
+        for (int id : ids) {
+            createItem(table, itemName, id);
+            QSqlQuery currentValueQuery;
+            currentValueQuery.prepare("SELECT " + attribute + " FROM " + table + " WHERE id = :id");
+            currentValueQuery.bindValue(":id", id);
+            if (!currentValueQuery.exec()) {
+                error("Can't set " + attributeName + " of " + itemName + " " + QString::number(id) + " because the request for the current Value failed: " + currentValueQuery.lastError().text());
+                return;
+            }
+            if (!currentValueQuery.next()) {
+                error("Can't set " + attributeName + " of " + itemName + " " + QString::number(id) + " because the request for the current Value didn't return any items.");
+                return;
+            }
+            int currentValue = currentValueQuery.value(0).toInt();
+            currentValue += value;
+            while (currentValue < 0) {
+                currentValue += 360;
+            }
+            while (currentValue >= 360) {
+                currentValue -= 360;
+            }
+            QSqlQuery query;
+            query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
+            query.bindValue(":id", id);
+            query.bindValue(":value", currentValue);
+            if (!query.exec()) {
+                error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
+                return;
+            }
+        }
+    } else {
+        while (value < 0) {
+            value += 360;
+        }
+        while (value >= 360) {
+            value -= 360;
+        }
+        for (int id : ids) {
+            createItem(table, itemName, id);
+            QSqlQuery query;
+            query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
+            query.bindValue(":id", id);
+            query.bindValue(":value", value);
+            if (!query.exec()) {
+                error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
+                return;
+            }
         }
     }
     if (ids.length() == 1) {
         success("Set " + attributeName + " of " + itemName + " " + QString::number(ids.first()) + " to " + QString::number(value) + ".");
     } else {
-        success("Set " + attributeName + " of " + QString::number(ids.length()) + itemName + "s to " + QString::number(value) + ".");
+        if (difference) {
+            success("Increased " + attributeName + " of " + QString::number(ids.length()) + itemName + "s by " + QString::number(value) + ".");
+        } else {
+            success("Set " + attributeName + " of " + QString::number(ids.length()) + itemName + "s to " + QString::number(value) + ".");
+        }
     }
     emit dbChanged();
 }
