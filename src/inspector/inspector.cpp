@@ -30,14 +30,12 @@ Inspector::Inspector(QWidget *parent) : QWidget(parent) {
     infosLabel->hide();
 
     model = new QSqlQueryModel();
+    list->setModel(model);
     reload();
 }
 
 void Inspector::reload() {
-    delete model;
-    model = new QSqlQueryModel();
     model->setQuery("SELECT CONCAT(id, ' ', label) FROM " + itemTable + " ORDER BY id");
-    list->setModel(model);
 
     struct Attribute {
         QString name;
