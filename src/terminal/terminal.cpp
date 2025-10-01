@@ -195,42 +195,89 @@ void Terminal::setTextAttribute(QString table, QString itemName, QString attribu
 
 template <typename T> void Terminal::setNumberAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic) {
     Q_ASSERT(!ids.isEmpty());
+    const bool difference = (!valueKeys.isEmpty() && (valueKeys.first() == Prompt::Plus));
+    if (difference) {
+        valueKeys.removeFirst();
+    }
     bool ok;
     T value = prompt->keysToFloat(valueKeys, &ok);
     if (!ok) {
         error("Invalid value given.");
         return;
     }
-    if (cyclic) {
-        while (value < minValue) {
-            value += (maxValue - minValue);
-        }
-        while (value >= maxValue) {
-            value -= (maxValue - minValue);
-        }
-    } else {
-        if ((value < minValue) || (value > maxValue)) {
-            error(itemName + " " + attribute + " has to be between " + QString::number(minValue) + " and " + QString::number(maxValue) + ".");
-            return;
+    if (!difference) {
+        if (cyclic) {
+            while (value < minValue) {
+                value += (maxValue - minValue);
+            }
+            while (value >= maxValue) {
+                value -= (maxValue - minValue);
+            }
+        } else {
+            if ((value < minValue) || (value > maxValue)) {
+                error(itemName + " " + attribute + " has to be between " + QString::number(minValue) + " and " + QString::number(maxValue) + ".");
+                return;
+            }
         }
     }
     createItems(table, itemName, ids);
     QStringList successfulIds;
     for (int id : ids) {
-        QSqlQuery query;
-        query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
-        query.bindValue(":id", id);
-        query.bindValue(":value", value);
-        if (query.exec()) {
-            successfulIds.append(QString::number(id));
-        } else {
-            error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
+        T currentValue = value;
+        bool valueOk = true;
+        if (difference) {
+            QSqlQuery currentValueQuery;
+            currentValueQuery.prepare("SELECT " + attribute + " FROM " + table + " WHERE id = :id");
+            currentValueQuery.bindValue(":id", id);
+            if (currentValueQuery.exec()) {
+                if (currentValueQuery.next()) {
+                    currentValue += currentValueQuery.value(0).toFloat();
+                    if (cyclic) {
+                        while (currentValue < minValue) {
+                            currentValue += (maxValue - minValue);
+                        }
+                        while (currentValue >= maxValue) {
+                            currentValue -= (maxValue - minValue);
+                        }
+                    } else {
+                        if ((currentValue < minValue) || (currentValue > maxValue)) {
+                            error(attributeName + " of " + itemName + " " + QString::number(id) + " has to be between " + QString::number(minValue) + " and " + QString::number(maxValue) + ".");
+                            valueOk = false;
+                        }
+                    }
+                } else {
+                    error("Failed loading the current " + attributeName + " of " + itemName + " " + QString::number(id) + " because this " + itemName + " doesn't exist.");
+                    valueOk = false;
+                }
+            } else {
+                error("Failed loading the current " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + currentValueQuery.lastError().text());
+                valueOk = false;
+            }
+        }
+        if (valueOk) {
+            QSqlQuery query;
+            query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
+            query.bindValue(":id", id);
+            query.bindValue(":value", currentValue);
+            if (query.exec()) {
+                successfulIds.append(QString::number(id));
+            } else {
+                error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
+            }
         }
     }
-    if (successfulIds.length() == 1) {
-        success("Set " + attributeName + " of " + itemName + " " + successfulIds.first() + " to " + QString::number(value) + unit + ".");
-    } else if (successfulIds.length() > 1) {
-        success("Set " + attributeName + " of " + itemName + "s " + successfulIds.join(", ") + " to " + QString::number(value) + unit + ".");
+    if (difference) {
+        if (successfulIds.length() == 1) {
+            success("Changed " + attributeName + " of " + itemName + " " + successfulIds.first() + " by " + QString::number(value) + unit + ".");
+        } else if (successfulIds.length() > 1) {
+            success("Changed " + attributeName + " of " + itemName + "s " + successfulIds.join(", ") + " by " + QString::number(value) + unit + ".");
+        }
+    } else {
+        if (successfulIds.length() == 1) {
+            success("Set " + attributeName + " of " + itemName + " " + successfulIds.first() + " to " + QString::number(value) + unit + ".");
+        } else if (successfulIds.length() > 1) {
+            success("Set " + attributeName + " of " + itemName + "s " + successfulIds.join(", ") + " to " + QString::number(value) + unit + ".");
+        }
     }
     emit dbChanged();
 }
