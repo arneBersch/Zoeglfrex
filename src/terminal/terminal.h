@@ -31,7 +31,7 @@ private:
     void createItem(QString table, QString itemName, int id);
     void deleteItems(QString table, QString itemName, QList<int> ids);
     void setTextAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QString regex);
-    void setIntegerAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, int minValue, int maxValue);
+    void setFloatAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, int minValue, int maxValue);
     void setItemAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString foreignItemTable, QString foreignItemName, Prompt::Key foreignItemKey);
     void setAngleAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys);
     QPlainTextEdit *messages;

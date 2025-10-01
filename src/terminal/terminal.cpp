@@ -58,7 +58,7 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         } else if (attribute == 1) {
             setTextAttribute("intensities", "Intensity", "label", "Label", ids, "");
         } else if (attribute == 2) {
-            setIntegerAttribute("intensities", "Intensity", "dimmer", "Dimmer", ids, valueKeys, 0, 100);
+            setFloatAttribute("intensities", "Intensity", "dimmer", "Dimmer", ids, valueKeys, 0, 100);
         } else {
             error("Unknown Intensity Attribute.");
         }
@@ -70,7 +70,7 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         } else if (attribute == 2) {
             setAngleAttribute("colors", "Color", "hue", "Hue", ids, valueKeys);
         } else if (attribute == 3) {
-            setIntegerAttribute("colors", "Color", "saturation", "Saturation", ids, valueKeys, 0, 100);
+            setFloatAttribute("colors", "Color", "saturation", "Saturation", ids, valueKeys, 0, 100);
         } else {
             error("Unknown Color Attribute.");
         }
@@ -165,10 +165,10 @@ void Terminal::setTextAttribute(QString table, QString itemName, QString attribu
     emit dbChanged();
 }
 
-void Terminal::setIntegerAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, int minValue, int maxValue) {
+void Terminal::setFloatAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, int minValue, int maxValue) {
     Q_ASSERT(!ids.isEmpty());
     bool ok;
-    const int value = prompt->keysToFloat(valueKeys, &ok);
+    const float value = prompt->keysToFloat(valueKeys, &ok);
     if (!ok) {
         error("Invalid value given.");
         return;
@@ -240,18 +240,14 @@ void Terminal::setAngleAttribute(QString table, QString itemName, QString attrib
             return;
         }
     }
+    QString itemAmount = QString::number(ids.length()) + itemName + "s";
+    if (ids.length() == 1) {
+        itemAmount = itemName + " " + QString::number(ids.first());
+    }
     if (difference) {
-        if (ids.length() == 1) {
-            success("Increased " + attributeName + " of " + itemName + " " + QString::number(ids.first()) + " by " + QString::number(value) + ".");
-        } else {
-            success("Increased " + attributeName + " of " + QString::number(ids.length()) + itemName + "s by " + QString::number(value) + ".");
-        }
+        success("Increased " + attributeName + " of " + itemAmount + " by " + QString::number(value) + ".");
     } else {
-        if (ids.length() == 1) {
-            success("Set " + attributeName + " of " + itemName + " " + QString::number(ids.first()) + " to " + QString::number(value) + ".");
-        } else {
-            success("Set " + attributeName + " of " + QString::number(ids.length()) + itemName + "s to " + QString::number(value) + ".");
-        }
+        success("Set " + attributeName + " of " + itemAmount + " to " + QString::number(value) + ".");
     }
     emit dbChanged();
 }
