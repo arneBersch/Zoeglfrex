@@ -99,23 +99,31 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
     }
 }
 
-void Terminal::createItem(QString table, QString itemName, int id) {
-    QSqlQuery existsQuery;
-    existsQuery.prepare("SELECT id FROM " + table + " WHERE id = :id");
-    existsQuery.bindValue(":id", id);
-    if (!existsQuery.exec()) {
-        error("Error executing check if " + itemName + " exists: " + existsQuery.lastError().text());
-        return;
-    }
-    if (!existsQuery.next()) {
-        QSqlQuery insertQuery;
-        insertQuery.prepare("INSERT INTO " + table + " (id) VALUES (:id)");
-        insertQuery.bindValue(":id", id);
-        if (insertQuery.exec()) {
-            success("Created " + itemName + " with ID " + QString::number(id) + ".");
+void Terminal::createItems(QString table, QString itemName, QList<int> ids) {
+    QStringList successfulIds;
+    for (int id : ids) {
+        QSqlQuery existsQuery;
+        existsQuery.prepare("SELECT id FROM " + table + " WHERE id = :id");
+        existsQuery.bindValue(":id", id);
+        if (existsQuery.exec()) {
+            if (!existsQuery.next()) {
+                QSqlQuery insertQuery;
+                insertQuery.prepare("INSERT INTO " + table + " (id) VALUES (:id)");
+                insertQuery.bindValue(":id", id);
+                if (insertQuery.exec()) {
+                    successfulIds.append(QString::number(id));
+                } else {
+                    error("Failed to create " + itemName + " " + QString::number(id) + " because the request failed: " + insertQuery.lastError().text());
+                }
+            }
         } else {
-            error("Failed to create " + itemName + " " + QString::number(id) + " because the request failed: " + insertQuery.lastError().text());
+            error("Error executing check if " + itemName + " exists: " + existsQuery.lastError().text());
         }
+    }
+    if (successfulIds.size() == 1) {
+        success("Created " + itemName + " " + successfulIds.first() + ".");
+    } else if (successfulIds.size() > 1) {
+        success("Created " + itemName + "s " + successfulIds.join(", ") + ".");
     }
 }
 
@@ -164,9 +172,9 @@ void Terminal::setTextAttribute(QString table, QString itemName, QString attribu
         error("Can't set " + itemName + " " + attributeName + " because the given value \"" + textValue + "\" is not valid.");
         return;
     }
+    createItems(table, itemName, ids);
     QStringList successfulIds;
     for (int id : ids) {
-        createItem(table, itemName, id);
         QSqlQuery query;
         query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
         query.bindValue(":id", id);
@@ -206,9 +214,9 @@ template <typename T> void Terminal::setNumberAttribute(QString table, QString i
             return;
         }
     }
+    createItems(table, itemName, ids);
     QStringList successfulIds;
     for (int id : ids) {
-        createItem(table, itemName, id);
         QSqlQuery query;
         query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
         query.bindValue(":id", id);
@@ -252,9 +260,9 @@ void Terminal::setItemAttribute(QString table, QString itemName, QString attribu
         return;
     }
     const int foreignItem = foreignItemQuery.value(0).toInt();
+    createItems(table, itemName, ids);
     QStringList successfulIds;
     for (int id : ids) {
-        createItem(table, itemName, id);
         QSqlQuery query;
         query.prepare("UPDATE " + table + " SET " + attribute + " = :item WHERE id = :id");
         query.bindValue(":id", id);
