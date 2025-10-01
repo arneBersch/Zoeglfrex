@@ -59,7 +59,7 @@ void Prompt::writeKey(Key key) {
         table = "cues";
     }
     if (!table.isEmpty()) {
-        QList<Prompt::Key> idKeys;
+        QList<Key> idKeys;
         bool id = true;
         for (const Key key : promptKeys.sliced(1, (promptKeys.length() - 1))) {
             bool ok;
@@ -74,7 +74,7 @@ void Prompt::writeKey(Key key) {
         bool ok;
         emit itemChanged(table, keysToFloat(idKeys, &ok));
     }
-    promptLabel->setText(promptToString());
+    promptLabel->setText(keysToString(promptKeys));
 }
 
 void Prompt::removeLastKey() {
@@ -82,42 +82,42 @@ void Prompt::removeLastKey() {
         return;
     }
     promptKeys.removeLast();
-    promptLabel->setText(promptToString());
+    promptLabel->setText(keysToString(promptKeys));
 }
 
 void Prompt::clearPrompt() {
     promptKeys.clear();
-    promptLabel->setText(promptToString());
+    promptLabel->setText(keysToString(promptKeys));
 }
 
 void Prompt::execute() {
-    QList<Prompt::Key> keys = promptKeys;
+    QList<Key> keys = promptKeys;
     if (keys.isEmpty()) {
         return;
     }
-    emit info("> " + promptToString());
+    emit info("> " + keysToString(keys));
     clearPrompt();
 
-    Prompt::Key selectionType = keys.first();
+    Key selectionType = keys.first();
     keys.removeFirst();
     if (!isItemKey(selectionType)) {
         emit error("No item type specified.");
         return;
     }
 
-    QList<Prompt::Key> selectionIdKeys;
-    QList<Prompt::Key> attributeKeys;
-    QList<Prompt::Key> value;
+    QList<Key> selectionIdKeys;
+    QList<Key> attributeKeys;
+    QList<Key> value;
     bool attributeReached = false;
     bool valueReached = false;
-    for (const Prompt::Key key : keys) {
-        if (key == Prompt::Set) {
+    for (const Key key : keys) {
+        if (key == Set) {
             if (valueReached) {
                 emit error("Can't use Set more than one time in one command.");
                 return;
             }
             valueReached = true;
-        } else if ((isItemKey(key) || (key == Prompt::Attribute)) && !valueReached) {
+        } else if ((isItemKey(key) || (key == Attribute)) && !valueReached) {
             //attribute.append(key);
             attributeReached = true;
         } else {
@@ -145,35 +145,7 @@ void Prompt::execute() {
 }
 
 float Prompt::keysToFloat(QList<Key> keys, bool* ok) const {
-    float number = 0;
-    for (const Key key : keys) {
-        number *= 10;
-        if (key == Zero) {
-        } else if (key == One) {
-            number += 1;
-        } else if (key == Two) {
-            number += 2;
-        } else if (key == Three) {
-            number += 3;
-        } else if (key == Four) {
-            number += 4;
-        } else if (key == Five) {
-            number += 5;
-        } else if (key == Six) {
-            number += 6;
-        } else if (key == Seven) {
-            number += 7;
-        } else if (key == Eight) {
-            number += 8;
-        } else if (key == Nine) {
-            number += 9;
-        } else {
-            *ok = false;
-            return -1;
-        }
-    }
-    *ok = true;
-    return number;
+    return keysToString(keys).toFloat(ok);
 }
 
 QList<int> Prompt::keysToIds(QList<Key> keys) const {
@@ -207,9 +179,9 @@ bool Prompt::isItemKey(Key key) const {
     );
 }
 
-QString Prompt::promptToString() const {
+QString Prompt::keysToString(QList<Key> keys) const {
     QString promptString = QString();
-    for(const int key: promptKeys) {
+    for(const int key: keys) {
         if (key == Zero) {
             promptString += "0";
         } else if (key == One) {

@@ -44,7 +44,7 @@ signals:
     void itemChanged(QString table, int id);
     void executed(Key selectionType, QList<int> ids, int attribute, QList<Key> value);
 private:
-    QString promptToString() const;
+    QString keysToString(QList<Key> keys) const;
     void clearPrompt();
     bool isItemKey(Key key) const;
     void execute();
