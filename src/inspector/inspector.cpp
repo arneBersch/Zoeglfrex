@@ -39,28 +39,28 @@ void Inspector::reload() {
 
     struct Attribute {
         QString name;
-        QString unit;
-        Attribute(QString nm, QString un) : name(nm), unit(un) {}
+        QString beforeValue;
+        QString afterValue;
     };
     QList<Attribute> attributes;
-    attributes.append(Attribute("ID", ""));
-    attributes.append(Attribute("1 Label", ""));
+    attributes.append({"ID", "", ""});
+    attributes.append({"1 Label", "\"", "\""});
     QSqlQuery itemQuery;
     if (itemTable == "models") {
         itemQuery.prepare("SELECT id, label, channels FROM models WHERE id = :id");
-        attributes.append(Attribute("2 Channels", ""));
+        attributes.append({"2 Channels", "\"", "\""});
     } else if (itemTable == "fixtures") {
         itemQuery.prepare("SELECT fixtures.id, fixtures.label, CONCAT(models.id, ' ', models.label) FROM fixtures, models WHERE fixtures.id = :id AND model = models.key");
-        attributes.append(Attribute("2 Model", ""));
+        attributes.append({"2 Model", "", ""});
     } else if (itemTable == "groups") {
         itemQuery.prepare("SELECT id, label FROM groups WHERE id = :id");
     } else if (itemTable == "intensities") {
         itemQuery.prepare("SELECT id, label, dimmer FROM intensities WHERE id = :id");
-        attributes.append(Attribute("2 Dimmer", "%"));
+        attributes.append({"2 Dimmer", "", "%"});
     } else if (itemTable == "colors") {
         itemQuery.prepare("SELECT id, label, hue, saturation FROM colors WHERE id = :id");
-        attributes.append(Attribute("2 Hue", "°"));
-        attributes.append(Attribute("3 Saturation", "%"));
+        attributes.append({"2 Hue", "", "°"});
+        attributes.append({"3 Saturation", "", "%"});
     } else if (itemTable == "cues") {
         itemQuery.prepare("SELECT id, label FROM cues WHERE id = :id");
     } else {
@@ -71,7 +71,8 @@ void Inspector::reload() {
     if (itemQuery.next()) {
         QStringList infos;
         for (int attributeIndex = 0; attributeIndex < attributes.length(); attributeIndex++) {
-            infos.append(attributes.at(attributeIndex).name + ": " + itemQuery.value(attributeIndex).toString() + attributes.at(attributeIndex).unit);
+            Attribute attribute = attributes.at(attributeIndex);
+            infos.append(attribute.name + ": " + attribute.beforeValue + itemQuery.value(attributeIndex).toString() + attribute.afterValue);
         }
         infosLabel->setText(infos.join("\n"));
         infosLabel->show();

@@ -26,15 +26,15 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
 void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute, QList<Prompt::Key> valueKeys) {
     if (selectionType == Prompt::Model) {
         if (attribute == 1) {
-            setTextAttribute("models", "Model", "label", "Label", ids);
+            setTextAttribute("models", "Model", "label", "Label", ids, "");
         } else if (attribute == 2) {
-            setTextAttribute("models", "Model", "channels", "Channels", ids);
+            setTextAttribute("models", "Model", "channels", "Channels", ids, "^[01DdRrGgBbWwCcMmYyPpTtZz]+$");
         } else {
             error("Unknown Model Attribute.");
         }
     } else if (selectionType == Prompt::Fixture) {
         if (attribute == 1) {
-            setTextAttribute("fixtures", "Fixture", "label", "Label", ids);
+            setTextAttribute("fixtures", "Fixture", "label", "Label", ids, "");
         } else if (attribute == 2) {
             setItemAttribute("fixtures", "Fixture", "model", "Model", ids, valueKeys, "models", "Model", Prompt::Model);
         } else {
@@ -42,13 +42,13 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         }
     } else if (selectionType == Prompt::Group) {
         if (attribute == 1) {
-            setTextAttribute("groups", "Group", "label", "Label", ids);
+            setTextAttribute("groups", "Group", "label", "Label", ids, "");
         } else {
             error("Unknown Group Attribute.");
         }
     } else if (selectionType == Prompt::Intensity) {
         if (attribute == 1) {
-            setTextAttribute("intensities", "Intensity", "label", "Label", ids);
+            setTextAttribute("intensities", "Intensity", "label", "Label", ids, "");
         } else if (attribute == 2) {
             setIntegerAttribute("intensities", "Intensity", "dimmer", "Dimmer", ids, valueKeys, 0, 100);
         } else {
@@ -56,7 +56,7 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         }
     } else if (selectionType == Prompt::Color) {
         if (attribute == 1) {
-            setTextAttribute("colors", "Color", "label", "Label", ids);
+            setTextAttribute("colors", "Color", "label", "Label", ids, "");
         } else if (attribute == 2) {
             setAngleAttribute("colors", "Color", "hue", "Hue", ids, valueKeys);
         } else if (attribute == 3) {
@@ -66,7 +66,7 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         }
     } else if (selectionType == Prompt::Cue) {
         if (attribute == 1) {
-            setTextAttribute("cues", "Cue", "label", "Label", ids);
+            setTextAttribute("cues", "Cue", "label", "Label", ids, "");
         } else {
             error("Unknown Cue Attribute.");
         }
@@ -92,7 +92,7 @@ void Terminal::createItem(QString table, QString itemName, int id) {
     }
 }
 
-void Terminal::setTextAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids) {
+void Terminal::setTextAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QString regex) {
     Q_ASSERT(!ids.isEmpty());
     QString textValue = QString();
     if (ids.length() == 1) {
@@ -111,6 +111,10 @@ void Terminal::setTextAttribute(QString table, QString itemName, QString attribu
     textValue = QInputDialog::getText(this, QString(), "Insert Text", QLineEdit::Normal, textValue, &ok);;
     if (!ok) {
         error("Popup canceled.");
+        return;
+    }
+    if (!regex.isEmpty() && !textValue.contains(QRegularExpression(regex))) {
+        error("Can't set " + itemName + " " + attributeName + " because the given value \"" + textValue + "\" is not valid.");
         return;
     }
     for (int id : ids) {

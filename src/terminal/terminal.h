@@ -29,7 +29,7 @@ private slots:
     void execute(Prompt::Key selectionType, QList<int> ids, int attribute, QList<Prompt::Key> value);
 private:
     void createItem(QString table, QString itemName, int id);
-    void setTextAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids);
+    void setTextAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QString regex);
     void setIntegerAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, int minValue, int maxValue);
     void setItemAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString foreignItemTable, QString foreignItemName, Prompt::Key foreignItemKey);
     void setAngleAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys);
