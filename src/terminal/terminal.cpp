@@ -25,7 +25,9 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
 
 void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute, QList<Prompt::Key> valueKeys) {
     if (selectionType == Prompt::Model) {
-        if (attribute == 1) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+            deleteItems("models", "Model", ids);
+        } else if (attribute == 1) {
             setTextAttribute("models", "Model", "label", "Label", ids, "");
         } else if (attribute == 2) {
             setTextAttribute("models", "Model", "channels", "Channels", ids, "^[01DdRrGgBbWwCcMmYyPpTtZz]+$");
@@ -33,7 +35,9 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
             error("Unknown Model Attribute.");
         }
     } else if (selectionType == Prompt::Fixture) {
-        if (attribute == 1) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+            deleteItems("fixtures", "Fixture", ids);
+        } else if (attribute == 1) {
             setTextAttribute("fixtures", "Fixture", "label", "Label", ids, "");
         } else if (attribute == 2) {
             setItemAttribute("fixtures", "Fixture", "model", "Model", ids, valueKeys, "models", "Model", Prompt::Model);
@@ -41,13 +45,17 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
             error("Unknown Fixture Attribute.");
         }
     } else if (selectionType == Prompt::Group) {
-        if (attribute == 1) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+            deleteItems("groups", "Group", ids);
+        } else if (attribute == 1) {
             setTextAttribute("groups", "Group", "label", "Label", ids, "");
         } else {
             error("Unknown Group Attribute.");
         }
     } else if (selectionType == Prompt::Intensity) {
-        if (attribute == 1) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+            deleteItems("intensities", "Intensity", ids);
+        } else if (attribute == 1) {
             setTextAttribute("intensities", "Intensity", "label", "Label", ids, "");
         } else if (attribute == 2) {
             setIntegerAttribute("intensities", "Intensity", "dimmer", "Dimmer", ids, valueKeys, 0, 100);
@@ -55,7 +63,9 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
             error("Unknown Intensity Attribute.");
         }
     } else if (selectionType == Prompt::Color) {
-        if (attribute == 1) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+            deleteItems("colors", "Color", ids);
+        } else if (attribute == 1) {
             setTextAttribute("colors", "Color", "label", "Label", ids, "");
         } else if (attribute == 2) {
             setAngleAttribute("colors", "Color", "hue", "Hue", ids, valueKeys);
@@ -65,7 +75,9 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
             error("Unknown Color Attribute.");
         }
     } else if (selectionType == Prompt::Cue) {
-        if (attribute == 1) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+            deleteItems("cues", "Cue", ids);
+        } else if (attribute == 1) {
             setTextAttribute("cues", "Cue", "label", "Label", ids, "");
         } else {
             error("Unknown Cue Attribute.");
@@ -87,9 +99,26 @@ void Terminal::createItem(QString table, QString itemName, int id) {
         QSqlQuery insertQuery;
         insertQuery.prepare("INSERT INTO " + table + " (id) VALUES (:id)");
         insertQuery.bindValue(":id", id);
-        insertQuery.exec();
-        success("Created " + itemName + " with ID " + QString::number(id) + ".");
+        if (insertQuery.exec()) {
+            success("Created " + itemName + " with ID " + QString::number(id) + ".");
+        } else {
+            error("Failed to create " + itemName + " " + QString::number(id) + " because the request failed.");
+        }
     }
+}
+
+void Terminal::deleteItems(QString table, QString itemName, QList<int> ids) {
+    for (int id : ids) {
+        QSqlQuery query;
+        query.prepare("DELETE FROM " + table + " WHERE id = :id");
+        query.bindValue(":id", id);
+        if (query.exec()) {
+            success("Deleted " + itemName + " " + QString::number(id) + ".");
+        } else {
+            error("Can't delete " + itemName + " because the request failed.");
+        }
+    }
+    emit dbChanged();
 }
 
 void Terminal::setTextAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QString regex) {

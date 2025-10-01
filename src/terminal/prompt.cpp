@@ -26,6 +26,7 @@ Prompt::Prompt(QWidget* parent) : QWidget(parent) {
     new QShortcut(Qt::Key_9, this, [this] { writeKey(Nine); });
 
     new QShortcut(Qt::Key_Plus, this, [this] { writeKey(Plus); });
+    new QShortcut(Qt::Key_Minus, this, [this] { writeKey(Minus); });
     new QShortcut(Qt::Key_A, this, [this] { writeKey(Attribute); });
     new QShortcut(Qt::Key_S, this, [this] { writeKey(Set); });
 
@@ -136,8 +137,10 @@ void Prompt::execute() {
         return;
     }
     bool ok;
-    const int attributeId = keysToFloat(attributeKeys, &ok);
-    if (!ok) {
+    int attributeId = keysToFloat(attributeKeys, &ok);
+    if (attributeKeys.isEmpty()) {
+        attributeId = -1;
+    } else if (!ok) {
         emit error("Invalid Attribute ID.");
         return;
     }
@@ -180,7 +183,7 @@ bool Prompt::isItemKey(Key key) const {
 }
 
 QString Prompt::keysToString(QList<Key> keys) const {
-    QString promptString = QString();
+    QString promptString;
     for(const int key: keys) {
         if (key == Zero) {
             promptString += "0";
@@ -220,6 +223,8 @@ QString Prompt::keysToString(QList<Key> keys) const {
             promptString += " Attribute ";
         } else if (key == Plus) {
             promptString += " + ";
+        } else if (key == Minus) {
+            promptString += " - ";
         } else {
             Q_ASSERT(false);
         }

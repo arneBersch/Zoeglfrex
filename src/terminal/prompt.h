@@ -26,6 +26,7 @@ public:
         Eight, // 8
         Nine, // 9
         Plus, // +
+        Minus, // -
         Set, // S
         Attribute, // A
         Model, // M
