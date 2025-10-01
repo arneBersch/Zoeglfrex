@@ -154,21 +154,23 @@ void Terminal::setTextAttribute(QString table, QString itemName, QString attribu
         error("Can't set " + itemName + " " + attributeName + " because the given value \"" + textValue + "\" is not valid.");
         return;
     }
+    QStringList successfulIds;
     for (int id : ids) {
         createItem(table, itemName, id);
         QSqlQuery query;
         query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
         query.bindValue(":id", id);
         query.bindValue(":value", textValue);
-        if (!query.exec()) {
+        if (query.exec()) {
+            successfulIds.append(QString::number(id));
+        } else {
             error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
-            return;
         }
     }
-    if (ids.length() == 1) {
-        success("Set " + attributeName + " of " + itemName + " " + QString::number(ids.first()) + " to \"" + textValue + "\".");
-    } else {
-        success("Set " + attributeName + " of " + QString::number(ids.length()) + " " + itemName + "s to \"" + textValue + "\".");
+    if (successfulIds.length() == 1) {
+        success("Set " + attributeName + " of " + itemName + " " + successfulIds.first() + " to \"" + textValue + "\".");
+    } else if (successfulIds.length() > 1) {
+        success("Set " + attributeName + " of " + itemName + "s " + successfulIds.join(", ") + " to \"" + textValue + "\".");
     }
     emit dbChanged();
 }
@@ -185,21 +187,23 @@ void Terminal::setFloatAttribute(QString table, QString itemName, QString attrib
         error(itemName + " " + attribute + " has to be between " + QString::number(minValue) + " and " + QString::number(maxValue) + ".");
         return;
     }
+    QStringList successfulIds;
     for (int id : ids) {
         createItem(table, itemName, id);
         QSqlQuery query;
         query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
         query.bindValue(":id", id);
         query.bindValue(":value", value);
-        if (!query.exec()) {
+        if (query.exec()) {
+            successfulIds.append(QString::number(id));
+        } else {
             error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
-            return;
         }
     }
-    if (ids.length() == 1) {
-        success("Set " + attributeName + " of " + itemName + " " + QString::number(ids.first()) + " to " + QString::number(value) + ".");
-    } else {
-        success("Set " + attributeName + " of " + QString::number(ids.length()) + " " + itemName + "s to " + QString::number(value) + ".");
+    if (successfulIds.length() == 1) {
+        success("Set " + attributeName + " of " + itemName + " " + successfulIds.first() + " to " + QString::number(value) + ".");
+    } else if (successfulIds.length() > 1) {
+        success("Set " + attributeName + " of " + itemName + "s " + successfulIds.join(", ") + " to " + QString::number(value) + ".");
     }
     emit dbChanged();
 }
@@ -216,6 +220,7 @@ void Terminal::setAngleAttribute(QString table, QString itemName, QString attrib
         error("Invalid value given.");
         return;
     }
+    QStringList successfulIds;
     for (int id : ids) {
         float currentValue = value;
         createItem(table, itemName, id);
@@ -223,15 +228,15 @@ void Terminal::setAngleAttribute(QString table, QString itemName, QString attrib
             QSqlQuery currentValueQuery;
             currentValueQuery.prepare("SELECT " + attribute + " FROM " + table + " WHERE id = :id");
             currentValueQuery.bindValue(":id", id);
-            if (!currentValueQuery.exec()) {
-                error("Can't set " + attributeName + " of " + itemName + " " + QString::number(id) + " because the request for the current Value failed: " + currentValueQuery.lastError().text());
-                return;
+            if (currentValueQuery.exec()) {
+                if (currentValueQuery.next()) {
+                    currentValue += currentValueQuery.value(0).toFloat();
+                } else {
+                    warning("Can't load current " + attributeName + " of " + itemName + " " + QString::number(id) + " because the request didn't return any Items.");
+                }
+            } else {
+                warning("Can't load current " + attributeName + " of " + itemName + " " + QString::number(id) + " because the request failed: " + currentValueQuery.lastError().text());
             }
-            if (!currentValueQuery.next()) {
-                error("Can't set " + attributeName + " of " + itemName + " " + QString::number(id) + " because the request for the current Value didn't return any items.");
-                return;
-            }
-            currentValue += currentValueQuery.value(0).toFloat();
         }
         while (currentValue < 0) {
             currentValue += 360;
@@ -243,21 +248,24 @@ void Terminal::setAngleAttribute(QString table, QString itemName, QString attrib
         updateQuery.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
         updateQuery.bindValue(":id", id);
         updateQuery.bindValue(":value", currentValue);
-        if (!updateQuery.exec()) {
+        if (updateQuery.exec()) {
+            successfulIds.append(QString::number(id));
+        } else {
             error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + updateQuery.lastError().text());
-            return;
         }
     }
-    QString itemAmount = QString::number(ids.length()) + itemName + "s";
-    if (ids.length() == 1) {
-        itemAmount = itemName + " " + QString::number(ids.first());
+    if (successfulIds.length() >= 1) {
+        QString itemAmount = itemName + "s " + successfulIds.join(", ");
+        if (successfulIds.length() == 1) {
+            itemAmount = itemName + " " + successfulIds.first();
+        }
+        if (difference) {
+            success("Increased " + attributeName + " of " + itemAmount + " by " + QString::number(value) + ".");
+        } else {
+            success("Set " + attributeName + " of " + itemAmount + " to " + QString::number(value) + ".");
+        }
+        emit dbChanged();
     }
-    if (difference) {
-        success("Increased " + attributeName + " of " + itemAmount + " by " + QString::number(value) + ".");
-    } else {
-        success("Set " + attributeName + " of " + itemAmount + " to " + QString::number(value) + ".");
-    }
-    emit dbChanged();
 }
 
 void Terminal::setItemAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString foreignItemTable, QString foreignItemName, Prompt::Key foreignItemKey) {
@@ -285,21 +293,23 @@ void Terminal::setItemAttribute(QString table, QString itemName, QString attribu
         return;
     }
     const int foreignItem = foreignItemQuery.value(0).toInt();
+    QStringList successfulIds;
     for (int id : ids) {
         createItem(table, itemName, id);
         QSqlQuery query;
         query.prepare("UPDATE " + table + " SET " + attribute + " = :item WHERE id = :id");
         query.bindValue(":id", id);
         query.bindValue(":item", foreignItem);
-        if (!query.exec()) {
+        if (query.exec()) {
+            successfulIds.append(QString::number(id));
+        } else {
             error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
-            return;
         }
     }
-    if (ids.length() == 1) {
-        success("Set " + attributeName + " of " + itemName + " " + QString::number(ids.first()) + " to " + foreignItemName + " " + QString::number(foreignItem) + ".");
-    } else {
-        success("Set " + attributeName + " of " + QString::number(ids.length()) + " " + itemName + "s to " + foreignItemName + " " + QString::number(foreignItem) + ".");
+    if (successfulIds.length() == 1) {
+        success("Set " + attributeName + " of " + itemName + " " + successfulIds.first() + " to " + foreignItemName + " " + QString::number(foreignItem) + ".");
+    } else if (successfulIds.length() > 1) {
+        success("Set " + attributeName + " of " + itemName + "s " + successfulIds.join(", ") + " to " + foreignItemName + " " + QString::number(foreignItem) + ".");
     }
     emit dbChanged();
 }
