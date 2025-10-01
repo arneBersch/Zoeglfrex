@@ -42,9 +42,9 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         } else if (attribute == 2) {
             setItemAttribute("fixtures", "Fixture", "model", "Model", ids, valueKeys, "models", "Model", Prompt::Model);
         } else if (attribute == 3) {
-            setNumberAttribute<int>("fixtures", "Fixture", "universe", "Universe", ids, valueKeys, 1, 63999);
+            setNumberAttribute<int>("fixtures", "Fixture", "universe", "Universe", ids, valueKeys, "", 1, 63999, false);
         } else if (attribute == 4) {
-            setNumberAttribute<int>("fixtures", "Fixture", "address", "Address", ids, valueKeys, 0, 512);
+            setNumberAttribute<int>("fixtures", "Fixture", "address", "Address", ids, valueKeys, "", 0, 512, false);
         } else {
             error("Unknown Fixture Attribute.");
         }
@@ -62,7 +62,7 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         } else if (attribute == 1) {
             setTextAttribute("intensities", "Intensity", "label", "Label", ids, "");
         } else if (attribute == 2) {
-            setNumberAttribute<float>("intensities", "Intensity", "dimmer", "Dimmer", ids, valueKeys, 0, 100);
+            setNumberAttribute<float>("intensities", "Intensity", "dimmer", "Dimmer", ids, valueKeys, "%", 0, 100, false);
         } else {
             error("Unknown Intensity Attribute.");
         }
@@ -72,9 +72,9 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         } else if (attribute == 1) {
             setTextAttribute("colors", "Color", "label", "Label", ids, "");
         } else if (attribute == 2) {
-            setAngleAttribute("colors", "Color", "hue", "Hue", ids, valueKeys);
+            setNumberAttribute<float>("colors", "Color", "hue", "Hue", ids, valueKeys, "°", 0, 360, true);
         } else if (attribute == 3) {
-            setNumberAttribute<float>("colors", "Color", "saturation", "Saturation", ids, valueKeys, 0, 100);
+            setNumberAttribute<float>("colors", "Color", "saturation", "Saturation", ids, valueKeys, "%", 0, 100, false);
         } else {
             error("Unknown Color Attribute.");
         }
@@ -185,17 +185,26 @@ void Terminal::setTextAttribute(QString table, QString itemName, QString attribu
     emit dbChanged();
 }
 
-template <typename T> void Terminal::setNumberAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, int minValue, int maxValue) {
+template <typename T> void Terminal::setNumberAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic) {
     Q_ASSERT(!ids.isEmpty());
     bool ok;
-    const T value = prompt->keysToFloat(valueKeys, &ok);
+    T value = prompt->keysToFloat(valueKeys, &ok);
     if (!ok) {
         error("Invalid value given.");
         return;
     }
-    if ((value < minValue) || (value > maxValue)) {
-        error(itemName + " " + attribute + " has to be between " + QString::number(minValue) + " and " + QString::number(maxValue) + ".");
-        return;
+    if (cyclic) {
+        while (value < minValue) {
+            value += (maxValue - minValue);
+        }
+        while (value >= maxValue) {
+            value -= (maxValue - minValue);
+        }
+    } else {
+        if ((value < minValue) || (value > maxValue)) {
+            error(itemName + " " + attribute + " has to be between " + QString::number(minValue) + " and " + QString::number(maxValue) + ".");
+            return;
+        }
     }
     QStringList successfulIds;
     for (int id : ids) {
@@ -211,71 +220,11 @@ template <typename T> void Terminal::setNumberAttribute(QString table, QString i
         }
     }
     if (successfulIds.length() == 1) {
-        success("Set " + attributeName + " of " + itemName + " " + successfulIds.first() + " to " + QString::number(value) + ".");
+        success("Set " + attributeName + " of " + itemName + " " + successfulIds.first() + " to " + QString::number(value) + unit + ".");
     } else if (successfulIds.length() > 1) {
-        success("Set " + attributeName + " of " + itemName + "s " + successfulIds.join(", ") + " to " + QString::number(value) + ".");
+        success("Set " + attributeName + " of " + itemName + "s " + successfulIds.join(", ") + " to " + QString::number(value) + unit + ".");
     }
     emit dbChanged();
-}
-
-void Terminal::setAngleAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys) {
-    Q_ASSERT(!ids.isEmpty());
-    const bool difference = (!valueKeys.isEmpty() && (valueKeys.first() == Prompt::Plus));
-    if (difference) {
-        valueKeys.removeFirst();
-    }
-    bool ok;
-    const float value = prompt->keysToFloat(valueKeys, &ok);
-    if (!ok) {
-        error("Invalid value given.");
-        return;
-    }
-    QStringList successfulIds;
-    for (int id : ids) {
-        float currentValue = value;
-        createItem(table, itemName, id);
-        if (difference) {
-            QSqlQuery currentValueQuery;
-            currentValueQuery.prepare("SELECT " + attribute + " FROM " + table + " WHERE id = :id");
-            currentValueQuery.bindValue(":id", id);
-            if (currentValueQuery.exec()) {
-                if (currentValueQuery.next()) {
-                    currentValue += currentValueQuery.value(0).toFloat();
-                } else {
-                    warning("Can't load current " + attributeName + " of " + itemName + " " + QString::number(id) + " because the request didn't return any Items.");
-                }
-            } else {
-                warning("Can't load current " + attributeName + " of " + itemName + " " + QString::number(id) + " because the request failed: " + currentValueQuery.lastError().text());
-            }
-        }
-        while (currentValue < 0) {
-            currentValue += 360;
-        }
-        while (currentValue >= 360) {
-            currentValue -= 360;
-        }
-        QSqlQuery updateQuery;
-        updateQuery.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE id = :id");
-        updateQuery.bindValue(":id", id);
-        updateQuery.bindValue(":value", currentValue);
-        if (updateQuery.exec()) {
-            successfulIds.append(QString::number(id));
-        } else {
-            error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + updateQuery.lastError().text());
-        }
-    }
-    if (successfulIds.length() >= 1) {
-        QString itemAmount = itemName + "s " + successfulIds.join(", ");
-        if (successfulIds.length() == 1) {
-            itemAmount = itemName + " " + successfulIds.first();
-        }
-        if (difference) {
-            success("Increased " + attributeName + " of " + itemAmount + " by " + QString::number(value) + ".");
-        } else {
-            success("Set " + attributeName + " of " + itemAmount + " to " + QString::number(value) + ".");
-        }
-        emit dbChanged();
-    }
 }
 
 void Terminal::setItemAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString foreignItemTable, QString foreignItemName, Prompt::Key foreignItemKey) {
