@@ -92,7 +92,7 @@ void Terminal::createItem(QString table, QString itemName, int id) {
     existsQuery.prepare("SELECT id FROM " + table + " WHERE id = :id");
     existsQuery.bindValue(":id", id);
     if (!existsQuery.exec()) {
-        error("Error executing check if " + itemName + " exists.");
+        error("Error executing check if " + itemName + " exists: " + existsQuery.lastError().text());
         return;
     }
     if (!existsQuery.next()) {
@@ -102,7 +102,7 @@ void Terminal::createItem(QString table, QString itemName, int id) {
         if (insertQuery.exec()) {
             success("Created " + itemName + " with ID " + QString::number(id) + ".");
         } else {
-            error("Failed to create " + itemName + " " + QString::number(id) + " because the request failed.");
+            error("Failed to create " + itemName + " " + QString::number(id) + " because the request failed: " + insertQuery.lastError().text());
         }
     }
 }
@@ -115,7 +115,7 @@ void Terminal::deleteItems(QString table, QString itemName, QList<int> ids) {
         if (query.exec()) {
             success("Deleted " + itemName + " " + QString::number(id) + ".");
         } else {
-            error("Can't delete " + itemName + " because the request failed.");
+            error("Can't delete " + itemName + " because the request failed: " + query.lastError().text());
         }
     }
     emit dbChanged();
@@ -129,7 +129,7 @@ void Terminal::setTextAttribute(QString table, QString itemName, QString attribu
         query.prepare("SELECT " + attribute + " FROM " + table + " WHERE id = :id");
         query.bindValue(":id", ids.first());
         if (!query.exec()) {
-            error("Failed setting load current Attribute value.");
+            error("Failed setting load current Attribute value: " + query.lastError().text());
             return;
         }
         while (query.next()) {
@@ -153,7 +153,7 @@ void Terminal::setTextAttribute(QString table, QString itemName, QString attribu
         query.bindValue(":id", id);
         query.bindValue(":value", textValue);
         if (!query.exec()) {
-            error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ".");
+            error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
             return;
         }
     }
@@ -184,7 +184,7 @@ void Terminal::setIntegerAttribute(QString table, QString itemName, QString attr
         query.bindValue(":id", id);
         query.bindValue(":value", value);
         if (!query.exec()) {
-            error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ".");
+            error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
             return;
         }
     }
@@ -217,7 +217,7 @@ void Terminal::setAngleAttribute(QString table, QString itemName, QString attrib
         query.bindValue(":id", id);
         query.bindValue(":value", value);
         if (!query.exec()) {
-            error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ".");
+            error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
             return;
         }
     }
@@ -246,7 +246,7 @@ void Terminal::setItemAttribute(QString table, QString itemName, QString attribu
     foreignItemQuery.prepare("SELECT key FROM " + foreignItemTable + " WHERE id = :id");
     foreignItemQuery.bindValue(":id", foreignItemId);
     if (!foreignItemQuery.exec()) {
-        error("Failed to execute check if " + foreignItemName + " exists.");
+        error("Failed to execute check if " + foreignItemName + " exists: " + foreignItemQuery.lastError().text());
         return;
     }
     if (!foreignItemQuery.next()) {
@@ -261,7 +261,7 @@ void Terminal::setItemAttribute(QString table, QString itemName, QString attribu
         query.bindValue(":id", id);
         query.bindValue(":item", foreignItem);
         if (!query.exec()) {
-            error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ".");
+            error("Failed setting " + attributeName + " of " + itemName + " " + QString::number(id) + ": " + query.lastError().text());
             return;
         }
     }

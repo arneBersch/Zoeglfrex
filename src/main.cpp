@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
     QSqlQuery query;
     for (QString createTableQuery : createTableQueries) {
         if (!query.exec(createTableQuery)) {
-            qFatal("Failed to create table.");
+            qFatal() << "Failed to create table." << query.lastError().text();
             return 1;
         }
     }
