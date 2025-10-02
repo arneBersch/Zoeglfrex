@@ -36,6 +36,9 @@ private:
         Group, // G
         Intensity, // I
         Color, // C
+        Position, // P
+        Raw, // R
+        Effect, // E
         Cue, // Q
         Cuelist, // L
     };
@@ -58,7 +61,6 @@ private:
     float keysToFloat(QList<Key> keys, bool* ok) const;
     QList<int> keysToIds(QList<Key> keys) const;
     QString keysToString(QList<Key> keys) const;
-    bool isItemKey(Key key) const;
     void updatePrompt();
     void writeKey(Key key);
     void backspace();
@@ -66,6 +68,7 @@ private:
     QList<Key> promptKeys;
     QPlainTextEdit *messages;
     QLabel* promptLabel;
+    const QList<Key> itemKeys = {Model, Fixture, Group, Intensity, Color, Position, Raw, Effect, Cue, Cuelist};
 };
 
 #endif // TERMINAL_H

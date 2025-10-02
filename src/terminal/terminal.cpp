@@ -41,6 +41,9 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     new QShortcut(Qt::Key_G, this, [this] { writeKey(Group); });
     new QShortcut(Qt::Key_I, this, [this] { writeKey(Intensity); });
     new QShortcut(Qt::Key_C, this, [this] { writeKey(Color); });
+    new QShortcut(Qt::Key_P, this, [this] { writeKey(Position); });
+    new QShortcut(Qt::Key_R, this, [this] { writeKey(Raw); });
+    new QShortcut(Qt::Key_E, this, [this] { writeKey(Effect); });
     new QShortcut(Qt::Key_Q, this, [this] { writeKey(Cue); });
     new QShortcut(Qt::Key_L, this, [this] { writeKey(Cuelist); });
 
@@ -60,10 +63,6 @@ void Terminal::execute() {
 
     Key selectionType = keys.first();
     keys.removeFirst();
-    if (!isItemKey(selectionType)) {
-        error("No item type specified.");
-        return;
-    }
 
     QList<Key> selectionIdKeys;
     QList<Key> attributeKeys;
@@ -77,7 +76,7 @@ void Terminal::execute() {
                 return;
             }
             valueReached = true;
-        } else if ((isItemKey(key) || (key == Attribute)) && !valueReached) {
+        } else if ((itemKeys.contains(key) || (key == Attribute)) && !valueReached) {
             //attribute.append(key);
             attributeReached = true;
         } else {
@@ -158,6 +157,30 @@ void Terminal::execute() {
         } else {
             error("Unknown Color Attribute.");
         }
+    } else if (selectionType == Position) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+            deleteItems("positions", "Position", "Positions", ids);
+        } else if (attribute == 1) {
+            setTextAttribute("positions", "Position", "Positions", "label", "Label", ids, "");
+        } else {
+            error("Unknown Position Attribute.");
+        }
+    } else if (selectionType == Raw) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+            deleteItems("raw", "Raw", "Raws", ids);
+        } else if (attribute == 1) {
+            setTextAttribute("raws", "Raw", "Raws", "label", "Label", ids, "");
+        } else {
+            error("Unknown Raw Attribute.");
+        }
+    } else if (selectionType == Effect) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+            deleteItems("effects", "Effect", "Effects", ids);
+        } else if (attribute == 1) {
+            setTextAttribute("effects", "Effect", "Effects", "label", "Label", ids, "");
+        } else {
+            error("Unknown Cue Attribute.");
+        }
     } else if (selectionType == Cue) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems("cues", "Cue", "Cues", ids);
@@ -176,6 +199,7 @@ void Terminal::execute() {
         }
     } else {
         error("Unknown Item type.");
+        return;
     }
 }
 
@@ -449,18 +473,6 @@ float Terminal::keysToFloat(QList<Key> keys, bool* ok) const {
     return keysToString(keys).replace(" ", "").toFloat(ok);
 }
 
-bool Terminal::isItemKey(Key key) const {
-    return (
-        (key == Model) ||
-        (key == Fixture) ||
-        (key == Group) ||
-        (key == Intensity) ||
-        (key == Color) ||
-        (key == Cue) ||
-        (key == Cuelist)
-    );
-}
-
 QList<int> Terminal::keysToIds(QList<Key> keys) const {
     keys.append(Plus);
     QList<int> ids;
@@ -514,6 +526,12 @@ QString Terminal::keysToString(QList<Key> keys) const {
             string.append(" Intensity ");
         } else if (key == Color) {
             string.append(" Color ");
+        } else if (key == Position) {
+            string.append(" Position ");
+        } else if (key == Raw) {
+            string.append(" Raw ");
+        } else if (key == Effect) {
+            string.append(" Effect ");
         } else if (key == Cue) {
             string.append(" Cue ");
         } else if (key == Cuelist) {

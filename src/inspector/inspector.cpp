@@ -48,6 +48,12 @@ void Inspector::reload() {
         table = "intensities";
     } else if (itemName == "Color") {
         table = "colors";
+    } else if (itemName == "Position") {
+        table = "positions";
+    } else if (itemName == "Raw") {
+        table = "raws";
+    } else if (itemName == "Effect") {
+        table = "effects";
     } else if (itemName == "Cue") {
         table = "cues";
     } else if (itemName == "Cuelist") {
@@ -93,6 +99,9 @@ QStringList Inspector::getItemInfos(const QString table, const int id) const {
     } else if (table == "colors") {
         infos.append("2 Hue: " + getNumberAttribute(table, "hue", id, "°"));
         infos.append("3 Saturation: " + getNumberAttribute(table, "saturation", id, "%"));
+    } else if (table == "positions") {
+    } else if (table == "raws") {
+    } else if (table == "effects") {
     } else if (table == "cues") {
     } else if (table == "cuelists") {
     } else {
