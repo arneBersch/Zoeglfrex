@@ -20,6 +20,10 @@ public slots:
     void reload();
     void loadItem(QString itemName, QList<int> ids);
 private:
+    QStringList getItemInfos(QString table, int id) const;
+    QString getTextAttribute(QString table, QString attribute, int id) const;
+    QString getNumberAttribute(QString table, QString attribute, int id, QString unit) const;
+    QString getItemAttribute(QString table, QString attribute, int id, QString foreignItemTable) const;
     QSqlQueryModel* model;
     QString itemName;
     QList<int> itemIds;

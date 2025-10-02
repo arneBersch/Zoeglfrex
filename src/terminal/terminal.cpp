@@ -44,13 +44,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     new QShortcut(Qt::Key_Q, this, [this] { writeKey(Cue); });
     new QShortcut(Qt::Key_L, this, [this] { writeKey(Cuelist); });
 
-    new QShortcut(Qt::Key_Backspace, this, [this] {
-        if (promptKeys.isEmpty()) {
-            return;
-        }
-        promptKeys.removeLast();
-        promptLabel->setText(keysToString(promptKeys));
-    });
+    new QShortcut(Qt::Key_Backspace, this, [this] { backspace(); });
     new QShortcut(Qt::SHIFT | Qt::Key_Backspace, this, [this] { clearPrompt(); });
     new QShortcut(Qt::Key_Enter, this, [this] { execute(); });
     new QShortcut(Qt::Key_Return, this, [this] { execute(); });
@@ -414,27 +408,41 @@ void Terminal::setItemAttribute(QString table, QString itemSingularName, QString
     emit dbChanged();
 }
 
+void Terminal::updatePrompt() {
+    if (!promptKeys.isEmpty()) {
+        QList<Key> idKeys;
+        bool id = true;
+        for (const Key key : promptKeys.sliced(1, (promptKeys.length() - 1))) {
+            bool ok;
+            keysToFloat({key}, &ok);
+            if (!ok && (key != Plus)) {
+                id = false;
+            }
+            if (id) {
+                idKeys.append(key);
+            }
+        }
+        emit itemChanged(keysToString({ promptKeys.first() }), keysToIds(idKeys));
+    }
+    promptLabel->setText(keysToString(promptKeys));
+}
+
 void Terminal::writeKey(Key key) {
     promptKeys.append(key);
-    QList<Key> idKeys;
-    bool id = true;
-    for (const Key key : promptKeys.sliced(1, (promptKeys.length() - 1))) {
-        bool ok;
-        keysToFloat({key}, &ok);
-        if (!ok) {
-            id = false;
-        }
-        if (id) {
-            idKeys.append(key);
-        }
+    updatePrompt();
+}
+
+void Terminal::backspace() {
+    if (promptKeys.isEmpty()) {
+        return;
     }
-    emit itemChanged(keysToString({ promptKeys.first() }), keysToIds(idKeys));
-    promptLabel->setText(keysToString(promptKeys));
+    promptKeys.removeLast();
+    updatePrompt();
 }
 
 void Terminal::clearPrompt() {
     promptKeys.clear();
-    promptLabel->setText(keysToString(promptKeys));
+    updatePrompt();
 }
 
 float Terminal::keysToFloat(QList<Key> keys, bool* ok) const {

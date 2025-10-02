@@ -58,9 +58,11 @@ private:
     float keysToFloat(QList<Key> keys, bool* ok) const;
     QList<int> keysToIds(QList<Key> keys) const;
     QString keysToString(QList<Key> keys) const;
-    void clearPrompt();
     bool isItemKey(Key key) const;
+    void updatePrompt();
     void writeKey(Key key);
+    void backspace();
+    void clearPrompt();
     QList<Key> promptKeys;
     QPlainTextEdit *messages;
     QLabel* promptLabel;

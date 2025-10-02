@@ -36,59 +36,34 @@ Inspector::Inspector(QWidget *parent) : QWidget(parent) {
 
 void Inspector::reload() {
     QString table;
-    struct Attribute {
-        QString name;
-        QString beforeValue;
-        QString afterValue;
-    };
-    QList<Attribute> attributes;
-    attributes.append({"ID", "", ""});
-    attributes.append({"1 Label", "\"", "\""});
+    QStringList infos;
     QSqlQuery itemQuery;
     if (itemName == "Model") {
         table = "models";
-        itemQuery.prepare("SELECT id, label, channels FROM models WHERE id = :id");
-        attributes.append({"2 Channels", "\"", "\""});
     } else if (itemName == "Fixture") {
         table = "fixtures";
-        itemQuery.prepare("SELECT fixtures.id, fixtures.label, CONCAT(models.id, ' ', models.label), universe, address FROM fixtures, models WHERE fixtures.id = :id AND model = models.key");
-        attributes.append({"2 Model", "", ""});
-        attributes.append({"3 Universe", "", ""});
-        attributes.append({"4 Address", "", ""});
     } else if (itemName == "Group") {
-        table = "models";
-        itemQuery.prepare("SELECT id, label FROM groups WHERE id = :id");
+        table = "groups";
     } else if (itemName == "Intensity") {
         table = "intensities";
-        itemQuery.prepare("SELECT id, label, ROUND(dimmer, 3) FROM intensities WHERE id = :id");
-        attributes.append({"2 Dimmer", "", "%"});
     } else if (itemName == "Color") {
         table = "colors";
-        itemQuery.prepare("SELECT id, label, ROUND(hue, 3), ROUND(saturation, 3) FROM colors WHERE id = :id");
-        attributes.append({"2 Hue", "", "°"});
-        attributes.append({"3 Saturation", "", "%"});
     } else if (itemName == "Cue") {
         table = "cues";
-        itemQuery.prepare("SELECT id, label FROM cues WHERE id = :id");
-    } else if (itemName == "Cuelists") {
+    } else if (itemName == "Cuelist") {
         table = "cuelists";
-        itemQuery.prepare("SELECT id, label FROM cuelists WHERE id = :id");
-    }
-    itemQuery.bindValue(":id", itemIds.last());
-    itemQuery.exec();
-    if (itemQuery.next()) {
-        QStringList infos;
-        for (int attributeIndex = 0; attributeIndex < attributes.length(); attributeIndex++) {
-            Attribute attribute = attributes.at(attributeIndex);
-            infos.append(attribute.name + ": " + attribute.beforeValue + itemQuery.value(attributeIndex).toString() + attribute.afterValue);
-        }
-        infosLabel->setText(infos.join("\n"));
-        infosLabel->show();
-    } else {
-        infosLabel->hide();
     }
     if (!table.isEmpty()) {
         model->setQuery("SELECT CONCAT(id, ' ', label) FROM " + table + " ORDER BY id");
+        if (!itemIds.isEmpty()) {
+            infos = getItemInfos(table, itemIds.last());
+        }
+    }
+    if (infos.isEmpty()) {
+        infosLabel->hide();
+    } else {
+        infosLabel->setText(infos.join("\n"));
+        infosLabel->show();
     }
 }
 
@@ -97,4 +72,61 @@ void Inspector::loadItem(QString name, QList<int> ids) {
     itemIds = ids;
     titleLabel->setText(name);
     reload();
+}
+
+QStringList Inspector::getItemInfos(const QString table, const int id) const {
+    const QString label = getTextAttribute(table, "label", id);
+    if (label.isEmpty()) {
+        return QStringList();
+    }
+    QStringList infos;
+    infos.append("1 Label: " + label);
+    if (table == "models") {
+        infos.append("2 Channels: " + getTextAttribute(table, "channels", id));
+    } else if (table == "fixtures") {
+        infos.append("2 Model: " + getItemAttribute(table, "model", id, "models"));
+        infos.append("3 Universe: " + getNumberAttribute(table, "universe", id, ""));
+        infos.append("4 Address: " + getNumberAttribute(table, "address", id, ""));
+    } else if (table == "groups") {
+    } else if (table == "intensities") {
+        infos.append("2 Dimmer: " + getNumberAttribute(table, "dimmer", id, "%"));
+    } else if (table == "colors") {
+        infos.append("2 Hue: " + getNumberAttribute(table, "hue", id, "°"));
+        infos.append("3 Saturation: " + getNumberAttribute(table, "saturation", id, "%"));
+    } else if (table == "cues") {
+    } else if (table == "cuelists") {
+    } else {
+        Q_ASSERT(false);
+    }
+    return infos;
+}
+
+QString Inspector::getTextAttribute(const QString table, const QString attribute, const int id) const {
+    QSqlQuery query;
+    query.prepare("SELECT " + attribute + " FROM " + table + " WHERE id = :id");
+    query.bindValue(":id", id);
+    if (!query.exec() || !query.next()) {
+        return QString();
+    }
+    return "\"" + query.value(0).toString() + "\"";
+}
+
+QString Inspector::getNumberAttribute(const QString table, const QString attribute, const int id, const QString unit) const {
+    QSqlQuery query;
+    query.prepare("SELECT ROUND(" + attribute + ", 3) FROM " + table + " WHERE id = :id");
+    query.bindValue(":id", id);
+    if (!query.exec() || !query.next()) {
+        return QString();
+    }
+    return query.value(0).toString() + unit;
+}
+
+QString Inspector::getItemAttribute(const QString table, const QString attribute, const int id, const QString foreignItemTable) const {
+    QSqlQuery query;
+    query.prepare("SELECT CONCAT(" + foreignItemTable + ".id, ' ', " + foreignItemTable + ".label) FROM " + table + ", " + foreignItemTable + " WHERE " + table + "." + " id = :id AND " + table + "." + attribute + " = " + foreignItemTable + ".key");
+    query.bindValue(":id", id);
+    if (!query.exec() || !query.next()) {
+        return QString();
+    }
+    return query.value(0).toString();
 }
