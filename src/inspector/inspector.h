@@ -24,6 +24,7 @@ private:
     QString getTextAttribute(QString table, QString attribute, int id) const;
     QString getNumberAttribute(QString table, QString attribute, int id, QString unit) const;
     QString getItemAttribute(QString table, QString attribute, int id, QString foreignItemTable) const;
+    QString getItemListAttribute(QString table, QString foreignItemsTable, QString listTable, QString listTableItemAttribute, QString listTableForeignItemsAttribute, int id) const;
     QSqlQueryModel* model;
     QString itemName;
     QList<int> itemIds;

@@ -91,10 +91,11 @@ QStringList Inspector::getItemInfos(const QString table, const int id) const {
     if (table == "models") {
         infos.append("2 Channels: " + getTextAttribute(table, "channels", id));
     } else if (table == "fixtures") {
-        infos.append("2 Model: " + getItemAttribute(table, "model", id, "models"));
+        infos.append("2 Model: " + getItemAttribute(table, "model_key", id, "models"));
         infos.append("3 Universe: " + getNumberAttribute(table, "universe", id, ""));
         infos.append("4 Address: " + getNumberAttribute(table, "address", id, ""));
     } else if (table == "groups") {
+        infos.append("2 Fixtures: " + getItemListAttribute(table, "fixtures", "group_fixtures", "group_key", "fixture_key", id));
     } else if (table == "intensities") {
         infos.append("2 Dimmer: " + getNumberAttribute(table, "dimmer", id, "%"));
     } else if (table == "colors") {
@@ -141,4 +142,18 @@ QString Inspector::getItemAttribute(const QString table, const QString attribute
         return QString();
     }
     return query.value(0).toString();
+}
+
+QString Inspector::getItemListAttribute(const QString table, const QString foreignItemsTable, const QString listTable, const QString listTableItemAttribute, const QString listTableForeignItemsAttribute, const int id) const {
+    QSqlQuery query;
+    query.prepare("SELECT " + foreignItemsTable + ".id FROM " + table + ", " + listTable + ", " + foreignItemsTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + listTable + "." + listTableItemAttribute + " AND " + foreignItemsTable + ".key = " + listTable + "." + listTableForeignItemsAttribute);
+    query.bindValue(":id", id);
+    if (!query.exec()) {
+        return QString();
+    }
+    QStringList itemIds;
+    while (query.next()) {
+        itemIds.append(query.value(0).toString());
+    }
+    return itemIds.join(", ");
 }
