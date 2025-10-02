@@ -69,6 +69,7 @@ private:
     QPlainTextEdit *messages;
     QLabel* promptLabel;
     const QList<Key> itemKeys = {Model, Fixture, Group, Intensity, Color, Position, Raw, Effect, Cue, Cuelist};
+    QMap<Key, QString> keyStrings;
 };
 
 #endif // TERMINAL_H

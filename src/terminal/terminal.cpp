@@ -9,6 +9,32 @@
 #include "terminal.h"
 
 Terminal::Terminal(QWidget *parent) : QWidget(parent) {
+    keyStrings[Zero] = "0";
+    keyStrings[One] = "1";
+    keyStrings[Two] = "2";
+    keyStrings[Three] = "3";
+    keyStrings[Four] = "4";
+    keyStrings[Five] = "5";
+    keyStrings[Six] = "6";
+    keyStrings[Seven] = "7";
+    keyStrings[Eight] = "8";
+    keyStrings[Nine] = "9";
+    keyStrings[Model] = " Model ";
+    keyStrings[Fixture] = " Fixture ";
+    keyStrings[Group] = " Group ";
+    keyStrings[Intensity] = " Intensity ";
+    keyStrings[Color] = " Color ";
+    keyStrings[Position] = " Position ";
+    keyStrings[Raw] = " Raw ";
+    keyStrings[Effect] = " Effect ";
+    keyStrings[Cue] = " Cue ";
+    keyStrings[Cuelist] = " Cuelist ";
+    keyStrings[Set] = " Set ";
+    keyStrings[Attribute] = " Attribute ";
+    keyStrings[Plus] = " + ";
+    keyStrings[Minus] = " - ";
+    keyStrings[Period] = ".";
+
     QVBoxLayout *layout = new QVBoxLayout(this);
 
     promptLabel = new QLabel();
@@ -162,6 +188,10 @@ void Terminal::execute() {
             deleteItems("positions", "Position", "Positions", ids);
         } else if (attribute == 1) {
             setTextAttribute("positions", "Position", "Positions", "label", "Label", ids, "");
+        } else if (attribute == 2) {
+            setNumberAttribute<float>("positions", "Position", "Positions", "pan", "Pan", ids, valueKeys, "°", 0, 360, true);
+        } else if (attribute == 3) {
+            setNumberAttribute<float>("positions", "Position", "Positions", "tilt", "Tilt", ids, valueKeys, "°", -180, 180, false);
         } else {
             error("Unknown Position Attribute.");
         }
@@ -495,60 +525,9 @@ QList<int> Terminal::keysToIds(QList<Key> keys) const {
 
 QString Terminal::keysToString(QList<Key> keys) const {
     QString string;
-    for(const int key: keys) {
-        if (key == Zero) {
-            string.append("0");
-        } else if (key == One) {
-            string.append("1");
-        } else if (key == Two) {
-            string.append("2");
-        } else if (key == Three) {
-            string.append("3");
-        } else if (key == Four) {
-            string.append("4");
-        } else if (key == Five) {
-            string.append("5");
-        } else if (key == Six) {
-            string.append("6");
-        } else if (key == Seven) {
-            string.append("7");
-        } else if (key == Eight) {
-            string.append("8");
-        } else if (key == Nine) {
-            string.append("9");
-        } else if (key == Model) {
-            string.append(" Model ");
-        } else if (key == Fixture) {
-            string.append(" Fixture ");
-        } else if (key == Group) {
-            string.append(" Group ");
-        } else if (key == Intensity) {
-            string.append(" Intensity ");
-        } else if (key == Color) {
-            string.append(" Color ");
-        } else if (key == Position) {
-            string.append(" Position ");
-        } else if (key == Raw) {
-            string.append(" Raw ");
-        } else if (key == Effect) {
-            string.append(" Effect ");
-        } else if (key == Cue) {
-            string.append(" Cue ");
-        } else if (key == Cuelist) {
-            string.append(" Cuelist ");
-        } else if (key == Set) {
-            string.append(" Set ");
-        } else if (key == Attribute) {
-            string.append(" Attribute ");
-        } else if (key == Plus) {
-            string.append(" + ");
-        } else if (key == Minus) {
-            string.append(" - ");
-        } else if (key == Period) {
-            string.append(".");
-        } else {
-            Q_ASSERT(false);
-        }
+    for(const Key key: keys) {
+        Q_ASSERT(keyStrings.contains(key));
+        string.append(keyStrings[key]);
     }
     return string.simplified();
 }

@@ -86,6 +86,7 @@ QStringList Inspector::getItemInfos(const QString table, const int id) const {
         return QStringList();
     }
     QStringList infos;
+    infos.append("ID: " + QString::number(id));
     infos.append("1 Label: " + label);
     if (table == "models") {
         infos.append("2 Channels: " + getTextAttribute(table, "channels", id));
@@ -100,6 +101,8 @@ QStringList Inspector::getItemInfos(const QString table, const int id) const {
         infos.append("2 Hue: " + getNumberAttribute(table, "hue", id, "°"));
         infos.append("3 Saturation: " + getNumberAttribute(table, "saturation", id, "%"));
     } else if (table == "positions") {
+        infos.append("2 Pan: " + getNumberAttribute(table, "pan", id, "°"));
+        infos.append("3 Tilt: " + getNumberAttribute(table, "tilt", id, "°"));
     } else if (table == "raws") {
     } else if (table == "effects") {
     } else if (table == "cues") {
