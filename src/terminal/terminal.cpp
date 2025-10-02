@@ -11,21 +11,107 @@
 Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    prompt = new Prompt();
-    connect(prompt, &Prompt::info, this, &Terminal::info);
-    connect(prompt, &Prompt::error, this, &Terminal::error);
-    connect(prompt, &Prompt::itemChanged, this, &Terminal::promptItemChanged);
-    connect(prompt, &Prompt::executed, this, &Terminal::execute);
-    layout->addWidget(prompt);
+    promptLabel = new QLabel();
+    layout->addWidget(promptLabel);
 
     messages = new QPlainTextEdit();
     messages->setReadOnly(true);
     layout->addWidget(messages);
+
+    new QShortcut(Qt::Key_0, this, [this] { writeKey(Zero); });
+    new QShortcut(Qt::Key_1, this, [this] { writeKey(One); });
+    new QShortcut(Qt::Key_2, this, [this] { writeKey(Two); });
+    new QShortcut(Qt::Key_3, this, [this] { writeKey(Three); });
+    new QShortcut(Qt::Key_4, this, [this] { writeKey(Four); });
+    new QShortcut(Qt::Key_5, this, [this] { writeKey(Five); });
+    new QShortcut(Qt::Key_6, this, [this] { writeKey(Six); });
+    new QShortcut(Qt::Key_7, this, [this] { writeKey(Seven); });
+    new QShortcut(Qt::Key_8, this, [this] { writeKey(Eight); });
+    new QShortcut(Qt::Key_9, this, [this] { writeKey(Nine); });
+
+    new QShortcut(Qt::Key_Plus, this, [this] { writeKey(Plus); });
+    new QShortcut(Qt::Key_Minus, this, [this] { writeKey(Minus); });
+    new QShortcut(Qt::Key_Period, this, [this] { writeKey(Period); });
+    new QShortcut(Qt::Key_Comma, this, [this] { writeKey(Period); });
+    new QShortcut(Qt::Key_A, this, [this] { writeKey(Attribute); });
+    new QShortcut(Qt::Key_S, this, [this] { writeKey(Set); });
+
+    new QShortcut(Qt::Key_M, this, [this] { writeKey(Model); });
+    new QShortcut(Qt::Key_F, this, [this] { writeKey(Fixture); });
+    new QShortcut(Qt::Key_G, this, [this] { writeKey(Group); });
+    new QShortcut(Qt::Key_I, this, [this] { writeKey(Intensity); });
+    new QShortcut(Qt::Key_C, this, [this] { writeKey(Color); });
+    new QShortcut(Qt::Key_Q, this, [this] { writeKey(Cue); });
+    new QShortcut(Qt::Key_L, this, [this] { writeKey(Cuelist); });
+
+    new QShortcut(Qt::Key_Backspace, this, [this] {
+        if (promptKeys.isEmpty()) {
+            return;
+        }
+        promptKeys.removeLast();
+        promptLabel->setText(keysToString(promptKeys));
+    });
+    new QShortcut(Qt::SHIFT | Qt::Key_Backspace, this, [this] { clearPrompt(); });
+    new QShortcut(Qt::Key_Enter, this, [this] { execute(); });
+    new QShortcut(Qt::Key_Return, this, [this] { execute(); });
 }
 
-void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute, QList<Prompt::Key> valueKeys) {
-    if (selectionType == Prompt::Model) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+void Terminal::execute() {
+    QList<Key> keys = promptKeys;
+    if (keys.isEmpty()) {
+        return;
+    }
+    info("> " + keysToString(keys));
+    clearPrompt();
+
+    Key selectionType = keys.first();
+    keys.removeFirst();
+    if (!isItemKey(selectionType)) {
+        error("No item type specified.");
+        return;
+    }
+
+    QList<Key> selectionIdKeys;
+    QList<Key> attributeKeys;
+    QList<Key> valueKeys;
+    bool attributeReached = false;
+    bool valueReached = false;
+    for (const Key key : keys) {
+        if (key == Set) {
+            if (valueReached) {
+                error("Can't use Set more than one time in one command.");
+                return;
+            }
+            valueReached = true;
+        } else if ((isItemKey(key) || (key == Attribute)) && !valueReached) {
+            //attribute.append(key);
+            attributeReached = true;
+        } else {
+            if (valueReached) {
+                valueKeys.append(key);
+            } else if (attributeReached) {
+                attributeKeys.append(key);
+            } else {
+                selectionIdKeys.append(key);
+            }
+        }
+    }
+    const QList<int> ids = keysToIds(selectionIdKeys);
+    if (ids.isEmpty()) {
+        emit error("Invalid selection ID given.");
+        return;
+    }
+    bool ok;
+    int attribute = keysToFloat(attributeKeys, &ok);
+    if (attributeKeys.isEmpty()) {
+        attribute = -1;
+    } else if (!ok) {
+        emit error("Invalid Attribute ID given.");
+        return;
+    }
+
+    if (selectionType == Model) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems("models", "Model", "Models", ids);
         } else if (attribute == 1) {
             setTextAttribute("models", "Model", "Models", "label", "Label", ids, "");
@@ -34,13 +120,13 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         } else {
             error("Unknown Model Attribute.");
         }
-    } else if (selectionType == Prompt::Fixture) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+    } else if (selectionType == Fixture) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems("fixtures", "Fixture", "Fixtures", ids);
         } else if (attribute == 1) {
             setTextAttribute("fixtures", "Fixture", "Fixtures", "label", "Label", ids, "");
         } else if (attribute == 2) {
-            setItemAttribute("fixtures", "Fixture", "Fixtures", "model", "Model", ids, valueKeys, "models", "Model", Prompt::Model);
+            setItemAttribute("fixtures", "Fixture", "Fixtures", "model", "Model", ids, valueKeys, "models", "Model", Model);
         } else if (attribute == 3) {
             setNumberAttribute<int>("fixtures", "Fixture", "Fixtures", "universe", "Universe", ids, valueKeys, "", 1, 63999, false);
         } else if (attribute == 4) {
@@ -48,16 +134,16 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         } else {
             error("Unknown Fixture Attribute.");
         }
-    } else if (selectionType == Prompt::Group) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+    } else if (selectionType == Group) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems("groups", "Group", "Groups", ids);
         } else if (attribute == 1) {
             setTextAttribute("groups", "Group", "Groups", "label", "Label", ids, "");
         } else {
             error("Unknown Group Attribute.");
         }
-    } else if (selectionType == Prompt::Intensity) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+    } else if (selectionType == Intensity) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems("intensities", "Intensity", "Intensities", ids);
         } else if (attribute == 1) {
             setTextAttribute("intensities", "Intensity", "Intensities", "label", "Label", ids, "");
@@ -66,8 +152,8 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         } else {
             error("Unknown Intensity Attribute.");
         }
-    } else if (selectionType == Prompt::Color) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+    } else if (selectionType == Color) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems("colors", "Color", "Colors", ids);
         } else if (attribute == 1) {
             setTextAttribute("colors", "Color", "Colors", "label", "Label", ids, "");
@@ -78,16 +164,16 @@ void Terminal::execute(Prompt::Key selectionType, QList<int> ids, int attribute,
         } else {
             error("Unknown Color Attribute.");
         }
-    } else if (selectionType == Prompt::Cue) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+    } else if (selectionType == Cue) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems("cues", "Cue", "Cues", ids);
         } else if (attribute == 1) {
             setTextAttribute("cues", "Cue", "Cues", "label", "Label", ids, "");
         } else {
             error("Unknown Cue Attribute.");
         }
-    } else if (selectionType == Prompt::Cuelist) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Prompt::Minus)) {
+    } else if (selectionType == Cuelist) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems("cuelists", "Cuelist", "Cuelists", ids);
         } else if (attribute == 1) {
             setTextAttribute("cuelists", "Cuelist", "Cuelists", "label", "Label", ids, "");
@@ -142,7 +228,7 @@ void Terminal::deleteItems(QString table, QString itemSingularName, QString item
     if (successfulIds.size() == 1) {
         success("Deleted " + itemSingularName + " " + successfulIds.first() + ".");
     } else if (successfulIds.size() > 1) {
-        success("Deleted " + itemPluralName + "s " + successfulIds.join(", ") + ".");
+        success("Deleted " + itemPluralName + " " + successfulIds.join(", ") + ".");
     }
     emit dbChanged();
 }
@@ -193,14 +279,14 @@ void Terminal::setTextAttribute(QString table, QString itemSingularName, QString
     emit dbChanged();
 }
 
-template <typename T> void Terminal::setNumberAttribute(QString table, QString itemSingularName, QString itemPluralName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic) {
+template <typename T> void Terminal::setNumberAttribute(QString table, QString itemSingularName, QString itemPluralName, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic) {
     Q_ASSERT(!ids.isEmpty());
-    const bool difference = (!valueKeys.isEmpty() && (valueKeys.first() == Prompt::Plus));
+    const bool difference = (!valueKeys.isEmpty() && (valueKeys.first() == Plus));
     if (difference) {
         valueKeys.removeFirst();
     }
     bool ok;
-    T value = prompt->keysToFloat(valueKeys, &ok);
+    T value = keysToFloat(valueKeys, &ok);
     if (!ok) {
         error("Invalid value given.");
         return;
@@ -282,7 +368,7 @@ template <typename T> void Terminal::setNumberAttribute(QString table, QString i
     emit dbChanged();
 }
 
-void Terminal::setItemAttribute(QString table, QString itemSingularName, QString itemPluralName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString foreignItemTable, QString foreignItemName, Prompt::Key foreignItemKey) {
+void Terminal::setItemAttribute(QString table, QString itemSingularName, QString itemPluralName, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, QString foreignItemTable, QString foreignItemName, Key foreignItemKey) {
     Q_ASSERT(!ids.isEmpty());
     if (!valueKeys.startsWith(foreignItemKey)) {
         error("Can't set " + itemSingularName + " " + attributeName + " because no " + foreignItemName + " was given.");
@@ -290,7 +376,7 @@ void Terminal::setItemAttribute(QString table, QString itemSingularName, QString
     }
     valueKeys.removeFirst();
     bool ok;
-    const int foreignItemId = prompt->keysToFloat(valueKeys, &ok);
+    const int foreignItemId = keysToFloat(valueKeys, &ok);
     if (!ok) {
         error("Can't set " + itemSingularName + " " + attributeName + " because the given " + foreignItemName + " ID is invalid.");
         return;
@@ -326,6 +412,119 @@ void Terminal::setItemAttribute(QString table, QString itemSingularName, QString
         success("Set " + attributeName + " of " + itemPluralName + " " + successfulIds.join(", ") + " to " + foreignItemName + " " + QString::number(foreignItem) + ".");
     }
     emit dbChanged();
+}
+
+void Terminal::writeKey(Key key) {
+    promptKeys.append(key);
+    QList<Key> idKeys;
+    bool id = true;
+    for (const Key key : promptKeys.sliced(1, (promptKeys.length() - 1))) {
+        bool ok;
+        keysToFloat({key}, &ok);
+        if (!ok) {
+            id = false;
+        }
+        if (id) {
+            idKeys.append(key);
+        }
+    }
+    emit itemChanged(keysToString({ promptKeys.first() }), keysToIds(idKeys));
+    promptLabel->setText(keysToString(promptKeys));
+}
+
+void Terminal::clearPrompt() {
+    promptKeys.clear();
+    promptLabel->setText(keysToString(promptKeys));
+}
+
+float Terminal::keysToFloat(QList<Key> keys, bool* ok) const {
+    return keysToString(keys).replace(" ", "").toFloat(ok);
+}
+
+bool Terminal::isItemKey(Key key) const {
+    return (
+        (key == Model) ||
+        (key == Fixture) ||
+        (key == Group) ||
+        (key == Intensity) ||
+        (key == Color) ||
+        (key == Cue) ||
+        (key == Cuelist)
+    );
+}
+
+QList<int> Terminal::keysToIds(QList<Key> keys) const {
+    keys.append(Plus);
+    QList<int> ids;
+    QList<Key> currentIdKeys;
+    for (const Key key : keys) {
+        if (key == Plus) {
+            bool ok;
+            const int id = keysToFloat(currentIdKeys, &ok);
+            if (!ok || (id < 0)) {
+                return QList<int>();
+            }
+            ids.append(id);
+            currentIdKeys.clear();
+        } else {
+            currentIdKeys.append(key);
+        }
+    }
+    return ids;
+}
+
+QString Terminal::keysToString(QList<Key> keys) const {
+    QString string;
+    for(const int key: keys) {
+        if (key == Zero) {
+            string.append("0");
+        } else if (key == One) {
+            string.append("1");
+        } else if (key == Two) {
+            string.append("2");
+        } else if (key == Three) {
+            string.append("3");
+        } else if (key == Four) {
+            string.append("4");
+        } else if (key == Five) {
+            string.append("5");
+        } else if (key == Six) {
+            string.append("6");
+        } else if (key == Seven) {
+            string.append("7");
+        } else if (key == Eight) {
+            string.append("8");
+        } else if (key == Nine) {
+            string.append("9");
+        } else if (key == Model) {
+            string.append(" Model ");
+        } else if (key == Fixture) {
+            string.append(" Fixture ");
+        } else if (key == Group) {
+            string.append(" Group ");
+        } else if (key == Intensity) {
+            string.append(" Intensity ");
+        } else if (key == Color) {
+            string.append(" Color ");
+        } else if (key == Cue) {
+            string.append(" Cue ");
+        } else if (key == Cuelist) {
+            string.append(" Cuelist ");
+        } else if (key == Set) {
+            string.append(" Set ");
+        } else if (key == Attribute) {
+            string.append(" Attribute ");
+        } else if (key == Plus) {
+            string.append(" + ");
+        } else if (key == Minus) {
+            string.append(" - ");
+        } else if (key == Period) {
+            string.append(".");
+        } else {
+            Q_ASSERT(false);
+        }
+    }
+    return string.simplified();
 }
 
 void Terminal::info(QString message) {

@@ -35,8 +35,7 @@ Inspector::Inspector(QWidget *parent) : QWidget(parent) {
 }
 
 void Inspector::reload() {
-    model->setQuery("SELECT CONCAT(id, ' ', label) FROM " + itemTable + " ORDER BY id");
-
+    QString table;
     struct Attribute {
         QString name;
         QString beforeValue;
@@ -46,31 +45,36 @@ void Inspector::reload() {
     attributes.append({"ID", "", ""});
     attributes.append({"1 Label", "\"", "\""});
     QSqlQuery itemQuery;
-    if (itemTable == "models") {
+    if (itemName == "Model") {
+        table = "models";
         itemQuery.prepare("SELECT id, label, channels FROM models WHERE id = :id");
         attributes.append({"2 Channels", "\"", "\""});
-    } else if (itemTable == "fixtures") {
+    } else if (itemName == "Fixture") {
+        table = "fixtures";
         itemQuery.prepare("SELECT fixtures.id, fixtures.label, CONCAT(models.id, ' ', models.label), universe, address FROM fixtures, models WHERE fixtures.id = :id AND model = models.key");
         attributes.append({"2 Model", "", ""});
         attributes.append({"3 Universe", "", ""});
         attributes.append({"4 Address", "", ""});
-    } else if (itemTable == "groups") {
+    } else if (itemName == "Group") {
+        table = "models";
         itemQuery.prepare("SELECT id, label FROM groups WHERE id = :id");
-    } else if (itemTable == "intensities") {
+    } else if (itemName == "Intensity") {
+        table = "intensities";
         itemQuery.prepare("SELECT id, label, ROUND(dimmer, 3) FROM intensities WHERE id = :id");
         attributes.append({"2 Dimmer", "", "%"});
-    } else if (itemTable == "colors") {
+    } else if (itemName == "Color") {
+        table = "colors";
         itemQuery.prepare("SELECT id, label, ROUND(hue, 3), ROUND(saturation, 3) FROM colors WHERE id = :id");
         attributes.append({"2 Hue", "", "°"});
         attributes.append({"3 Saturation", "", "%"});
-    } else if (itemTable == "cues") {
+    } else if (itemName == "Cue") {
+        table = "cues";
         itemQuery.prepare("SELECT id, label FROM cues WHERE id = :id");
-    } else if (itemTable == "cuelists") {
+    } else if (itemName == "Cuelists") {
+        table = "cuelists";
         itemQuery.prepare("SELECT id, label FROM cuelists WHERE id = :id");
-    } else {
-        Q_ASSERT(false);
     }
-    itemQuery.bindValue(":id", itemId);
+    itemQuery.bindValue(":id", itemIds.last());
     itemQuery.exec();
     if (itemQuery.next()) {
         QStringList infos;
@@ -83,11 +87,14 @@ void Inspector::reload() {
     } else {
         infosLabel->hide();
     }
+    if (!table.isEmpty()) {
+        model->setQuery("SELECT CONCAT(id, ' ', label) FROM " + table + " ORDER BY id");
+    }
 }
 
-void Inspector::loadItem(QString table, int id) {
-    itemTable = table;
-    itemId = id;
-    titleLabel->setText(table);
+void Inspector::loadItem(QString name, QList<int> ids) {
+    itemName = name;
+    itemIds = ids;
+    titleLabel->setText(name);
     reload();
 }

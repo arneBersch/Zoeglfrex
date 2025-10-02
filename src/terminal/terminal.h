@@ -12,10 +12,33 @@
 #include <QtWidgets>
 #include <QtSql>
 
-#include "prompt.h"
-
 class Terminal : public QWidget {
     Q_OBJECT
+private:
+    enum Key {
+        Zero, // 0
+        One, // 1
+        Two, // 2
+        Three, // 3
+        Four, // 4
+        Five, // 5
+        Six, // 6
+        Seven, // 7
+        Eight, // 8
+        Nine, // 9
+        Plus, // +
+        Minus, // -
+        Period, // .
+        Set, // S
+        Attribute, // A
+        Model, // M
+        Fixture, // F
+        Group, // G
+        Intensity, // I
+        Color, // C
+        Cue, // Q
+        Cuelist, // L
+    };
 public:
     Terminal(QWidget *parent = nullptr);
     void info(QString message);
@@ -24,17 +47,23 @@ public:
     void error(QString message);
 signals:
     void dbChanged();
-    void promptItemChanged(QString table, int id);
-private slots:
-    void execute(Prompt::Key selectionType, QList<int> ids, int attribute, QList<Prompt::Key> value);
+    void itemChanged(QString itemType, QList<int> ids);
 private:
+    void execute();
     void createItems(QString table, QString itemSingularName, QString itemPluralName, QList<int> ids);
     void deleteItems(QString table, QString itemSingularName, QString itemPluralName, QList<int> ids);
     void setTextAttribute(QString table, QString itemSingularName, QString itemPluralName, QString attribute, QString attributeName, QList<int> ids, QString regex);
-    template <typename T> void setNumberAttribute(QString table, QString itemSingularName, QString itemPluralName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic);
-    void setItemAttribute(QString table, QString itemSingularName, QString itemPluralName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString foreignItemTable, QString foreignItemName, Prompt::Key foreignItemKey);
+    template <typename T> void setNumberAttribute(QString table, QString itemSingularName, QString itemPluralName, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic);
+    void setItemAttribute(QString table, QString itemSingularName, QString itemPluralName, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, QString foreignItemTable, QString foreignItemName, Key foreignItemKey);
+    float keysToFloat(QList<Key> keys, bool* ok) const;
+    QList<int> keysToIds(QList<Key> keys) const;
+    QString keysToString(QList<Key> keys) const;
+    void clearPrompt();
+    bool isItemKey(Key key) const;
+    void writeKey(Key key);
+    QList<Key> promptKeys;
     QPlainTextEdit *messages;
-    Prompt* prompt;
+    QLabel* promptLabel;
 };
 
 #endif // TERMINAL_H

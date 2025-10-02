@@ -14,7 +14,6 @@ SOURCES += \
     inspector/inspector.cpp \
     main.cpp \
     mainwindow/mainwindow.cpp \
-    terminal/prompt.cpp \
     terminal/terminal.cpp
 
 HEADERS += \
@@ -22,7 +21,6 @@ HEADERS += \
     cuelistview/cuelistview.h \
     inspector/inspector.h \
     mainwindow/mainwindow.h \
-    terminal/prompt.h \
     terminal/terminal.h
 
 # Default rules for deployment.

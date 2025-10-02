@@ -40,7 +40,7 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     terminal = new Terminal();
     inspector = new Inspector();
     connect(terminal, &Terminal::dbChanged, this, &MainWindow::reload);
-    connect(terminal, &Terminal::promptItemChanged, inspector, &Inspector::loadItem);
+    connect(terminal, &Terminal::itemChanged, inspector, &Inspector::loadItem);
 
     QSplitter *leftColumn = new QSplitter();
     leftColumn->setOrientation(Qt::Vertical);
