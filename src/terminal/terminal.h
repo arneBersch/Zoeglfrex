@@ -28,11 +28,11 @@ signals:
 private slots:
     void execute(Prompt::Key selectionType, QList<int> ids, int attribute, QList<Prompt::Key> value);
 private:
-    void createItems(QString table, QString itemName, QList<int> ids);
-    void deleteItems(QString table, QString itemName, QList<int> ids);
-    void setTextAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QString regex);
-    template <typename T> void setNumberAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic);
-    void setItemAttribute(QString table, QString itemName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString foreignItemTable, QString foreignItemName, Prompt::Key foreignItemKey);
+    void createItems(QString table, QString itemSingularName, QString itemPluralName, QList<int> ids);
+    void deleteItems(QString table, QString itemSingularName, QString itemPluralName, QList<int> ids);
+    void setTextAttribute(QString table, QString itemSingularName, QString itemPluralName, QString attribute, QString attributeName, QList<int> ids, QString regex);
+    template <typename T> void setNumberAttribute(QString table, QString itemSingularName, QString itemPluralName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic);
+    void setItemAttribute(QString table, QString itemSingularName, QString itemPluralName, QString attribute, QString attributeName, QList<int> ids, QList<Prompt::Key> valueKeys, QString foreignItemTable, QString foreignItemName, Prompt::Key foreignItemKey);
     QPlainTextEdit *messages;
     Prompt* prompt;
 };
