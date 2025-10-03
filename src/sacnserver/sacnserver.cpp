@@ -11,26 +11,12 @@
 SacnServer::SacnServer(QWidget* parent) : QWidget(parent) {
     settings = new QSettings("zoeglfrex.conf", QSettings::NativeFormat);
     QGridLayout* layout = new QGridLayout(this);
-    setWindowTitle("sACN Settings");
+    setWindowTitle("Zöglfrex sACN Settings");
 
     QLabel* networkInterfaceLabel = new QLabel("Network Interface");
     layout->addWidget(networkInterfaceLabel, 0, 0);
-    QComboBox* networkInterfaceComboBox = new QComboBox();
-    networkInterfaceComboBox->addItem("None");
-    int interfaceIndex = 0;
-    for (QNetworkInterface interface : QNetworkInterface::allInterfaces()) {
-        for (QNetworkAddressEntry address : interface.addressEntries()) {
-            if (address.ip().protocol() == QAbstractSocket::IPv4Protocol) {
-                networkInterfaceComboBox->addItem(interface.name() + " (" + address.ip().toString() + ")");
-                networkInterfaces.append(interface);
-                networkAddresses.append(address);
-                if ((settings->value("sacn/interface") == interface.name()) && (settings->value("sacn/address") == address.ip().toString())) {
-                    interfaceIndex = networkInterfaces.length();
-                }
-            }
-        }
-    }
-    networkInterfaceComboBox->setCurrentIndex(interfaceIndex);
+    networkInterfaceComboBox = new QComboBox();
+    reloadNetworkInterfaces();
     connect(networkInterfaceComboBox, &QComboBox::currentIndexChanged, this, [this](int index) {
         index--;
         delete socket;
@@ -49,8 +35,12 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent) {
     });
     layout->addWidget(networkInterfaceComboBox, 0, 1);
 
-    QLabel* portLabel = new QLabel("Priority");
-    layout->addWidget(portLabel, 1, 0);
+    QPushButton* reloadNetworkInterfaceButton = new QPushButton("Reload Network Interfaces");
+    connect(reloadNetworkInterfaceButton, &QPushButton::clicked, this, &SacnServer::reloadNetworkInterfaces);
+    layout->addWidget(reloadNetworkInterfaceButton, 1, 0);
+
+    QLabel* priorityLabel = new QLabel("Priority");
+    layout->addWidget(priorityLabel, 2, 0);
     QSpinBox* prioritySpinBox = new QSpinBox();
     prioritySpinBox->setMinimum(0);
     prioritySpinBox->setMaximum(200);
@@ -58,7 +48,7 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent) {
     connect(prioritySpinBox, &QSpinBox::valueChanged, this, [this](int port) {
         settings->setValue("sacn/priority", port);
     });
-    layout->addWidget(prioritySpinBox, 1, 1);
+    layout->addWidget(prioritySpinBox, 2, 1);
 
     // Root Layer
     // Preamble Size (Octet 0-1)
@@ -159,6 +149,28 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent) {
     packetHeader.append((char)0x00);
 
     // Property Values (Octet 126-637)
+}
+
+void SacnServer::reloadNetworkInterfaces() {
+    networkInterfaceComboBox->clear();
+    networkInterfaces.clear();
+    networkAddresses.clear();
+    networkInterfaceComboBox->addItem("None");
+    int interfaceIndex = 0;
+    for (QNetworkInterface interface : QNetworkInterface::allInterfaces()) {
+        for (QNetworkAddressEntry address : interface.addressEntries()) {
+            if (address.ip().protocol() == QAbstractSocket::IPv4Protocol) {
+                networkInterfaceComboBox->addItem(interface.name() + " (" + address.ip().toString() + ")");
+                networkInterfaces.append(interface);
+                networkAddresses.append(address);
+                if ((settings->value("sacn/interface") == interface.name()) && (settings->value("sacn/address") == address.ip().toString())) {
+                    interfaceIndex = networkInterfaces.length();
+                }
+            }
+        }
+    }
+    qInfo() << networkInterfaces;
+    networkInterfaceComboBox->setCurrentIndex(interfaceIndex);
 }
 
 void SacnServer::sendUniverse(const int universe, QByteArray data) {

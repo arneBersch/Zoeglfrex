@@ -17,10 +17,12 @@ class SacnServer : public QWidget {
 public:
     SacnServer(QWidget* parent = nullptr);
 private:
+    void reloadNetworkInterfaces();
     void sendUniverse(int universe, QByteArray channels);
     QSettings* settings;
     QByteArray packetHeader;
     QUdpSocket *socket = nullptr;
+    QComboBox* networkInterfaceComboBox;
     QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();
     QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
     uchar sequence = 0;
