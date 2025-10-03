@@ -54,10 +54,10 @@ void Inspector::reload() {
         table = "raws";
     } else if (itemName == "Effect") {
         table = "effects";
-    } else if (itemName == "Cue") {
-        table = "cues";
     } else if (itemName == "Cuelist") {
         table = "cuelists";
+    } else if (itemName == "Cue") {
+        table = "cues";
     }
     if (!table.isEmpty()) {
         model->setQuery("SELECT CONCAT(id, ' ', label) FROM " + table + " ORDER BY id");
@@ -106,12 +106,29 @@ QStringList Inspector::getItemInfos(const QString table, const int id) const {
         infos.append("3 Tilt: " + getNumberAttribute(table, "tilt", id, "°"));
     } else if (table == "raws") {
     } else if (table == "effects") {
-    } else if (table == "cues") {
     } else if (table == "cuelists") {
+        infos.append("2 Move while Dark: " + getBoolAttribute(table, "movewhiledark", id));
+    } else if (table == "cues") {
     } else {
         Q_ASSERT(false);
     }
     return infos;
+}
+
+QString Inspector::getBoolAttribute(QString table, QString attribute, int id) const {
+    QSqlQuery query;
+    query.prepare("SELECT " + attribute + " FROM " + table + " WHERE id = :id");
+    query.bindValue(":id", id);
+    if (!query.exec() || !query.next()) {
+        return QString();
+    }
+    const int value = query.value(0).toInt();
+    if (value == 0 ) {
+        return "False";
+    } else if (value == 1) {
+        return "True";
+    }
+    return QString();
 }
 
 QString Inspector::getTextAttribute(const QString table, const QString attribute, const int id) const {

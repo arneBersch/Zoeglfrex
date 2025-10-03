@@ -56,8 +56,8 @@ int main(int argc, char *argv[]) {
         "CREATE TABLE IF NOT EXISTS positions (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, pan REAL DEFAULT 0 NOT NULL, tilt REAL DEFAULT 0 NOT NULL, PRIMARY KEY (key))",
         "CREATE TABLE IF NOT EXISTS raws (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, PRIMARY KEY (key))",
         "CREATE TABLE IF NOT EXISTS effects (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, PRIMARY KEY (key))",
+        "CREATE TABLE IF NOT EXISTS cuelists (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, movewhiledark INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (key))",
         "CREATE TABLE IF NOT EXISTS cues (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, PRIMARY KEY (key))",
-        "CREATE TABLE IF NOT EXISTS cuelists (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, PRIMARY KEY (key))",
     };
     for (QString createTableQuery : createTableQueries) {
         QSqlQuery query;

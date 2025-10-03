@@ -39,8 +39,8 @@ private:
         Position, // P
         Raw, // R
         Effect, // E
-        Cue, // Q
         Cuelist, // L
+        Cue, // Q
     };
     struct ItemInfos {
         QString table;
@@ -62,6 +62,7 @@ private:
     void execute();
     void createItems(ItemInfos item, QList<int> ids);
     void deleteItems(ItemInfos item, QList<int> ids);
+    void setBoolAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys);
     void setTextAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QString regex);
     template <typename T> void setNumberAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic);
     void setItemAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, ItemInfos foreignItem);
@@ -76,7 +77,7 @@ private:
     QList<Key> promptKeys;
     QPlainTextEdit *messages;
     QLabel* promptLabel;
-    const QList<Key> itemKeys = {Model, Fixture, Group, Intensity, Color, Position, Raw, Effect, Cue, Cuelist};
+    const QList<Key> itemKeys = {Model, Fixture, Group, Intensity, Color, Position, Raw, Effect, Cuelist, Cue};
     QMap<Key, QString> keyStrings;
 };
 

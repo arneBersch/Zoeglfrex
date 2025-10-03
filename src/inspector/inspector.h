@@ -21,6 +21,7 @@ public slots:
     void loadItem(QString itemName, QList<int> ids);
 private:
     QStringList getItemInfos(QString table, int id) const;
+    QString getBoolAttribute(QString table, QString attribute, int id) const;
     QString getTextAttribute(QString table, QString attribute, int id) const;
     QString getNumberAttribute(QString table, QString attribute, int id, QString unit) const;
     QString getItemAttribute(QString table, QString attribute, int id, QString foreignItemTable) const;

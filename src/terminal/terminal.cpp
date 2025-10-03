@@ -27,8 +27,8 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     keyStrings[Position] = " Position ";
     keyStrings[Raw] = " Raw ";
     keyStrings[Effect] = " Effect ";
-    keyStrings[Cue] = " Cue ";
     keyStrings[Cuelist] = " Cuelist ";
+    keyStrings[Cue] = " Cue ";
     keyStrings[Set] = " Set ";
     keyStrings[Attribute] = " Attribute ";
     keyStrings[Plus] = " + ";
@@ -70,8 +70,8 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     new QShortcut(Qt::Key_P, this, [this] { writeKey(Position); });
     new QShortcut(Qt::Key_R, this, [this] { writeKey(Raw); });
     new QShortcut(Qt::Key_E, this, [this] { writeKey(Effect); });
-    new QShortcut(Qt::Key_Q, this, [this] { writeKey(Cue); });
     new QShortcut(Qt::Key_L, this, [this] { writeKey(Cuelist); });
+    new QShortcut(Qt::Key_Q, this, [this] { writeKey(Cue); });
 
     new QShortcut(Qt::Key_Backspace, this, [this] { backspace(); });
     new QShortcut(Qt::SHIFT | Qt::Key_Backspace, this, [this] { clearPrompt(); });
@@ -137,8 +137,8 @@ void Terminal::execute() {
     const ItemInfos positionInfos = {"positions", "Position", "Positions", Position};
     const ItemInfos rawInfos = {"raws", "Raw", "Raws", Raw};
     const ItemInfos effectInfos = {"effects", "Effect", "Effects", Effect};
-    const ItemInfos cueInfos = {"cues", "Cue", "Cues", Cue};
     const ItemInfos cuelistInfos = {"cuelists", "Cuelist", "Cuelists", Cuelist};
+    const ItemInfos cueInfos = {"cues", "Cue", "Cues", Cue};
 
     if (selectionType == Model) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
@@ -224,6 +224,16 @@ void Terminal::execute() {
         } else {
             error("Unknown Cue Attribute.");
         }
+    } else if (selectionType == Cuelist) {
+        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+            deleteItems(cuelistInfos, ids);
+        } else if (attribute == 1) {
+            setTextAttribute(cuelistInfos, "label", "Label", ids, "");
+        } else if (attribute == 2) {
+            setBoolAttribute(cuelistInfos, "movewhiledark", "Move while Dark", ids, valueKeys);
+        } else {
+            error("Unknown Cuelist Attribute.");
+        }
     } else if (selectionType == Cue) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(cueInfos, ids);
@@ -231,14 +241,6 @@ void Terminal::execute() {
             setTextAttribute(cueInfos, "label", "Label", ids, "");
         } else {
             error("Unknown Cue Attribute.");
-        }
-    } else if (selectionType == Cuelist) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
-            deleteItems(cuelistInfos, ids);
-        } else if (attribute == 1) {
-            setTextAttribute(cuelistInfos, "label", "Label", ids, "");
-        } else {
-            error("Unknown Cuelist Attribute.");
         }
     } else {
         error("Unknown Item type.");
@@ -290,6 +292,39 @@ void Terminal::deleteItems(const ItemInfos item, QList<int> ids) {
         success("Deleted " + item.singular + " " + successfulIds.first() + ".");
     } else if (successfulIds.size() > 1) {
         success("Deleted " + item.plural + " " + successfulIds.join(", ") + ".");
+    }
+    emit dbChanged();
+}
+
+void Terminal::setBoolAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QList<int> ids, QList<Key> valueKeys) {
+    Q_ASSERT(!ids.isEmpty());
+    int value = 0;
+    QString valueText = "False";
+    if ((valueKeys.size() == 1) && valueKeys.startsWith(Zero)) {
+    } else if ((valueKeys.size() == 1) && valueKeys.startsWith(One)) {
+        value = 1;
+        valueText = "True";
+    } else {
+        error("Can't set " + item.singular + " " + attributeName + " because no valid value was given.");
+        return;
+    }
+    createItems(item, ids);
+    QStringList successfulIds;
+    for (int id : ids) {
+        QSqlQuery query;
+        query.prepare("UPDATE " + item.table + " SET " + attribute + " = :value WHERE id = :id");
+        query.bindValue(":id", id);
+        query.bindValue(":value", value);
+        if (query.exec()) {
+            successfulIds.append(QString::number(id));
+        } else {
+            error("Failed setting " + attributeName + " of " + item.singular + " " + QString::number(id) + ": " + query.lastError().text());
+        }
+    }
+    if (successfulIds.length() == 1) {
+        success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " to " + valueText + ".");
+    } else if (successfulIds.length() > 1) {
+        success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " to " + valueText + ".");
     }
     emit dbChanged();
 }
