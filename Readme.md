@@ -3,7 +3,7 @@ Zöglfrex is a Free and Open Source stage lighting software.
 
 It currently runs on Linux (via AppImage) and Windows.
 
-See the [Releases page](https://github.com/arneBersch/Zoeglfrex/releases/) to download the latest version of Zöglfrex.
+You can download the latest version of Zöglfrex [here](https://github.com/arneBersch/Zoeglfrex/releases/latest/).
 
 ## Features
 - command line interface

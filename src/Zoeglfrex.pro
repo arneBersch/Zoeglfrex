@@ -1,4 +1,7 @@
-QT       += core gui sql
+QT += core
+QT += gui
+QT += sql
+QT += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -14,6 +17,7 @@ SOURCES += \
     inspector/inspector.cpp \
     main.cpp \
     mainwindow/mainwindow.cpp \
+    sacnserver/sacnserver.cpp \
     terminal/terminal.cpp
 
 HEADERS += \
@@ -21,6 +25,7 @@ HEADERS += \
     cuelistview/cuelistview.h \
     inspector/inspector.h \
     mainwindow/mainwindow.h \
+    sacnserver/sacnserver.h \
     terminal/terminal.h
 
 # Default rules for deployment.

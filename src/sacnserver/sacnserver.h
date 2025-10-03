@@ -6,33 +6,24 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef SACNSERVER_H
+#define SACNSERVER_H
 
-#include <QtWidgets>
-#include <QtSql>
+#include<QtWidgets>
+#include<QtNetwork>
 
-#include "aboutwindow/aboutwindow.h"
-#include "cuelistview/cuelistview.h"
-#include "terminal/terminal.h"
-#include "inspector/inspector.h"
-#include "sacnserver/sacnserver.h"
-
-class MainWindow : public QMainWindow {
+class SacnServer : public QWidget {
     Q_OBJECT
 public:
-    MainWindow(QString version, QString copyright, QWidget *parent = nullptr);
-public slots:
-    void reload();
+    SacnServer(QWidget* parent = nullptr);
 private:
-    QString VERSION;
-    QString COPYRIGHT;
-    void about();
-    void closeEvent(QCloseEvent *event) override;
-    CuelistView* cuelistView;
-    Terminal* terminal;
-    Inspector* inspector;
-    SacnServer* sacnServer;
+    void sendUniverse(int universe, QByteArray channels);
+    QSettings* settings;
+    QByteArray packetHeader;
+    QUdpSocket *socket = nullptr;
+    QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();
+    QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
+    uchar sequence = 0;
 };
 
-#endif // MAINWINDOW_H
+#endif // SACNSERVER_H

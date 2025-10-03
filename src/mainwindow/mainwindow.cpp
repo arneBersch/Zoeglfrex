@@ -14,42 +14,48 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
 
     resize(1200, 800);
 
-    new QShortcut(Qt::CTRL | Qt::Key_Q, this, [this] { close(); });
-
-    QMenu *fileMenu = menuBar()->addMenu("File");
-    QAction *quitAction = new QAction("Quit (CTRL+Q)");
-    fileMenu->addAction(quitAction);
-    connect(quitAction, &QAction::triggered, this, &MainWindow::close);
-
-    QMenu *helpMenu = menuBar()->addMenu("Help");
-    QAction *aboutAction = new QAction("About Zöglfrex");
-    helpMenu->addAction(aboutAction);
-    connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
-    QAction *aboutQtAction = new QAction("About Qt");
-    helpMenu->addAction(aboutQtAction);
-    connect(aboutQtAction, &QAction::triggered, this, [] { QApplication::aboutQt(); });
-    helpMenu->addSeparator();
-    QAction *openGuideAction = new QAction("Quick Start Guide");
-    helpMenu->addAction(openGuideAction);
-    connect(openGuideAction, &QAction::triggered, this, [] { QDesktopServices::openUrl(QUrl("https://github.com/arneBersch/Zoeglfrex/blob/main/docs/quick_start_guide.md")); });
-    QAction *openReferenceAction = new QAction("Reference");
-    helpMenu->addAction(openReferenceAction);
-    connect(openReferenceAction, &QAction::triggered, this, [] { QDesktopServices::openUrl(QUrl("https://github.com/arneBersch/Zoeglfrex/blob/main/docs/reference.md")); });
-
     cuelistView = new CuelistView();
     terminal = new Terminal();
     inspector = new Inspector();
+    sacnServer = new SacnServer();
     connect(terminal, &Terminal::dbChanged, this, &MainWindow::reload);
     connect(terminal, &Terminal::itemChanged, inspector, &Inspector::loadItem);
 
-    QSplitter *leftColumn = new QSplitter();
+    new QShortcut(Qt::CTRL | Qt::Key_Q, this, [this] { close(); });
+
+    QMenu* fileMenu = menuBar()->addMenu("File");
+    QAction* quitAction = new QAction("Quit (CTRL+Q)");
+    fileMenu->addAction(quitAction);
+    connect(quitAction, &QAction::triggered, this, &MainWindow::close);
+
+    QMenu* confMenu = menuBar()->addMenu("Configuration");
+    QAction* sacnSettingsAction = new QAction("sACN Settings");
+    confMenu->addAction(sacnSettingsAction);
+    connect(sacnSettingsAction, &QAction::triggered, sacnServer, &SacnServer::show);
+
+    QMenu* helpMenu = menuBar()->addMenu("Help");
+    QAction* aboutAction = new QAction("About Zöglfrex");
+    helpMenu->addAction(aboutAction);
+    connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
+    QAction* aboutQtAction = new QAction("About Qt");
+    helpMenu->addAction(aboutQtAction);
+    connect(aboutQtAction, &QAction::triggered, this, [] { QApplication::aboutQt(); });
+    helpMenu->addSeparator();
+    QAction* openGuideAction = new QAction("Quick Start Guide");
+    helpMenu->addAction(openGuideAction);
+    connect(openGuideAction, &QAction::triggered, this, [] { QDesktopServices::openUrl(QUrl("https://github.com/arneBersch/Zoeglfrex/blob/main/docs/quick_start_guide.md")); });
+    QAction* openReferenceAction = new QAction("Reference");
+    helpMenu->addAction(openReferenceAction);
+    connect(openReferenceAction, &QAction::triggered, this, [] { QDesktopServices::openUrl(QUrl("https://github.com/arneBersch/Zoeglfrex/blob/main/docs/reference.md")); });
+
+    QSplitter* leftColumn = new QSplitter();
     leftColumn->setOrientation(Qt::Vertical);
     leftColumn->setChildrenCollapsible(false);
     leftColumn->addWidget(cuelistView);
     leftColumn->addWidget(terminal);
     leftColumn->setSizes(QList<int>() << 300 << 100);
 
-    QSplitter *mainColumns = new QSplitter();
+    QSplitter* mainColumns = new QSplitter();
     mainColumns->setChildrenCollapsible(false);
     mainColumns->addWidget(leftColumn);
     mainColumns->addWidget(inspector);
