@@ -42,6 +42,13 @@ private:
         Cue, // Q
         Cuelist, // L
     };
+    struct ItemInfos {
+        QString table;
+        QString singular;
+        QString plural;
+        Key key;
+    };
+
 public:
     Terminal(QWidget *parent = nullptr);
     void info(QString message);
@@ -53,12 +60,12 @@ signals:
     void itemChanged(QString itemType, QList<int> ids);
 private:
     void execute();
-    void createItems(QString table, QString singularItemName, QString pluralItemName, QList<int> ids);
-    void deleteItems(QString table, QString singularItemName, QString pluralItemName, QList<int> ids);
-    void setTextAttribute(QString table, QString singularItemName, QString pluralItemName, QString attribute, QString attributeName, QList<int> ids, QString regex);
-    template <typename T> void setNumberAttribute(QString table, QString singularItemName, QString pluralItemName, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic);
-    void setItemAttribute(QString table, QString singularItemName, QString pluralItemName, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, QString foreignItemTable, QString singularForeignItemName, Key foreignItemKey);
-    void setItemListAttribute(QString table, QString singularItemName, QString pluralItemName, QString attributeName, QList<int> ids, QList<Key> valueKeys, QString foreignItemTable, QString singularForeignItemName, QString pluralForeignItemName, Key foreignItemKey, QString listTable, QString listTableItemAttribute, QString listTableForeignItemsAttribute);
+    void createItems(ItemInfos item, QList<int> ids);
+    void deleteItems(ItemInfos item, QList<int> ids);
+    void setTextAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QString regex);
+    template <typename T> void setNumberAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic);
+    void setItemAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, ItemInfos foreignItem);
+    void setItemListAttribute(ItemInfos item, QString attributeName, QList<int> ids, QList<Key> valueKeys, ItemInfos foreignItem, QString listTable, QString listTableItemAttribute, QString listTableForeignItemsAttribute);
     float keysToFloat(QList<Key> keys, bool* ok) const;
     QList<int> keysToIds(QList<Key> keys) const;
     QString keysToString(QList<Key> keys) const;
