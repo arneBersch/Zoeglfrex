@@ -582,21 +582,17 @@ void Terminal::setItemListAttribute(const ItemInfos item, QString attributeName,
 }
 
 void Terminal::updatePrompt() {
-    if (!promptKeys.isEmpty()) {
-        QList<Key> idKeys;
-        bool id = true;
-        for (const Key key : promptKeys.sliced(1, (promptKeys.length() - 1))) {
-            bool ok;
-            keysToFloat({key}, &ok);
-            if (!ok && (key != Plus)) {
-                id = false;
-            }
-            if (id) {
-                idKeys.append(key);
-            }
+    Key itemType = Set;
+    QList<Key> idKeys;
+    for (const Key key : promptKeys) {
+        if (itemKeys.contains(key)) {
+            itemType = key;
+            idKeys.clear();
+        } else {
+            idKeys.append(key);
         }
-        emit itemChanged(keysToString({ promptKeys.first() }), keysToIds(idKeys));
     }
+    emit itemChanged(keysToString({ itemType }), keysToIds(idKeys));
     promptLabel->setText(keysToString(promptKeys));
 }
 
