@@ -35,7 +35,7 @@ jobs:
           mkdir -p AppDir/usr/share/applications
           mkdir -p AppDir/usr/share/icons/hicolor/512x512/apps
           cp ../build/zoeglfrex.desktop AppDir/usr/share/applications/zoeglfrex.desktop
-          cp AppDir/Zoeglfrex AppDir/usr/bin/Zoeglfrex
+          cp Zoeglfrex AppDir/usr/bin/Zoeglfrex
           cp resources/icon.png AppDir/usr/share/icons/hicolor/512x512/apps/icon.png
           cd AppDir
           sudo add-apt-repository universe
