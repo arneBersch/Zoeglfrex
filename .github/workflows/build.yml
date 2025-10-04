@@ -31,6 +31,7 @@ jobs:
       - name: Create AppImage
         run: |
           cp ../build/zoeglfrex.desktop AppDir/zoeglfrex.desktop
+          cp resources/icon.png AppDir/icon.png
           cd AppDir
           sudo add-apt-repository universe
           sudo apt install libfuse2
