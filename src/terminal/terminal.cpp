@@ -143,6 +143,8 @@ void Terminal::execute() {
     if (selectionType == Model) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(modelInfos, ids);
+        } else if (attribute == 0) {
+            moveItems(modelInfos, ids, valueKeys);
         } else if (attribute == 1) {
             setTextAttribute(modelInfos, "label", "Label", ids, "");
         } else if (attribute == 2) {
@@ -153,6 +155,8 @@ void Terminal::execute() {
     } else if (selectionType == Fixture) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(fixtureInfos, ids);
+        } else if (attribute == 0) {
+            moveItems(fixtureInfos, ids, valueKeys);
         } else if (attribute == 1) {
             setTextAttribute(fixtureInfos, "label", "Label", ids, "");
         } else if (attribute == 2) {
@@ -167,6 +171,8 @@ void Terminal::execute() {
     } else if (selectionType == Group) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(groupInfos, ids);
+        } else if (attribute == 0) {
+            moveItems(groupInfos, ids, valueKeys);
         } else if (attribute == 1) {
             setTextAttribute(groupInfos, "label", "Label", ids, "");
         } else if (attribute == 2) {
@@ -177,6 +183,8 @@ void Terminal::execute() {
     } else if (selectionType == Intensity) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(intensityInfos, ids);
+        } else if (attribute == 0) {
+            moveItems(intensityInfos, ids, valueKeys);
         } else if (attribute == 1) {
             setTextAttribute(intensityInfos, "label", "Label", ids, "");
         } else if (attribute == 2) {
@@ -187,6 +195,8 @@ void Terminal::execute() {
     } else if (selectionType == Color) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(colorInfos, ids);
+        } else if (attribute == 0) {
+            moveItems(colorInfos, ids, valueKeys);
         } else if (attribute == 1) {
             setTextAttribute(colorInfos, "label", "Label", ids, "");
         } else if (attribute == 2) {
@@ -199,6 +209,8 @@ void Terminal::execute() {
     } else if (selectionType == Position) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(positionInfos, ids);
+        } else if (attribute == 0) {
+            moveItems(positionInfos, ids, valueKeys);
         } else if (attribute == 1) {
             setTextAttribute(positionInfos, "label", "Label", ids, "");
         } else if (attribute == 2) {
@@ -211,6 +223,8 @@ void Terminal::execute() {
     } else if (selectionType == Raw) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(rawInfos, ids);
+        } else if (attribute == 0) {
+            moveItems(rawInfos, ids, valueKeys);
         } else if (attribute == 1) {
             setTextAttribute(rawInfos, "label", "Label", ids, "");
         } else {
@@ -219,6 +233,8 @@ void Terminal::execute() {
     } else if (selectionType == Effect) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(effectInfos, ids);
+        } else if (attribute == 0) {
+            moveItems(effectInfos, ids, valueKeys);
         } else if (attribute == 1) {
             setTextAttribute(effectInfos, "label", "Label", ids, "");
         } else {
@@ -227,6 +243,8 @@ void Terminal::execute() {
     } else if (selectionType == Cuelist) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(cuelistInfos, ids);
+        } else if (attribute == 0) {
+            moveItems(cuelistInfos, ids, valueKeys);
         } else if (attribute == 1) {
             setTextAttribute(cuelistInfos, "label", "Label", ids, "");
         } else if (attribute == 2) {
@@ -237,6 +255,8 @@ void Terminal::execute() {
     } else if (selectionType == Cue) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(cueInfos, ids);
+        } else if (attribute == 0) {
+            moveItems(cueInfos, ids, valueKeys);
         } else if (attribute == 1) {
             setTextAttribute(cueInfos, "label", "Label", ids, "");
         } else {
@@ -249,6 +269,7 @@ void Terminal::execute() {
 }
 
 void Terminal::createItems(const ItemInfos item, QList<int> ids) {
+    Q_ASSERT(!ids.isEmpty());
     QStringList successfulIds;
     for (int id : ids) {
         QSqlQuery existsQuery;
@@ -277,6 +298,7 @@ void Terminal::createItems(const ItemInfos item, QList<int> ids) {
 }
 
 void Terminal::deleteItems(const ItemInfos item, QList<int> ids) {
+    Q_ASSERT(!ids.isEmpty());
     QStringList successfulIds;
     for (int id : ids) {
         QSqlQuery query;
@@ -292,6 +314,45 @@ void Terminal::deleteItems(const ItemInfos item, QList<int> ids) {
         success("Deleted " + item.singular + " " + successfulIds.first() + ".");
     } else if (successfulIds.size() > 1) {
         success("Deleted " + item.plural + " " + successfulIds.join(", ") + ".");
+    }
+    emit dbChanged();
+}
+
+void Terminal::moveItems(const ItemInfos item, QList<int> ids, QList<Key> valueKeys) {
+    Q_ASSERT(!ids.isEmpty());
+    bool ok;
+    const int newId = keysToFloat(valueKeys, &ok);
+    if (!ok) {
+        error("Can't set " + item.singular + " ID because an invalid ID was given.");
+        return;
+    }
+    QStringList successfulIds;
+    for (int id : ids) {
+        QSqlQuery existsQuery;
+        existsQuery.prepare("SELECT id FROM " + item.table + " WHERE id = :id");
+        existsQuery.bindValue(":id", newId);
+        if (existsQuery.exec()) {
+            if (existsQuery.next()) {
+                error("Can't set ID of " + item.singular + " to " + QString::number(newId) + " because this " + item.singular + " ID is already used.");
+            } else {
+                QSqlQuery updateQuery;
+                updateQuery.prepare("UPDATE " + item.table + " SET id = :newId WHERE id = :id");
+                updateQuery.bindValue(":id", id);
+                updateQuery.bindValue(":newId", newId);
+                if (updateQuery.exec()) {
+                    successfulIds.append(QString::number(id));
+                } else {
+                    error("Failed to update ID of " + item.singular + " " + QString::number(id) + " because the request failed: " + updateQuery.lastError().text());
+                }
+            }
+        } else {
+            error("Error executing check if " + item.singular + " " + QString::number(newId) + " exists: " + existsQuery.lastError().text());
+        }
+    }
+    if (successfulIds.size() == 1) {
+        success("Set ID of " + item.singular + " " + successfulIds.first() + " to " + QString::number(newId) + ".");
+    } else if (successfulIds.size() > 1) {
+        success("Set ID of " + item.plural + " " + successfulIds.join(", ") + " to " + QString::number(newId) +".");
     }
     emit dbChanged();
 }

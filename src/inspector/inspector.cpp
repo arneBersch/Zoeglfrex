@@ -71,6 +71,7 @@ void Inspector::reload() {
         infosLabel->setText(infos.join("\n"));
         infosLabel->show();
     }
+    model->refresh();
 }
 
 void Inspector::loadItem(QString name, QList<int> ids) {
@@ -86,7 +87,7 @@ QStringList Inspector::getItemInfos(const QString table, const int id) const {
         return QStringList();
     }
     QStringList infos;
-    infos.append("ID: " + QString::number(id));
+    infos.append("0 ID: " + QString::number(id));
     infos.append("1 Label: " + label);
     if (table == "models") {
         infos.append("2 Channels: " + getTextAttribute(table, "channels", id));

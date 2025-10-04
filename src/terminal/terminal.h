@@ -62,6 +62,7 @@ private:
     void execute();
     void createItems(ItemInfos item, QList<int> ids);
     void deleteItems(ItemInfos item, QList<int> ids);
+    void moveItems(ItemInfos item, QList<int> ids, QList<Key> valueKeys);
     void setBoolAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys);
     void setTextAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QString regex);
     template <typename T> void setNumberAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic);
