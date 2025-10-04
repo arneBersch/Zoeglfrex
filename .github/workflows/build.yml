@@ -30,7 +30,7 @@ jobs:
 
       - name: Create AppImage
         run: |
-          ll
+          ls -al
           wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
           chmod +x linuxdeployqt-continuous-x86_64.AppImage
           ./linuxdeployqt-continuous-x86_64.AppImage Zoeglfrex -appimage
