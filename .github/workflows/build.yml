@@ -34,7 +34,7 @@ jobs:
           sudo apt install libfuse2
           wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
           chmod +x linuxdeployqt-continuous-x86_64.AppImage
-          ./linuxdeployqt-continuous-x86_64.AppImage Zoeglfrex -appimage -exclude-libs=libmimerapi
+          ./linuxdeployqt-continuous-x86_64.AppImage Zoeglfrex -appimage -exclude-libs=libqsqlmimer
           
 
       - name: Upload AppImage
