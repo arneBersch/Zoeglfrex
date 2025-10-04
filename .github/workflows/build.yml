@@ -43,13 +43,12 @@ jobs:
           wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
           chmod +x linuxdeployqt-continuous-x86_64.AppImage
           ./linuxdeployqt-continuous-x86_64.AppImage usr/share/applications/zoeglfrex.desktop -appimage -exclude-libs=libqsqlmimer
-          
 
       - name: Upload AppImage
         uses: actions/upload-artifact@v4
         with:
           name: Zoeglfrex.AppImage
-          path: src/Zöglfrex*.AppImage
+          path: src/AppDir/Zöglfrex*.AppImage
 
   windows:
     runs-on: windows-latest
