@@ -143,11 +143,11 @@ void Terminal::execute() {
     if (selectionType == Model) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(modelInfos, ids);
-        } else if (attribute == 0) {
+        } else if (attribute == AttributeIds::id) {
             moveItems(modelInfos, ids, valueKeys);
-        } else if (attribute == 1) {
+        } else if (attribute == AttributeIds::label) {
             setTextAttribute(modelInfos, "label", "Label", ids, "");
-        } else if (attribute == 2) {
+        } else if (attribute == AttributeIds::modelChannels) {
             setTextAttribute(modelInfos, "channels", "Channels", ids, "^[01DdRrGgBbWwCcMmYyPpTtZz]+$");
         } else {
             error("Unknown Model Attribute.");
@@ -155,15 +155,15 @@ void Terminal::execute() {
     } else if (selectionType == Fixture) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(fixtureInfos, ids);
-        } else if (attribute == 0) {
+        } else if (attribute == AttributeIds::id) {
             moveItems(fixtureInfos, ids, valueKeys);
-        } else if (attribute == 1) {
+        } else if (attribute == AttributeIds::label) {
             setTextAttribute(fixtureInfos, "label", "Label", ids, "");
-        } else if (attribute == 2) {
+        } else if (attribute == AttributeIds::fixtureModel) {
             setItemAttribute(fixtureInfos, "model_key", "Model", ids, valueKeys, modelInfos);
-        } else if (attribute == 3) {
+        } else if (attribute == AttributeIds::fixtureUniverse) {
             setNumberAttribute<int>(fixtureInfos, "universe", "Universe", ids, valueKeys, "", 1, 63999, false);
-        } else if (attribute == 4) {
+        } else if (attribute == AttributeIds::fixtureAddress) {
             setNumberAttribute<int>(fixtureInfos, "address", "Address", ids, valueKeys, "", 0, 512, false);
         } else {
             error("Unknown Fixture Attribute.");
@@ -171,11 +171,11 @@ void Terminal::execute() {
     } else if (selectionType == Group) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(groupInfos, ids);
-        } else if (attribute == 0) {
+        } else if (attribute == AttributeIds::id) {
             moveItems(groupInfos, ids, valueKeys);
-        } else if (attribute == 1) {
+        } else if (attribute == AttributeIds::label) {
             setTextAttribute(groupInfos, "label", "Label", ids, "");
-        } else if (attribute == 2) {
+        } else if (attribute == AttributeIds::groupFixtures) {
             setItemListAttribute(groupInfos, "Fixtures", ids, valueKeys, fixtureInfos, "group_fixtures", "group_key", "fixture_key");
         } else {
             error("Unknown Group Attribute.");
@@ -183,11 +183,11 @@ void Terminal::execute() {
     } else if (selectionType == Intensity) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(intensityInfos, ids);
-        } else if (attribute == 0) {
+        } else if (attribute == AttributeIds::id) {
             moveItems(intensityInfos, ids, valueKeys);
-        } else if (attribute == 1) {
+        } else if (attribute == AttributeIds::label) {
             setTextAttribute(intensityInfos, "label", "Label", ids, "");
-        } else if (attribute == 2) {
+        } else if (attribute == AttributeIds::intensityDimmer) {
             setNumberAttribute<float>(intensityInfos, "dimmer", "Dimmer", ids, valueKeys, "%", 0, 100, false);
         } else {
             error("Unknown Intensity Attribute.");
@@ -195,13 +195,13 @@ void Terminal::execute() {
     } else if (selectionType == Color) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(colorInfos, ids);
-        } else if (attribute == 0) {
+        } else if (attribute == AttributeIds::id) {
             moveItems(colorInfos, ids, valueKeys);
-        } else if (attribute == 1) {
+        } else if (attribute == AttributeIds::label) {
             setTextAttribute(colorInfos, "label", "Label", ids, "");
-        } else if (attribute == 2) {
+        } else if (attribute == AttributeIds::colorHue) {
             setNumberAttribute<float>(colorInfos, "hue", "Hue", ids, valueKeys, "°", 0, 360, true);
-        } else if (attribute == 3) {
+        } else if (attribute == AttributeIds::colorSaturation) {
             setNumberAttribute<float>(colorInfos, "saturation", "Saturation", ids, valueKeys, "%", 0, 100, false);
         } else {
             error("Unknown Color Attribute.");
@@ -209,13 +209,13 @@ void Terminal::execute() {
     } else if (selectionType == Position) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(positionInfos, ids);
-        } else if (attribute == 0) {
+        } else if (attribute == AttributeIds::id) {
             moveItems(positionInfos, ids, valueKeys);
-        } else if (attribute == 1) {
+        } else if (attribute == AttributeIds::label) {
             setTextAttribute(positionInfos, "label", "Label", ids, "");
-        } else if (attribute == 2) {
+        } else if (attribute == AttributeIds::positionPan) {
             setNumberAttribute<float>(positionInfos, "pan", "Pan", ids, valueKeys, "°", 0, 360, true);
-        } else if (attribute == 3) {
+        } else if (attribute == AttributeIds::positionTilt) {
             setNumberAttribute<float>(positionInfos, "tilt", "Tilt", ids, valueKeys, "°", -180, 180, false);
         } else {
             error("Unknown Position Attribute.");
@@ -223,9 +223,9 @@ void Terminal::execute() {
     } else if (selectionType == Raw) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(rawInfos, ids);
-        } else if (attribute == 0) {
+        } else if (attribute == AttributeIds::id) {
             moveItems(rawInfos, ids, valueKeys);
-        } else if (attribute == 1) {
+        } else if (attribute == AttributeIds::label) {
             setTextAttribute(rawInfos, "label", "Label", ids, "");
         } else {
             error("Unknown Raw Attribute.");
@@ -233,9 +233,9 @@ void Terminal::execute() {
     } else if (selectionType == Effect) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(effectInfos, ids);
-        } else if (attribute == 0) {
+        } else if (attribute == AttributeIds::id) {
             moveItems(effectInfos, ids, valueKeys);
-        } else if (attribute == 1) {
+        } else if (attribute == AttributeIds::label) {
             setTextAttribute(effectInfos, "label", "Label", ids, "");
         } else {
             error("Unknown Cue Attribute.");
@@ -243,11 +243,11 @@ void Terminal::execute() {
     } else if (selectionType == Cuelist) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(cuelistInfos, ids);
-        } else if (attribute == 0) {
+        } else if (attribute == AttributeIds::id) {
             moveItems(cuelistInfos, ids, valueKeys);
-        } else if (attribute == 1) {
+        } else if (attribute == AttributeIds::label) {
             setTextAttribute(cuelistInfos, "label", "Label", ids, "");
-        } else if (attribute == 2) {
+        } else if (attribute == AttributeIds::cuelistMoveWhileDark) {
             setBoolAttribute(cuelistInfos, "movewhiledark", "Move while Dark", ids, valueKeys);
         } else {
             error("Unknown Cuelist Attribute.");
@@ -255,9 +255,9 @@ void Terminal::execute() {
     } else if (selectionType == Cue) {
         if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
             deleteItems(cueInfos, ids);
-        } else if (attribute == 0) {
+        } else if (attribute == AttributeIds::id) {
             moveItems(cueInfos, ids, valueKeys);
-        } else if (attribute == 1) {
+        } else if (attribute == AttributeIds::label) {
             setTextAttribute(cueInfos, "label", "Label", ids, "");
         } else {
             error("Unknown Cue Attribute.");

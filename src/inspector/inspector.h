@@ -12,6 +12,8 @@
 #include <QtWidgets>
 #include <QtSql>
 
+#include "constants.h"
+
 class Inspector : public QWidget {
     Q_OBJECT
 public:

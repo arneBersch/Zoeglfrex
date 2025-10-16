@@ -22,6 +22,7 @@ SOURCES += \
 
 HEADERS += \
     aboutwindow/aboutwindow.h \
+    constants.h \
     cuelistview/cuelistview.h \
     inspector/inspector.h \
     mainwindow/mainwindow.h \

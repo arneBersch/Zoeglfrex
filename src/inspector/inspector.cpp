@@ -87,28 +87,28 @@ QStringList Inspector::getItemInfos(const QString table, const int id) const {
         return QStringList();
     }
     QStringList infos;
-    infos.append("0 ID: " + QString::number(id));
-    infos.append("1 Label: " + label);
+    infos.append(QString::number(AttributeIds::id) + " ID: " + QString::number(id));
+    infos.append(QString::number(AttributeIds::label) + " Label: " + label);
     if (table == "models") {
-        infos.append("2 Channels: " + getTextAttribute(table, "channels", id));
+        infos.append(QString::number(AttributeIds::modelChannels) + " Channels: " + getTextAttribute(table, "channels", id));
     } else if (table == "fixtures") {
-        infos.append("2 Model: " + getItemAttribute(table, "model_key", id, "models"));
-        infos.append("3 Universe: " + getNumberAttribute(table, "universe", id, ""));
-        infos.append("4 Address: " + getNumberAttribute(table, "address", id, ""));
+        infos.append(QString::number(AttributeIds::fixtureModel) + " Model: " + getItemAttribute(table, "model_key", id, "models"));
+        infos.append(QString::number(AttributeIds::fixtureUniverse) + " Universe: " + getNumberAttribute(table, "universe", id, ""));
+        infos.append(QString::number(AttributeIds::fixtureAddress) + " Address: " + getNumberAttribute(table, "address", id, ""));
     } else if (table == "groups") {
-        infos.append("2 Fixtures: " + getItemListAttribute(table, "fixtures", "group_fixtures", "group_key", "fixture_key", id));
+        infos.append(QString::number(AttributeIds::groupFixtures) + " Fixtures: " + getItemListAttribute(table, "fixtures", "group_fixtures", "group_key", "fixture_key", id));
     } else if (table == "intensities") {
-        infos.append("2 Dimmer: " + getNumberAttribute(table, "dimmer", id, "%"));
+        infos.append(QString::number(AttributeIds::intensityDimmer) + " Dimmer: " + getNumberAttribute(table, "dimmer", id, "%"));
     } else if (table == "colors") {
-        infos.append("2 Hue: " + getNumberAttribute(table, "hue", id, "°"));
-        infos.append("3 Saturation: " + getNumberAttribute(table, "saturation", id, "%"));
+        infos.append(QString::number(AttributeIds::colorHue) + " Hue: " + getNumberAttribute(table, "hue", id, "°"));
+        infos.append(QString::number(AttributeIds::colorSaturation) + " Saturation: " + getNumberAttribute(table, "saturation", id, "%"));
     } else if (table == "positions") {
-        infos.append("2 Pan: " + getNumberAttribute(table, "pan", id, "°"));
-        infos.append("3 Tilt: " + getNumberAttribute(table, "tilt", id, "°"));
+        infos.append(QString::number(AttributeIds::positionPan) + " Pan: " + getNumberAttribute(table, "pan", id, "°"));
+        infos.append(QString::number(AttributeIds::positionTilt) + " Tilt: " + getNumberAttribute(table, "tilt", id, "°"));
     } else if (table == "raws") {
     } else if (table == "effects") {
     } else if (table == "cuelists") {
-        infos.append("2 Move while Dark: " + getBoolAttribute(table, "movewhiledark", id));
+        infos.append(QString::number(AttributeIds::cuelistMoveWhileDark) + " Move while Dark: " + getBoolAttribute(table, "movewhiledark", id));
     } else if (table == "cues") {
     } else {
         Q_ASSERT(false);
