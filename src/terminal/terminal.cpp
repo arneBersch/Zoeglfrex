@@ -103,7 +103,7 @@ void Terminal::execute() {
             }
             valueReached = true;
         } else if ((itemKeys.contains(key) || (key == Attribute)) && !valueReached) {
-            //attribute.append(key);
+            attributeKeys.append(key);
             attributeReached = true;
         } else {
             if (valueReached) {
@@ -115,15 +115,41 @@ void Terminal::execute() {
             }
         }
     }
+    QMap<Key, QList<int>> attributes;
+    if (!attributeKeys.isEmpty()) {
+        attributeKeys.append(Attribute);
+        QList<Key> currentItemKeys;
+        for (Key key : attributeKeys) {
+            if (itemKeys.contains(key) || (key == Attribute)) {
+                if (!currentItemKeys.isEmpty()) {
+                    Key currentItemType = currentItemKeys.first();
+                    currentItemKeys.removeFirst();
+                    QList<int> ids = keysToIds(currentItemKeys);
+                    if (ids.isEmpty()) {
+                        currentItemKeys.prepend(currentItemType);
+                        error("Invalid Attribute given: " + keysToString(currentItemKeys));
+                        return;
+                    }
+                    attributes[currentItemType] = ids;
+                }
+                currentItemKeys.clear();
+            }
+            currentItemKeys.append(key);
+        }
+    }
     const QList<int> ids = keysToIds(selectionIdKeys);
     if (ids.isEmpty()) {
-        emit error("Invalid selection ID given.");
+        error("Invalid selection ID given.");
         return;
     }
-    bool ok;
-    int attribute = keysToFloat(attributeKeys, &ok);
-    if (!ok) {
+    int attribute;
+    if (attributes.value(Attribute).size() == 0) {
         attribute = -1;
+    } else if (attributes.value(Attribute).size() == 1) {
+        attribute = attributes.value(Attribute).first();
+    } else {
+        error("Invalid number of Attribute IDs given.");
+        return;
     }
 
     const ItemInfos modelInfos = {"models", "Model", "Models", Model};
@@ -144,7 +170,7 @@ void Terminal::execute() {
             moveItems(modelInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(modelInfos, "label", "Label", ids, "");
-        } else if ((attribute == AttributeIds::modelChannels) || attributeKeys.isEmpty()) {
+        } else if ((attribute == AttributeIds::modelChannels) || !attributes.contains(Attribute)) {
             setTextAttribute(modelInfos, "channels", "Channels", ids, "^[01DdRrGgBbWwCcMmYyPpTtZz]+$");
         } else {
             error("Unknown Model Attribute.");
@@ -160,7 +186,7 @@ void Terminal::execute() {
             setItemAttribute(fixtureInfos, "model_key", "Model", ids, valueKeys, modelInfos);
         } else if (attribute == AttributeIds::fixtureUniverse) {
             setNumberAttribute<int>(fixtureInfos, "universe", "Universe", ids, valueKeys, "", 1, 63999, false);
-        } else if ((attribute == AttributeIds::fixtureAddress) || attributeKeys.isEmpty()) {
+        } else if ((attribute == AttributeIds::fixtureAddress) || !attributes.contains(Attribute)) {
             setNumberAttribute<int>(fixtureInfos, "address", "Address", ids, valueKeys, "", 0, 512, false);
         } else {
             error("Unknown Fixture Attribute.");
@@ -172,7 +198,7 @@ void Terminal::execute() {
             moveItems(groupInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(groupInfos, "label", "Label", ids, "");
-        } else if ((attribute == AttributeIds::groupFixtures) || attributeKeys.isEmpty()) {
+        } else if ((attribute == AttributeIds::groupFixtures) || !attributes.contains(Attribute)) {
             setItemListAttribute(groupInfos, "Fixtures", ids, valueKeys, fixtureInfos, "group_fixtures", "group_key", "fixture_key");
         } else {
             error("Unknown Group Attribute.");
@@ -184,8 +210,11 @@ void Terminal::execute() {
             moveItems(intensityInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(intensityInfos, "label", "Label", ids, "");
-        } else if ((attribute == AttributeIds::intensityDimmer) || attributeKeys.isEmpty()) {
-            setNumberAttribute<float>(intensityInfos, "dimmer", "Dimmer", ids, valueKeys, "%", 0, 100, false);
+        } else if ((attribute == AttributeIds::intensityDimmer) || !attributes.contains(Attribute)) {
+            //if (attributes.contains(Model)) {
+            //} else {
+                setNumberAttribute<float>(intensityInfos, "dimmer", "Dimmer", ids, valueKeys, "%", 0, 100, false);
+            //}
         } else {
             error("Unknown Intensity Attribute.");
         }
@@ -196,7 +225,7 @@ void Terminal::execute() {
             moveItems(colorInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(colorInfos, "label", "Label", ids, "");
-        } else if ((attribute == AttributeIds::colorHue) || attributeKeys.isEmpty()) {
+        } else if ((attribute == AttributeIds::colorHue) || attributes.contains(Attribute)) {
             setNumberAttribute<float>(colorInfos, "hue", "Hue", ids, valueKeys, "°", 0, 360, true);
         } else if (attribute == AttributeIds::colorSaturation) {
             setNumberAttribute<float>(colorInfos, "saturation", "Saturation", ids, valueKeys, "%", 0, 100, false);
@@ -210,7 +239,7 @@ void Terminal::execute() {
             moveItems(positionInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(positionInfos, "label", "Label", ids, "");
-        } else if ((attribute == AttributeIds::positionPan) || attributeKeys.isEmpty()) {
+        } else if ((attribute == AttributeIds::positionPan) || attributes.contains(Attribute)) {
             setNumberAttribute<float>(positionInfos, "pan", "Pan", ids, valueKeys, "°", 0, 360, true);
         } else if (attribute == AttributeIds::positionTilt) {
             setNumberAttribute<float>(positionInfos, "tilt", "Tilt", ids, valueKeys, "°", -180, 180, false);
