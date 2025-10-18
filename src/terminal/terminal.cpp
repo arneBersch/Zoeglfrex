@@ -122,11 +122,8 @@ void Terminal::execute() {
     }
     bool ok;
     int attribute = keysToFloat(attributeKeys, &ok);
-    if (attributeKeys.isEmpty()) {
+    if (!ok) {
         attribute = -1;
-    } else if (!ok) {
-        emit error("Invalid Attribute ID given.");
-        return;
     }
 
     const ItemInfos modelInfos = {"models", "Model", "Models", Model};
@@ -141,19 +138,19 @@ void Terminal::execute() {
     const ItemInfos cueInfos = {"cues", "Cue", "Cues", Cue};
 
     if (selectionType == Model) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
             deleteItems(modelInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(modelInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(modelInfos, "label", "Label", ids, "");
-        } else if (attribute == AttributeIds::modelChannels) {
+        } else if ((attribute == AttributeIds::modelChannels) || attributeKeys.isEmpty()) {
             setTextAttribute(modelInfos, "channels", "Channels", ids, "^[01DdRrGgBbWwCcMmYyPpTtZz]+$");
         } else {
             error("Unknown Model Attribute.");
         }
     } else if (selectionType == Fixture) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
             deleteItems(fixtureInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(fixtureInfos, ids, valueKeys);
@@ -163,43 +160,43 @@ void Terminal::execute() {
             setItemAttribute(fixtureInfos, "model_key", "Model", ids, valueKeys, modelInfos);
         } else if (attribute == AttributeIds::fixtureUniverse) {
             setNumberAttribute<int>(fixtureInfos, "universe", "Universe", ids, valueKeys, "", 1, 63999, false);
-        } else if (attribute == AttributeIds::fixtureAddress) {
+        } else if ((attribute == AttributeIds::fixtureAddress) || attributeKeys.isEmpty()) {
             setNumberAttribute<int>(fixtureInfos, "address", "Address", ids, valueKeys, "", 0, 512, false);
         } else {
             error("Unknown Fixture Attribute.");
         }
     } else if (selectionType == Group) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
             deleteItems(groupInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(groupInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(groupInfos, "label", "Label", ids, "");
-        } else if (attribute == AttributeIds::groupFixtures) {
+        } else if ((attribute == AttributeIds::groupFixtures) || attributeKeys.isEmpty()) {
             setItemListAttribute(groupInfos, "Fixtures", ids, valueKeys, fixtureInfos, "group_fixtures", "group_key", "fixture_key");
         } else {
             error("Unknown Group Attribute.");
         }
     } else if (selectionType == Intensity) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
             deleteItems(intensityInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(intensityInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(intensityInfos, "label", "Label", ids, "");
-        } else if (attribute == AttributeIds::intensityDimmer) {
+        } else if ((attribute == AttributeIds::intensityDimmer) || attributeKeys.isEmpty()) {
             setNumberAttribute<float>(intensityInfos, "dimmer", "Dimmer", ids, valueKeys, "%", 0, 100, false);
         } else {
             error("Unknown Intensity Attribute.");
         }
     } else if (selectionType == Color) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
             deleteItems(colorInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(colorInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(colorInfos, "label", "Label", ids, "");
-        } else if (attribute == AttributeIds::colorHue) {
+        } else if ((attribute == AttributeIds::colorHue) || attributeKeys.isEmpty()) {
             setNumberAttribute<float>(colorInfos, "hue", "Hue", ids, valueKeys, "°", 0, 360, true);
         } else if (attribute == AttributeIds::colorSaturation) {
             setNumberAttribute<float>(colorInfos, "saturation", "Saturation", ids, valueKeys, "%", 0, 100, false);
@@ -207,13 +204,13 @@ void Terminal::execute() {
             error("Unknown Color Attribute.");
         }
     } else if (selectionType == Position) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
             deleteItems(positionInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(positionInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(positionInfos, "label", "Label", ids, "");
-        } else if (attribute == AttributeIds::positionPan) {
+        } else if ((attribute == AttributeIds::positionPan) || attributeKeys.isEmpty()) {
             setNumberAttribute<float>(positionInfos, "pan", "Pan", ids, valueKeys, "°", 0, 360, true);
         } else if (attribute == AttributeIds::positionTilt) {
             setNumberAttribute<float>(positionInfos, "tilt", "Tilt", ids, valueKeys, "°", -180, 180, false);
@@ -221,7 +218,7 @@ void Terminal::execute() {
             error("Unknown Position Attribute.");
         }
     } else if (selectionType == Raw) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
             deleteItems(rawInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(rawInfos, ids, valueKeys);
@@ -231,7 +228,7 @@ void Terminal::execute() {
             error("Unknown Raw Attribute.");
         }
     } else if (selectionType == Effect) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
             deleteItems(effectInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(effectInfos, ids, valueKeys);
@@ -241,7 +238,7 @@ void Terminal::execute() {
             error("Unknown Cue Attribute.");
         }
     } else if (selectionType == Cuelist) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
             deleteItems(cuelistInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(cuelistInfos, ids, valueKeys);
@@ -253,7 +250,7 @@ void Terminal::execute() {
             error("Unknown Cuelist Attribute.");
         }
     } else if (selectionType == Cue) {
-        if ((attribute < 0) && (valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
             deleteItems(cueInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(cueInfos, ids, valueKeys);
@@ -438,7 +435,7 @@ void Terminal::setTextAttribute(const ItemInfos item, const QString attribute, c
 
 template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QList<int> ids, QList<Key> valueKeys, const QString unit, const T minValue, const T maxValue, const bool cyclic) {
     Q_ASSERT(!ids.isEmpty());
-    const bool difference = (!valueKeys.isEmpty() && (valueKeys.first() == Plus));
+    const bool difference = valueKeys.startsWith(Plus);
     if (difference) {
         valueKeys.removeFirst();
     }
@@ -527,7 +524,7 @@ template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, co
 
 void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QList<int> ids, QList<Key> valueKeys, const ItemInfos foreignItem) {
     Q_ASSERT(!ids.isEmpty());
-    if ((valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+    if ((valueKeys.size() == 1) && (valueKeys.startsWith(Minus))) {
         QStringList successfulIds;
         for (int id : ids) {
             QSqlQuery query;
@@ -590,7 +587,7 @@ void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, c
     emit dbChanged();
 }
 
-void Terminal::setItemListAttribute(const ItemInfos item, QString attributeName, QList<int> ids, QList<Key> valueKeys, const ItemInfos foreignItem, const QString listTable, const QString listTableItemAttribute, const QString listTableForeignItemsAttribute) {
+void Terminal::setItemListAttribute(const ItemInfos item, const QString attributeName, QList<int> ids, QList<Key> valueKeys, const ItemInfos foreignItem, const QString listTable, const QString listTableItemAttribute, const QString listTableForeignItemsAttribute) {
     Q_ASSERT(!ids.isEmpty());
     QList<int> foreignItemKeys;
     if ((valueKeys.size() != 1) || !valueKeys.startsWith(Minus)) {
