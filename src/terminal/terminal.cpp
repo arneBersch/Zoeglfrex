@@ -527,46 +527,65 @@ template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, co
 
 void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QList<int> ids, QList<Key> valueKeys, const ItemInfos foreignItem) {
     Q_ASSERT(!ids.isEmpty());
-    if (!valueKeys.startsWith(foreignItem.key)) {
-        error("Can't set " + item.singular + " " + attributeName + " because no " + foreignItem.singular + " was given.");
-        return;
-    }
-    valueKeys.removeFirst();
-    bool ok;
-    const int foreignItemId = keysToFloat(valueKeys, &ok);
-    if (!ok) {
-        error("Can't set " + item.singular + " " + attributeName + " because the given " + foreignItem.singular + " ID is invalid.");
-        return;
-    }
-    QSqlQuery foreignItemQuery;
-    foreignItemQuery.prepare("SELECT key FROM " + foreignItem.table + " WHERE id = :id");
-    foreignItemQuery.bindValue(":id", foreignItemId);
-    if (!foreignItemQuery.exec()) {
-        error("Failed to execute check if " + foreignItem.singular + " exists: " + foreignItemQuery.lastError().text());
-        return;
-    }
-    if (!foreignItemQuery.next()) {
-        error("Can't set " + item.singular + " " + attributeName + " because " + foreignItem.singular + " " + QString::number(foreignItemId) + " doesn't exist.");
-        return;
-    }
-    const int foreignItemKey = foreignItemQuery.value(0).toInt();
-    createItems(item, ids);
-    QStringList successfulIds;
-    for (int id : ids) {
-        QSqlQuery query;
-        query.prepare("UPDATE " + item.table + " SET " + attribute + " = :item WHERE id = :id");
-        query.bindValue(":id", id);
-        query.bindValue(":item", foreignItemKey);
-        if (query.exec()) {
-            successfulIds.append(QString::number(id));
-        } else {
-            error("Failed setting " + attributeName + " of " + item.singular + " " + QString::number(id) + ": " + query.lastError().text());
+    if ((valueKeys.size() == 1) && (valueKeys.first() == Minus)) {
+        QStringList successfulIds;
+        for (int id : ids) {
+            QSqlQuery query;
+            query.prepare("UPDATE " + item.table + " SET " + attribute + " = NULL WHERE id = :id");
+            query.bindValue(":id", id);
+            if (query.exec()) {
+                successfulIds.append(QString::number(id));
+            } else {
+                error("Failed removing " + attributeName + " of " + item.singular + " " + QString::number(id) + ": " + query.lastError().text());
+            }
         }
-    }
-    if (successfulIds.length() == 1) {
-        success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " to " + foreignItem.singular + " " + QString::number(foreignItemId) + ".");
-    } else if (successfulIds.length() > 1) {
-        success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " to " + foreignItem.singular + " " + QString::number(foreignItemId) + ".");
+        if (successfulIds.length() == 1) {
+            success("Removed " + attributeName + " of " + item.singular + " " + successfulIds.first() + ".");
+        } else if (successfulIds.length() > 1) {
+            success("Removed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + ".");
+        }
+    } else {
+        if (!valueKeys.startsWith(foreignItem.key)) {
+            error("Can't set " + item.singular + " " + attributeName + " because no " + foreignItem.singular + " was given.");
+            return;
+        }
+        valueKeys.removeFirst();
+        bool ok;
+        const int foreignItemId = keysToFloat(valueKeys, &ok);
+        if (!ok) {
+            error("Can't set " + item.singular + " " + attributeName + " because the given " + foreignItem.singular + " ID is invalid.");
+            return;
+        }
+        QSqlQuery foreignItemQuery;
+        foreignItemQuery.prepare("SELECT key FROM " + foreignItem.table + " WHERE id = :id");
+        foreignItemQuery.bindValue(":id", foreignItemId);
+        if (!foreignItemQuery.exec()) {
+            error("Failed to execute check if " + foreignItem.singular + " exists: " + foreignItemQuery.lastError().text());
+            return;
+        }
+        if (!foreignItemQuery.next()) {
+            error("Can't set " + item.singular + " " + attributeName + " because " + foreignItem.singular + " " + QString::number(foreignItemId) + " doesn't exist.");
+            return;
+        }
+        const int foreignItemKey = foreignItemQuery.value(0).toInt();
+        createItems(item, ids);
+        QStringList successfulIds;
+        for (int id : ids) {
+            QSqlQuery query;
+            query.prepare("UPDATE " + item.table + " SET " + attribute + " = :item WHERE id = :id");
+            query.bindValue(":id", id);
+            query.bindValue(":item", foreignItemKey);
+            if (query.exec()) {
+                successfulIds.append(QString::number(id));
+            } else {
+                error("Failed setting " + attributeName + " of " + item.singular + " " + QString::number(id) + ": " + query.lastError().text());
+            }
+        }
+        if (successfulIds.length() == 1) {
+            success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " to " + foreignItem.singular + " " + QString::number(foreignItemId) + ".");
+        } else if (successfulIds.length() > 1) {
+            success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " to " + foreignItem.singular + " " + QString::number(foreignItemId) + ".");
+        }
     }
     emit dbChanged();
 }
