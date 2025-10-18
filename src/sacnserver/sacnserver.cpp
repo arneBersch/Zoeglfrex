@@ -169,7 +169,6 @@ void SacnServer::reloadNetworkInterfaces() {
             }
         }
     }
-    qInfo() << networkInterfaces;
     networkInterfaceComboBox->setCurrentIndex(interfaceIndex);
 }
 

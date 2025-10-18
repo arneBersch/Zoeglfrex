@@ -52,6 +52,7 @@ int main(int argc, char *argv[]) {
         "CREATE TABLE IF NOT EXISTS groups (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, PRIMARY KEY (key))",
         "CREATE TABLE IF NOT EXISTS group_fixtures (group_key INTEGER REFERENCES groups (key) ON DELETE CASCADE, fixture_key INTEGER REFERENCES fixtures (key) ON DELETE CASCADE, PRIMARY KEY (group_key, fixture_key))",
         "CREATE TABLE IF NOT EXISTS intensities (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, dimmer REAL DEFAULT 0 NOT NULL, PRIMARY KEY (key))",
+        "CREATE TABLE IF NOT EXISTS intensity_model_dimmers (intensity_key INTEGER REFERENCES intensities (key) ON DELETE CASCADE, model_key INTEGER REFERENCES models (key) ON DELETE CASCADE, dimmer REAL DEFAULT 0, PRIMARY KEY (intensity_key, model_key))",
         "CREATE TABLE IF NOT EXISTS colors (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, hue REAL DEFAULT 0 NOT NULL, saturation REAL DEFAULT 0 NOT NULL, PRIMARY KEY (key))",
         "CREATE TABLE IF NOT EXISTS positions (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, pan REAL DEFAULT 0 NOT NULL, tilt REAL DEFAULT 0 NOT NULL, PRIMARY KEY (key))",
         "CREATE TABLE IF NOT EXISTS raws (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, PRIMARY KEY (key))",

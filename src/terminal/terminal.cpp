@@ -672,8 +672,10 @@ void Terminal::updatePrompt() {
             idKeys.append(key);
         }
     }
-    emit itemChanged(keysToString({ itemType }), keysToIds(idKeys));
     promptLabel->setText(keysToString(promptKeys));
+    if (itemType != Set) {
+        emit itemChanged(keysToString({ itemType }), keysToIds(idKeys));
+    }
 }
 
 void Terminal::writeKey(Key key) {
