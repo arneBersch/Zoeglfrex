@@ -91,6 +91,7 @@ void Terminal::execute() {
     keys.removeFirst();
 
     QList<Key> selectionIdKeys;
+    selectionIdKeys.append(selectionType);
     QList<Key> attributeKeys;
     QList<Key> valueKeys;
     bool attributeReached = false;
@@ -123,10 +124,8 @@ void Terminal::execute() {
             if (itemKeys.contains(key) || (key == Attribute)) {
                 if (!currentItemKeys.isEmpty()) {
                     Key currentItemType = currentItemKeys.first();
-                    currentItemKeys.removeFirst();
                     QList<int> ids = keysToIds(currentItemKeys);
                     if (ids.isEmpty()) {
-                        currentItemKeys.prepend(currentItemType);
                         error("Invalid Attribute given: " + keysToString(currentItemKeys));
                         return;
                     }
@@ -355,6 +354,7 @@ void Terminal::deleteItems(const ItemInfos item, QList<int> ids) {
 
 void Terminal::moveItems(const ItemInfos item, QList<int> ids, QList<Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    valueKeys.prepend(item.key);
     QList<int> newIds = keysToIds(valueKeys);
     if (newIds.size() != 1) {
         error("Can't set " + item.singular + " ID because an invalid ID was given.");
@@ -584,7 +584,6 @@ void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, c
             error("Can't set " + item.singular + " " + attributeName + " because no " + foreignItem.singular + " was given.");
             return;
         }
-        valueKeys.removeFirst();
         QList<int> foreignItemIds = keysToIds(valueKeys);
         if (foreignItemIds.size() != 1) {
             error("Can't set " + item.singular + " " + attributeName + " because the given " + foreignItem.singular + " ID is invalid.");
@@ -633,7 +632,6 @@ void Terminal::setItemListAttribute(const ItemInfos item, const QString attribut
             error("Can't set " + item.singular + " " + attributeName + " because no " + foreignItem.plural + " were given.");
             return;
         }
-        valueKeys.removeFirst();
         const QList<int> foreignItemIds = keysToIds(valueKeys);
         if (foreignItemIds.isEmpty()) {
             error("Can't set " + item.singular + " " + attributeName + " because the given " + foreignItem.singular + " IDs are invalid.");
@@ -826,7 +824,6 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
             error("Can't set " + item.singular + " " + attributeName + " because no valid " + valueItem.singular + " was given.");
             return;
         }
-        valueKeys.removeFirst();
         QList<int> valueIds = keysToIds(valueKeys);
         if (valueIds.size() != 1) {
             error("Can't set " + item.singular + " " + attributeName + " because no valid " + valueItem.singular + " was given.");
@@ -930,19 +927,22 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
 }
 
 void Terminal::updatePrompt() {
-    Key itemType = Set;
     QList<Key> idKeys;
+    bool append = true;
     for (const Key key : promptKeys) {
         if (itemKeys.contains(key)) {
-            itemType = key;
+            append = true;
             idKeys.clear();
-        } else {
+        } else if ((key == Attribute) || (key == Set)) {
+            append = false;
+        }
+        if (append) {
             idKeys.append(key);
         }
     }
     promptLabel->setText(keysToString(promptKeys));
-    if (itemType != Set) {
-        emit itemChanged(keysToString({ itemType }), keysToIds(idKeys));
+    if (!idKeys.isEmpty()) {
+        emit itemChanged(keysToString({ idKeys.first() }), keysToIds(idKeys));
     }
 }
 
@@ -969,13 +969,17 @@ float Terminal::keysToFloat(QList<Key> keys, bool* ok) const {
 }
 
 QList<int> Terminal::keysToIds(QList<Key> keys) const {
+    if (keys.isEmpty() || !(itemKeys.contains(keys.first()) || (keys.first() == Attribute))) {
+        return QList<int>();
+    }
+    keys.removeFirst();
     keys.append(Plus);
     QList<int> ids;
     QList<Key> currentIdKeys;
     for (const Key key : keys) {
         if (key == Plus) {
             bool ok;
-            const int id = keysToFloat(currentIdKeys, &ok);
+            const int id = keysToString(currentIdKeys).toInt(&ok);
             if (!ok || (id < 0)) {
                 return QList<int>();
             }
