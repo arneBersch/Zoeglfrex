@@ -32,6 +32,8 @@ const int positionPan = 2;
 const int positionTilt = 3;
 
 const int cuelistMoveWhileDark = 2;
+
+const int cueIntensities = 2;
 }
 
 #endif // CONSTANTS_H

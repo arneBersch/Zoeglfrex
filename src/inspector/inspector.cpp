@@ -112,6 +112,7 @@ QStringList Inspector::getItemInfos(const QString table, const int id) const {
     } else if (table == "cuelists") {
         infos.append(QString::number(AttributeIds::cuelistMoveWhileDark) + " Move while Dark: " + getBoolAttribute(table, "movewhiledark", id));
     } else if (table == "cues") {
+        infos.append(QString::number(AttributeIds::cueIntensities) + " Intensities: " + getItemSpecificItemAttribute("cues", "groups", "intensities", "cue_intensities", "cue_key", "group_key", "intensity_key", id));
     } else {
         Q_ASSERT(false);
     }
@@ -206,6 +207,21 @@ QString Inspector::getItemSpecificNumberAttribute(const QString table, const QSt
     QStringList values;
     while (query.next()) {
         values.append(query.value(0).toString() + " @ " + query.value(1).toString() + unit);
+    }
+    return values.join(", ");
+}
+
+QString Inspector::getItemSpecificItemAttribute(const QString table, const QString foreignItemTable, const QString valueItemTable, const QString valueTable, const QString valueTableItemAttribute, const QString valueTableForeignItemAttribute, const QString valueTableValueItemAttribute, const int id) const {
+    QSqlQuery query;
+    query.prepare("SELECT " + foreignItemTable + ".id, " + valueItemTable + ".id FROM " + table + ", " + foreignItemTable + ", " + valueItemTable + ", " + valueTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + "." + valueTableItemAttribute + " AND " + foreignItemTable + ".key = " + valueTable + "." + valueTableForeignItemAttribute + " AND " + valueItemTable + ".key = " + valueTable + "." + valueTableValueItemAttribute);
+    query.bindValue(":id", id);
+    if (!query.exec()) {
+        qWarning() << Q_FUNC_INFO << query.lastError().text();
+        return QString();
+    }
+    QStringList values;
+    while (query.next()) {
+        values.append(query.value(0).toString() + " @ " + query.value(1).toString());
     }
     return values.join(", ");
 }

@@ -60,6 +60,7 @@ int main(int argc, char *argv[]) {
         "CREATE TABLE IF NOT EXISTS effects (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, PRIMARY KEY (key))",
         "CREATE TABLE IF NOT EXISTS cuelists (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, movewhiledark INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (key))",
         "CREATE TABLE IF NOT EXISTS cues (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, PRIMARY KEY (key))",
+        "CREATE TABLE IF NOT EXISTS cue_intensities (cue_key INTEGER REFERENCES cues (key) ON DELETE CASCADE, group_key INTEGER REFERENCES groups (key) ON DELETE CASCADE, intensity_key INTEGER REFERENCES intensities (key) ON DELETE CASCADE, PRIMARY KEY (cue_key, group_key, intensity_key))",
     };
     for (QString createTableQuery : createTableQueries) {
         QSqlQuery query;

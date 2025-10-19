@@ -26,9 +26,10 @@ private:
     QString getBoolAttribute(QString table, QString attribute, int id) const;
     QString getTextAttribute(QString table, QString attribute, int id) const;
     QString getNumberAttribute(QString table, QString attribute, int id, QString unit) const;
-    QString getItemAttribute(QString table, QString attribute, int id, QString foreignItemTable) const;
+    QString getItemAttribute(QString table, QString attribute, int id, QString valueItemTable) const;
     QString getItemListAttribute(QString table, QString foreignItemsTable, QString listTable, QString listTableItemAttribute, QString listTableForeignItemsAttribute, int id) const;
     QString getItemSpecificNumberAttribute(QString table, QString foreignItemsTable, QString exceptionTable, QString exceptionTableItemAttribute, QString exceptionTableForeignItemsAttribute, QString exceptionTableValueAttribute, QString unit, int id) const;
+    QString getItemSpecificItemAttribute(QString table, QString foreignItemTable, QString valueItemTable, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueItemAttribute, int id) const;
     QSqlQueryModel* model;
     QString itemName;
     QList<int> itemIds;
