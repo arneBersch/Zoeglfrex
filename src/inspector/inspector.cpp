@@ -213,7 +213,7 @@ QString Inspector::getItemSpecificNumberAttribute(const QString table, const QSt
 
 QString Inspector::getItemSpecificItemAttribute(const QString table, const QString foreignItemTable, const QString valueItemTable, const QString valueTable, const QString valueTableItemAttribute, const QString valueTableForeignItemAttribute, const QString valueTableValueItemAttribute, const int id) const {
     QSqlQuery query;
-    query.prepare("SELECT " + foreignItemTable + ".id, " + valueItemTable + ".id FROM " + table + ", " + foreignItemTable + ", " + valueItemTable + ", " + valueTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + "." + valueTableItemAttribute + " AND " + foreignItemTable + ".key = " + valueTable + "." + valueTableForeignItemAttribute + " AND " + valueItemTable + ".key = " + valueTable + "." + valueTableValueItemAttribute);
+    query.prepare("SELECT " + foreignItemTable + ".id, " + valueItemTable + ".id FROM " + table + ", " + foreignItemTable + ", " + valueItemTable + ", " + valueTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + "." + valueTableItemAttribute + " AND " + foreignItemTable + ".key = " + valueTable + "." + valueTableForeignItemAttribute + " AND " + valueItemTable + ".key = " + valueTable + "." + valueTableValueItemAttribute + " ORDER BY " + foreignItemTable + ".id");
     query.bindValue(":id", id);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.lastError().text();

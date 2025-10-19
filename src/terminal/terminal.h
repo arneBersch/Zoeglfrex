@@ -71,6 +71,7 @@ private:
     void setItemAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, ItemInfos foreignItem);
     void setItemListAttribute(ItemInfos item, QString attributeName, QList<int> ids, QList<Key> valueKeys, ItemInfos foreignItem, QString listTable, QString listTableItemAttribute, QString listTableForeignItemsAttribute);
     template <typename T> void setItemSpecificNumberAttribute(ItemInfos item, QString attributeName, QList<int> ids, QList<int> foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, QString exceptionTable, QString exceptionTableItemAttribute, QString exceptionTableForeignItemAttribute, QString exceptionTableValueAttribute, QString unit, T minValue, T maxValue, bool cyclic);
+    void setItemSpecificItemAttribute(ItemInfos item, QString attributeName, QList<int> ids, QList<int> foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, ItemInfos valueItem, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueAttribute);
     float keysToFloat(QList<Key> keys, bool* ok) const;
     QList<int> keysToIds(QList<Key> keys) const;
     QString keysToString(QList<Key> keys) const;
