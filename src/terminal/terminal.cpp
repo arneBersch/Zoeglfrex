@@ -171,6 +171,14 @@ void Terminal::execute() {
             setTextAttribute(modelInfos, "label", "Label", ids, "");
         } else if ((attribute == AttributeIds::modelChannels) || !attributes.contains(Attribute)) {
             setTextAttribute(modelInfos, "channels", "Channels", ids, "^[01DdRrGgBbWwCcMmYyPpTtZz]+$");
+        } else if (attribute == AttributeIds::modelPanRange) {
+            setNumberAttribute<float>(modelInfos, "panrange", "Pan Range", ids, valueKeys, "°", 0, 360, true);
+        } else if (attribute == AttributeIds::modelTiltRange) {
+            setNumberAttribute<float>(modelInfos, "tiltrange", "Tilt Range", ids, valueKeys, "°", 0, 360, false);
+        } else if (attribute == AttributeIds::modelMinZoom) {
+            setNumberAttribute<float>(modelInfos, "minzoom", "Universe", ids, valueKeys, "°", 0, 180, false);
+        } else if (attribute == AttributeIds::modelMaxZoom) {
+            setNumberAttribute<float>(modelInfos, "maxzoom", "Universe", ids, valueKeys, "°", 0, 180, false);
         } else {
             error("Unknown Model Attribute.");
         }
@@ -187,6 +195,10 @@ void Terminal::execute() {
             setNumberAttribute<int>(fixtureInfos, "universe", "Universe", ids, valueKeys, "", 1, 63999, false);
         } else if ((attribute == AttributeIds::fixtureAddress) || !attributes.contains(Attribute)) {
             setNumberAttribute<int>(fixtureInfos, "address", "Address", ids, valueKeys, "", 0, 512, false);
+        } else if (attribute == AttributeIds::fixtureRotation) {
+            setNumberAttribute(fixtureInfos, "rotation", "Rotation", ids, valueKeys, "°", 0, 360, true);
+        } else if (attribute == AttributeIds::fixtureInvertPan) {
+            setBoolAttribute(fixtureInfos, "invertpan", "Invert Pan", ids, valueKeys);
         } else {
             error("Unknown Fixture Attribute.");
         }
@@ -211,9 +223,9 @@ void Terminal::execute() {
             setTextAttribute(intensityInfos, "label", "Label", ids, "");
         } else if ((attribute == AttributeIds::intensityDimmer) || !attributes.contains(Attribute)) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "intensity_model_dimmers", "intensity_key", "model_key", "dimmer", "%", 0, 100, false);
+                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "intensity_model_dimmer", "intensity_key", "model_key", "dimmer", "%", 0, 100, false);
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "intensity_fixture_dimmers", "intensity_key", "fixture_key", "dimmer", "%", 0, 100, false);
+                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "intensity_fixture_dimmer", "intensity_key", "fixture_key", "dimmer", "%", 0, 100, false);
             } else {
                 setNumberAttribute<float>(intensityInfos, "dimmer", "Dimmer", ids, valueKeys, "%", 0, 100, false);
             }
@@ -227,10 +239,24 @@ void Terminal::execute() {
             moveItems(colorInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(colorInfos, "label", "Label", ids, "");
-        } else if ((attribute == AttributeIds::colorHue) || attributes.contains(Attribute)) {
-            setNumberAttribute<float>(colorInfos, "hue", "Hue", ids, valueKeys, "°", 0, 360, true);
+        } else if ((attribute == AttributeIds::colorHue) || !attributes.contains(Attribute)) {
+            if (attributes.contains(Model)) {
+                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_hue", "color_key", "model_key", "hue", "°", 0, 360, true);
+            } else if (attributes.contains(Fixture)) {
+                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_hue", "color_key", "fixture_key", "hue", "°", 0, 360, true);
+            } else {
+                setNumberAttribute<float>(colorInfos, "hue", "Hue", ids, valueKeys, "°", 0, 360, true);
+            }
         } else if (attribute == AttributeIds::colorSaturation) {
-            setNumberAttribute<float>(colorInfos, "saturation", "Saturation", ids, valueKeys, "%", 0, 100, false);
+            if (attributes.contains(Model)) {
+                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_saturation", "color_key", "model_key", "saturation", "%", 0, 100, false);
+            } else if (attributes.contains(Fixture)) {
+                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_saturation", "color_key", "fixture_key", "saturation", "%", 0, 100, false);
+            } else {
+                setNumberAttribute<float>(colorInfos, "saturation", "Saturation", ids, valueKeys, "%", 0, 100, false);
+            }
+        } else if (attribute == AttributeIds::colorQuality) {
+            setNumberAttribute<float>(colorInfos, "quality", "Quality", ids, valueKeys, "%", 0, 100, false);
         } else {
             error("Unknown Color Attribute.");
         }
@@ -241,10 +267,30 @@ void Terminal::execute() {
             moveItems(positionInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(positionInfos, "label", "Label", ids, "");
-        } else if ((attribute == AttributeIds::positionPan) || attributes.contains(Attribute)) {
-            setNumberAttribute<float>(positionInfos, "pan", "Pan", ids, valueKeys, "°", 0, 360, true);
+        } else if ((attribute == AttributeIds::positionPan) || !attributes.contains(Attribute)) {
+            if (attributes.contains(Model)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_pan", "position_key", "model_key", "pan", "°", 0, 360, true);
+            } else if (attributes.contains(Fixture)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_pan", "position_key", "fixture_key", "pan", "°", 0, 360, true);
+            } else {
+                setNumberAttribute<float>(positionInfos, "pan", "Pan", ids, valueKeys, "°", 0, 360, true);
+            }
         } else if (attribute == AttributeIds::positionTilt) {
-            setNumberAttribute<float>(positionInfos, "tilt", "Tilt", ids, valueKeys, "°", -180, 180, false);
+            if (attributes.contains(Model)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_tilt", "position_key", "model_key", "tilt", "°", -180, 180, false);
+            } else if (attributes.contains(Fixture)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_tilt", "position_key", "fixture_key", "tilt", "°", -180, 180, false);
+            } else {
+                setNumberAttribute<float>(positionInfos, "tilt", "Tilt", ids, valueKeys, "°", -180, 180, false);
+            }
+        } else if (attribute == AttributeIds::positionZoom) {
+            if (attributes.contains(Model)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_zoom", "position_key", "model_key", "zoom", "°", 0, 180, false);
+            } else if (attributes.contains(Fixture)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_zoom", "position_key", "fixture_key", "zoom", "°", 0, 180, false);
+            } else {
+                setNumberAttribute<float>(positionInfos, "zoom", "Zoom", ids, valueKeys, "°", 0, 180, false);
+            }
         } else {
             error("Unknown Position Attribute.");
         }
@@ -265,8 +311,10 @@ void Terminal::execute() {
             moveItems(effectInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(effectInfos, "label", "Label", ids, "");
+        } else if ((attribute == AttributeIds::effectSteps) || !attributes.contains(Attribute)) {
+            setNumberAttribute<int>(effectInfos, "steps", "Steps", ids, valueKeys, "", 2, 99, false);
         } else {
-            error("Unknown Cue Attribute.");
+            error("Unknown Effect Attribute.");
         }
     } else if (selectionType == Cuelist) {
         if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
@@ -275,6 +323,8 @@ void Terminal::execute() {
             moveItems(cuelistInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(cuelistInfos, "label", "Label", ids, "");
+        } else if (attribute == AttributeIds::cuelistPriority) {
+            setNumberAttribute<int>(cuelistInfos, "priority", "Priority", ids, valueKeys, "", 1, 200, false);
         } else if (attribute == AttributeIds::cuelistMoveWhileDark) {
             setBoolAttribute(cuelistInfos, "movewhiledark", "Move while Dark", ids, valueKeys);
         } else {
@@ -292,6 +342,18 @@ void Terminal::execute() {
                 setItemSpecificItemAttribute(cueInfos, "Intensities", ids, attributes.value(Group), valueKeys, groupInfos, intensityInfos, "cue_intensities", "cue_key", "group_key", "intensity_key");
             } else {
                 error("Can't set Cue Intensities because no Group Attribute was provided.");
+            }
+        } else if (attribute == AttributeIds::cueColors) {
+            if (attributes.contains(Group)) {
+                setItemSpecificItemAttribute(cueInfos, "Colors", ids, attributes.value(Group), valueKeys, groupInfos, colorInfos, "cue_colors", "cue_key", "group_key", "color_key");
+            } else {
+                error("Can't set Cue Colors because no Group Attribute was provided.");
+            }
+        } else if (attribute == AttributeIds::cuePositions) {
+            if (attributes.contains(Group)) {
+                setItemSpecificItemAttribute(cueInfos, "Positions", ids, attributes.value(Group), valueKeys, groupInfos, positionInfos, "cue_positions", "cue_key", "group_key", "position_key");
+            } else {
+                error("Can't set Cue Positions because no Group Attribute was provided.");
             }
         } else {
             error("Unknown Cue Attribute.");

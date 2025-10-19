@@ -16,10 +16,16 @@ const int id = 0;
 const int label = 1;
 
 const int modelChannels = 2;
+const int modelPanRange = 3;
+const int modelTiltRange = 4;
+const int modelMinZoom = 5;
+const int modelMaxZoom = 6;
 
 const int fixtureModel = 2;
 const int fixtureUniverse = 3;
 const int fixtureAddress = 4;
+const int fixtureRotation = 5;
+const int fixtureInvertPan = 6;
 
 const int groupFixtures = 2;
 
@@ -27,13 +33,20 @@ const int intensityDimmer = 2;
 
 const int colorHue = 2;
 const int colorSaturation = 3;
+const int colorQuality = 4;
 
 const int positionPan = 2;
 const int positionTilt = 3;
+const int positionZoom = 4;
 
-const int cuelistMoveWhileDark = 2;
+const int effectSteps = 2;
+
+const int cuelistPriority = 2;
+const int cuelistMoveWhileDark = 3;
 
 const int cueIntensities = 2;
+const int cueColors = 3;
+const int cuePositions = 4;
 }
 
 #endif // CONSTANTS_H
