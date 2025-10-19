@@ -627,6 +627,7 @@ void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, c
 void Terminal::setItemListAttribute(const ItemInfos item, const QString attributeName, QList<int> ids, QList<Key> valueKeys, const ItemInfos foreignItem, const QString listTable, const QString listTableItemAttribute, const QString listTableForeignItemsAttribute) {
     Q_ASSERT(!ids.isEmpty());
     QList<int> foreignItemKeys;
+    QStringList foreignItemIdStrings;
     if ((valueKeys.size() != 1) || !valueKeys.startsWith(Minus)) {
         if (!valueKeys.startsWith(foreignItem.key)) {
             error("Can't set " + item.singular + " " + attributeName + " because no " + foreignItem.plural + " were given.");
@@ -645,12 +646,18 @@ void Terminal::setItemListAttribute(const ItemInfos item, const QString attribut
             if (foreignItemQuery.exec()) {
                 if (foreignItemQuery.next()) {
                     foreignItemKeys.append(foreignItemQuery.value(0).toInt());
+                    foreignItemIdStrings.append(QString::number(foreignItemId));
                 } else {
                     warning("Can't add " + foreignItem.singular + " " + QString::number(foreignItemId) + " to " + item.singular + " " + attributeName + " because this " + foreignItem.singular + " doesn't exist.");
                 }
             } else {
                 error("Failed to execute check if " + foreignItem.singular + " " + QString::number(foreignItemId) + " exists: " + foreignItemQuery.lastError().text());
             }
+        }
+        Q_ASSERT(foreignItemKeys.length() == foreignItemIdStrings.length());
+        if (foreignItemKeys.isEmpty()) {
+            error("Can't set " + item.singular + " " + attributeName + " because no valid " + foreignItem.plural + " were given.");
+            return;
         }
     }
     createItems(item, ids);
@@ -687,10 +694,14 @@ void Terminal::setItemListAttribute(const ItemInfos item, const QString attribut
             error("Failed loading " + item.singular + " " + QString::number(id) + ": " + keyQuery.lastError().text());
         }
     }
+    QString foreignItemString = foreignItem.plural + foreignItemIdStrings.join(", ");
+    if (foreignItemIdStrings.size() == 1) {
+        foreignItemString = foreignItem.singular + foreignItemIdStrings.join(", ");
+    }
     if (successfulIds.length() == 1) {
-        success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " to " + QString::number(foreignItemKeys.length()) + " " + foreignItem.plural + ".");
+        success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " to " + foreignItemString + ".");
     } else if (successfulIds.length() > 1) {
-        success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " to " + QString::number(foreignItemKeys.length()) + " " + foreignItem.plural + ".");
+        success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " to " + foreignItemString + ".");
     }
     emit dbChanged();
 }
@@ -722,6 +733,7 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
         }
     }
     QList<int> foreignItemKeys;
+    QStringList foreignItemIdStrings;
     for (int foreignItemId : foreignItemIds) {
         QSqlQuery foreignItemQuery;
         foreignItemQuery.prepare("SELECT key FROM " + foreignItem.table + " WHERE id = :id");
@@ -729,6 +741,7 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
         if (foreignItemQuery.exec()) {
             if (foreignItemQuery.next()) {
                 foreignItemKeys.append(foreignItemQuery.value(0).toInt());
+                foreignItemIdStrings.append(QString::number(foreignItemId));
             } else {
                 warning("Can't set " + attributeName + " for " + foreignItem.singular + " " + QString::number(foreignItemId) + " because this " + foreignItem.singular + " doesn't exist.");
             }
@@ -736,6 +749,7 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
             error("Failed to execute check if " + foreignItem.singular + " " + QString::number(foreignItemId) + " exists: " + foreignItemQuery.lastError().text());
         }
     }
+    Q_ASSERT(foreignItemKeys.length() == foreignItemIdStrings.length());
     if (foreignItemKeys.isEmpty()) {
         error("No valid " + foreignItem.plural + " were found.");
         return;
@@ -781,21 +795,21 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
             error("Failed loading " + item.singular + " " + QString::number(id) + ": " + keyQuery.lastError().text());
         }
     }
-    QString foreignItemString = foreignItem.plural;
-    if (foreignItemKeys.length() == 1) {
-        foreignItemString = foreignItem.singular;
+    QString foreignItemString = foreignItem.plural + " " + foreignItemIdStrings.join(", ");
+    if (foreignItemIdStrings.length() == 1) {
+        foreignItemString = foreignItem.singular + " " + foreignItemIdStrings.join(", ");
     }
     if (removeValues) {
         if (successfulIds.length() == 1) {
-            success("Removed " + attributeName + " of " + item.singular + " " + successfulIds.first() + " at " + QString::number(foreignItemKeys.length()) + " " + foreignItemString + ".");
+            success("Removed " + attributeName + " of " + item.singular + " " + successfulIds.first() + " at " + foreignItemString + ".");
         } else if (successfulIds.length() > 1) {
-            success("Removed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + QString::number(foreignItemKeys.length()) + " " + foreignItemString + ".");
+            success("Removed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString + ".");
         }
     } else {
         if (successfulIds.length() == 1) {
-            success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " at " + QString::number(foreignItemKeys.length()) + " " + foreignItemString + " to " + QString::number(value) + unit + ".");
+            success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " at " + foreignItemString + " to " + QString::number(value) + unit + ".");
         } else if (successfulIds.length() > 1) {
-            success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + QString::number(foreignItemKeys.length()) + " " + foreignItemString + " to " + QString::number(value) + unit + ".");
+            success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString + " to " + QString::number(value) + unit + ".");
         }
     }
     emit dbChanged();
@@ -833,6 +847,7 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
         valueItemKey = valueItemQuery.value(0).toInt();
     }
     QList<int> foreignItemKeys;
+    QStringList foreignItemIdStrings;
     for (int foreignItemId : foreignItemIds) {
         QSqlQuery foreignItemQuery;
         foreignItemQuery.prepare("SELECT key FROM " + foreignItem.table + " WHERE id = :id");
@@ -840,6 +855,7 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
         if (foreignItemQuery.exec()) {
             if (foreignItemQuery.next()) {
                 foreignItemKeys.append(foreignItemQuery.value(0).toInt());
+                foreignItemIdStrings.append(QString::number(foreignItemId));
             } else {
                 warning("Can't set " + attributeName + " for " + foreignItem.singular + " " + QString::number(foreignItemId) + " because this " + foreignItem.singular + " doesn't exist.");
             }
@@ -847,6 +863,7 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
             error("Failed to execute check if " + foreignItem.singular + " " + QString::number(foreignItemId) + " exists: " + foreignItemQuery.lastError().text());
         }
     }
+    Q_ASSERT(foreignItemKeys.size() == foreignItemIdStrings.size());
     if (foreignItemKeys.isEmpty()) {
         error("No valid " + foreignItem.plural + " were found.");
         return;
@@ -892,9 +909,9 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
             error("Failed loading " + item.singular + " " + QString::number(id) + ": " + keyQuery.lastError().text());
         }
     }
-    QString foreignItemString = foreignItem.plural;
+    QString foreignItemString = foreignItem.plural + " " + foreignItemIdStrings.join(", ");
     if (foreignItemKeys.length() == 1) {
-        foreignItemString = foreignItem.singular;
+        foreignItemString = foreignItem.singular + " " + foreignItemIdStrings.join(", ");
     }
     if (removeValues) {
         if (successfulIds.length() == 1) {
