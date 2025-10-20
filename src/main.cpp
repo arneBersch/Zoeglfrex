@@ -47,6 +47,7 @@ int main(int argc, char *argv[]) {
     }
 
     const QStringList createTableQueries = {
+        "PRAGMA foreign_keys = ON",
         "CREATE TABLE IF NOT EXISTS models (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, channels TEXT DEFAULT 'D' NOT NULL, panrange REAL DEFAULT 540 NOT NULL, tiltrange REAL DEFAULT 270 NOT NULL, minzoom REAL DEFAULT 5 NOT NULL, maxzoom REAL DEFAULT 60 NOT NULL, PRIMARY KEY (key))",
         "CREATE TABLE IF NOT EXISTS fixtures (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, model_key INTEGER REFERENCES models (key) ON DELETE SET NULL, universe INTEGER DEFAULT 1 NOT NULL, address INTEGER DEFAULT 0 NOT NULL, rotation REAL DEFAULT 0 NOT NULL, invertpan INTEGER DEFAULT 1 NOT NULL, PRIMARY KEY (key))",
         "CREATE TABLE IF NOT EXISTS groups (key INTEGER, id INTEGER UNIQUE NOT NULL, label TEXT DEFAULT '' NOT NULL, PRIMARY KEY (key))",
