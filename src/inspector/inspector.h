@@ -22,14 +22,13 @@ public slots:
     void reload();
     void loadItem(QString itemName, QList<int> ids);
 private:
-    QStringList getItemInfos(QString table, int id) const;
-    QString getBoolAttribute(QString table, QString attribute, int id) const;
-    QString getTextAttribute(QString table, QString attribute, int id) const;
-    QString getNumberAttribute(QString table, QString attribute, int id, QString unit) const;
-    QString getItemAttribute(QString table, QString attribute, int id, QString valueItemTable) const;
-    QString getItemListAttribute(QString table, QString foreignItemsTable, QString listTable, QString listTableItemAttribute, QString listTableForeignItemsAttribute, int id) const;
-    QString getItemSpecificNumberAttribute(QString table, QString foreignItemsTable, QString exceptionTable, QString exceptionTableItemAttribute, QString exceptionTableForeignItemsAttribute, QString exceptionTableValueAttribute, QString unit, int id) const;
-    QString getItemSpecificItemAttribute(QString table, QString foreignItemTable, QString valueItemTable, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueItemAttribute, int id) const;
+    QString getBoolAttribute(QString table, QString attribute, QString id) const;
+    QString getTextAttribute(QString table, QString attribute, QString id) const;
+    QString getNumberAttribute(QString table, QString attribute, QString id, QString unit) const;
+    QString getItemAttribute(QString table, QString attribute, QString id, QString valueItemTable) const;
+    QString getItemListAttribute(QString table, QString foreignItemsTable, QString listTable, QString listTableItemAttribute, QString listTableForeignItemsAttribute, QString id) const;
+    QString getItemSpecificNumberAttribute(QString table, QString foreignItemsTable, QString exceptionTable, QString exceptionTableItemAttribute, QString exceptionTableForeignItemsAttribute, QString exceptionTableValueAttribute, QString unit, QString id) const;
+    QString getItemSpecificItemAttribute(QString table, QString foreignItemTable, QString valueItemTable, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueItemAttribute, QString id) const;
     QSqlQueryModel* model;
     QString itemName;
     QList<int> itemIds;
