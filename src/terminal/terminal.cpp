@@ -368,22 +368,13 @@ void Terminal::createItems(const ItemInfos item, QList<int> ids) {
     Q_ASSERT(!ids.isEmpty());
     QStringList successfulIds;
     for (int id : ids) {
-        QSqlQuery existsQuery;
-        existsQuery.prepare("SELECT id FROM " + item.table + " WHERE id = :id");
-        existsQuery.bindValue(":id", id);
-        if (existsQuery.exec()) {
-            if (!existsQuery.next()) {
-                QSqlQuery insertQuery;
-                insertQuery.prepare("INSERT INTO " + item.table + " (id) VALUES (:id)");
-                insertQuery.bindValue(":id", id);
-                if (insertQuery.exec()) {
-                    successfulIds.append(QString::number(id));
-                } else {
-                    error("Failed to create " + item.singular + " " + QString::number(id) + " because the request failed: " + insertQuery.lastError().text());
-                }
-            }
+        QSqlQuery query;
+        query.prepare("INSERT OR IGNORE INTO " + item.table + " (id) VALUES (:id)");
+        query.bindValue(":id", id);
+        if (query.exec()) {
+            successfulIds.append(QString::number(id));
         } else {
-            error("Error executing check if " + item.singular + " exists: " + existsQuery.lastError().text());
+            error("Failed to check for " + item.singular + " " + QString::number(id) + " because the request failed: " + query.lastError().text());
         }
     }
     if (successfulIds.size() == 1) {
@@ -430,7 +421,7 @@ void Terminal::moveItems(const ItemInfos item, QList<int> ids, QList<Key> valueK
         existsQuery.bindValue(":id", newIds.first());
         if (existsQuery.exec()) {
             if (existsQuery.next()) {
-                error("Can't set ID of " + item.singular + " to " + QString::number(newIds.first()) + " because this " + item.singular + " ID is already used.");
+                warning("Can't set ID of " + item.singular + " to " + QString::number(newIds.first()) + " because this " + item.singular + " ID is already used.");
             } else {
                 QSqlQuery updateQuery;
                 updateQuery.prepare("UPDATE " + item.table + " SET id = :newId WHERE id = :id");
@@ -823,29 +814,23 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
         if (keyQuery.exec()) {
             if (keyQuery.next()) {
                 const int itemKey = keyQuery.value(0).toInt();
-                bool allInsertsSuccessful = true;
+                bool allQueriesSuccessful = true;
                 for (int foreignItemKey : foreignItemKeys) {
-                    QSqlQuery deleteQuery;
-                    deleteQuery.prepare("DELETE FROM " + exceptionTable + " WHERE " + exceptionTableItemAttribute + " =  :key AND " + exceptionTableForeignItemAttribute + " = :foreign_key");
-                    deleteQuery.bindValue(":key", itemKey);
-                    deleteQuery.bindValue(":foreign_key", foreignItemKey);
-                    if (deleteQuery.exec()) {
-                        if (!removeValues) {
-                            QSqlQuery insertQuery;
-                            insertQuery.prepare("INSERT INTO " + exceptionTable + " (" + exceptionTableItemAttribute + ", " + exceptionTableForeignItemAttribute + ", " + exceptionTableValueAttribute + ") VALUES (:item, :foreign_item, :value)");
-                            insertQuery.bindValue(":item", itemKey);
-                            insertQuery.bindValue(":foreign_item", foreignItemKey);
-                            insertQuery.bindValue(":value", value);
-                            if (!insertQuery.exec()) {
-                                allInsertsSuccessful = false;
-                                error("Failed to insert a " + foreignItem.singular + " into " + item.singular + " " + QString::number(id) + ": " + insertQuery.lastError().text());
-                            }
-                        }
+                    QSqlQuery query;
+                    if (removeValues) {
+                        query.prepare("DELETE FROM " + exceptionTable + " WHERE " + exceptionTableItemAttribute + " = :item AND " + exceptionTableForeignItemAttribute + " = :foreign_item");
                     } else {
-                        error("Failed deleting old " + attributeName + " of " + item.singular + " " + QString::number(id) + ": " + deleteQuery.lastError().text());
+                        query.prepare("INSERT OR REPLACE INTO " + exceptionTable + " (" + exceptionTableItemAttribute + ", " + exceptionTableForeignItemAttribute + ", " + exceptionTableValueAttribute + ") VALUES (:item, :foreign_item, :value)");
+                        query.bindValue(":value", value);
+                    }
+                    query.bindValue(":item", itemKey);
+                    query.bindValue(":foreign_item", foreignItemKey);
+                    if (!query.exec()) {
+                        allQueriesSuccessful = false;
+                        error("Failed updating " + attributeName + " of " + item.singular + " " + QString::number(id) + ": " + query.lastError().text());
                     }
                 }
-                if (allInsertsSuccessful) {
+                if (allQueriesSuccessful) {
                     successfulIds.append(QString::number(id));
                 }
             } else {
@@ -936,29 +921,23 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
         if (keyQuery.exec()) {
             if (keyQuery.next()) {
                 const int itemKey = keyQuery.value(0).toInt();
-                bool allInsertsSuccessful = true;
+                bool allQueriesSuccessful = true;
                 for (int foreignItemKey : foreignItemKeys) {
-                    QSqlQuery deleteQuery;
-                    deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE " + valueTableItemAttribute + " =  :key AND " + valueTableForeignItemAttribute + " = :foreign_key");
-                    deleteQuery.bindValue(":key", itemKey);
-                    deleteQuery.bindValue(":foreign_key", foreignItemKey);
-                    if (deleteQuery.exec()) {
-                        if (!removeValues) {
-                            QSqlQuery insertQuery;
-                            insertQuery.prepare("INSERT INTO " + valueTable + " (" + valueTableItemAttribute + ", " + valueTableForeignItemAttribute + ", " + valueTableValueAttribute + ") VALUES (:item, :foreign_item, :value_item)");
-                            insertQuery.bindValue(":item", itemKey);
-                            insertQuery.bindValue(":foreign_item", foreignItemKey);
-                            insertQuery.bindValue(":value_item", valueItemKey);
-                            if (!insertQuery.exec()) {
-                                allInsertsSuccessful = false;
-                                error("Failed to insert a " + foreignItem.singular + " into " + item.singular + " " + QString::number(id) + ": " + insertQuery.lastError().text());
-                            }
-                        }
+                    QSqlQuery query;
+                    if (removeValues) {
+                        query.prepare("DELETE FROM " + valueTable + " WHERE " + valueTableItemAttribute + " =  :item AND " + valueTableForeignItemAttribute + " = :foreign_item");
                     } else {
-                        error("Failed deleting old " + attributeName + " of " + item.singular + " " + QString::number(id) + ": " + deleteQuery.lastError().text());
+                        query.prepare("INSERT OR REPLACE INTO " + valueTable + " (" + valueTableItemAttribute + ", " + valueTableForeignItemAttribute + ", " + valueTableValueAttribute + ") VALUES (:item, :foreign_item, :value_item)");
+                        query.bindValue(":value_item", valueItemKey);
+                    }
+                    query.bindValue(":item", itemKey);
+                    query.bindValue(":foreign_item", foreignItemKey);
+                    if (!query.exec()) {
+                        allQueriesSuccessful = false;
+                        error("Failed updating old " + attributeName + " of " + item.singular + " " + QString::number(id) + ": " + query.lastError().text());
                     }
                 }
-                if (allInsertsSuccessful) {
+                if (allQueriesSuccessful) {
                     successfulIds.append(QString::number(id));
                 }
             } else {
