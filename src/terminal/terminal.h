@@ -59,21 +59,21 @@ public:
     void error(QString message);
 signals:
     void dbChanged();
-    void itemChanged(QString itemType, QList<int> ids);
+    void itemChanged(QString itemType, QStringList ids);
 private:
     void execute();
-    void createItems(ItemInfos item, QList<int> ids);
-    void deleteItems(ItemInfos item, QList<int> ids);
-    void moveItems(ItemInfos item, QList<int> ids, QList<Key> valueKeys);
-    void setBoolAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys);
-    void setTextAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QString regex);
-    template <typename T> void setNumberAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic);
-    void setItemAttribute(ItemInfos item, QString attribute, QString attributeName, QList<int> ids, QList<Key> valueKeys, ItemInfos foreignItem);
-    void setItemListAttribute(ItemInfos item, QString attributeName, QList<int> ids, QList<Key> valueKeys, ItemInfos foreignItem, QString listTable, QString listTableItemAttribute, QString listTableForeignItemsAttribute);
-    template <typename T> void setItemSpecificNumberAttribute(ItemInfos item, QString attributeName, QList<int> ids, QList<int> foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, QString exceptionTable, QString exceptionTableItemAttribute, QString exceptionTableForeignItemAttribute, QString exceptionTableValueAttribute, QString unit, T minValue, T maxValue, bool cyclic);
-    void setItemSpecificItemAttribute(ItemInfos item, QString attributeName, QList<int> ids, QList<int> foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, ItemInfos valueItem, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueAttribute);
+    void createItems(ItemInfos item, QStringList ids);
+    void deleteItems(ItemInfos item, QStringList ids);
+    void moveItems(ItemInfos item, QStringList ids, QList<Key> valueKeys);
+    void setBoolAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QList<Key> valueKeys);
+    void setTextAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QString regex);
+    template <typename T> void setNumberAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QList<Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic);
+    void setItemAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QList<Key> valueKeys, ItemInfos foreignItem);
+    void setItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QList<Key> valueKeys, ItemInfos foreignItem, QString listTable, QString listTableItemAttribute, QString listTableForeignItemsAttribute);
+    template <typename T> void setItemSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, QString exceptionTable, QString exceptionTableItemAttribute, QString exceptionTableForeignItemAttribute, QString exceptionTableValueAttribute, QString unit, T minValue, T maxValue, bool cyclic);
+    void setItemSpecificItemAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, ItemInfos valueItem, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueAttribute);
     float keysToFloat(QList<Key> keys, bool* ok) const;
-    QList<int> keysToIds(QList<Key> keys) const;
+    QStringList keysToIds(QList<Key> keys) const;
     QString keysToString(QList<Key> keys) const;
     void updatePrompt();
     void writeKey(Key key);

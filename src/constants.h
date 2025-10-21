@@ -12,41 +12,41 @@
 #include <QString>
 
 namespace AttributeIds {
-const int id = 0;
-const int label = 1;
+const char* const id = "0";
+const char* const label = "1";
 
-const int modelChannels = 2;
-const int modelPanRange = 3;
-const int modelTiltRange = 4;
-const int modelMinZoom = 5;
-const int modelMaxZoom = 6;
+const char* const modelChannels = "2";
+const char* const modelPanRange = "3";
+const char* const modelTiltRange = "4";
+const char* const modelMinZoom = "5";
+const char* const modelMaxZoom = "6";
 
-const int fixtureModel = 2;
-const int fixtureUniverse = 3;
-const int fixtureAddress = 4;
-const int fixtureRotation = 5;
-const int fixtureInvertPan = 6;
+const char* const fixtureModel = "2";
+const char* const fixtureUniverse = "3";
+const char* const fixtureAddress = "4";
+const char* const fixtureRotation = "5";
+const char* const fixtureInvertPan = "6";
 
-const int groupFixtures = 2;
+const char* const groupFixtures = "2";
 
-const int intensityDimmer = 2;
+const char* const intensityDimmer = "2";
 
-const int colorHue = 2;
-const int colorSaturation = 3;
-const int colorQuality = 4;
+const char* const colorHue = "2";
+const char* const colorSaturation = "3";
+const char* const colorQuality = "4";
 
-const int positionPan = 2;
-const int positionTilt = 3;
-const int positionZoom = 4;
+const char* const positionPan = "2";
+const char* const positionTilt = "3";
+const char* const positionZoom = "4";
 
-const int effectSteps = 2;
+const char* const effectSteps = "2";
 
-const int cuelistPriority = 2;
-const int cuelistMoveWhileDark = 3;
+const char* const cuelistPriority = "2";
+const char* const cuelistMoveWhileDark = "3";
 
-const int cueIntensities = 2;
-const int cueColors = 3;
-const int cuePositions = 4;
+const char* const cueIntensities = "2";
+const char* const cueColors = "3";
+const char* const cuePositions = "4";
 }
 
 #endif // CONSTANTS_H
