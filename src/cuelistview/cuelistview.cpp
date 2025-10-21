@@ -30,7 +30,7 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     layout->addWidget(cuelistTableView);
 
     model = new QSqlQueryModel();
-    model->setQuery("SELECT id, label FROM cues ORDER BY id");
+    model->setQuery("SELECT id, label FROM cues ORDER BY sortkey");
     model->setHeaderData(0, Qt::Horizontal, "ID");
     model->setHeaderData(1, Qt::Horizontal, "Label");
     cuelistTableView->setModel(model);

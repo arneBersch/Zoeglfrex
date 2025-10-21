@@ -368,13 +368,34 @@ void Terminal::createItems(const ItemInfos item, QStringList ids) {
     Q_ASSERT(!ids.isEmpty());
     QStringList successfulIds;
     for (QString id : ids) {
-        QSqlQuery query;
-        query.prepare("INSERT OR IGNORE INTO " + item.table + " (id) VALUES (:id)");
-        query.bindValue(":id", id);
-        if (query.exec()) {
-            successfulIds.append(id);
+        QSqlQuery existsQuery;
+        existsQuery.prepare("SELECT key FROM " + item.table + " WHERE id = :id");
+        existsQuery.bindValue(":id", id);
+        if (existsQuery.exec()) {
+            if (!existsQuery.next()) {
+                QSqlQuery sortkeysQuery;
+                sortkeysQuery.prepare("SELECT id, sortkey FROM " + item.table);
+                if (sortkeysQuery.exec()) {
+                    int sortkey = 0;
+                    while (sortkeysQuery.next()) {
+                        sortkey = std::max(sortkey, sortkeysQuery.value(1).toInt());
+                    }
+                    sortkey++;
+                    QSqlQuery insertQuery;
+                    insertQuery.prepare("INSERT INTO " + item.table + " (id, sortkey) VALUES (:id, :sortkey)");
+                    insertQuery.bindValue(":id", id);
+                    insertQuery.bindValue(":sortkey", sortkey);
+                    if (insertQuery.exec()) {
+                        successfulIds.append(id);
+                    } else {
+                        error("Failed to insert " + item.singular + " " + id + ":" + insertQuery.lastError().text());
+                    }
+                } else {
+                    error("Failed to load " + item.singular  + " IDs: " + sortkeysQuery.lastError().text());
+                }
+            }
         } else {
-            error("Failed to check for " + item.singular + " " + id + " because the request failed: " + query.lastError().text());
+            error("Failed to check if " + item.singular + " " + id + " already exists: " + existsQuery.lastError().text());
         }
     }
     if (successfulIds.size() == 1) {
@@ -388,13 +409,31 @@ void Terminal::deleteItems(const ItemInfos item, QStringList ids) {
     Q_ASSERT(!ids.isEmpty());
     QStringList successfulIds;
     for (QString id : ids) {
-        QSqlQuery query;
-        query.prepare("DELETE FROM " + item.table + " WHERE id = :id");
-        query.bindValue(":id", id);
-        if (query.exec()) {
-            successfulIds.append(id);
+        QSqlQuery existsQuery;
+        existsQuery.prepare("SELECT sortkey FROM " + item.table + " WHERE id = :id");
+        existsQuery.bindValue(":id", id);
+        if (existsQuery.exec()) {
+            if (existsQuery.next()) {
+                const int sortkey = existsQuery.value(0).toInt();
+                QSqlQuery deleteQuery;
+                deleteQuery.prepare("DELETE FROM " + item.table + " WHERE id = :id");
+                deleteQuery.bindValue(":id", id);
+                if (deleteQuery.exec()) {
+                    successfulIds.append(id);
+                    QSqlQuery updateSortkeysQuery;
+                    updateSortkeysQuery.prepare("UPDATE " + item.table + " SET sortkey = sortkey - 1 WHERE sortkey > :sortkey");
+                    updateSortkeysQuery.bindValue(":sortkey", sortkey);
+                    if (!updateSortkeysQuery.exec()) {
+                        error("Failed updating the sorting keys after deleting " + item.singular + " " + id + ".");
+                    }
+                } else {
+                    error("Can't delete " + item.singular + " because the request failed: " + deleteQuery.lastError().text());
+                }
+            } else {
+                warning("Can't delete " + item.singular + " " + id + " because this " + item.singular + " doesn't exist.");
+            }
         } else {
-            error("Can't delete " + item.singular + " because the request failed: " + query.lastError().text());
+            error("Couldn't delete " + item.singular + " " + id + ": " + existsQuery.lastError().text());
         }
     }
     if (successfulIds.size() == 1) {
