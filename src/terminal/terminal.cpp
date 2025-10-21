@@ -374,21 +374,42 @@ void Terminal::createItems(const ItemInfos item, QStringList ids) {
         if (existsQuery.exec()) {
             if (!existsQuery.next()) {
                 QSqlQuery sortkeysQuery;
-                sortkeysQuery.prepare("SELECT id, sortkey FROM " + item.table);
+                sortkeysQuery.prepare("SELECT id FROM " + item.table + " ORDER BY sortkey");
                 if (sortkeysQuery.exec()) {
-                    int sortkey = 0;
+                    QStringList idParts = id.split(".");
+                    int sortkey = 1;
                     while (sortkeysQuery.next()) {
-                        sortkey = std::max(sortkey, sortkeysQuery.value(1).toInt());
+                        QStringList indexIdParts = sortkeysQuery.value(0).toString().split(".");
+                        const int minPartAmount = std::min(idParts.length(), indexIdParts.length());
+                        bool greaterId = true;
+                        bool sameBeginning = true;
+                        for (int part = 0; part < minPartAmount; part++) {
+                            if ((idParts[part].toInt() < indexIdParts[part].toInt()) && sameBeginning) {
+                                greaterId = false;
+                            }
+                            if (idParts[part].toInt() != indexIdParts[part].toInt()) {
+                                sameBeginning = false;
+                            }
+                        }
+                        if (greaterId && (!sameBeginning || (idParts.length() > indexIdParts.length()))) {
+                            sortkey++;
+                        }
                     }
-                    sortkey++;
-                    QSqlQuery insertQuery;
-                    insertQuery.prepare("INSERT INTO " + item.table + " (id, sortkey) VALUES (:id, :sortkey)");
-                    insertQuery.bindValue(":id", id);
-                    insertQuery.bindValue(":sortkey", sortkey);
-                    if (insertQuery.exec()) {
-                        successfulIds.append(id);
+                    QSqlQuery updateSortkeysQuery;
+                    updateSortkeysQuery.prepare("UPDATE " + item.table + " SET sortkey = sortkey + 1 WHERE sortkey >= :sortkey");
+                    updateSortkeysQuery.bindValue(":sortkey", sortkey);
+                    if (updateSortkeysQuery.exec()) {
+                        QSqlQuery insertQuery;
+                        insertQuery.prepare("INSERT INTO " + item.table + " (id, sortkey) VALUES (:id, :sortkey)");
+                        insertQuery.bindValue(":id", id);
+                        insertQuery.bindValue(":sortkey", sortkey);
+                        if (insertQuery.exec()) {
+                            successfulIds.append(id);
+                        } else {
+                            error("Failed to insert " + item.singular + " " + id + ":" + insertQuery.lastError().text());
+                        }
                     } else {
-                        error("Failed to insert " + item.singular + " " + id + ":" + insertQuery.lastError().text());
+                        error("Failed updating the sorting keys before creating " + item.singular + " " + id + ": " + updateSortkeysQuery.lastError().text());
                     }
                 } else {
                     error("Failed to load " + item.singular  + " IDs: " + sortkeysQuery.lastError().text());
@@ -424,7 +445,7 @@ void Terminal::deleteItems(const ItemInfos item, QStringList ids) {
                     updateSortkeysQuery.prepare("UPDATE " + item.table + " SET sortkey = sortkey - 1 WHERE sortkey > :sortkey");
                     updateSortkeysQuery.bindValue(":sortkey", sortkey);
                     if (!updateSortkeysQuery.exec()) {
-                        error("Failed updating the sorting keys after deleting " + item.singular + " " + id + ".");
+                        error("Failed updating the sorting keys after deleting " + item.singular + " " + id + ": " + updateSortkeysQuery.lastError().text());
                     }
                 } else {
                     error("Can't delete " + item.singular + " because the request failed: " + deleteQuery.lastError().text());
