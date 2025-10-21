@@ -8,7 +8,7 @@
 
 #include "terminal.h"
 
-Terminal::Terminal(QWidget *parent) : QWidget(parent) {
+Terminal::Terminal(QWidget *parent) : QWidget(parent) {  
     keyStrings[Zero] = "0";
     keyStrings[One] = "1";
     keyStrings[Two] = "2";
@@ -1016,18 +1016,26 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
     keys.removeFirst();
     keys.append(Plus);
     QStringList ids;
-    QList<Key> currentIdKeys;
+    QStringList idParts;
+    QList<Key> currentIdPartKeys;
     for (const Key key : keys) {
-        if (key == Plus) {
+        if ((key == Plus) || (key == Period)) {
             bool ok;
-            const int id = keysToString(currentIdKeys).toInt(&ok);
-            if (!ok || (id < 0)) {
+            const int idPart = keysToString(currentIdPartKeys).toInt(&ok);
+            if (!ok || (idPart < 0)) {
                 return QStringList();
             }
-            ids.append(QString::number(id));
-            currentIdKeys.clear();
+            idParts.append(QString::number(idPart));
+            currentIdPartKeys.clear();
         } else {
-            currentIdKeys.append(key);
+            currentIdPartKeys.append(key);
+        }
+        if (key == Plus) {
+            if (idParts.isEmpty()) {
+                return QStringList();
+            }
+            ids.append(idParts.join("."));
+            idParts.clear();
         }
     }
     return ids;
