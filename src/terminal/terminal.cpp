@@ -364,6 +364,45 @@ void Terminal::execute() {
     }
 }
 
+void Terminal::updateSortingKeys(const ItemInfos item) {
+    QSqlQuery idsQuery;
+    idsQuery.prepare("SELECT id FROM " + item.table);
+    if (idsQuery.exec()) {
+        QStringList ids;
+        while (idsQuery.next()) {
+            ids.append(idsQuery.value(0).toString());
+        }
+        std::sort(ids.begin(), ids.end(), [](const QString a, const QString b) -> bool {
+            QStringList aParts = a.split(".");
+            QStringList bParts = b.split(".");
+            const int minPartAmount = std::min(aParts.length(), bParts.length());
+            bool smallerId = true;
+            bool sameBeginning = true;
+            for (int part = 0; part < minPartAmount; part++) {
+                if ((aParts[part].toInt() > bParts[part].toInt()) && sameBeginning) {
+                    smallerId = false;
+                }
+                if (aParts[part].toInt() != bParts[part].toInt()) {
+                    sameBeginning = false;
+                }
+            }
+            return (smallerId && (!sameBeginning || (aParts.length() < bParts.length())));
+        });
+        for (int index = 1; index <= ids.length(); index++) {
+            const QString id = ids.at(index - 1);
+            QSqlQuery query;
+            query.prepare("UPDATE " + item.table + " SET sortkey = :sortkey WHERE id = :id");
+            query.bindValue(":id", id);
+            query.bindValue(":sortkey", index);
+            if (!query.exec()) {
+                error("Failed to update the sorting key of " + item.singular + " " + id + ": " + query.lastError().text());
+            }
+        }
+    } else {
+        error("Failed to update the " + item.singular + " sorting keys: " + idsQuery.lastError().text());
+    }
+}
+
 void Terminal::createItems(const ItemInfos item, QStringList ids) {
     Q_ASSERT(!ids.isEmpty());
     QStringList successfulIds;
@@ -373,46 +412,13 @@ void Terminal::createItems(const ItemInfos item, QStringList ids) {
         existsQuery.bindValue(":id", id);
         if (existsQuery.exec()) {
             if (!existsQuery.next()) {
-                QSqlQuery sortkeysQuery;
-                sortkeysQuery.prepare("SELECT id FROM " + item.table + " ORDER BY sortkey");
-                if (sortkeysQuery.exec()) {
-                    QStringList idParts = id.split(".");
-                    int sortkey = 1;
-                    while (sortkeysQuery.next()) {
-                        QStringList indexIdParts = sortkeysQuery.value(0).toString().split(".");
-                        const int minPartAmount = std::min(idParts.length(), indexIdParts.length());
-                        bool greaterId = true;
-                        bool sameBeginning = true;
-                        for (int part = 0; part < minPartAmount; part++) {
-                            if ((idParts[part].toInt() < indexIdParts[part].toInt()) && sameBeginning) {
-                                greaterId = false;
-                            }
-                            if (idParts[part].toInt() != indexIdParts[part].toInt()) {
-                                sameBeginning = false;
-                            }
-                        }
-                        if (greaterId && (!sameBeginning || (idParts.length() > indexIdParts.length()))) {
-                            sortkey++;
-                        }
-                    }
-                    QSqlQuery updateSortkeysQuery;
-                    updateSortkeysQuery.prepare("UPDATE " + item.table + " SET sortkey = sortkey + 1 WHERE sortkey >= :sortkey");
-                    updateSortkeysQuery.bindValue(":sortkey", sortkey);
-                    if (updateSortkeysQuery.exec()) {
-                        QSqlQuery insertQuery;
-                        insertQuery.prepare("INSERT INTO " + item.table + " (id, sortkey) VALUES (:id, :sortkey)");
-                        insertQuery.bindValue(":id", id);
-                        insertQuery.bindValue(":sortkey", sortkey);
-                        if (insertQuery.exec()) {
-                            successfulIds.append(id);
-                        } else {
-                            error("Failed to insert " + item.singular + " " + id + ":" + insertQuery.lastError().text());
-                        }
-                    } else {
-                        error("Failed updating the sorting keys before creating " + item.singular + " " + id + ": " + updateSortkeysQuery.lastError().text());
-                    }
+                QSqlQuery insertQuery;
+                insertQuery.prepare("INSERT INTO " + item.table + " (id, sortkey) VALUES (:id, 0)");
+                insertQuery.bindValue(":id", id);
+                if (insertQuery.exec()) {
+                    successfulIds.append(id);
                 } else {
-                    error("Failed to load " + item.singular  + " IDs: " + sortkeysQuery.lastError().text());
+                    error("Failed to insert " + item.singular + " " + id + ":" + insertQuery.lastError().text());
                 }
             }
         } else {
@@ -424,6 +430,7 @@ void Terminal::createItems(const ItemInfos item, QStringList ids) {
     } else if (successfulIds.size() > 1) {
         success("Created " + item.plural + " " + successfulIds.join(", ") + ".");
     }
+    updateSortingKeys(item);
 }
 
 void Terminal::deleteItems(const ItemInfos item, QStringList ids) {
@@ -435,18 +442,11 @@ void Terminal::deleteItems(const ItemInfos item, QStringList ids) {
         existsQuery.bindValue(":id", id);
         if (existsQuery.exec()) {
             if (existsQuery.next()) {
-                const int sortkey = existsQuery.value(0).toInt();
                 QSqlQuery deleteQuery;
                 deleteQuery.prepare("DELETE FROM " + item.table + " WHERE id = :id");
                 deleteQuery.bindValue(":id", id);
                 if (deleteQuery.exec()) {
                     successfulIds.append(id);
-                    QSqlQuery updateSortkeysQuery;
-                    updateSortkeysQuery.prepare("UPDATE " + item.table + " SET sortkey = sortkey - 1 WHERE sortkey > :sortkey");
-                    updateSortkeysQuery.bindValue(":sortkey", sortkey);
-                    if (!updateSortkeysQuery.exec()) {
-                        error("Failed updating the sorting keys after deleting " + item.singular + " " + id + ": " + updateSortkeysQuery.lastError().text());
-                    }
                 } else {
                     error("Can't delete " + item.singular + " because the request failed: " + deleteQuery.lastError().text());
                 }
@@ -462,6 +462,7 @@ void Terminal::deleteItems(const ItemInfos item, QStringList ids) {
     } else if (successfulIds.size() > 1) {
         success("Deleted " + item.plural + " " + successfulIds.join(", ") + ".");
     }
+    updateSortingKeys(item);
     emit dbChanged();
 }
 
@@ -502,6 +503,7 @@ void Terminal::moveItems(const ItemInfos item, QStringList ids, QList<Key> value
     } else if (successfulIds.size() > 1) {
         success("Set ID of " + item.plural + " " + successfulIds.join(", ") + " to " + newIds.first() + ".");
     }
+    updateSortingKeys(item);
     emit dbChanged();
 }
 

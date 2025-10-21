@@ -59,7 +59,7 @@ void Inspector::reload() {
     }
     QStringList infos;
     if (!table.isEmpty()) {
-        model->setQuery("SELECT CONCAT(id, ' ', label, ' (', sortkey, ')') FROM " + table + " ORDER BY sortkey");
+        model->setQuery("SELECT CONCAT(id, ' ', label) FROM " + table + " ORDER BY sortkey");
         if (!itemIds.isEmpty()) {
             const QString id = itemIds.last();
             const QString label = getTextAttribute(table, "label", id);
