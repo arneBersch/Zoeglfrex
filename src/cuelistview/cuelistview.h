@@ -19,6 +19,7 @@ public:
 public slots:
     void reload();
 private:
+    void selectItem(QString table, QString currentItemsTableKey, bool next);
     QSqlQueryModel* model;
     QTableView *cuelistTableView;
     QLabel *cueLabel;
