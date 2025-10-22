@@ -1072,32 +1072,54 @@ float Terminal::keysToFloat(QList<Key> keys, bool* ok) const {
 }
 
 QStringList Terminal::keysToIds(QList<Key> keys) const {
-    if (keys.isEmpty() || !(itemKeys.contains(keys.first()) || (keys.first() == Attribute))) {
+    if (keys.isEmpty()) {
         return QStringList();
     }
+    const Key itemType = keys.first();
     keys.removeFirst();
-    keys.append(Plus);
     QStringList ids;
-    QStringList idParts;
-    QList<Key> currentIdPartKeys;
-    for (const Key key : keys) {
-        if ((key == Plus) || (key == Period)) {
-            bool ok;
-            const int idPart = keysToString(currentIdPartKeys).toInt(&ok);
-            if (!ok || (idPart < 0)) {
-                return QStringList();
-            }
-            idParts.append(QString::number(idPart));
-            currentIdPartKeys.clear();
+    if (keys.isEmpty()) {
+        QSqlQuery query;
+        if (itemType == Group) {
+            query.prepare("SELECT groups.id FROM groups, currentitems WHERE groups.key = currentitems.group_key");
+        } else if (itemType == Cue) {
+            query.prepare("SELECT cues.id FROM cues, currentitems WHERE cues.key = currentitems.cue_key");
         } else {
-            currentIdPartKeys.append(key);
+            return QStringList();
         }
-        if (key == Plus) {
-            if (idParts.isEmpty()) {
-                return QStringList();
+        if (!query.exec()) {
+            qWarning() << Q_FUNC_INFO << query.lastError().text();
+            return QStringList();
+        }
+        while (query.next()) {
+            ids.append(query.value(0).toString());
+        }
+    } else {
+        if (!itemKeys.contains(itemType) && (itemType != Attribute)) {
+            return QStringList();
+        }
+        keys.append(Plus);
+        QStringList idParts;
+        QList<Key> currentIdPartKeys;
+        for (const Key key : keys) {
+            if ((key == Plus) || (key == Period)) {
+                bool ok;
+                const int idPart = keysToString(currentIdPartKeys).toInt(&ok);
+                if (!ok || (idPart < 0)) {
+                    return QStringList();
+                }
+                idParts.append(QString::number(idPart));
+                currentIdPartKeys.clear();
+            } else {
+                currentIdPartKeys.append(key);
             }
-            ids.append(idParts.join("."));
-            idParts.clear();
+            if (key == Plus) {
+                if (idParts.isEmpty()) {
+                    return QStringList();
+                }
+                ids.append(idParts.join("."));
+                idParts.clear();
+            }
         }
     }
     return ids;

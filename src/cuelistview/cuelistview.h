@@ -16,6 +16,8 @@ class CuelistView : public QWidget {
     Q_OBJECT
 public:
     CuelistView(QWidget *parent = nullptr);
+signals:
+    void dbChanged();
 public slots:
     void reload();
 private:

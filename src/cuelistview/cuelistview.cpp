@@ -80,4 +80,5 @@ void CuelistView::selectItem(const QString table, const QString currentItemsTabl
         qWarning() << Q_FUNC_INFO << currentSortkeyQuery.lastError().text();
         return;
     }
+    emit dbChanged();
 }

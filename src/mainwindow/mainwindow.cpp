@@ -18,6 +18,7 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     terminal = new Terminal();
     inspector = new Inspector();
     sacnServer = new SacnServer();
+    connect(cuelistView, &CuelistView::dbChanged, this, &MainWindow::reload);
     connect(terminal, &Terminal::dbChanged, this, &MainWindow::reload);
     connect(terminal, &Terminal::itemChanged, inspector, &Inspector::loadItem);
 
