@@ -13,9 +13,9 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
 
     QHBoxLayout* labelHeader = new QHBoxLayout();
     layout->addLayout(labelHeader);
-    cueLabel = new QLabel("No Cue selected.");
+    cueLabel = new QLabel();
     labelHeader->addWidget(cueLabel);
-    groupLabel = new QLabel("No Group selected.");
+    groupLabel = new QLabel();
     labelHeader->addWidget(groupLabel);
 
     QHBoxLayout *buttonHeader = new QHBoxLayout();
@@ -39,9 +39,33 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     new QShortcut(Qt::Key_Down, this, [this] { selectItem("groups", "group_key", true); });
     new QShortcut(Qt::SHIFT | Qt::Key_Space, this, [this] { selectItem("cues", "cue_key", false); });
     new QShortcut(Qt::Key_Space, this, [this] { selectItem("cues", "cue_key", true); });
+
+    reload();
 }
 
 void CuelistView::reload() {
+    QSqlQuery currentGroupQuery;
+    if (currentGroupQuery.exec("SELECT CONCAT('Group ', groups.id, ' ', groups.label) FROM groups, currentitems WHERE groups.key = currentitems.group_key")) {
+        if (currentGroupQuery.next()) {
+            groupLabel->setText(currentGroupQuery.value(0).toString());
+        } else {
+            groupLabel->setText("No Group Selected");
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << currentGroupQuery.lastError().text();
+        groupLabel->setText(QString());
+    }
+    QSqlQuery currentCueQuery;
+    if (currentCueQuery.exec("SELECT CONCAT('Cue ', cues.id, ' ', cues.label) FROM cues, currentitems WHERE cues.key = currentitems.cue_key")) {
+        if (currentCueQuery.next()) {
+            cueLabel->setText(currentCueQuery.value(0).toString());
+        } else {
+            cueLabel->setText("No Cue Selected");
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << currentCueQuery.lastError().text();
+        cueLabel->setText(QString());
+    }
     model->refresh();
 }
 

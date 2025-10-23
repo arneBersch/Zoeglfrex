@@ -1029,7 +1029,7 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
     emit dbChanged();
 }
 
-void Terminal::updatePrompt() {
+void Terminal::reload() {
     QList<Key> idKeys;
     bool append = true;
     for (const Key key : promptKeys) {
@@ -1044,14 +1044,16 @@ void Terminal::updatePrompt() {
         }
     }
     promptLabel->setText(keysToString(promptKeys));
-    if (!idKeys.isEmpty()) {
+    if (idKeys.isEmpty()) {
+        emit itemChanged(QString(), QStringList());
+    } else {
         emit itemChanged(keysToString({ idKeys.first() }), keysToIds(idKeys));
     }
 }
 
 void Terminal::writeKey(Key key) {
     promptKeys.append(key);
-    updatePrompt();
+    reload();
 }
 
 void Terminal::backspace() {
@@ -1059,12 +1061,12 @@ void Terminal::backspace() {
         return;
     }
     promptKeys.removeLast();
-    updatePrompt();
+    reload();
 }
 
 void Terminal::clearPrompt() {
     promptKeys.clear();
-    updatePrompt();
+    reload();
 }
 
 float Terminal::keysToFloat(QList<Key> keys, bool* ok) const {

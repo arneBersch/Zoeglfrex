@@ -60,6 +60,8 @@ public:
 signals:
     void dbChanged();
     void itemChanged(QString itemType, QStringList ids);
+public slots:
+    void reload();
 private:
     void execute();
     void updateSortingKeys(ItemInfos item);
@@ -76,7 +78,6 @@ private:
     float keysToFloat(QList<Key> keys, bool* ok) const;
     QStringList keysToIds(QList<Key> keys) const;
     QString keysToString(QList<Key> keys) const;
-    void updatePrompt();
     void writeKey(Key key);
     void backspace();
     void clearPrompt();

@@ -31,10 +31,9 @@ Inspector::Inspector(QWidget *parent) : QWidget(parent) {
 
     model = new QSqlQueryModel();
     list->setModel(model);
-    reload();
 }
 
-void Inspector::reload() {
+void Inspector::loadItems(const QString itemName, const QStringList ids) {
     QString table;
     if (itemName == "Model") {
         table = "models";
@@ -59,9 +58,10 @@ void Inspector::reload() {
     }
     QStringList infos;
     if (!table.isEmpty()) {
+        titleLabel->setText(itemName);
         model->setQuery("SELECT CONCAT(id, ' ', label) FROM " + table + " ORDER BY sortkey");
-        if (!itemIds.isEmpty()) {
-            const QString id = itemIds.last();
+        if (!ids.isEmpty()) {
+            const QString id = ids.last();
             const QString label = getTextAttribute(table, "label", id);
             if (!label.isEmpty()) {
                 infos.append(QString(AttributeIds::id) + " ID: " + id);
@@ -125,13 +125,6 @@ void Inspector::reload() {
         infosLabel->show();
     }
     model->refresh();
-}
-
-void Inspector::loadItem(QString name, QStringList ids) {
-    itemName = name;
-    itemIds = ids;
-    titleLabel->setText(name);
-    reload();
 }
 
 QString Inspector::getBoolAttribute(const QString table, const QString attribute, const QString id) const {

@@ -19,8 +19,7 @@ class Inspector : public QWidget {
 public:
     Inspector(QWidget *parent = nullptr);
 public slots:
-    void reload();
-    void loadItem(QString itemName, QStringList ids);
+    void loadItems(QString itemName, QStringList ids);
 private:
     QString getBoolAttribute(QString table, QString attribute, QString id) const;
     QString getTextAttribute(QString table, QString attribute, QString id) const;
@@ -30,8 +29,6 @@ private:
     QString getItemSpecificNumberAttribute(QString table, QString foreignItemsTable, QString exceptionTable, QString exceptionTableItemAttribute, QString exceptionTableForeignItemsAttribute, QString exceptionTableValueAttribute, QString unit, QString id) const;
     QString getItemSpecificItemAttribute(QString table, QString foreignItemTable, QString valueItemTable, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueItemAttribute, QString id) const;
     QSqlQueryModel* model;
-    QString itemName;
-    QStringList itemIds;
     QListView* list;
     QLabel* titleLabel;
     QLabel* infosLabel;

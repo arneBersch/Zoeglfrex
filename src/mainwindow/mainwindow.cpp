@@ -20,7 +20,7 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     sacnServer = new SacnServer();
     connect(cuelistView, &CuelistView::dbChanged, this, &MainWindow::reload);
     connect(terminal, &Terminal::dbChanged, this, &MainWindow::reload);
-    connect(terminal, &Terminal::itemChanged, inspector, &Inspector::loadItem);
+    connect(terminal, &Terminal::itemChanged, inspector, &Inspector::loadItems);
 
     new QShortcut(Qt::CTRL | Qt::Key_Q, this, [this] { close(); });
 
@@ -68,7 +68,7 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
 
 void MainWindow::reload() {
     cuelistView->reload();
-    inspector->reload();
+    terminal->reload();
 }
 
 void MainWindow::about() {
