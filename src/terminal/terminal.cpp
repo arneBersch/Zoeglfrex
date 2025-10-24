@@ -87,7 +87,7 @@ void Terminal::execute() {
     info("> " + keysToString(keys));
     clearPrompt();
 
-    Key selectionType = keys.first();
+    const Key selectionType = keys.first();
     keys.removeFirst();
 
     QList<Key> selectionIdKeys;
@@ -116,6 +116,48 @@ void Terminal::execute() {
             }
         }
     }
+    const QStringList ids = keysToIds(selectionIdKeys);
+    if (ids.isEmpty()) {
+        error("Invalid selection ID given.");
+        return;
+    }
+    if (attributeKeys.isEmpty() && valueKeys.isEmpty()) {
+        if (ids.size() != 1) {
+            error("Can't select multiple Items.");
+            return;
+        }
+        auto setCurrentItem = [this](const ItemInfos item, const QString id, const QString currentItemsTableKey) {
+            QSqlQuery keyQuery;
+            keyQuery.prepare("SELECT key FROM " + item.table + " WHERE id = :id");
+            keyQuery.bindValue(":id", id);
+            if (keyQuery.exec()) {
+                if (keyQuery.next()) {
+                    const int key = keyQuery.value(0).toInt();
+                    QSqlQuery updateQuery;
+                    updateQuery.prepare("UPDATE currentitems SET " + currentItemsTableKey + " = :key");
+                    updateQuery.bindValue(":key", key);
+                    if (!updateQuery.exec()) {
+                        error("Failed to select " + item.singular + ": " + updateQuery.lastError().text());
+                    }
+                    emit dbChanged();
+                } else {
+                    error("Can't select " + item.singular + " " + id + " because a " + item.singular + " with this ID doesn't exist.");
+                }
+            } else {
+                error("Can't select " + item.singular + " because the key request for " + item.singular + " " + id + " failed: " + keyQuery.lastError().text());
+            }
+        };
+        if (selectionType == Fixture) {
+            setCurrentItem(fixtureInfos, ids.first(), "fixture_key");
+        } else if (selectionType == Group) {
+            setCurrentItem(groupInfos, ids.first(), "group_key");
+        } else if (selectionType == Cuelist) {
+            setCurrentItem(cuelistInfos, ids.first(), "cuelist_key");
+        } else {
+            error("Can't select this Item type: " + keysToString({selectionType}));
+        }
+        return;
+    }
     QMap<Key, QStringList> attributes;
     if (!attributeKeys.isEmpty()) {
         attributeKeys.append(Attribute);
@@ -136,11 +178,6 @@ void Terminal::execute() {
             currentItemKeys.append(key);
         }
     }
-    const QStringList ids = keysToIds(selectionIdKeys);
-    if (ids.isEmpty()) {
-        error("Invalid selection ID given.");
-        return;
-    }
     QString attribute;
     if (attributes.value(Attribute, QStringList()).size() == 0) {
         attribute = QString();
@@ -150,17 +187,6 @@ void Terminal::execute() {
         error("Invalid number of Attribute IDs given.");
         return;
     }
-
-    const ItemInfos modelInfos = {"models", "Model", "Models", Model};
-    const ItemInfos fixtureInfos = {"fixtures", "Fixture", "Fixtures", Fixture};
-    const ItemInfos groupInfos = {"groups", "Group", "Groups", Group};
-    const ItemInfos intensityInfos = {"intensities", "Intensity", "Intensities", Intensity};
-    const ItemInfos colorInfos = {"colors", "Color", "Colors", Color};
-    const ItemInfos positionInfos = {"positions", "Position", "Positions", Position};
-    const ItemInfos rawInfos = {"raws", "Raw", "Raws", Raw};
-    const ItemInfos effectInfos = {"effects", "Effect", "Effects", Effect};
-    const ItemInfos cuelistInfos = {"cuelists", "Cuelist", "Cuelists", Cuelist};
-    const ItemInfos cueInfos = {"cues", "Cue", "Cues", Cue};
 
     if (selectionType == Model) {
         if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {

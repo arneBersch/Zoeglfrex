@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
         const QStringList createTableQueries = {
             "PRAGMA foreign_keys = ON",
             "CREATE TABLE models (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', channels TEXT DEFAULT 'D' NOT NULL, panrange REAL DEFAULT 540 NOT NULL, tiltrange REAL DEFAULT 270 NOT NULL, minzoom REAL DEFAULT 5 NOT NULL, maxzoom REAL DEFAULT 60 NOT NULL, PRIMARY KEY (key))",
-            "CREATE TABLE fixtures (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', model_key INTEGER REFERENCES models (key) ON DELETE SET NULL, universe INTEGER DEFAULT 1 NOT NULL, address INTEGER DEFAULT 0 NOT NULL, rotation REAL DEFAULT 0 NOT NULL, invertpan INTEGER DEFAULT 1 NOT NULL, PRIMARY KEY (key))",
+            "CREATE TABLE fixtures (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', model_key INTEGER REFERENCES models (key) ON DELETE SET NULL, universe INTEGER DEFAULT 1 NOT NULL, address INTEGER DEFAULT 0 NOT NULL, rotation REAL DEFAULT 0 NOT NULL, invertpan INTEGER DEFAULT 0 NOT NULL, PRIMARY KEY (key))",
             "CREATE TABLE groups (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', PRIMARY KEY (key))",
             "CREATE TABLE group_fixtures (group_key INTEGER REFERENCES groups (key) ON DELETE CASCADE, fixture_key INTEGER REFERENCES fixtures (key) ON DELETE CASCADE, PRIMARY KEY (group_key, fixture_key))",
             "CREATE TABLE intensities (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', dimmer REAL DEFAULT 0 NOT NULL, PRIMARY KEY (key))",

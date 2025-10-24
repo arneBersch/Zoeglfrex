@@ -50,6 +50,16 @@ private:
         QString plural;
         Key key;
     };
+    const ItemInfos modelInfos = {"models", "Model", "Models", Model};
+    const ItemInfos fixtureInfos = {"fixtures", "Fixture", "Fixtures", Fixture};
+    const ItemInfos groupInfos = {"groups", "Group", "Groups", Group};
+    const ItemInfos intensityInfos = {"intensities", "Intensity", "Intensities", Intensity};
+    const ItemInfos colorInfos = {"colors", "Color", "Colors", Color};
+    const ItemInfos positionInfos = {"positions", "Position", "Positions", Position};
+    const ItemInfos rawInfos = {"raws", "Raw", "Raws", Raw};
+    const ItemInfos effectInfos = {"effects", "Effect", "Effects", Effect};
+    const ItemInfos cuelistInfos = {"cuelists", "Cuelist", "Cuelists", Cuelist};
+    const ItemInfos cueInfos = {"cues", "Cue", "Cues", Cue};
 
 public:
     Terminal(QWidget *parent = nullptr);
