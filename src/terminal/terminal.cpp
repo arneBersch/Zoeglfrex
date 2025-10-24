@@ -1127,14 +1127,48 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
             ids.append(query.value(0).toString());
         }
     } else {
-        if (!itemKeys.contains(itemType) && (itemType != Attribute)) {
+        QStringList allIds;
+        QString table;
+        if (itemType == Model) {
+            table = modelInfos.table;
+        } else if (itemType == Fixture) {
+            table = fixtureInfos.table;
+        } else if (itemType == Group) {
+            table = groupInfos.table;
+        } else if (itemType == Intensity) {
+            table = intensityInfos.table;
+        } else if (itemType == Color) {
+            table = colorInfos.table;
+        } else if (itemType == Position) {
+            table = positionInfos.table;
+        } else if (itemType == Raw) {
+            table = rawInfos.table;
+        } else if (itemType == Effect) {
+            table = effectInfos.table;
+        } else if (itemType == Cuelist) {
+            table = cuelistInfos.table;
+        } else if (itemType == Cue) {
+            table = cueInfos.table;
+        } else if (itemType == Attribute) {
+        } else {
             return QStringList();
         }
+        if (!table.isEmpty()) {
+            QSqlQuery query;
+            if (query.exec("SELECT id FROM " + table)) {
+                while (query.next()) {
+                    allIds.append(query.value(0).toString());
+                }
+            } else {
+                qWarning() << Q_FUNC_INFO << query.lastError().text();
+            }
+        }
+
         keys.append(Plus);
         QStringList idParts;
         QList<Key> currentIdPartKeys;
         for (const Key key : keys) {
-            if ((key == Plus) || (key == Period)) {
+            if (key == Period) {
                 bool ok;
                 const int idPart = keysToString(currentIdPartKeys).toInt(&ok);
                 if (!ok || (idPart < 0)) {
@@ -1142,15 +1176,29 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                 }
                 idParts.append(QString::number(idPart));
                 currentIdPartKeys.clear();
+            } else if (key == Plus) {
+                if (currentIdPartKeys.isEmpty()) {
+                    for (QString id : allIds) {
+                        if (id.startsWith(idParts.join(".") + ".") || (id == idParts.join("."))) {
+                            ids.append(id);
+                        }
+                    }
+                } else {
+                    bool ok;
+                    const int idPart = keysToString(currentIdPartKeys).toInt(&ok);
+                    if (!ok || (idPart < 0)) {
+                        return QStringList();
+                    }
+                    idParts.append(QString::number(idPart));
+                    currentIdPartKeys.clear();
+                    if (idParts.isEmpty()) {
+                        return QStringList();
+                    }
+                    ids.append(idParts.join("."));
+                }
+                idParts.clear();
             } else {
                 currentIdPartKeys.append(key);
-            }
-            if (key == Plus) {
-                if (idParts.isEmpty()) {
-                    return QStringList();
-                }
-                ids.append(idParts.join("."));
-                idParts.clear();
             }
         }
     }
