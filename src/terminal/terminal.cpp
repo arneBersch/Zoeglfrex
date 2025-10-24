@@ -1108,7 +1108,9 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
     QStringList ids;
     if (keys.isEmpty()) {
         QSqlQuery query;
-        if (itemType == Fixture) {
+        if (itemType == Model) {
+            query.prepare("SELECT models.id FROM models, fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key AND models.key = fixtures.model_key");
+        } else if (itemType == Fixture) {
             query.prepare("SELECT fixtures.id FROM fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key");
         } else if (itemType == Group) {
             query.prepare("SELECT groups.id FROM groups, currentitems WHERE groups.key = currentitems.group_key");
