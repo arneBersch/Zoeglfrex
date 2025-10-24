@@ -1168,7 +1168,14 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
         QStringList idParts;
         QList<Key> currentIdPartKeys;
         for (const Key key : keys) {
-            if (key == Period) {
+            if ((key == Plus) && currentIdPartKeys.isEmpty()) {
+                for (QString id : allIds) {
+                    if (id.startsWith(idParts.join(".") + ".") || (id == idParts.join("."))) {
+                        ids.append(id);
+                    }
+                }
+                idParts.clear();
+            } else if ((key == Period) || (key == Plus)) {
                 bool ok;
                 const int idPart = keysToString(currentIdPartKeys).toInt(&ok);
                 if (!ok || (idPart < 0)) {
@@ -1176,27 +1183,13 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                 }
                 idParts.append(QString::number(idPart));
                 currentIdPartKeys.clear();
-            } else if (key == Plus) {
-                if (currentIdPartKeys.isEmpty()) {
-                    for (QString id : allIds) {
-                        if (id.startsWith(idParts.join(".") + ".") || (id == idParts.join("."))) {
-                            ids.append(id);
-                        }
-                    }
-                } else {
-                    bool ok;
-                    const int idPart = keysToString(currentIdPartKeys).toInt(&ok);
-                    if (!ok || (idPart < 0)) {
-                        return QStringList();
-                    }
-                    idParts.append(QString::number(idPart));
-                    currentIdPartKeys.clear();
+                if (key == Plus) {
                     if (idParts.isEmpty()) {
                         return QStringList();
                     }
                     ids.append(idParts.join("."));
+                    idParts.clear();
                 }
-                idParts.clear();
             } else {
                 currentIdPartKeys.append(key);
             }
