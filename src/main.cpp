@@ -90,8 +90,8 @@ int main(int argc, char *argv[]) {
             "CREATE TABLE cue_intensities (cue_key INTEGER REFERENCES cues (key) ON DELETE CASCADE, group_key INTEGER REFERENCES groups (key) ON DELETE CASCADE, intensity_key INTEGER REFERENCES intensities (key) ON DELETE CASCADE, PRIMARY KEY (cue_key, group_key))",
             "CREATE TABLE cue_colors (cue_key INTEGER REFERENCES cues (key) ON DELETE CASCADE, group_key INTEGER REFERENCES groups (key) ON DELETE CASCADE, color_key INTEGER REFERENCES colors (key) ON DELETE CASCADE, PRIMARY KEY (cue_key, group_key))",
             "CREATE TABLE cue_positions (cue_key INTEGER REFERENCES cues (key) ON DELETE CASCADE, group_key INTEGER REFERENCES groups (key) ON DELETE CASCADE, position_key INTEGER REFERENCES positions (key) ON DELETE CASCADE, PRIMARY KEY (cue_key, group_key))",
-            "CREATE TABLE currentitems (group_key INTEGER REFERENCES groups (key) ON DELETE SET NULL, fixture_key INTEGER REFERENCES fixtures (key) ON DELETE SET NULL, cuelist_key INTEGER REFERENCES cuelists (key) ON DELETE SET NULL, cue_key INTEGER REFERENCES cues (key) ON DELETE SET NULL, PRIMARY KEY (group_key, fixture_key, cuelist_key, cue_key))",
-            "INSERT INTO currentitems (group_key, fixture_key, cuelist_key, cue_key) VALUES (NULL, NULL, NULL, NULL)",
+            "CREATE TABLE currentitems (group_key INTEGER REFERENCES groups (key) ON DELETE SET NULL, fixture_key INTEGER REFERENCES fixtures (key) ON DELETE SET NULL, cuelist_key INTEGER REFERENCES cuelists (key) ON DELETE SET NULL, PRIMARY KEY (group_key, fixture_key, cuelist_key))",
+            "INSERT INTO currentitems (group_key, fixture_key, cuelist_key) VALUES (NULL, NULL, NULL)",
             "CREATE TABLE about (version TEXT PRIMARY KEY)",
             "INSERT INTO about (version) VALUES ('" + VERSION + "')",
         };

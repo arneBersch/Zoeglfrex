@@ -1082,10 +1082,12 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
     QStringList ids;
     if (keys.isEmpty()) {
         QSqlQuery query;
-        if (itemType == Group) {
+        if (itemType == Fixture) {
+            query.prepare("SELECT fixtures.id FROM fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key");
+        } else if (itemType == Group) {
             query.prepare("SELECT groups.id FROM groups, currentitems WHERE groups.key = currentitems.group_key");
-        } else if (itemType == Cue) {
-            query.prepare("SELECT cues.id FROM cues, currentitems WHERE cues.key = currentitems.cue_key");
+        } else if (itemType == Cuelist) {
+            query.prepare("SELECT cuelists.id FROM cuelists, currentitems WHERE cuelists.key = currentitems.cuelist_key");
         } else {
             return QStringList();
         }

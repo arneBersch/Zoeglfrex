@@ -24,8 +24,10 @@ private:
     void selectItem(QString table, QString currentItemsTableKey, bool next);
     QSqlQueryModel* model;
     QTableView *cuelistTableView;
-    QLabel *cueLabel;
-    QLabel *groupLabel;
+    QLabel* fixtureLabel;
+    QLabel* groupLabel;
+    QLabel* cueLabel;
+    QLabel* cuelistLabel;
 };
 
 #endif // CUELISTVIEW_H

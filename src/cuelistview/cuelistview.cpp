@@ -11,12 +11,16 @@
 CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    QHBoxLayout* labelHeader = new QHBoxLayout();
+    QGridLayout* labelHeader = new QGridLayout();
     layout->addLayout(labelHeader);
-    cueLabel = new QLabel();
-    labelHeader->addWidget(cueLabel);
+    fixtureLabel = new QLabel();
+    labelHeader->addWidget(fixtureLabel, 0, 0);
     groupLabel = new QLabel();
-    labelHeader->addWidget(groupLabel);
+    labelHeader->addWidget(groupLabel, 0, 1);
+    cuelistLabel = new QLabel();
+    labelHeader->addWidget(cuelistLabel, 1, 0);
+    cueLabel = new QLabel();
+    labelHeader->addWidget(cueLabel, 1, 1);
 
     QHBoxLayout *buttonHeader = new QHBoxLayout();
     layout->addLayout(buttonHeader);
@@ -35,37 +39,31 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     model->setHeaderData(1, Qt::Horizontal, "Label");
     cuelistTableView->setModel(model);
 
+    new QShortcut(Qt::Key_Left, this, [this] { selectItem("fixtures", "fixture_key", false); });
+    new QShortcut(Qt::Key_Right, this, [this] { selectItem("fixtures", "fixture_key", true); });
     new QShortcut(Qt::Key_Up, this, [this] { selectItem("groups", "group_key", false); });
     new QShortcut(Qt::Key_Down, this, [this] { selectItem("groups", "group_key", true); });
-    new QShortcut(Qt::SHIFT | Qt::Key_Space, this, [this] { selectItem("cues", "cue_key", false); });
-    new QShortcut(Qt::Key_Space, this, [this] { selectItem("cues", "cue_key", true); });
 
     reload();
 }
 
 void CuelistView::reload() {
-    QSqlQuery currentGroupQuery;
-    if (currentGroupQuery.exec("SELECT CONCAT('Group ', groups.id, ' ', groups.label) FROM groups, currentitems WHERE groups.key = currentitems.group_key")) {
-        if (currentGroupQuery.next()) {
-            groupLabel->setText(currentGroupQuery.value(0).toString());
+    auto setCurrentItemLabel = [](const QString table, const QString currentItemsTableKey, const QString itemName, QLabel* label) {
+        QSqlQuery query;
+        if (query.exec("SELECT CONCAT('" + itemName + " ', " + table + ".id, ': ', " + table + ".label) FROM " + table + ", currentitems WHERE " + table + ".key = currentitems." + currentItemsTableKey)) {
+            if (query.next()) {
+                label->setText(query.value(0).toString());
+            } else {
+                label->setText("No " + itemName + " selected.");
+            }
         } else {
-            groupLabel->setText("No Group Selected");
+            qWarning() << Q_FUNC_INFO << query.lastError().text();
+            label->setText(QString());
         }
-    } else {
-        qWarning() << Q_FUNC_INFO << currentGroupQuery.lastError().text();
-        groupLabel->setText(QString());
-    }
-    QSqlQuery currentCueQuery;
-    if (currentCueQuery.exec("SELECT CONCAT('Cue ', cues.id, ' ', cues.label) FROM cues, currentitems WHERE cues.key = currentitems.cue_key")) {
-        if (currentCueQuery.next()) {
-            cueLabel->setText(currentCueQuery.value(0).toString());
-        } else {
-            cueLabel->setText("No Cue Selected");
-        }
-    } else {
-        qWarning() << Q_FUNC_INFO << currentCueQuery.lastError().text();
-        cueLabel->setText(QString());
-    }
+    };
+    setCurrentItemLabel("fixtures", "fixture_key", "Fixture", fixtureLabel);
+    setCurrentItemLabel("groups", "group_key", "Group", groupLabel);
+    setCurrentItemLabel("cuelists", "cuelist_key", "Cuelist", cuelistLabel);
     model->refresh();
 }
 
