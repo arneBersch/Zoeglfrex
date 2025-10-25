@@ -61,7 +61,7 @@ void CuelistView::reload() {
             label->setText(QString());
         }
     };
-    setCurrentItemLabel("currentgroup_fixtures", "fixture_key", "Fixture", fixtureLabel);
+    setCurrentItemLabel("fixtures", "fixture_key", "Fixture", fixtureLabel);
     setCurrentItemLabel("groups", "group_key", "Group", groupLabel);
     setCurrentItemLabel("cuelists", "cuelist_key", "Cuelist", cuelistLabel);
     model->refresh();

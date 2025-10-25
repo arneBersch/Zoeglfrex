@@ -126,9 +126,9 @@ void Terminal::execute() {
             error("Can't select multiple Items.");
             return;
         }
-        auto setCurrentItem = [this](const ItemInfos item, const QString id, const QString currentItemsTableKey) {
+        auto setCurrentItem = [this](const ItemInfos item, const QString itemTable, const QString id, const QString currentItemsTableKey) {
             QSqlQuery keyQuery;
-            keyQuery.prepare("SELECT key FROM " + item.table + " WHERE id = :id");
+            keyQuery.prepare("SELECT key FROM " + itemTable + " WHERE id = :id");
             keyQuery.bindValue(":id", id);
             if (keyQuery.exec()) {
                 if (keyQuery.next()) {
@@ -141,18 +141,18 @@ void Terminal::execute() {
                     }
                     emit dbChanged();
                 } else {
-                    error("Can't select " + item.singular + " " + id + " because a " + item.singular + " with this ID doesn't exist.");
+                    error("Can't select " + item.singular + " " + id + ".");
                 }
             } else {
                 error("Can't select " + item.singular + " because the key request for " + item.singular + " " + id + " failed: " + keyQuery.lastError().text());
             }
         };
         if (selectionType == Fixture) {
-            setCurrentItem(fixtureInfos, ids.first(), "fixture_key");
+            setCurrentItem(fixtureInfos, "currentgroup_fixtures", ids.first(), "fixture_key");
         } else if (selectionType == Group) {
-            setCurrentItem(groupInfos, ids.first(), "group_key");
+            setCurrentItem(groupInfos, groupInfos.table, ids.first(), "group_key");
         } else if (selectionType == Cuelist) {
-            setCurrentItem(cuelistInfos, ids.first(), "cuelist_key");
+            setCurrentItem(cuelistInfos, cuelistInfos.table, ids.first(), "cuelist_key");
         } else {
             error("Can't select this Item type: " + keysToString({selectionType}));
         }
