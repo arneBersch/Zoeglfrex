@@ -39,8 +39,8 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     model->setHeaderData(1, Qt::Horizontal, "Label");
     cuelistTableView->setModel(model);
 
-    new QShortcut(Qt::Key_Left, this, [this] { selectItem("fixtures", "fixture_key", false); });
-    new QShortcut(Qt::Key_Right, this, [this] { selectItem("fixtures", "fixture_key", true); });
+    new QShortcut(Qt::Key_Left, this, [this] { selectItem("currentgroup_fixtures", "fixture_key", false); });
+    new QShortcut(Qt::Key_Right, this, [this] { selectItem("currentgroup_fixtures", "fixture_key", true); });
     new QShortcut(Qt::Key_Up, this, [this] { selectItem("groups", "group_key", false); });
     new QShortcut(Qt::Key_Down, this, [this] { selectItem("groups", "group_key", true); });
 
@@ -61,7 +61,7 @@ void CuelistView::reload() {
             label->setText(QString());
         }
     };
-    setCurrentItemLabel("fixtures", "fixture_key", "Fixture", fixtureLabel);
+    setCurrentItemLabel("currentgroup_fixtures", "fixture_key", "Fixture", fixtureLabel);
     setCurrentItemLabel("groups", "group_key", "Group", groupLabel);
     setCurrentItemLabel("cuelists", "cuelist_key", "Cuelist", cuelistLabel);
     model->refresh();
@@ -84,7 +84,7 @@ void CuelistView::selectItem(const QString table, const QString currentItemsTabl
         }
         keyQuery.bindValue(":sortkey", currentSortkey);
     } else {
-        keyQuery.prepare("SELECT key FROM " + table + " WHERE sortkey = 1");
+        keyQuery.prepare("SELECT key FROM " + table + " ORDER BY sortkey LIMIT 1");
     }
     if (!keyQuery.exec()) {
         qWarning() << Q_FUNC_INFO << keyQuery.lastError().text();
