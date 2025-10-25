@@ -92,6 +92,7 @@ int main(int argc, char *argv[]) {
             "CREATE TABLE cue_positions (cue_key INTEGER REFERENCES cues (key) ON DELETE CASCADE, group_key INTEGER REFERENCES groups (key) ON DELETE CASCADE, position_key INTEGER REFERENCES positions (key) ON DELETE CASCADE, PRIMARY KEY (cue_key, group_key))",
             "CREATE TABLE currentitems (group_key INTEGER REFERENCES groups (key) ON DELETE SET NULL, fixture_key INTEGER REFERENCES fixtures (key) ON DELETE SET NULL, cuelist_key INTEGER REFERENCES cuelists (key) ON DELETE SET NULL, PRIMARY KEY (group_key, fixture_key, cuelist_key))",
             "INSERT INTO currentitems (group_key, fixture_key, cuelist_key) VALUES (NULL, NULL, NULL)",
+            "CREATE TRIGGER resetfixture_trigger AFTER UPDATE OF group_key ON currentitems BEGIN UPDATE currentitems SET fixture_key = NULL; END",
             "CREATE TABLE about (version TEXT PRIMARY KEY)",
             "INSERT INTO about (version) VALUES ('" + VERSION + "')",
         };

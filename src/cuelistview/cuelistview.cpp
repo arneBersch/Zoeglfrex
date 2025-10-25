@@ -74,21 +74,20 @@ void CuelistView::selectItem(const QString table, const QString currentItemsTabl
         qWarning() << Q_FUNC_INFO << currentSortkeyQuery.lastError().text();
         return;
     }
-    int sortkey = 1;
-    if (next) {
-        if (currentSortkeyQuery.next()) {
-            sortkey = currentSortkeyQuery.value(0).toInt() + 1;
-        }
-    } else {
-        if (currentSortkeyQuery.next()) {
-            sortkey = currentSortkeyQuery.value(0).toInt() - 1;
-        }
-    }
     QSqlQuery keyQuery;
-    keyQuery.prepare("SELECT key FROM " + table + " WHERE sortkey = :sortkey");
-    keyQuery.bindValue(":sortkey", sortkey);
+    if (currentSortkeyQuery.next()) {
+        const int currentSortkey = currentSortkeyQuery.value(0).toInt();
+        if (next) {
+            keyQuery.prepare("SELECT key FROM " + table + " WHERE sortkey > :sortkey ORDER BY sortkey ASC LIMIT 1");
+        } else {
+            keyQuery.prepare("SELECT key FROM " + table + " WHERE sortkey < :sortkey ORDER BY sortkey DESC LIMIT 1");
+        }
+        keyQuery.bindValue(":sortkey", currentSortkey);
+    } else {
+        keyQuery.prepare("SELECT key FROM " + table + " WHERE sortkey = 1");
+    }
     if (!keyQuery.exec()) {
-        qWarning() << Q_FUNC_INFO << currentSortkeyQuery.lastError().text();
+        qWarning() << Q_FUNC_INFO << keyQuery.lastError().text();
         return;
     }
     if (!keyQuery.next()) {
@@ -99,7 +98,7 @@ void CuelistView::selectItem(const QString table, const QString currentItemsTabl
     updateQuery.prepare("UPDATE currentitems SET " + currentItemsTableKey + " = :key");
     updateQuery.bindValue(":key", key);
     if (!updateQuery.exec()) {
-        qWarning() << Q_FUNC_INFO << currentSortkeyQuery.lastError().text();
+        qWarning() << Q_FUNC_INFO << updateQuery.lastError().text();
         return;
     }
     emit dbChanged();
