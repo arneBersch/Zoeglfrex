@@ -22,6 +22,7 @@ public slots:
     void reload();
 private:
     void selectItem(QString table, QString currentItemsTableKey, bool next);
+    void deselectItem(QString currentItemsTableKey);
     QSqlQueryModel* model;
     QTableView *cuelistTableView;
     QLabel* fixtureLabel;

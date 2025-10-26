@@ -41,6 +41,7 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
 
     new QShortcut(Qt::Key_Left, this, [this] { selectItem("currentgroup_fixtures", "fixture_key", false); });
     new QShortcut(Qt::Key_Right, this, [this] { selectItem("currentgroup_fixtures", "fixture_key", true); });
+    new QShortcut(Qt::Key_Escape, this, [this] { deselectItem("fixture_key"); });
     new QShortcut(Qt::Key_Up, this, [this] { selectItem("groups", "group_key", false); });
     new QShortcut(Qt::Key_Down, this, [this] { selectItem("groups", "group_key", true); });
 
@@ -57,7 +58,7 @@ void CuelistView::reload() {
                 label->setText("No " + itemName + " selected.");
             }
         } else {
-            qWarning() << Q_FUNC_INFO << query.lastError().text();
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
             label->setText(QString());
         }
     };
@@ -71,7 +72,7 @@ void CuelistView::selectItem(const QString table, const QString currentItemsTabl
     QSqlQuery currentSortkeyQuery;
     currentSortkeyQuery.prepare("SELECT " + table + ".sortkey FROM currentitems, " + table + " WHERE currentitems." + currentItemsTableKey + " = " + table + ".key");
     if (!currentSortkeyQuery.exec()) {
-        qWarning() << Q_FUNC_INFO << currentSortkeyQuery.lastError().text();
+        qWarning() << Q_FUNC_INFO << currentSortkeyQuery.executedQuery() << currentSortkeyQuery.lastError().text();
         return;
     }
     QSqlQuery keyQuery;
@@ -87,7 +88,7 @@ void CuelistView::selectItem(const QString table, const QString currentItemsTabl
         keyQuery.prepare("SELECT key FROM " + table + " ORDER BY sortkey LIMIT 1");
     }
     if (!keyQuery.exec()) {
-        qWarning() << Q_FUNC_INFO << keyQuery.lastError().text();
+        qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
         return;
     }
     if (!keyQuery.next()) {
@@ -98,8 +99,16 @@ void CuelistView::selectItem(const QString table, const QString currentItemsTabl
     updateQuery.prepare("UPDATE currentitems SET " + currentItemsTableKey + " = :key");
     updateQuery.bindValue(":key", key);
     if (!updateQuery.exec()) {
-        qWarning() << Q_FUNC_INFO << updateQuery.lastError().text();
+        qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
         return;
+    }
+    emit dbChanged();
+}
+
+void CuelistView::deselectItem(const QString currentItemsTableKey) {
+    QSqlQuery query;
+    if (!query.exec("UPDATE currentitems SET " + currentItemsTableKey + " = NULL")) {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
     }
     emit dbChanged();
 }

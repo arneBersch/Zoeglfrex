@@ -50,7 +50,8 @@ int main(int argc, char *argv[]) {
     if (fileExists) {
         QSqlQuery versionQuery;
         if (!versionQuery.exec("SELECT version FROM about")) {
-            qFatal() << "Failed to check the version of the Zöglfrex file." << versionQuery.lastError().text();
+            qWarning() << Q_FUNC_INFO << versionQuery.executedQuery() << versionQuery.lastError().text();
+            qFatal() << "Failed to check the version of the Zöglfrex file.";
             return 1;
         }
         if (!versionQuery.next()) {
@@ -100,7 +101,8 @@ int main(int argc, char *argv[]) {
         for (QString createTableQuery : createTableQueries) {
             QSqlQuery query;
             if (!query.exec(createTableQuery)) {
-                qFatal() << "Failed to create or modify table." << query.lastError().text();
+                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                qFatal() << "Failed to create or modify table.";
                 return 1;
             }
         }

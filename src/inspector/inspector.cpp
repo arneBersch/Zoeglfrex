@@ -132,7 +132,7 @@ QString Inspector::getBoolAttribute(const QString table, const QString attribute
     query.prepare("SELECT " + attribute + " FROM " + table + " WHERE id = :id");
     query.bindValue(":id", id);
     if (!query.exec()) {
-        qWarning() << Q_FUNC_INFO << query.lastError().text();
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
     }
     if (!query.next()) {
@@ -152,7 +152,7 @@ QString Inspector::getTextAttribute(const QString table, const QString attribute
     query.prepare("SELECT " + attribute + " FROM " + table + " WHERE id = :id");
     query.bindValue(":id", id);
     if (!query.exec()) {
-        qWarning() << Q_FUNC_INFO << query.lastError().text();
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
     }
     if (!query.next()) {
@@ -166,7 +166,7 @@ QString Inspector::getNumberAttribute(const QString table, const QString attribu
     query.prepare("SELECT ROUND(" + attribute + ", 3) FROM " + table + " WHERE id = :id");
     query.bindValue(":id", id);
     if (!query.exec()) {
-        qWarning() << Q_FUNC_INFO << query.lastError().text();
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
     }
     if (!query.next()) {
@@ -180,7 +180,7 @@ QString Inspector::getItemAttribute(const QString table, const QString attribute
     query.prepare("SELECT CONCAT(" + foreignItemTable + ".id, ' ', " + foreignItemTable + ".label) FROM " + table + ", " + foreignItemTable + " WHERE " + table + "." + " id = :id AND " + table + "." + attribute + " = " + foreignItemTable + ".key");
     query.bindValue(":id", id);
     if (!query.exec()) {
-        qWarning() << Q_FUNC_INFO << query.lastError().text();
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
     }
     if (!query.next()) {
@@ -194,7 +194,7 @@ QString Inspector::getItemListAttribute(const QString table, const QString forei
     query.prepare("SELECT CONCAT(" + foreignItemsTable + ".id, ' ', " + foreignItemsTable + ".label) FROM " + table + ", " + listTable + ", " + foreignItemsTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + listTable + "." + listTableItemAttribute + " AND " + foreignItemsTable + ".key = " + listTable + "." + listTableForeignItemsAttribute + " ORDER BY " + foreignItemsTable + ".sortkey");
     query.bindValue(":id", id);
     if (!query.exec()) {
-        qWarning() << Q_FUNC_INFO << query.lastError().text();
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
     }
     QStringList itemIds;
@@ -209,7 +209,7 @@ QString Inspector::getItemSpecificNumberAttribute(const QString table, const QSt
     query.prepare("SELECT CONCAT(" + foreignItemsTable + ".id, ' ', " + foreignItemsTable + ".label), " + exceptionTable + "." + exceptionTableValueAttribute + " FROM " + table + ", " + exceptionTable + ", " + foreignItemsTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + exceptionTable + "." + exceptionTableItemAttribute + " AND " + foreignItemsTable + ".key = " + exceptionTable + "." + exceptionTableForeignItemsAttribute + " ORDER BY " + foreignItemsTable + ".sortkey");
     query.bindValue(":id", id);
     if (!query.exec()) {
-        qWarning() << Q_FUNC_INFO << query.lastError().text();
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
     }
     QStringList values;
@@ -224,7 +224,7 @@ QString Inspector::getItemSpecificItemAttribute(const QString table, const QStri
     query.prepare("SELECT CONCAT(" + foreignItemTable + ".id, ' ', " + foreignItemTable + ".label), CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + table + ", " + foreignItemTable + ", " + valueItemTable + ", " + valueTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + "." + valueTableItemAttribute + " AND " + foreignItemTable + ".key = " + valueTable + "." + valueTableForeignItemAttribute + " AND " + valueItemTable + ".key = " + valueTable + "." + valueTableValueItemAttribute + " ORDER BY " + foreignItemTable + ".sortkey");
     query.bindValue(":id", id);
     if (!query.exec()) {
-        qWarning() << Q_FUNC_INFO << query.lastError().text();
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
     }
     QStringList values;

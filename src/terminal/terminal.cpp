@@ -137,14 +137,16 @@ void Terminal::execute() {
                     updateQuery.prepare("UPDATE currentitems SET " + currentItemsTableKey + " = :key");
                     updateQuery.bindValue(":key", key);
                     if (!updateQuery.exec()) {
-                        error("Failed to select " + item.singular + ": " + updateQuery.lastError().text());
+                        qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
+                        error("Failed to select " + item.singular + ".");
                     }
                     emit dbChanged();
                 } else {
                     error("Can't select " + item.singular + " " + id + ".");
                 }
             } else {
-                error("Can't select " + item.singular + " because the key request for " + item.singular + " " + id + " failed: " + keyQuery.lastError().text());
+                qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
+                error("Can't select " + item.singular + " because the key request for " + item.singular + " " + id + " failed.");
             }
         };
         if (selectionType == Fixture) {
@@ -421,11 +423,13 @@ void Terminal::updateSortingKeys(const ItemInfos item) {
             query.bindValue(":id", id);
             query.bindValue(":sortkey", index);
             if (!query.exec()) {
-                error("Failed to update the sorting key of " + item.singular + " " + id + ": " + query.lastError().text());
+                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                error("Failed to update the sorting key of " + item.singular + " " + id + ".");
             }
         }
     } else {
-        error("Failed to update the " + item.singular + " sorting keys: " + idsQuery.lastError().text());
+        qWarning() << Q_FUNC_INFO << idsQuery.executedQuery() << idsQuery.lastError().text();
+        error("Failed to update the " + item.singular + " sorting keys.");
     }
 }
 
@@ -444,11 +448,13 @@ void Terminal::createItems(const ItemInfos item, QStringList ids) {
                 if (insertQuery.exec()) {
                     successfulIds.append(id);
                 } else {
-                    error("Failed to insert " + item.singular + " " + id + ":" + insertQuery.lastError().text());
+                    qWarning() << Q_FUNC_INFO << insertQuery.executedQuery() << insertQuery.lastError().text();
+                    error("Failed to insert " + item.singular + " " + id + ".");
                 }
             }
         } else {
-            error("Failed to check if " + item.singular + " " + id + " already exists: " + existsQuery.lastError().text());
+            qWarning() << Q_FUNC_INFO << existsQuery.executedQuery() << existsQuery.lastError().text();
+            error("Failed to check if " + item.singular + " " + id + " already exists.");
         }
     }
     if (successfulIds.size() == 1) {
@@ -474,13 +480,15 @@ void Terminal::deleteItems(const ItemInfos item, QStringList ids) {
                 if (deleteQuery.exec()) {
                     successfulIds.append(id);
                 } else {
-                    error("Can't delete " + item.singular + " because the request failed: " + deleteQuery.lastError().text());
+                    qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
+                    error("Can't delete " + item.singular + " because the request failed.");
                 }
             } else {
                 warning("Can't delete " + item.singular + " " + id + " because this " + item.singular + " doesn't exist.");
             }
         } else {
-            error("Couldn't delete " + item.singular + " " + id + ": " + existsQuery.lastError().text());
+            qWarning() << Q_FUNC_INFO << existsQuery.executedQuery() << existsQuery.lastError().text();
+            error("Couldn't delete " + item.singular + " " + id + ": ");
         }
     }
     if (successfulIds.size() == 1) {
@@ -517,11 +525,13 @@ void Terminal::moveItems(const ItemInfos item, QStringList ids, QList<Key> value
                 if (updateQuery.exec()) {
                     successfulIds.append(id);
                 } else {
-                    error("Failed to update ID of " + item.singular + " " + id + " because the request failed: " + updateQuery.lastError().text());
+                    qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
+                    error("Failed to update ID of " + item.singular + " " + id + " because the request failed.");
                 }
             }
         } else {
-            error("Error executing check if " + item.singular + " " + newIds.first() + " exists: " + existsQuery.lastError().text());
+            qWarning() << Q_FUNC_INFO << existsQuery.executedQuery() << existsQuery.lastError().text();
+            error("Error executing check if " + item.singular + " " + newIds.first() + " exists.");
         }
     }
     if (successfulIds.size() == 1) {
@@ -555,7 +565,8 @@ void Terminal::setBoolAttribute(const ItemInfos item, const QString attribute, c
         if (query.exec()) {
             successfulIds.append(id);
         } else {
-            error("Failed setting " + attributeName + " of " + item.singular + " " + id + ": " + query.lastError().text());
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+            error("Failed setting " + attributeName + " of " + item.singular + " " + id + ".");
         }
     }
     if (successfulIds.length() == 1) {
@@ -574,7 +585,8 @@ void Terminal::setTextAttribute(const ItemInfos item, const QString attribute, c
         query.prepare("SELECT " + attribute + " FROM " + item.table + " WHERE id = :id");
         query.bindValue(":id", ids.first());
         if (!query.exec()) {
-            error("Failed to load current " + attributeName + " of " + item.singular + " " + ids.first() + ": " + query.lastError().text());
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+            error("Failed to load current " + attributeName + " of " + item.singular + " " + ids.first() + ".");
             return;
         }
         while (query.next()) {
@@ -601,7 +613,8 @@ void Terminal::setTextAttribute(const ItemInfos item, const QString attribute, c
         if (query.exec()) {
             successfulIds.append(id);
         } else {
-            error("Failed setting " + attributeName + " of " + item.singular + " " + id + ": " + query.lastError().text());
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+            error("Failed setting " + attributeName + " of " + item.singular + " " + id + ".");
         }
     }
     if (successfulIds.length() == 1) {
@@ -669,7 +682,8 @@ template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, co
                     valueOk = false;
                 }
             } else {
-                error("Failed loading the current " + attributeName + " of " + item.singular + " " + id + ": " + currentValueQuery.lastError().text());
+                qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
+                error("Failed loading the current " + attributeName + " of " + item.singular + " " + id + ".");
                 valueOk = false;
             }
         }
@@ -681,7 +695,8 @@ template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, co
             if (query.exec()) {
                 successfulIds.append(id);
             } else {
-                error("Failed setting " + attributeName + " of " + item.singular + " " + id + ": " + query.lastError().text());
+                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                error("Failed setting " + attributeName + " of " + item.singular + " " + id + ".");
             }
         }
     }
@@ -712,7 +727,8 @@ void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, c
             if (query.exec()) {
                 successfulIds.append(id);
             } else {
-                error("Failed removing " + attributeName + " of " + item.singular + " " + id + ": " + query.lastError().text());
+                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                error("Failed removing " + attributeName + " of " + item.singular + " " + id + ".");
             }
         }
         if (successfulIds.length() == 1) {
@@ -734,7 +750,8 @@ void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, c
         foreignItemQuery.prepare("SELECT key FROM " + foreignItem.table + " WHERE id = :id");
         foreignItemQuery.bindValue(":id", foreignItemIds.first());
         if (!foreignItemQuery.exec()) {
-            error("Failed to execute check if " + foreignItem.singular + " exists: " + foreignItemQuery.lastError().text());
+            qWarning() << Q_FUNC_INFO << foreignItemQuery.executedQuery() << foreignItemQuery.lastError().text();
+            error("Failed to execute check if " + foreignItem.singular + " exists.");
             return;
         }
         if (!foreignItemQuery.next()) {
@@ -752,7 +769,8 @@ void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, c
             if (query.exec()) {
                 successfulIds.append(id);
             } else {
-                error("Failed setting " + attributeName + " of " + item.singular + " " + id + ": " + query.lastError().text());
+                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                error("Failed setting " + attributeName + " of " + item.singular + " " + id + ".");
             }
         }
         if (successfulIds.length() == 1) {
@@ -790,7 +808,8 @@ void Terminal::setItemListAttribute(const ItemInfos item, const QString attribut
                     warning("Can't add " + foreignItem.singular + " " + foreignItemId + " to " + item.singular + " " + attributeName + " because this " + foreignItem.singular + " doesn't exist.");
                 }
             } else {
-                error("Failed to execute check if " + foreignItem.singular + " " + foreignItemId + " exists: " + foreignItemQuery.lastError().text());
+                qWarning() << Q_FUNC_INFO << foreignItemQuery.executedQuery() << foreignItemQuery.lastError().text();
+                error("Failed to execute check if " + foreignItem.singular + " " + foreignItemId + " exists.");
             }
         }
         Q_ASSERT(foreignItemKeys.length() == foreignItemIdStrings.length());
@@ -820,17 +839,20 @@ void Terminal::setItemListAttribute(const ItemInfos item, const QString attribut
                         if (insertQuery.exec()) {
                             successfulIds.append(id);
                         } else {
-                            error("Failed to insert a " + foreignItem.singular + " into " + item.singular + " " + id + ": " + insertQuery.lastError().text());
+                            qWarning() << Q_FUNC_INFO << insertQuery.executedQuery() << insertQuery.lastError().text();
+                            error("Failed to insert a " + foreignItem.singular + " into " + item.singular + " " + id + ".");
                         }
                     }
                 } else {
-                    error("Failed deleting old " + attributeName + " of " + item.singular + " " + id + ": " + deleteQuery.lastError().text());
+                    qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
+                    error("Failed deleting old " + attributeName + " of " + item.singular + " " + id + ".");
                 }
             } else {
                 error("Failed loading " + item.singular  + id + " because this " + item.singular + " wasn't found.");
             }
         } else {
-            error("Failed loading " + item.singular + " " + id + ": " + keyQuery.lastError().text());
+            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
+            error("Failed loading " + item.singular + " " + id + ".");
         }
     }
     QString foreignItemString = foreignItem.plural + foreignItemIdStrings.join(", ");
@@ -885,7 +907,8 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
                 warning("Can't set " + attributeName + " for " + foreignItem.singular + " " + foreignItemId + " because this " + foreignItem.singular + " doesn't exist.");
             }
         } else {
-            error("Failed to execute check if " + foreignItem.singular + " " + foreignItemId + " exists: " + foreignItemQuery.lastError().text());
+            qWarning() << Q_FUNC_INFO << foreignItemQuery.executedQuery() << foreignItemQuery.lastError().text();
+            error("Failed to execute check if " + foreignItem.singular + " " + foreignItemId + " exists.");
         }
     }
     Q_ASSERT(foreignItemKeys.length() == foreignItemIdStrings.length());
@@ -915,7 +938,8 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
                     query.bindValue(":foreign_item", foreignItemKey);
                     if (!query.exec()) {
                         allQueriesSuccessful = false;
-                        error("Failed updating " + attributeName + " of " + item.singular + " " + id + ": " + query.lastError().text());
+                        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                        error("Failed updating " + attributeName + " of " + item.singular + " " + id + ".");
                     }
                 }
                 if (allQueriesSuccessful) {
@@ -925,7 +949,8 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
                 error("Failed loading " + item.singular  + id + " because this " + item.singular + " wasn't found.");
             }
         } else {
-            error("Failed loading " + item.singular + " " + id + ": " + keyQuery.lastError().text());
+            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
+            error("Failed loading " + item.singular + " " + id + ".");
         }
     }
     QString foreignItemString = foreignItem.plural + " " + foreignItemIdStrings.join(", ");
@@ -969,7 +994,8 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
         valueItemQuery.prepare("SELECT key FROM " + valueItem.table + " WHERE id = :id");
         valueItemQuery.bindValue(":id", valueItemId);
         if (!valueItemQuery.exec()) {
-            error("Failed to execute check if " + valueItem.singular + " exists: " + valueItemQuery.lastError().text());
+            qWarning() << Q_FUNC_INFO << valueItemQuery.executedQuery() << valueItemQuery.lastError().text();
+            error("Failed to execute check if " + valueItem.singular + " exists.");
             return;
         }
         if (!valueItemQuery.next()) {
@@ -992,7 +1018,8 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
                 warning("Can't set " + attributeName + " for " + foreignItem.singular + " " + foreignItemId + " because this " + foreignItem.singular + " doesn't exist.");
             }
         } else {
-            error("Failed to execute check if " + foreignItem.singular + " " + foreignItemId + " exists: " + foreignItemQuery.lastError().text());
+            qWarning() << Q_FUNC_INFO << foreignItemQuery.executedQuery() << foreignItemQuery.lastError().text();
+            error("Failed to execute check if " + foreignItem.singular + " " + foreignItemId + " exists.");
         }
     }
     Q_ASSERT(foreignItemKeys.size() == foreignItemIdStrings.size());
@@ -1022,7 +1049,8 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
                     query.bindValue(":foreign_item", foreignItemKey);
                     if (!query.exec()) {
                         allQueriesSuccessful = false;
-                        error("Failed updating old " + attributeName + " of " + item.singular + " " + id + ": " + query.lastError().text());
+                        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                        error("Failed updating old " + attributeName + " of " + item.singular + " " + id + ".");
                     }
                 }
                 if (allQueriesSuccessful) {
@@ -1032,7 +1060,8 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
                 error("Failed loading " + item.singular  + id + " because this " + item.singular + " wasn't found.");
             }
         } else {
-            error("Failed loading " + item.singular + " " + id + ": " + keyQuery.lastError().text());
+            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
+            error("Failed loading " + item.singular + " " + id + ".");
         }
     }
     QString foreignItemString = foreignItem.plural + " " + foreignItemIdStrings.join(", ");
@@ -1120,7 +1149,7 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
             return QStringList();
         }
         if (!query.exec()) {
-            qWarning() << Q_FUNC_INFO << query.lastError().text();
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
             return QStringList();
         }
         while (query.next()) {
@@ -1160,7 +1189,7 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                     allIds.append(query.value(0).toString());
                 }
             } else {
-                qWarning() << Q_FUNC_INFO << query.lastError().text();
+                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
             }
         }
 
