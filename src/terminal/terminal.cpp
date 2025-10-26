@@ -628,34 +628,18 @@ void Terminal::setTextAttribute(const ItemInfos item, const QString attribute, c
 template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QStringList ids, QList<Key> valueKeys, const NumberInfos number) {
     Q_ASSERT(!ids.isEmpty());
     const bool difference = valueKeys.startsWith(Plus);
-    if (difference) {
-        valueKeys.removeFirst();
-    }
-    bool ok;
-    T value = keysToFloat(valueKeys, &ok);
-    if (!ok) {
-        error("Invalid value given.");
-        return;
-    }
+    T value;
     if (!difference) {
-        if (number.cyclic) {
-            while (value < number.minValue) {
-                value += (number.maxValue - number.minValue);
-            }
-            while (value >= number.maxValue) {
-                value -= (number.maxValue - number.minValue);
-            }
-        } else {
-            if ((value < number.minValue) || (value > number.maxValue)) {
-                error(item.singular + " " + attribute + " has to be between " + QString::number(number.minValue) + " and " + QString::number(number.maxValue) + ".");
-                return;
-            }
+        bool ok;
+        value = keysToFloat(valueKeys, &ok, 0, number);
+        if (!ok) {
+            error("Invalid value given.");
+            return;
         }
     }
     createItems(item, ids);
     QStringList successfulIds;
     for (QString id : ids) {
-        T currentValue = value;
         bool valueOk = true;
         if (difference) {
             QSqlQuery currentValueQuery;
@@ -663,19 +647,9 @@ template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, co
             currentValueQuery.bindValue(":id", id);
             if (currentValueQuery.exec()) {
                 if (currentValueQuery.next()) {
-                    currentValue += currentValueQuery.value(0).toFloat();
-                    if (number.cyclic) {
-                        while (currentValue < number.minValue) {
-                            currentValue += (number.maxValue - number.minValue);
-                        }
-                        while (currentValue >= number.maxValue) {
-                            currentValue -= (number.maxValue - number.minValue);
-                        }
-                    } else {
-                        if ((currentValue < number.minValue) || (currentValue > number.maxValue)) {
-                            error(attributeName + " of " + item.singular + " " + id + " has to be between " + QString::number(number.minValue) + " and " + QString::number(number.maxValue) + ".");
-                            valueOk = false;
-                        }
+                    value = keysToFloat(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
+                    if (!valueOk) {
+                        error("Invalid value given for " + item.singular + " " + id + ".");
                     }
                 } else {
                     error("Failed loading the current " + attributeName + " of " + item.singular + " " + id + " because this " + item.singular + " doesn't exist.");
@@ -691,7 +665,7 @@ template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, co
             QSqlQuery query;
             query.prepare("UPDATE " + item.table + " SET " + attribute + " = :value WHERE id = :id");
             query.bindValue(":id", id);
-            query.bindValue(":value", currentValue);
+            query.bindValue(":value", value);
             if (query.exec()) {
                 successfulIds.append(id);
             } else {
@@ -872,31 +846,13 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
     Q_ASSERT(!foreignItemIds.isEmpty());
     const bool removeValues = ((valueKeys.size() == 1) && valueKeys.startsWith(Minus));
     const bool difference = valueKeys.startsWith(Plus);
-    if (difference) {
-        valueKeys.removeFirst();
-    }
     T value;
-    if (!removeValues) {
+    if (!removeValues && !difference) {
         bool ok;
-        value = keysToFloat(valueKeys, &ok);
+        value = keysToFloat(valueKeys, &ok, 0, number);
         if (!ok) {
             error("Invalid value given.");
             return;
-        }
-        if (!difference) {
-            if (number.cyclic) {
-                while (value < number.minValue) {
-                    value += (number.maxValue - number.minValue);
-                }
-                while (value >= number.maxValue) {
-                    value -= (number.maxValue - number.minValue);
-                }
-            } else {
-                if ((value < number.minValue) || (value > number.maxValue)) {
-                    error(item.singular + " " + attributeName + " has to be between " + QString::number(number.minValue) + " and " + QString::number(number.maxValue) + ".");
-                    return;
-                }
-            }
         }
     }
     QList<int> foreignItemKeys;
@@ -944,7 +900,6 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
                             error("Failed removing the " + attributeName + " of " + item.singular + " " + id + ".");
                         }
                     } else {
-                        T currentValue = value;
                         bool valueOk = true;
                         if (difference) {
                             QSqlQuery currentValueQuery;
@@ -953,20 +908,12 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
                             currentValueQuery.bindValue(":foreign_item", foreignItemKey);
                             if (currentValueQuery.exec()) {
                                 if (currentValueQuery.next()) {
-                                    currentValue += currentValueQuery.value(0).toFloat();
-                                    if (number.cyclic) {
-                                        while (currentValue < number.minValue) {
-                                            currentValue += (number.maxValue - number.minValue);
-                                        }
-                                        while (currentValue >= number.maxValue) {
-                                            currentValue -= (number.maxValue - number.minValue);
-                                        }
-                                    } else {
-                                        if ((currentValue < number.minValue) || (currentValue > number.maxValue)) {
-                                            error(attributeName + " of " + item.singular + " " + id + " has to be between " + QString::number(number.minValue) + " and " + QString::number(number.maxValue) + ".");
-                                            valueOk = false;
-                                        }
-                                    }
+                                    value = keysToFloat(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
+                                } else {
+                                    value = keysToFloat(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
+                                }
+                                if (!valueOk) {
+                                    error("Invalid value given for " + item.singular + " " + id + ".");
                                 }
                             } else {
                                 qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
@@ -979,7 +926,7 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
                             query.prepare("INSERT OR REPLACE INTO " + exceptionTable + " (" + exceptionTableItemAttribute + ", " + exceptionTableForeignItemAttribute + ", " + exceptionTableValueAttribute + ") VALUES (:item, :foreign_item, :value)");
                             query.bindValue(":item", itemKey);
                             query.bindValue(":foreign_item", foreignItemKey);
-                            query.bindValue(":value", currentValue);
+                            query.bindValue(":value", value);
                             if (!query.exec()) {
                                 allQueriesSuccessful = false;
                                 qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
@@ -1180,8 +1127,33 @@ void Terminal::clearPrompt() {
     reload();
 }
 
-float Terminal::keysToFloat(QList<Key> keys, bool* ok) const {
-    return keysToString(keys).replace(" ", "").toFloat(ok);
+float Terminal::keysToFloat(QList<Key> keys, bool* ok, const float currentValue, const NumberInfos number) const {
+    const bool difference = keys.startsWith(Plus);
+    if (difference) {
+        keys.removeFirst();
+    }
+    float value = keysToString(keys).replace(" ", "").toFloat(ok);
+    if (!(*ok)) {
+        return value;
+    }
+    if (difference) {
+        value += currentValue;
+    }
+    if (number.cyclic) {
+        while (value < number.minValue) {
+            value += (number.maxValue - number.minValue);
+        }
+        while (value >= number.maxValue) {
+            value -= (number.maxValue - number.minValue);
+        }
+    } else {
+        if ((value < number.minValue) || (value > number.maxValue)) {
+            (*ok) = false;
+            return value;
+        }
+    }
+    (*ok) = true;
+    return value;
 }
 
 QStringList Terminal::keysToIds(QList<Key> keys) const {
