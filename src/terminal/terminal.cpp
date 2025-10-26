@@ -164,7 +164,7 @@ void Terminal::execute() {
     if (!attributeKeys.isEmpty()) {
         attributeKeys.append(Attribute);
         QList<Key> currentItemKeys;
-        for (Key key : attributeKeys) {
+        for (const Key key : attributeKeys) {
             if (itemKeys.contains(key) || (key == Attribute)) {
                 if (!currentItemKeys.isEmpty()) {
                     Key currentItemType = currentItemKeys.first();
@@ -458,7 +458,7 @@ void Terminal::createItems(const ItemInfos item, QStringList ids) {
         }
     }
     if (successfulIds.size() == 1) {
-        success("Created " + item.singular + " " + successfulIds.first() + ".");
+        success("Created " + item.singular + " " + successfulIds.join(", ") + ".");
     } else if (successfulIds.size() > 1) {
         success("Created " + item.plural + " " + successfulIds.join(", ") + ".");
     }
@@ -468,7 +468,7 @@ void Terminal::createItems(const ItemInfos item, QStringList ids) {
 void Terminal::deleteItems(const ItemInfos item, QStringList ids) {
     Q_ASSERT(!ids.isEmpty());
     QStringList successfulIds;
-    for (QString id : ids) {
+     for (QString id : ids) {
         QSqlQuery existsQuery;
         existsQuery.prepare("SELECT sortkey FROM " + item.table + " WHERE id = :id");
         existsQuery.bindValue(":id", id);
@@ -492,7 +492,7 @@ void Terminal::deleteItems(const ItemInfos item, QStringList ids) {
         }
     }
     if (successfulIds.size() == 1) {
-        success("Deleted " + item.singular + " " + successfulIds.first() + ".");
+        success("Deleted " + item.singular + " " + successfulIds.join(", ") + ".");
     } else if (successfulIds.size() > 1) {
         success("Deleted " + item.plural + " " + successfulIds.join(", ") + ".");
     }
@@ -535,7 +535,7 @@ void Terminal::moveItems(const ItemInfos item, QStringList ids, QList<Key> value
         }
     }
     if (successfulIds.size() == 1) {
-        success("Set ID of " + item.singular + " " + successfulIds.first() + " to " + newIds.first() + ".");
+        success("Set ID of " + item.singular + " " + successfulIds.join(", ") + " to " + newIds.first() + ".");
     } else if (successfulIds.size() > 1) {
         success("Set ID of " + item.plural + " " + successfulIds.join(", ") + " to " + newIds.first() + ".");
     }
@@ -570,7 +570,7 @@ void Terminal::setBoolAttribute(const ItemInfos item, const QString attribute, c
         }
     }
     if (successfulIds.length() == 1) {
-        success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " to " + valueText + ".");
+        success("Set " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " to " + valueText + ".");
     } else if (successfulIds.length() > 1) {
         success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " to " + valueText + ".");
     }
@@ -618,7 +618,7 @@ void Terminal::setTextAttribute(const ItemInfos item, const QString attribute, c
         }
     }
     if (successfulIds.length() == 1) {
-        success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " to \"" + textValue + "\".");
+        success("Set " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " to \"" + textValue + "\".");
     } else if (successfulIds.length() > 1) {
         success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " to \"" + textValue + "\".");
     }
@@ -702,13 +702,13 @@ template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, co
     }
     if (difference) {
         if (successfulIds.length() == 1) {
-            success("Changed " + attributeName + " of " + item.singular + " " + successfulIds.first() + " by " + QString::number(value) + unit + ".");
+            success("Changed " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " by " + QString::number(value) + unit + ".");
         } else if (successfulIds.length() > 1) {
             success("Changed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " by " + QString::number(value) + unit + ".");
         }
     } else {
         if (successfulIds.length() == 1) {
-            success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " to " + QString::number(value) + unit + ".");
+            success("Set " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " to " + QString::number(value) + unit + ".");
         } else if (successfulIds.length() > 1) {
             success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " to " + QString::number(value) + unit + ".");
         }
@@ -732,7 +732,7 @@ void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, c
             }
         }
         if (successfulIds.length() == 1) {
-            success("Removed " + attributeName + " of " + item.singular + " " + successfulIds.first() + ".");
+            success("Removed " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + ".");
         } else if (successfulIds.length() > 1) {
             success("Removed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + ".");
         }
@@ -774,7 +774,7 @@ void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, c
             }
         }
         if (successfulIds.length() == 1) {
-            success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " to " + foreignItem.singular + " " + foreignItemIds.first() + ".");
+            success("Set " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " to " + foreignItem.singular + " " + foreignItemIds.first() + ".");
         } else if (successfulIds.length() > 1) {
             success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " to " + foreignItem.singular + " " + foreignItemIds.first() + ".");
         }
@@ -831,7 +831,7 @@ void Terminal::setItemListAttribute(const ItemInfos item, const QString attribut
                 deleteQuery.prepare("DELETE FROM " + listTable + " WHERE " + listTableItemAttribute + " =  :key");
                 deleteQuery.bindValue(":key", itemKey);
                 if (deleteQuery.exec()) {
-                    for (int foreignItemKey : foreignItemKeys) {
+                    for (const int foreignItemKey : foreignItemKeys) {
                         QSqlQuery insertQuery;
                         insertQuery.prepare("INSERT INTO " + listTable + " (" + listTableItemAttribute + ", " + listTableForeignItemsAttribute + ") VALUES (:item, :foreign_item)");
                         insertQuery.bindValue(":item", itemKey);
@@ -860,7 +860,7 @@ void Terminal::setItemListAttribute(const ItemInfos item, const QString attribut
         foreignItemString = foreignItem.singular + foreignItemIdStrings.join(", ");
     }
     if (successfulIds.length() == 1) {
-        success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " to " + foreignItemString + ".");
+        success("Set " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " to " + foreignItemString + ".");
     } else if (successfulIds.length() > 1) {
         success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " to " + foreignItemString + ".");
     }
@@ -871,6 +871,10 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(!foreignItemIds.isEmpty());
     const bool removeValues = ((valueKeys.size() == 1) && valueKeys.startsWith(Minus));
+    const bool difference = valueKeys.startsWith(Plus);
+    if (difference) {
+        valueKeys.removeFirst();
+    }
     T value;
     if (!removeValues) {
         bool ok;
@@ -879,17 +883,19 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
             error("Invalid value given.");
             return;
         }
-        if (cyclic) {
-            while (value < minValue) {
-                value += (maxValue - minValue);
-            }
-            while (value >= maxValue) {
-                value -= (maxValue - minValue);
-            }
-        } else {
-            if ((value < minValue) || (value > maxValue)) {
-                error(item.singular + " " + attributeName + " has to be between " + QString::number(minValue) + " and " + QString::number(maxValue) + ".");
-                return;
+        if (!difference) {
+            if (cyclic) {
+                while (value < minValue) {
+                    value += (maxValue - minValue);
+                }
+                while (value >= maxValue) {
+                    value -= (maxValue - minValue);
+                }
+            } else {
+                if ((value < minValue) || (value > maxValue)) {
+                    error(item.singular + " " + attributeName + " has to be between " + QString::number(minValue) + " and " + QString::number(maxValue) + ".");
+                    return;
+                }
             }
         }
     }
@@ -926,20 +932,62 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
             if (keyQuery.next()) {
                 const int itemKey = keyQuery.value(0).toInt();
                 bool allQueriesSuccessful = true;
-                for (int foreignItemKey : foreignItemKeys) {
-                    QSqlQuery query;
+                for (const int foreignItemKey : foreignItemKeys) {
                     if (removeValues) {
+                        QSqlQuery query;
                         query.prepare("DELETE FROM " + exceptionTable + " WHERE " + exceptionTableItemAttribute + " = :item AND " + exceptionTableForeignItemAttribute + " = :foreign_item");
+                        query.bindValue(":item", itemKey);
+                        query.bindValue(":foreign_item", foreignItemKey);
+                        if (!query.exec()) {
+                            allQueriesSuccessful = false;
+                            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                            error("Failed removing the " + attributeName + " of " + item.singular + " " + id + ".");
+                        }
                     } else {
-                        query.prepare("INSERT OR REPLACE INTO " + exceptionTable + " (" + exceptionTableItemAttribute + ", " + exceptionTableForeignItemAttribute + ", " + exceptionTableValueAttribute + ") VALUES (:item, :foreign_item, :value)");
-                        query.bindValue(":value", value);
-                    }
-                    query.bindValue(":item", itemKey);
-                    query.bindValue(":foreign_item", foreignItemKey);
-                    if (!query.exec()) {
-                        allQueriesSuccessful = false;
-                        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                        error("Failed updating " + attributeName + " of " + item.singular + " " + id + ".");
+                        T currentValue = value;
+                        bool valueOk = true;
+                        if (difference) {
+                            QSqlQuery currentValueQuery;
+                            currentValueQuery.prepare("SELECT " + exceptionTableValueAttribute + " FROM " + exceptionTable + " WHERE " + exceptionTableItemAttribute + " = :item AND " + exceptionTableForeignItemAttribute + " = :foreign_item");
+                            currentValueQuery.bindValue(":item", itemKey);
+                            currentValueQuery.bindValue(":foreign_item", foreignItemKey);
+                            if (currentValueQuery.exec()) {
+                                if (currentValueQuery.next()) {
+                                    currentValue += currentValueQuery.value(0).toFloat();
+                                    if (cyclic) {
+                                        while (currentValue < minValue) {
+                                            currentValue += (maxValue - minValue);
+                                        }
+                                        while (currentValue >= maxValue) {
+                                            currentValue -= (maxValue - minValue);
+                                        }
+                                    } else {
+                                        if ((currentValue < minValue) || (currentValue > maxValue)) {
+                                            error(attributeName + " of " + item.singular + " " + id + " has to be between " + QString::number(minValue) + " and " + QString::number(maxValue) + ".");
+                                            valueOk = false;
+                                        }
+                                    }
+                                }
+                            } else {
+                                qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
+                                error("Failed loading the current " + attributeName + " of " + item.singular + " " + id + ".");
+                                valueOk = false;
+                            }
+                        }
+                        if (valueOk) {
+                            QSqlQuery query;
+                            query.prepare("INSERT OR REPLACE INTO " + exceptionTable + " (" + exceptionTableItemAttribute + ", " + exceptionTableForeignItemAttribute + ", " + exceptionTableValueAttribute + ") VALUES (:item, :foreign_item, :value)");
+                            query.bindValue(":item", itemKey);
+                            query.bindValue(":foreign_item", foreignItemKey);
+                            query.bindValue(":value", currentValue);
+                            if (!query.exec()) {
+                                allQueriesSuccessful = false;
+                                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                                error("Failed removing the " + attributeName + " of " + item.singular + " " + id + ".");
+                            }
+                        } else {
+                            allQueriesSuccessful = false;
+                        }
                     }
                 }
                 if (allQueriesSuccessful) {
@@ -959,15 +1007,23 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
     }
     if (removeValues) {
         if (successfulIds.length() == 1) {
-            success("Removed " + attributeName + " of " + item.singular + " " + successfulIds.first() + " at " + foreignItemString + ".");
+            success("Removed " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " at " + foreignItemString + ".");
         } else if (successfulIds.length() > 1) {
             success("Removed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString + ".");
         }
     } else {
-        if (successfulIds.length() == 1) {
-            success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " at " + foreignItemString + " to " + QString::number(value) + unit + ".");
-        } else if (successfulIds.length() > 1) {
-            success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString + " to " + QString::number(value) + unit + ".");
+        if (difference) {
+            if (successfulIds.length() == 1) {
+                success("Changed " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " at " + foreignItemString + " by " + QString::number(value) + unit + ".");
+            } else if (successfulIds.length() > 1) {
+                success("Changed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString + " by " + QString::number(value) + unit + ".");
+            }
+        } else {
+            if (successfulIds.length() == 1) {
+                success("Set " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " at " + foreignItemString + " to " + QString::number(value) + unit + ".");
+            } else if (successfulIds.length() > 1) {
+                success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString + " to " + QString::number(value) + unit + ".");
+            }
         }
     }
     emit dbChanged();
@@ -1037,7 +1093,7 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
             if (keyQuery.next()) {
                 const int itemKey = keyQuery.value(0).toInt();
                 bool allQueriesSuccessful = true;
-                for (int foreignItemKey : foreignItemKeys) {
+                for (const int foreignItemKey : foreignItemKeys) {
                     QSqlQuery query;
                     if (removeValues) {
                         query.prepare("DELETE FROM " + valueTable + " WHERE " + valueTableItemAttribute + " =  :item AND " + valueTableForeignItemAttribute + " = :foreign_item");
@@ -1070,13 +1126,13 @@ void Terminal::setItemSpecificItemAttribute(const ItemInfos item, const QString 
     }
     if (removeValues) {
         if (successfulIds.length() == 1) {
-            success("Removed " + attributeName + " of " + item.singular + " " + successfulIds.first() + " at " + foreignItemString + ".");
+            success("Removed " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " at " + foreignItemString + ".");
         } else if (successfulIds.length() > 1) {
             success("Removed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString + ".");
         }
     } else {
         if (successfulIds.length() == 1) {
-            success("Set " + attributeName + " of " + item.singular + " " + successfulIds.first() + " at " + QString::number(foreignItemKeys.length()) + " " + foreignItemString + " to " + valueItem.singular + " " + valueItemId + ".");
+            success("Set " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " at " + QString::number(foreignItemKeys.length()) + " " + foreignItemString + " to " + valueItem.singular + " " + valueItemId + ".");
         } else if (successfulIds.length() > 1) {
             success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + QString::number(foreignItemKeys.length()) + " " + foreignItemString + " to " + valueItem.singular + " " + valueItemId + ".");
         }
