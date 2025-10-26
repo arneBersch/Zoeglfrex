@@ -200,13 +200,13 @@ void Terminal::execute() {
         } else if ((attribute == AttributeIds::modelChannels) || !attributes.contains(Attribute)) {
             setTextAttribute(modelInfos, "channels", "Channels", ids, "^[01DdRrGgBbWwCcMmYyPpTtZz]+$");
         } else if (attribute == AttributeIds::modelPanRange) {
-            setNumberAttribute<float>(modelInfos, "panrange", "Pan Range", ids, valueKeys, "°", 0, 360, true);
+            setNumberAttribute<float>(modelInfos, "panrange", "Pan Range", ids, valueKeys, {0, 3600, false, "°"});
         } else if (attribute == AttributeIds::modelTiltRange) {
-            setNumberAttribute<float>(modelInfos, "tiltrange", "Tilt Range", ids, valueKeys, "°", 0, 360, false);
+            setNumberAttribute<float>(modelInfos, "tiltrange", "Tilt Range", ids, valueKeys, {0, 360, false, "°"});
         } else if (attribute == AttributeIds::modelMinZoom) {
-            setNumberAttribute<float>(modelInfos, "minzoom", "Universe", ids, valueKeys, "°", 0, 180, false);
+            setNumberAttribute<float>(modelInfos, "minzoom", "Universe", ids, valueKeys, {0, 180, false, "°"});
         } else if (attribute == AttributeIds::modelMaxZoom) {
-            setNumberAttribute<float>(modelInfos, "maxzoom", "Universe", ids, valueKeys, "°", 0, 180, false);
+            setNumberAttribute<float>(modelInfos, "maxzoom", "Universe", ids, valueKeys, {0, 180, false, "°"});
         } else {
             error("Unknown Model Attribute.");
         }
@@ -220,11 +220,11 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::fixtureModel) {
             setItemAttribute(fixtureInfos, "model_key", "Model", ids, valueKeys, modelInfos);
         } else if (attribute == AttributeIds::fixtureUniverse) {
-            setNumberAttribute<int>(fixtureInfos, "universe", "Universe", ids, valueKeys, "", 1, 63999, false);
+            setNumberAttribute<int>(fixtureInfos, "universe", "Universe", ids, valueKeys, {1, 63999});
         } else if ((attribute == AttributeIds::fixtureAddress) || !attributes.contains(Attribute)) {
-            setNumberAttribute<int>(fixtureInfos, "address", "Address", ids, valueKeys, "", 0, 512, false);
+            setNumberAttribute<int>(fixtureInfos, "address", "Address", ids, valueKeys, {0, 512});
         } else if (attribute == AttributeIds::fixtureRotation) {
-            setNumberAttribute(fixtureInfos, "rotation", "Rotation", ids, valueKeys, "°", 0, 360, true);
+            setNumberAttribute<float>(fixtureInfos, "rotation", "Rotation", ids, valueKeys, angleInfos);
         } else if (attribute == AttributeIds::fixtureInvertPan) {
             setBoolAttribute(fixtureInfos, "invertpan", "Invert Pan", ids, valueKeys);
         } else {
@@ -251,11 +251,11 @@ void Terminal::execute() {
             setTextAttribute(intensityInfos, "label", "Label", ids, "");
         } else if ((attribute == AttributeIds::intensityDimmer) || !attributes.contains(Attribute)) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "intensity_model_dimmer", "intensity_key", "model_key", "dimmer", "%", 0, 100, false);
+                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "intensity_model_dimmer", "intensity_key", "model_key", "dimmer", percentageInfos);
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "intensity_fixture_dimmer", "intensity_key", "fixture_key", "dimmer", "%", 0, 100, false);
+                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "intensity_fixture_dimmer", "intensity_key", "fixture_key", "dimmer", percentageInfos);
             } else {
-                setNumberAttribute<float>(intensityInfos, "dimmer", "Dimmer", ids, valueKeys, "%", 0, 100, false);
+                setNumberAttribute<float>(intensityInfos, "dimmer", "Dimmer", ids, valueKeys, percentageInfos);
             }
         } else {
             error("Unknown Intensity Attribute.");
@@ -269,22 +269,22 @@ void Terminal::execute() {
             setTextAttribute(colorInfos, "label", "Label", ids, "");
         } else if ((attribute == AttributeIds::colorHue) || !attributes.contains(Attribute)) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_hue", "color_key", "model_key", "hue", "°", 0, 360, true);
+                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_hue", "color_key", "model_key", "hue", angleInfos);
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_hue", "color_key", "fixture_key", "hue", "°", 0, 360, true);
+                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_hue", "color_key", "fixture_key", "hue", angleInfos);
             } else {
-                setNumberAttribute<float>(colorInfos, "hue", "Hue", ids, valueKeys, "°", 0, 360, true);
+                setNumberAttribute<float>(colorInfos, "hue", "Hue", ids, valueKeys, angleInfos);
             }
         } else if (attribute == AttributeIds::colorSaturation) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_saturation", "color_key", "model_key", "saturation", "%", 0, 100, false);
+                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_saturation", "color_key", "model_key", "saturation", percentageInfos);
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_saturation", "color_key", "fixture_key", "saturation", "%", 0, 100, false);
+                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_saturation", "color_key", "fixture_key", "saturation", percentageInfos);
             } else {
-                setNumberAttribute<float>(colorInfos, "saturation", "Saturation", ids, valueKeys, "%", 0, 100, false);
+                setNumberAttribute<float>(colorInfos, "saturation", "Saturation", ids, valueKeys, percentageInfos);
             }
         } else if (attribute == AttributeIds::colorQuality) {
-            setNumberAttribute<float>(colorInfos, "quality", "Quality", ids, valueKeys, "%", 0, 100, false);
+            setNumberAttribute<float>(colorInfos, "quality", "Quality", ids, valueKeys, percentageInfos);
         } else {
             error("Unknown Color Attribute.");
         }
@@ -297,27 +297,27 @@ void Terminal::execute() {
             setTextAttribute(positionInfos, "label", "Label", ids, "");
         } else if ((attribute == AttributeIds::positionPan) || !attributes.contains(Attribute)) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_pan", "position_key", "model_key", "pan", "°", 0, 360, true);
+                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_pan", "position_key", "model_key", "pan", angleInfos);
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_pan", "position_key", "fixture_key", "pan", "°", 0, 360, true);
+                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_pan", "position_key", "fixture_key", "pan", angleInfos);
             } else {
-                setNumberAttribute<float>(positionInfos, "pan", "Pan", ids, valueKeys, "°", 0, 360, true);
+                setNumberAttribute<float>(positionInfos, "pan", "Pan", ids, valueKeys, angleInfos);
             }
         } else if (attribute == AttributeIds::positionTilt) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_tilt", "position_key", "model_key", "tilt", "°", -180, 180, false);
+                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_tilt", "position_key", "model_key", "tilt", {-180, 180, false, "°"});
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_tilt", "position_key", "fixture_key", "tilt", "°", -180, 180, false);
+                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_tilt", "position_key", "fixture_key", "tilt", {-180, 180, false, "°"});
             } else {
-                setNumberAttribute<float>(positionInfos, "tilt", "Tilt", ids, valueKeys, "°", -180, 180, false);
+                setNumberAttribute<float>(positionInfos, "tilt", "Tilt", ids, valueKeys, {-180, 180, false, "°"});
             }
         } else if (attribute == AttributeIds::positionZoom) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_zoom", "position_key", "model_key", "zoom", "°", 0, 180, false);
+                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_zoom", "position_key", "model_key", "zoom", {0, 180, false, "°"});
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_zoom", "position_key", "fixture_key", "zoom", "°", 0, 180, false);
+                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_zoom", "position_key", "fixture_key", "zoom", {0, 180, false, "°"});
             } else {
-                setNumberAttribute<float>(positionInfos, "zoom", "Zoom", ids, valueKeys, "°", 0, 180, false);
+                setNumberAttribute<float>(positionInfos, "zoom", "Zoom", ids, valueKeys, {0, 180, false, "°"});
             }
         } else {
             error("Unknown Position Attribute.");
@@ -340,7 +340,7 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(effectInfos, "label", "Label", ids, "");
         } else if ((attribute == AttributeIds::effectSteps) || !attributes.contains(Attribute)) {
-            setNumberAttribute<int>(effectInfos, "steps", "Steps", ids, valueKeys, "", 2, 99, false);
+            setNumberAttribute<int>(effectInfos, "steps", "Steps", ids, valueKeys, {2, 99});
         } else {
             error("Unknown Effect Attribute.");
         }
@@ -352,7 +352,7 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(cuelistInfos, "label", "Label", ids, "");
         } else if (attribute == AttributeIds::cuelistPriority) {
-            setNumberAttribute<int>(cuelistInfos, "priority", "Priority", ids, valueKeys, "", 1, 200, false);
+            setNumberAttribute<int>(cuelistInfos, "priority", "Priority", ids, valueKeys, {1, 200});
         } else if (attribute == AttributeIds::cuelistMoveWhileDark) {
             setBoolAttribute(cuelistInfos, "movewhiledark", "Move while Dark", ids, valueKeys);
         } else {
@@ -625,7 +625,7 @@ void Terminal::setTextAttribute(const ItemInfos item, const QString attribute, c
     emit dbChanged();
 }
 
-template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QStringList ids, QList<Key> valueKeys, const QString unit, const T minValue, const T maxValue, const bool cyclic) {
+template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QStringList ids, QList<Key> valueKeys, const NumberInfos number) {
     Q_ASSERT(!ids.isEmpty());
     const bool difference = valueKeys.startsWith(Plus);
     if (difference) {
@@ -638,16 +638,16 @@ template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, co
         return;
     }
     if (!difference) {
-        if (cyclic) {
-            while (value < minValue) {
-                value += (maxValue - minValue);
+        if (number.cyclic) {
+            while (value < number.minValue) {
+                value += (number.maxValue - number.minValue);
             }
-            while (value >= maxValue) {
-                value -= (maxValue - minValue);
+            while (value >= number.maxValue) {
+                value -= (number.maxValue - number.minValue);
             }
         } else {
-            if ((value < minValue) || (value > maxValue)) {
-                error(item.singular + " " + attribute + " has to be between " + QString::number(minValue) + " and " + QString::number(maxValue) + ".");
+            if ((value < number.minValue) || (value > number.maxValue)) {
+                error(item.singular + " " + attribute + " has to be between " + QString::number(number.minValue) + " and " + QString::number(number.maxValue) + ".");
                 return;
             }
         }
@@ -664,16 +664,16 @@ template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, co
             if (currentValueQuery.exec()) {
                 if (currentValueQuery.next()) {
                     currentValue += currentValueQuery.value(0).toFloat();
-                    if (cyclic) {
-                        while (currentValue < minValue) {
-                            currentValue += (maxValue - minValue);
+                    if (number.cyclic) {
+                        while (currentValue < number.minValue) {
+                            currentValue += (number.maxValue - number.minValue);
                         }
-                        while (currentValue >= maxValue) {
-                            currentValue -= (maxValue - minValue);
+                        while (currentValue >= number.maxValue) {
+                            currentValue -= (number.maxValue - number.minValue);
                         }
                     } else {
-                        if ((currentValue < minValue) || (currentValue > maxValue)) {
-                            error(attributeName + " of " + item.singular + " " + id + " has to be between " + QString::number(minValue) + " and " + QString::number(maxValue) + ".");
+                        if ((currentValue < number.minValue) || (currentValue > number.maxValue)) {
+                            error(attributeName + " of " + item.singular + " " + id + " has to be between " + QString::number(number.minValue) + " and " + QString::number(number.maxValue) + ".");
                             valueOk = false;
                         }
                     }
@@ -702,15 +702,15 @@ template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, co
     }
     if (difference) {
         if (successfulIds.length() == 1) {
-            success("Changed " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " by " + QString::number(value) + unit + ".");
+            success("Changed " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " by " + QString::number(value) + number.unit + ".");
         } else if (successfulIds.length() > 1) {
-            success("Changed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " by " + QString::number(value) + unit + ".");
+            success("Changed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " by " + QString::number(value) + number.unit + ".");
         }
     } else {
         if (successfulIds.length() == 1) {
-            success("Set " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " to " + QString::number(value) + unit + ".");
+            success("Set " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " to " + QString::number(value) + number.unit + ".");
         } else if (successfulIds.length() > 1) {
-            success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " to " + QString::number(value) + unit + ".");
+            success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " to " + QString::number(value) + number.unit + ".");
         }
     }
     emit dbChanged();
@@ -867,7 +867,7 @@ void Terminal::setItemListAttribute(const ItemInfos item, const QString attribut
     emit dbChanged();
 }
 
-template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, const ItemInfos foreignItem, const QString exceptionTable, const QString exceptionTableItemAttribute, const QString exceptionTableForeignItemAttribute, const QString exceptionTableValueAttribute, const QString unit, const T minValue, const T maxValue, const bool cyclic) {
+template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, const ItemInfos foreignItem, const QString exceptionTable, const QString exceptionTableItemAttribute, const QString exceptionTableForeignItemAttribute, const QString exceptionTableValueAttribute, const NumberInfos number) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(!foreignItemIds.isEmpty());
     const bool removeValues = ((valueKeys.size() == 1) && valueKeys.startsWith(Minus));
@@ -884,16 +884,16 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
             return;
         }
         if (!difference) {
-            if (cyclic) {
-                while (value < minValue) {
-                    value += (maxValue - minValue);
+            if (number.cyclic) {
+                while (value < number.minValue) {
+                    value += (number.maxValue - number.minValue);
                 }
-                while (value >= maxValue) {
-                    value -= (maxValue - minValue);
+                while (value >= number.maxValue) {
+                    value -= (number.maxValue - number.minValue);
                 }
             } else {
-                if ((value < minValue) || (value > maxValue)) {
-                    error(item.singular + " " + attributeName + " has to be between " + QString::number(minValue) + " and " + QString::number(maxValue) + ".");
+                if ((value < number.minValue) || (value > number.maxValue)) {
+                    error(item.singular + " " + attributeName + " has to be between " + QString::number(number.minValue) + " and " + QString::number(number.maxValue) + ".");
                     return;
                 }
             }
@@ -954,16 +954,16 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
                             if (currentValueQuery.exec()) {
                                 if (currentValueQuery.next()) {
                                     currentValue += currentValueQuery.value(0).toFloat();
-                                    if (cyclic) {
-                                        while (currentValue < minValue) {
-                                            currentValue += (maxValue - minValue);
+                                    if (number.cyclic) {
+                                        while (currentValue < number.minValue) {
+                                            currentValue += (number.maxValue - number.minValue);
                                         }
-                                        while (currentValue >= maxValue) {
-                                            currentValue -= (maxValue - minValue);
+                                        while (currentValue >= number.maxValue) {
+                                            currentValue -= (number.maxValue - number.minValue);
                                         }
                                     } else {
-                                        if ((currentValue < minValue) || (currentValue > maxValue)) {
-                                            error(attributeName + " of " + item.singular + " " + id + " has to be between " + QString::number(minValue) + " and " + QString::number(maxValue) + ".");
+                                        if ((currentValue < number.minValue) || (currentValue > number.maxValue)) {
+                                            error(attributeName + " of " + item.singular + " " + id + " has to be between " + QString::number(number.minValue) + " and " + QString::number(number.maxValue) + ".");
                                             valueOk = false;
                                         }
                                     }
@@ -1014,15 +1014,15 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
     } else {
         if (difference) {
             if (successfulIds.length() == 1) {
-                success("Changed " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " at " + foreignItemString + " by " + QString::number(value) + unit + ".");
+                success("Changed " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " at " + foreignItemString + " by " + QString::number(value) + number.unit + ".");
             } else if (successfulIds.length() > 1) {
-                success("Changed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString + " by " + QString::number(value) + unit + ".");
+                success("Changed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString + " by " + QString::number(value) + number.unit + ".");
             }
         } else {
             if (successfulIds.length() == 1) {
-                success("Set " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " at " + foreignItemString + " to " + QString::number(value) + unit + ".");
+                success("Set " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " at " + foreignItemString + " to " + QString::number(value) + number.unit + ".");
             } else if (successfulIds.length() > 1) {
-                success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString + " to " + QString::number(value) + unit + ".");
+                success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString + " to " + QString::number(value) + number.unit + ".");
             }
         }
     }

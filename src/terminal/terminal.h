@@ -61,6 +61,15 @@ private:
     const ItemInfos cuelistInfos = {"cuelists", "Cuelist", "Cuelists", Cuelist};
     const ItemInfos cueInfos = {"cues", "Cue", "Cues", Cue};
 
+    struct NumberInfos {
+        float minValue;
+        float maxValue;
+        bool cyclic = false;
+        QString unit = QString();
+    };
+    const NumberInfos percentageInfos = {0, 100, false, "%"};
+    const NumberInfos angleInfos = {0, 360, true, "°"};
+
 public:
     Terminal(QWidget *parent = nullptr);
     void info(QString message);
@@ -80,10 +89,10 @@ private:
     void moveItems(ItemInfos item, QStringList ids, QList<Key> valueKeys);
     void setBoolAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QList<Key> valueKeys);
     void setTextAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QString regex);
-    template <typename T> void setNumberAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QList<Key> valueKeys, QString unit, T minValue, T maxValue, bool cyclic);
+    template <typename T> void setNumberAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QList<Key> valueKeys, NumberInfos number);
     void setItemAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QList<Key> valueKeys, ItemInfos foreignItem);
     void setItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QList<Key> valueKeys, ItemInfos foreignItem, QString listTable, QString listTableItemAttribute, QString listTableForeignItemsAttribute);
-    template <typename T> void setItemSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, QString exceptionTable, QString exceptionTableItemAttribute, QString exceptionTableForeignItemAttribute, QString exceptionTableValueAttribute, QString unit, T minValue, T maxValue, bool cyclic);
+    template <typename T> void setItemSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, QString exceptionTable, QString exceptionTableItemAttribute, QString exceptionTableForeignItemAttribute, QString exceptionTableValueAttribute, NumberInfos number);
     void setItemSpecificItemAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, ItemInfos valueItem, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueAttribute);
     float keysToFloat(QList<Key> keys, bool* ok) const;
     QStringList keysToIds(QList<Key> keys) const;
