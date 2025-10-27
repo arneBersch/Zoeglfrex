@@ -51,6 +51,8 @@ const char* const cuelistMoveWhileDark = "3";
 const char* const cueIntensities = "2";
 const char* const cueColors = "3";
 const char* const cuePositions = "4";
+const char* const cueRaws = "5";
+const char* const cueEffects = "6";
 }
 
 #endif // CONSTANTS_H
