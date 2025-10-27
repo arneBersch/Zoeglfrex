@@ -16,16 +16,16 @@ const char* const id = "0";
 const char* const label = "1";
 
 const char* const modelChannels = "2";
-const char* const modelPanRange = "3";
-const char* const modelTiltRange = "4";
-const char* const modelMinZoom = "5";
-const char* const modelMaxZoom = "6";
+const char* const modelPanRange = "3.1";
+const char* const modelTiltRange = "3.2";
+const char* const modelMinZoom = "4.1";
+const char* const modelMaxZoom = "4.2";
 
 const char* const fixtureModel = "2";
-const char* const fixtureUniverse = "3";
-const char* const fixtureAddress = "4";
-const char* const fixtureRotation = "5";
-const char* const fixtureInvertPan = "6";
+const char* const fixtureUniverse = "3.1";
+const char* const fixtureAddress = "3.2";
+const char* const fixtureRotation = "4.1";
+const char* const fixtureInvertPan = "4.2";
 
 const char* const groupFixtures = "2";
 
@@ -38,6 +38,7 @@ const char* const colorQuality = "4";
 const char* const positionPan = "2";
 const char* const positionTilt = "3";
 const char* const positionZoom = "4";
+const char* const positionFocus = "5";
 
 const char* const effectSteps = "2";
 

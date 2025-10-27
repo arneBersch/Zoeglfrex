@@ -104,6 +104,9 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append(QString(AttributeIds::positionZoom) + " Zoom: " + getNumberAttribute(table, "zoom", id, "°"));
                     infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "position_model_zoom", "position_key", "model_key", "zoom", "°", id));
                     infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "position_fixture_zoom", "position_key", "fixture_key", "zoom", "°", id));
+                    infos.append(QString(AttributeIds::positionFocus) + " Focus: " + getNumberAttribute(table, "focus", id, "%"));
+                    infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "position_model_focus", "position_key", "model_key", "focus", "%", id));
+                    infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "position_fixture_focus", "position_key", "fixture_key", "focus", "%", id));
                 } else if (table == "raws") {
                 } else if (table == "effects") {
                     infos.append(QString(AttributeIds::effectSteps) + " Steps: " + getNumberAttribute(table, "steps", id, ""));

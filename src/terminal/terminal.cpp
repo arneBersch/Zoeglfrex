@@ -200,7 +200,7 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(modelInfos, "label", "Label", ids, "");
         } else if ((attribute == AttributeIds::modelChannels) || !attributes.contains(Attribute)) {
-            setTextAttribute(modelInfos, "channels", "Channels", ids, "^[01DdRrGgBbWwCcMmYyPpTtZz]+$");
+            setTextAttribute(modelInfos, "channels", "Channels", ids, "^[01DdRrGgBbWwCcMmYyPpTtZzFf]+$");
         } else if (attribute == AttributeIds::modelPanRange) {
             setNumberAttribute<float>(modelInfos, "panrange", "Pan Range", ids, valueKeys, {0, 3600, false, "°"});
         } else if (attribute == AttributeIds::modelTiltRange) {
@@ -320,6 +320,14 @@ void Terminal::execute() {
                 setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_zoom", "position_key", "fixture_key", "zoom", {0, 180, false, "°"});
             } else {
                 setNumberAttribute<float>(positionInfos, "zoom", "Zoom", ids, valueKeys, {0, 180, false, "°"});
+            }
+        } else if (attribute == AttributeIds::positionFocus) {
+            if (attributes.contains(Model)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Focus Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_focus", "position_key", "model_key", "focus", percentageInfos);
+            } else if (attributes.contains(Fixture)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Focus Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_focus", "position_key", "fixture_key", "focus", percentageInfos);
+            } else {
+                setNumberAttribute<float>(positionInfos, "focus", "Focus", ids, valueKeys, percentageInfos);
             }
         } else {
             error("Unknown Position Attribute.");

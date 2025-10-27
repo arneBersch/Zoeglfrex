@@ -14,5 +14,8 @@
 QPushButton, QComboBox, QTextEdit, QSpinBox, QLineEdit, QHeaderView, QScrollBar, QMenu {
     background-color: #303030;
     border-radius: 0px;
+}
+
+QPushButton, QComboBox, QTextEdit, QSpinBox, QLineEdit {
     padding: 10px;
 }
