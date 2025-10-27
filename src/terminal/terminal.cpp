@@ -259,6 +259,8 @@ void Terminal::execute() {
             } else {
                 setNumberAttribute<float>(intensityInfos, "dimmer", "Dimmer", ids, valueKeys, percentageInfos);
             }
+        } else if (attribute == AttributeIds::intensityRaws) {
+            setItemListAttribute(intensityInfos, "Raws", ids, valueKeys, rawInfos, "intensity_raws", "intensity_key", "raw_key");
         } else {
             error("Unknown Intensity Attribute.");
         }
@@ -287,6 +289,8 @@ void Terminal::execute() {
             }
         } else if (attribute == AttributeIds::colorQuality) {
             setNumberAttribute<float>(colorInfos, "quality", "Quality", ids, valueKeys, percentageInfos);
+        } else if (attribute == AttributeIds::colorRaws) {
+            setItemListAttribute(colorInfos, "Raws", ids, valueKeys, rawInfos, "color_raws", "color_key", "raw_key");
         } else {
             error("Unknown Color Attribute.");
         }
@@ -329,6 +333,8 @@ void Terminal::execute() {
             } else {
                 setNumberAttribute<float>(positionInfos, "focus", "Focus", ids, valueKeys, percentageInfos);
             }
+        } else if (attribute == AttributeIds::positionRaws) {
+            setItemListAttribute(positionInfos, "Raws", ids, valueKeys, rawInfos, "position_raws", "position_key", "raw_key");
         } else {
             error("Unknown Position Attribute.");
         }

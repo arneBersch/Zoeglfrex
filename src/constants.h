@@ -30,15 +30,18 @@ const char* const fixtureInvertPan = "4.2";
 const char* const groupFixtures = "2";
 
 const char* const intensityDimmer = "2";
+const char* const intensityRaws = "3";
 
 const char* const colorHue = "2";
 const char* const colorSaturation = "3";
 const char* const colorQuality = "4";
+const char* const colorRaws = "5";
 
 const char* const positionPan = "2";
 const char* const positionTilt = "3";
 const char* const positionZoom = "4";
 const char* const positionFocus = "5";
+const char* const positionRaws = "6";
 
 const char* const effectSteps = "2";
 

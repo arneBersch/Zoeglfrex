@@ -86,6 +86,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append(QString(AttributeIds::intensityDimmer) + " Dimmer: " + getNumberAttribute(table, "dimmer", id, "%"));
                     infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "intensity_model_dimmer", "intensity_key", "model_key", "dimmer", "%", id));
                     infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "intensity_fixture_dimmer", "intensity_key", "fixture_key", "dimmer", "%", id));
+                    infos.append(QString(AttributeIds::intensityRaws) + " Raws: " + getItemListAttribute(table, "raws", "intensity_raws", "intensity_key", "raw_key", id));
                 } else if (table == "colors") {
                     infos.append(QString(AttributeIds::colorHue) + " Hue: " + getNumberAttribute(table, "hue", id, "°"));
                     infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "color_model_hue", "color_key", "model_key", "hue", "°", id));
@@ -94,6 +95,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "color_model_saturation", "color_key", "model_key", "saturation", "%", id));
                     infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "color_fixture_saturation", "color_key", "fixture_key", "saturation", "%", id));
                     infos.append(QString(AttributeIds::colorQuality) + " Quality: " + getNumberAttribute(table, "quality", id, "%"));
+                    infos.append(QString(AttributeIds::colorRaws) + " Raws: " + getItemListAttribute(table, "raws", "color_raws", "color_key", "raw_key", id));
                 } else if (table == "positions") {
                     infos.append(QString(AttributeIds::positionPan) + " Pan: " + getNumberAttribute(table, "pan", id, "°"));
                     infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "position_model_pan", "position_key", "model_key", "pan", "°", id));
@@ -107,6 +109,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append(QString(AttributeIds::positionFocus) + " Focus: " + getNumberAttribute(table, "focus", id, "%"));
                     infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "position_model_focus", "position_key", "model_key", "focus", "%", id));
                     infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "position_fixture_focus", "position_key", "fixture_key", "focus", "%", id));
+                    infos.append(QString(AttributeIds::positionRaws) + " Raws: " + getItemListAttribute(table, "raws", "position_raws", "position_key", "raw_key", id));
                 } else if (table == "raws") {
                 } else if (table == "effects") {
                     infos.append(QString(AttributeIds::effectSteps) + " Steps: " + getNumberAttribute(table, "steps", id, ""));
