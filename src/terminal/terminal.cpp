@@ -1164,11 +1164,26 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
     keys.removeFirst();
     QStringList ids;
     if (keys.isEmpty()) {
+        QSqlQuery currentFixtureQuery;
+        bool currentFixture = false;
+        if (currentFixtureQuery.exec("SELECT fixtures.id FROM fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key")) {
+            currentFixture = currentFixtureQuery.next();
+        } else {
+            qWarning() << Q_FUNC_INFO << currentFixtureQuery.executedQuery() << currentFixtureQuery.lastError().text();
+        }
         QSqlQuery query;
         if (itemType == Model) {
-            query.prepare("SELECT models.id FROM models, fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key AND models.key = fixtures.model_key");
+            if (currentFixture) {
+                query.prepare("SELECT models.id FROM models, fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key AND models.key = fixtures.model_key");
+            } else {
+                query.prepare("SELECT models.id FROM models, fixtures, currentitems, group_fixtures WHERE fixtures.key = group_fixtures.fixture_key AND currentitems.group_key = group_fixtures.group_key AND fixtures.model_key = models.key");
+            }
         } else if (itemType == Fixture) {
-            query.prepare("SELECT fixtures.id FROM fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key");
+            if (currentFixture) {
+                query.prepare("SELECT fixtures.id FROM fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key");
+            } else {
+                query.prepare("SELECT fixtures.id FROM fixtures, currentitems, group_fixtures WHERE fixtures.key = group_fixtures.fixture_key AND currentitems.group_key = group_fixtures.group_key");
+            }
         } else if (itemType == Group) {
             query.prepare("SELECT groups.id FROM groups, currentitems WHERE groups.key = currentitems.group_key");
         } else if (itemType == Cuelist) {
@@ -1176,12 +1191,12 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
         } else {
             return QStringList();
         }
-        if (!query.exec()) {
+        if (query.exec()) {
+            while (query.next()) {
+                ids.append(query.value(0).toString());
+            }
+        } else {
             qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-            return QStringList();
-        }
-        while (query.next()) {
-            ids.append(query.value(0).toString());
         }
     } else {
         QStringList allIds;
