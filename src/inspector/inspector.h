@@ -13,6 +13,7 @@
 #include <QtSql>
 
 #include "constants.h"
+#include "itemtablemodel.h"
 
 class Inspector : public QWidget {
     Q_OBJECT
@@ -28,8 +29,8 @@ private:
     QString getItemListAttribute(QString table, QString foreignItemsTable, QString listTable, QString listTableItemAttribute, QString listTableForeignItemsAttribute, QString id) const;
     QString getItemSpecificNumberAttribute(QString table, QString foreignItemsTable, QString exceptionTable, QString exceptionTableItemAttribute, QString exceptionTableForeignItemsAttribute, QString exceptionTableValueAttribute, QString unit, QString id) const;
     QString getItemSpecificItemAttribute(QString table, QString foreignItemTable, QString valueItemTable, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueItemAttribute, QString id) const;
-    QSqlQueryModel* model;
-    QListView* list;
+    ItemTableModel* model;
+    QTableView* table;
     QLabel* titleLabel;
     QLabel* infosLabel;
 };

@@ -15,6 +15,7 @@ SOURCES += \
     aboutwindow/aboutwindow.cpp \
     cuelistview/cuelistview.cpp \
     inspector/inspector.cpp \
+    inspector/itemtablemodel.cpp \
     main.cpp \
     mainwindow/mainwindow.cpp \
     sacnserver/sacnserver.cpp \
@@ -25,6 +26,7 @@ HEADERS += \
     constants.h \
     cuelistview/cuelistview.h \
     inspector/inspector.h \
+    inspector/itemtablemodel.h \
     mainwindow/mainwindow.h \
     sacnserver/sacnserver.h \
     terminal/terminal.h

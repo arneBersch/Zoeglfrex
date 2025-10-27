@@ -17,11 +17,13 @@ Inspector::Inspector(QWidget *parent) : QWidget(parent) {
     titleLabel->setFont(titleFont);
     layout->addWidget(titleLabel);
 
-    list = new QListView();
-    list->setSelectionMode(QAbstractItemView::NoSelection);
-    list->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    list->setFocusPolicy(Qt::NoFocus);
-    layout->addWidget(list);
+    table = new QTableView();
+    table->setSelectionMode(QAbstractItemView::NoSelection);
+    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    table->setFocusPolicy(Qt::NoFocus);
+    table->verticalHeader()->hide();
+    table->horizontalHeader()->setStretchLastSection(true);
+    layout->addWidget(table);
 
     infosLabel = new QLabel();
     infosLabel->setWordWrap(true);
@@ -29,8 +31,8 @@ Inspector::Inspector(QWidget *parent) : QWidget(parent) {
     layout->addWidget(infosLabel);
     infosLabel->hide();
 
-    model = new QSqlQueryModel();
-    list->setModel(model);
+    model = new ItemTableModel();
+    table->setModel(model);
 }
 
 void Inspector::loadItems(const QString itemName, const QStringList ids) {
@@ -59,7 +61,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
     QStringList infos;
     if (!table.isEmpty()) {
         titleLabel->setText(itemName);
-        model->setQuery("SELECT CONCAT(id, ' ', label) FROM " + table + " ORDER BY sortkey");
+        model->setTable(table, ids);
         if (!ids.isEmpty()) {
             const QString id = ids.last();
             const QString label = getTextAttribute(table, "label", id);
