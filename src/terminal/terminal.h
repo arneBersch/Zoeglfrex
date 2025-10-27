@@ -85,6 +85,7 @@ public slots:
 private:
     void execute();
     void updateSortingKeys(ItemInfos item);
+    static bool compareIds(QString idA, QString idB);
     void createItems(ItemInfos item, QStringList ids);
     void deleteItems(ItemInfos item, QStringList ids);
     void moveItems(ItemInfos item, QStringList ids, QList<Key> valueKeys);

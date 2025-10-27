@@ -402,22 +402,7 @@ void Terminal::updateSortingKeys(const ItemInfos item) {
         while (idsQuery.next()) {
             ids.append(idsQuery.value(0).toString());
         }
-        std::sort(ids.begin(), ids.end(), [](const QString a, const QString b) -> bool {
-            QStringList aParts = a.split(".");
-            QStringList bParts = b.split(".");
-            const int minPartAmount = std::min(aParts.length(), bParts.length());
-            bool smallerId = true;
-            bool sameBeginning = true;
-            for (int part = 0; part < minPartAmount; part++) {
-                if ((aParts[part].toInt() > bParts[part].toInt()) && sameBeginning) {
-                    smallerId = false;
-                }
-                if (aParts[part].toInt() != bParts[part].toInt()) {
-                    sameBeginning = false;
-                }
-            }
-            return (smallerId && (!sameBeginning || (aParts.length() < bParts.length())));
-        });
+        std::sort(ids.begin(), ids.end(), Terminal::compareIds);
         for (int index = 1; index <= ids.length(); index++) {
             const QString id = ids.at(index - 1);
             QSqlQuery query;
@@ -433,6 +418,23 @@ void Terminal::updateSortingKeys(const ItemInfos item) {
         qWarning() << Q_FUNC_INFO << idsQuery.executedQuery() << idsQuery.lastError().text();
         error("Failed to update the " + item.singular + " sorting keys.");
     }
+}
+
+bool Terminal::compareIds(const QString a, const QString b) {
+    QStringList aParts = a.split(".");
+    QStringList bParts = b.split(".");
+    const int minPartAmount = std::min(aParts.length(), bParts.length());
+    bool smallerId = true;
+    bool sameBeginning = true;
+    for (int part = 0; part < minPartAmount; part++) {
+        if ((aParts[part].toInt() > bParts[part].toInt()) && sameBeginning) {
+            smallerId = false;
+        }
+        if (aParts[part].toInt() != bParts[part].toInt()) {
+            sameBeginning = false;
+        }
+    }
+    return (smallerId && (!sameBeginning || (aParts.length() < bParts.length())));
 }
 
 void Terminal::createItems(const ItemInfos item, QStringList ids) {
@@ -1259,7 +1261,7 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                 idParts.append(QString::number(idPart));
                 currentIdPartKeys.clear();
                 if (key == Thru) {
-                    if (!thruParts.isEmpty()) {
+                    if (!thruParts.isEmpty() || idParts.isEmpty()) {
                         return QStringList();
                     }
                     thruParts = idParts;
@@ -1268,19 +1270,28 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                     if (idParts.isEmpty()) {
                         return QStringList();
                     }
+                    const QString id = idParts.join(".");
+                    idParts.clear();
                     if (thruParts.isEmpty()) {
-                        ids.append(idParts.join("."));
+                        ids.append(id);
                     } else {
-                        if (!allIds.contains(thruParts.join(".")) || !allIds.contains(idParts.join("."))) {
-                            qInfo() << allIds << thruParts.join(".") << idParts.join(".");
-                            return QStringList();
+                        const QString thruId = thruParts.join(".");
+                        thruParts.clear();
+                        QStringList allIdsExtended = allIds;
+                        if (!allIdsExtended.contains(thruId)) {
+                            allIdsExtended.append(thruId);
                         }
-                        for (int index = allIds.indexOf(thruParts.join(".")); index <= allIds.indexOf(idParts.join(".")); index++) {
-                            ids.append(allIds.at(index));
+                        if (!allIdsExtended.contains(id)) {
+                            allIdsExtended.append(id);
+                        }
+                        std::sort(allIdsExtended.begin(), allIdsExtended.end(), Terminal::compareIds);
+                        for (int index = allIdsExtended.indexOf(thruId); index <= allIdsExtended.indexOf(id); index++) {
+                            const QString currentId = allIdsExtended.at(index);
+                            if (allIds.contains(currentId)) {
+                                ids.append(currentId);
+                            }
                         }
                     }
-                    thruParts.clear();
-                    idParts.clear();
                 }
             } else {
                 currentIdPartKeys.append(key);
