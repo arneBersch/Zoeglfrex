@@ -1244,15 +1244,20 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
         QStringList thruParts;
         QStringList idParts;
         QList<Key> currentIdPartKeys;
+        bool idAdding = true;
         for (const Key key : keys) {
-            if ((key == Plus) && currentIdPartKeys.isEmpty() && thruParts.isEmpty()) { // IDs which end with a dot
+            if (((key == Plus) || (key == Minus)) && currentIdPartKeys.isEmpty() && thruParts.isEmpty()) { // IDs which end with a dot
                 for (QString id : allIds) {
                     if (id.startsWith(idParts.join(".") + ".") || (id == idParts.join("."))) {
-                        ids.append(id);
+                        if (idAdding) {
+                            ids.append(id);
+                        } else {
+                            ids.removeAll(id);
+                        }
                     }
                 }
                 idParts.clear();
-            } else if ((key == Period) || (key == Plus) || (key == Thru)) {
+            } else if ((key == Period) || (key == Plus) || (key == Minus) || (key == Thru)) {
                 bool ok;
                 const int idPart = keysToString(currentIdPartKeys).toInt(&ok);
                 if (!ok || (idPart < 0)) {
@@ -1260,20 +1265,18 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                 }
                 idParts.append(QString::number(idPart));
                 currentIdPartKeys.clear();
-                if (key == Thru) {
-                    if (!thruParts.isEmpty() || idParts.isEmpty()) {
-                        return QStringList();
-                    }
-                    thruParts = idParts;
-                    idParts.clear();
-                } else if (key == Plus) {
+                if ((key == Plus) || (key == Minus)) {
                     if (idParts.isEmpty()) {
                         return QStringList();
                     }
                     const QString id = idParts.join(".");
                     idParts.clear();
                     if (thruParts.isEmpty()) {
-                        ids.append(id);
+                        if (idAdding) {
+                            ids.append(id);
+                        } else {
+                            ids.removeAll(id);
+                        }
                     } else {
                         const QString thruId = thruParts.join(".");
                         thruParts.clear();
@@ -1288,7 +1291,11 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                         for (int index = allIdsExtended.indexOf(thruId); index <= allIdsExtended.indexOf(id); index++) {
                             const QString currentId = allIdsExtended.at(index);
                             if (allIds.contains(currentId)) {
-                                ids.append(currentId);
+                                if (idAdding) {
+                                    ids.append(currentId);
+                                } else {
+                                    ids.removeAll(currentId);
+                                }
                             }
                         }
                     }
@@ -1296,8 +1303,20 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
             } else {
                 currentIdPartKeys.append(key);
             }
+            if (key == Thru) {
+                if (!thruParts.isEmpty() || idParts.isEmpty()) {
+                    return QStringList();
+                }
+                thruParts = idParts;
+                idParts.clear();
+            } else if (key == Plus) {
+                idAdding = true;
+            } else if (key == Minus) {
+                idAdding = false;
+            }
         }
     }
+    std::sort(ids.begin(), ids.end(), Terminal::compareIds);
     return ids;
 }
 
@@ -1305,7 +1324,7 @@ QString Terminal::keysToString(QList<Key> keys) const {
     QString string;
     for(const Key key: keys) {
         Q_ASSERT(keyStrings.contains(key));
-        string.append(keyStrings[key]);
+        string.append(keyStrings.value(key));
     }
     return string.simplified();
 }
