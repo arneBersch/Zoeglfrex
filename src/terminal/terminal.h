@@ -30,6 +30,7 @@ private:
         Nine, // 9
         Plus, // +
         Minus, // -
+        Thru, // T
         Period, // .
         Set, // S
         Attribute, // A

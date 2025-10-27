@@ -33,6 +33,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     keyStrings[Attribute] = " Attribute ";
     keyStrings[Plus] = " + ";
     keyStrings[Minus] = " - ";
+    keyStrings[Thru] = " Thru ";
     keyStrings[Period] = ".";
 
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -57,6 +58,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
 
     new QShortcut(Qt::Key_Plus, this, [this] { writeKey(Plus); });
     new QShortcut(Qt::Key_Minus, this, [this] { writeKey(Minus); });
+    new QShortcut(Qt::Key_T, this, [this] { writeKey(Thru); });
     new QShortcut(Qt::Key_Period, this, [this] { writeKey(Period); });
     new QShortcut(Qt::Key_Comma, this, [this] { writeKey(Period); });
     new QShortcut(Qt::Key_A, this, [this] { writeKey(Attribute); });
@@ -1237,17 +1239,18 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
         }
 
         keys.append(Plus);
+        QStringList thruParts;
         QStringList idParts;
         QList<Key> currentIdPartKeys;
         for (const Key key : keys) {
-            if ((key == Plus) && currentIdPartKeys.isEmpty()) {
+            if ((key == Plus) && currentIdPartKeys.isEmpty() && thruParts.isEmpty()) { // IDs which end with a dot
                 for (QString id : allIds) {
                     if (id.startsWith(idParts.join(".") + ".") || (id == idParts.join("."))) {
                         ids.append(id);
                     }
                 }
                 idParts.clear();
-            } else if ((key == Period) || (key == Plus)) {
+            } else if ((key == Period) || (key == Plus) || (key == Thru)) {
                 bool ok;
                 const int idPart = keysToString(currentIdPartKeys).toInt(&ok);
                 if (!ok || (idPart < 0)) {
@@ -1255,11 +1258,28 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                 }
                 idParts.append(QString::number(idPart));
                 currentIdPartKeys.clear();
-                if (key == Plus) {
+                if (key == Thru) {
+                    if (!thruParts.isEmpty()) {
+                        return QStringList();
+                    }
+                    thruParts = idParts;
+                    idParts.clear();
+                } else if (key == Plus) {
                     if (idParts.isEmpty()) {
                         return QStringList();
                     }
-                    ids.append(idParts.join("."));
+                    if (thruParts.isEmpty()) {
+                        ids.append(idParts.join("."));
+                    } else {
+                        if (!allIds.contains(thruParts.join(".")) || !allIds.contains(idParts.join("."))) {
+                            qInfo() << allIds << thruParts.join(".") << idParts.join(".");
+                            return QStringList();
+                        }
+                        for (int index = allIds.indexOf(thruParts.join(".")); index <= allIds.indexOf(idParts.join(".")); index++) {
+                            ids.append(allIds.at(index));
+                        }
+                    }
+                    thruParts.clear();
                     idParts.clear();
                 }
             } else {
