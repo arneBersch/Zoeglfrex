@@ -10,3 +10,8 @@
     color: white;
     background-color: #151515;
 }
+
+QPushButton, QComboBox, QTextEdit, QSpinBox, QLineEdit, QHeaderView, QScrollBar, QMenu {
+    background-color: #303030;
+    border-radius: 0px;
+}
