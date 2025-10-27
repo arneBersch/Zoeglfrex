@@ -661,7 +661,7 @@ Cue 1 + 2 Attribute 8 Set 1
 The accepted values are 0 (False / Block deactivated) and 1 (True / Block activated).
 
 ## Selecting Items
-There are some useful tricks for selecting items using IDs.
+There are some useful tricks for selecting Items using IDs.
 You can use these whenever you can enter multiple IDs.
 
 ### Combining IDs with +
@@ -685,14 +685,14 @@ If they existed, this command would select Intensities 1, 1.1 or any other Inten
 Intensity 1. Set -
 ```
 
-### All items with .
-You can simply select all items using a period.
+### All Items with .
+You can simply select all Items using a period.
 This command, for example, deletes all existing intensities:
 ```
 Intensity . Set -
 ```
 
-### Selecting multiple items with Thru .
+### Selecting multiple Items with Thru .
 You can also select multiple IDs with Thru.
 This command would select the Intensity IDs 1.9, 1.10 and 1.11.
 ```

@@ -1245,33 +1245,69 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
         QStringList idParts;
         QList<Key> currentIdPartKeys;
         bool idAdding = true;
+        bool idStartsWithPeriod = false;
         for (const Key key : keys) {
-            if (((key == Plus) || (key == Minus)) && currentIdPartKeys.isEmpty() && thruParts.isEmpty()) { // IDs which end with a dot
-                for (QString id : allIds) {
-                    if (id.startsWith(idParts.join(".") + ".") || (id == idParts.join("."))) {
+            if (((key == Plus) || (key == Minus)) && currentIdPartKeys.isEmpty()) { // IDs which end with a period
+                if (idStartsWithPeriod) {
+                    if (!thruParts.isEmpty() || !idParts.isEmpty()) {
+                        return QStringList();
+                    }
+                    for (QString existingId : allIds) {
                         if (idAdding) {
-                            ids.append(id);
+                            ids.append(existingId);
                         } else {
-                            ids.removeAll(id);
+                            ids.removeAll(existingId);
                         }
                     }
+                    idStartsWithPeriod = false;
+                } else {
+                    if (!thruParts.isEmpty()) {
+                        return QStringList();
+                    }
+                    for (QString id : allIds) {
+                        if (id.startsWith(idParts.join(".") + ".") || (id == idParts.join("."))) {
+                            if (idAdding) {
+                                ids.append(id);
+                            } else {
+                                ids.removeAll(id);
+                            }
+                        }
+                    }
+                    idParts.clear();
                 }
-                idParts.clear();
             } else if ((key == Period) || (key == Plus) || (key == Minus) || (key == Thru)) {
-                bool ok;
-                const int idPart = keysToString(currentIdPartKeys).toInt(&ok);
-                if (!ok || (idPart < 0)) {
-                    return QStringList();
+                if ((key == Period) && idParts.isEmpty() && currentIdPartKeys.isEmpty() && !idStartsWithPeriod) {
+                    idStartsWithPeriod = true;
+                } else {
+                    bool ok;
+                    const int idPart = keysToString(currentIdPartKeys).toInt(&ok);
+                    if (!ok || (idPart < 0)) {
+                        return QStringList();
+                    }
+                    idParts.append(QString::number(idPart));
+                    currentIdPartKeys.clear();
                 }
-                idParts.append(QString::number(idPart));
-                currentIdPartKeys.clear();
                 if ((key == Plus) || (key == Minus)) {
-                    if (idParts.isEmpty()) {
+                    if (idParts.isEmpty() && !idStartsWithPeriod) {
                         return QStringList();
                     }
                     const QString id = idParts.join(".");
-                    idParts.clear();
-                    if (thruParts.isEmpty()) {
+                    if (idStartsWithPeriod) {
+                        if (thruParts.isEmpty() || (idParts.size() != 1)) {
+                            return QStringList();
+                        }
+                        for (int ending = thruParts.last().toInt(); ending <= idParts.last().toInt(); ending++) {
+                            QStringList currentIdParts = thruParts.first(thruParts.length() - 1);
+                            currentIdParts.append(QString::number(ending));
+                            if (idAdding) {
+                                ids.append(currentIdParts.join("."));
+                            } else {
+                                ids.append(currentIdParts.join("."));
+                            }
+                        }
+                        thruParts.clear();
+                        idStartsWithPeriod = false;
+                    } else if (thruParts.isEmpty()) {
                         if (idAdding) {
                             ids.append(id);
                         } else {
@@ -1279,7 +1315,6 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                         }
                     } else {
                         const QString thruId = thruParts.join(".");
-                        thruParts.clear();
                         QStringList allIdsExtended = allIds;
                         if (!allIdsExtended.contains(thruId)) {
                             allIdsExtended.append(thruId);
@@ -1299,12 +1334,14 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                             }
                         }
                     }
+                    thruParts.clear();
+                    idParts.clear();
                 }
             } else {
                 currentIdPartKeys.append(key);
             }
             if (key == Thru) {
-                if (!thruParts.isEmpty() || idParts.isEmpty()) {
+                if (!thruParts.isEmpty() || idParts.isEmpty() || idStartsWithPeriod) {
                     return QStringList();
                 }
                 thruParts = idParts;
@@ -1316,6 +1353,7 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
             }
         }
     }
+    ids.removeDuplicates();
     std::sort(ids.begin(), ids.end(), Terminal::compareIds);
     return ids;
 }
