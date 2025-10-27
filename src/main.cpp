@@ -108,6 +108,11 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    QFile file(":/resources/style.qss");
+    file.open(QFile::ReadOnly);
+    const QString styleSheet = QString::fromLatin1(file.readAll());
+    app.setStyleSheet(styleSheet);
+
     MainWindow window(VERSION, COPYRIGHT);
     window.setWindowTitle("Zöglfrex - " + fileName);
     return app.exec();

@@ -1302,7 +1302,7 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                             if (idAdding) {
                                 ids.append(currentIdParts.join("."));
                             } else {
-                                ids.append(currentIdParts.join("."));
+                                ids.removeAll(currentIdParts.join("."));
                             }
                         }
                         thruParts.clear();
