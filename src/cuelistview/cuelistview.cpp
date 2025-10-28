@@ -51,7 +51,7 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
 void CuelistView::reload() {
     auto setCurrentItemLabel = [](const QString table, const QString currentItemsTableKey, const QString itemName, QLabel* label) {
         QSqlQuery query;
-        if (query.exec("SELECT CONCAT('" + itemName + " ', " + table + ".id, ': ', " + table + ".label) FROM " + table + ", currentitems WHERE " + table + ".key = currentitems." + currentItemsTableKey)) {
+        if (query.exec("SELECT CONCAT('" + itemName + " ', " + table + ".id, ' ', " + table + ".label) FROM " + table + ", currentitems WHERE " + table + ".key = currentitems." + currentItemsTableKey)) {
             if (query.next()) {
                 label->setText(query.value(0).toString());
             } else {

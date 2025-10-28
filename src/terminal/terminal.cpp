@@ -434,7 +434,7 @@ void Terminal::execute() {
 
 void Terminal::updateSortingKeys(const ItemInfos item) {
     QSqlQuery idsQuery;
-    idsQuery.prepare("SELECT id FROM " + item.selectTable);
+    idsQuery.prepare("SELECT key, id FROM " + item.selectTable);
     if (idsQuery.exec()) {
         struct IdKey {
             int key;
