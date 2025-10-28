@@ -12,9 +12,6 @@ Inspector::Inspector(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
     titleLabel = new QLabel("Cues");
-    QFont titleFont = titleLabel->font();
-    titleFont.setCapitalization(QFont::Capitalize);
-    titleLabel->setFont(titleFont);
     layout->addWidget(titleLabel);
 
     table = new QTableView();
@@ -37,30 +34,51 @@ Inspector::Inspector(QWidget *parent) : QWidget(parent) {
 
 void Inspector::loadItems(const QString itemName, const QStringList ids) {
     QString table;
+    QString title;
     if (itemName == "Model") {
         table = "models";
+        title = "Models";
     } else if (itemName == "Fixture") {
         table = "fixtures";
+        title = "Fixtures";
     } else if (itemName == "Group") {
         table = "groups";
+        title = "Groups";
     } else if (itemName == "Intensity") {
         table = "intensities";
+        title = "Intensities";
     } else if (itemName == "Color") {
         table = "colors";
+        title = "Colors";
     } else if (itemName == "Position") {
         table = "positions";
+        title = "Position";
     } else if (itemName == "Raw") {
         table = "raws";
+        title = "Raws";
     } else if (itemName == "Effect") {
         table = "effects";
+        title = "Effects";
     } else if (itemName == "Cuelist") {
         table = "cuelists";
+        title = "Cuelists";
     } else if (itemName == "Cue") {
         table = "cues";
+        title = "Cues";
+        QSqlQuery currentCuelistQuery;
+        if (currentCuelistQuery.exec("SELECT CONCAT(cuelists.id, ' ', cuelists.label) FROM cuelists, currentitems WHERE currentitems.cuelist_key = cuelists.key")) {
+            if (currentCuelistQuery.next()) {
+                title.append(" (Cuelist " + currentCuelistQuery.value(0).toString() + ")");
+            } else {
+                title.append(" (No cuelist selected.)");
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << currentCuelistQuery.executedQuery() << currentCuelistQuery.lastError().text();
+        }
     }
     QStringList infos;
     if (!table.isEmpty()) {
-        titleLabel->setText(itemName);
+        titleLabel->setText(title);
         model->setTable(table, ids);
         if (!ids.isEmpty()) {
             const QString id = ids.last();
