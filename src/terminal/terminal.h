@@ -46,21 +46,22 @@ private:
         Cue, // Q
     };
     struct ItemInfos {
-        QString table;
+        QString selectTable;
+        QString updateTable;
         QString singular;
         QString plural;
         Key key;
     };
-    const ItemInfos modelInfos = {"models", "Model", "Models", Model};
-    const ItemInfos fixtureInfos = {"fixtures", "Fixture", "Fixtures", Fixture};
-    const ItemInfos groupInfos = {"groups", "Group", "Groups", Group};
-    const ItemInfos intensityInfos = {"intensities", "Intensity", "Intensities", Intensity};
-    const ItemInfos colorInfos = {"colors", "Color", "Colors", Color};
-    const ItemInfos positionInfos = {"positions", "Position", "Positions", Position};
-    const ItemInfos rawInfos = {"raws", "Raw", "Raws", Raw};
-    const ItemInfos effectInfos = {"effects", "Effect", "Effects", Effect};
-    const ItemInfos cuelistInfos = {"cuelists", "Cuelist", "Cuelists", Cuelist};
-    const ItemInfos cueInfos = {"cues", "Cue", "Cues", Cue};
+    const ItemInfos modelInfos = {"models", "models", "Model", "Models", Model};
+    const ItemInfos fixtureInfos = {"fixtures", "fixtures", "Fixture", "Fixtures", Fixture};
+    const ItemInfos groupInfos = {"groups", "groups", "Group", "Groups", Group};
+    const ItemInfos intensityInfos = {"intensities", "intensities", "Intensity", "Intensities", Intensity};
+    const ItemInfos colorInfos = {"colors", "colors", "Color", "Colors", Color};
+    const ItemInfos positionInfos = {"positions", "positions", "Position", "Positions", Position};
+    const ItemInfos rawInfos = {"raws", "raws", "Raw", "Raws", Raw};
+    const ItemInfos effectInfos = {"effects", "effects", "Effect", "Effects", Effect};
+    const ItemInfos cuelistInfos = {"cuelists", "cuelists", "Cuelist", "Cuelists", Cuelist};
+    const ItemInfos cueInfos = {"cues", "cues", "Cue", "Cues", Cue};
 
     struct NumberInfos {
         float minValue;
