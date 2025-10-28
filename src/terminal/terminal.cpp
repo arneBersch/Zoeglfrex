@@ -375,6 +375,17 @@ void Terminal::execute() {
             error("Unknown Cuelist Attribute.");
         }
     } else if (selectionType == Cue) {
+        QSqlQuery currentCuelistQuery;
+        if (currentCuelistQuery.exec("SELECT cuelists.id FROM cuelists, currentitems WHERE currentitems.cuelist_key = cuelists.key")) {
+            if (!currentCuelistQuery.next()) {
+                error("Can't set Cue Attribute because no Cuelist is currently selected.");
+                return;
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << currentCuelistQuery.executedQuery() << currentCuelistQuery.lastError().text();
+            error("Can't set Cue Attribute because the request for the current Cuelist failed.");
+            return;
+        }
         if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
             deleteItems(cueInfos, ids);
         } else if (attribute == AttributeIds::id) {
@@ -413,6 +424,7 @@ void Terminal::execute() {
             }
         } else {
             error("Unknown Cue Attribute.");
+            return;
         }
     } else {
         error("Unknown Item type.");

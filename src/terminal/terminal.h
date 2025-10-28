@@ -61,7 +61,7 @@ private:
     const ItemInfos rawInfos = {"raws", "raws", "Raw", "Raws", Raw};
     const ItemInfos effectInfos = {"effects", "effects", "Effect", "Effects", Effect};
     const ItemInfos cuelistInfos = {"cuelists", "cuelists", "Cuelist", "Cuelists", Cuelist};
-    const ItemInfos cueInfos = {"cues", "cues", "Cue", "Cues", Cue};
+    const ItemInfos cueInfos = {"currentcuelist_cues", "cues", "Cue", "Cues", Cue};
 
     struct NumberInfos {
         float minValue;

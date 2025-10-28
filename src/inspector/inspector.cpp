@@ -63,7 +63,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
         table = "cuelists";
         title = "Cuelists";
     } else if (itemName == "Cue") {
-        table = "cues";
+        table = "currentcuelist_cues";
         title = "Cues";
         QSqlQuery currentCuelistQuery;
         if (currentCuelistQuery.exec("SELECT CONCAT(cuelists.id, ' ', cuelists.label) FROM cuelists, currentitems WHERE currentitems.cuelist_key = cuelists.key")) {
@@ -134,12 +134,12 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                 } else if (table == "cuelists") {
                     infos.append(QString(AttributeIds::cuelistPriority) + " Priority: " + getNumberAttribute(table, "priority", id, ""));
                     infos.append(QString(AttributeIds::cuelistMoveWhileDark) + " Move while Dark: " + getBoolAttribute(table, "movewhiledark", id));
-                } else if (table == "cues") {
-                    infos.append(QString(AttributeIds::cueIntensities) + " Intensities: " + getItemSpecificItemAttribute("cues", "groups", "intensities", "cue_intensities", "cue_key", "group_key", "intensity_key", id));
-                    infos.append(QString(AttributeIds::cueColors) + " Colors: " + getItemSpecificItemAttribute("cues", "groups", "colors", "cue_colors", "cue_key", "group_key", "color_key", id));
-                    infos.append(QString(AttributeIds::cuePositions) + " Positions: " + getItemSpecificItemAttribute("cues", "groups", "positions", "cue_positions", "cue_key", "group_key", "position_key", id));
-                    infos.append(QString(AttributeIds::cueRaws) + " Raws: " + getItemSpecificItemListAttribute("cues", "groups", "raws", "cue_raws", "cue_key", "group_key", "raw_key", id));
-                    infos.append(QString(AttributeIds::cueEffects) + " Effects: " + getItemSpecificItemListAttribute("cues", "groups", "effects", "cue_effects", "cue_key", "group_key", "effect_key", id));
+                } else if (table == "currentcuelist_cues") {
+                    infos.append(QString(AttributeIds::cueIntensities) + " Intensities: " + getItemSpecificItemAttribute(table, "groups", "intensities", "cue_intensities", "cue_key", "group_key", "intensity_key", id));
+                    infos.append(QString(AttributeIds::cueColors) + " Colors: " + getItemSpecificItemAttribute(table, "groups", "colors", "cue_colors", "cue_key", "group_key", "color_key", id));
+                    infos.append(QString(AttributeIds::cuePositions) + " Positions: " + getItemSpecificItemAttribute(table, "groups", "positions", "cue_positions", "cue_key", "group_key", "position_key", id));
+                    infos.append(QString(AttributeIds::cueRaws) + " Raws: " + getItemSpecificItemListAttribute(table, "groups", "raws", "cue_raws", "cue_key", "group_key", "raw_key", id));
+                    infos.append(QString(AttributeIds::cueEffects) + " Effects: " + getItemSpecificItemListAttribute(table, "groups", "effects", "cue_effects", "cue_key", "group_key", "effect_key", id));
                 } else {
                     Q_ASSERT(false);
                 }

@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
             "CREATE TABLE position_raws (position_key INTEGER REFERENCES positions (key) ON DELETE CASCADE NOT NULL, raw_key INTEGER REFERENCES raws (key) ON DELETE CASCADE NOT NULL, PRIMARY KEY (position_key, raw_key))",
             "CREATE TABLE effects (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', steps INTEGER DEFAULT 2 NOT NULL, PRIMARY KEY (key))",
             "CREATE TABLE cuelists (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', priority INTEGER DEFAULT 100 NOT NULL, movewhiledark INTEGER DEFAULT 0 NOT NULL, PRIMARY KEY (key))",
-            "CREATE TABLE cues (key INTEGER, id TEXT NOT NULL, sortkey INTEGER NOT NULL, cuelist_key INTEGER REFERENCES cuelists (key) ON DELETE CASCADE NOT NULL, label TEXT DEFAULT '', PRIMARY KEY (key), UNIQUE(id, cuelist_key))",
+            "CREATE TABLE cues (key INTEGER, id TEXT NOT NULL, sortkey INTEGER NOT NULL, cuelist_key INTEGER REFERENCES cuelists (key) ON DELETE CASCADE, label TEXT DEFAULT '', PRIMARY KEY (key), UNIQUE(id, cuelist_key))",
             "CREATE TABLE cue_intensities (cue_key INTEGER REFERENCES cues (key) ON DELETE CASCADE NOT NULL, group_key INTEGER REFERENCES groups (key) ON DELETE CASCADE NOT NULL, intensity_key INTEGER REFERENCES intensities (key) ON DELETE CASCADE NOT NULL, PRIMARY KEY (cue_key, group_key))",
             "CREATE TABLE cue_colors (cue_key INTEGER REFERENCES cues (key) ON DELETE CASCADE NOT NULL, group_key INTEGER REFERENCES groups (key) ON DELETE CASCADE NOT NULL, color_key INTEGER REFERENCES colors (key) ON DELETE CASCADE NOT NULL, PRIMARY KEY (cue_key, group_key))",
             "CREATE TABLE cue_positions (cue_key INTEGER REFERENCES cues (key) ON DELETE CASCADE NOT NULL, group_key INTEGER REFERENCES groups (key) ON DELETE CASCADE NOT NULL, position_key INTEGER REFERENCES positions (key) ON DELETE CASCADE NOT NULL, PRIMARY KEY (cue_key, group_key))",
@@ -102,6 +102,8 @@ int main(int argc, char *argv[]) {
             "INSERT INTO currentitems (group_key, fixture_key, cuelist_key) VALUES (NULL, NULL, NULL)",
             "CREATE VIEW currentgroup_fixtures AS SELECT fixtures.* FROM fixtures, group_fixtures, currentitems WHERE group_fixtures.group_key = currentitems.group_key AND fixtures.key = group_fixtures.fixture_key",
             "CREATE TRIGGER resetfixture_trigger AFTER UPDATE OF group_key ON currentitems BEGIN UPDATE currentitems SET fixture_key = NULL; END",
+            "CREATE VIEW currentcuelist_cues AS SELECT cues.* FROM cues, currentitems WHERE cues.cuelist_key = currentitems.cuelist_key",
+            "CREATE TRIGGER createcues_trigger AFTER INSERT ON cues BEGIN UPDATE cues SET cuelist_key = (SELECT cuelist_key FROM currentitems) WHERE id = NEW.id; END",
             "CREATE TABLE about (version TEXT PRIMARY KEY)",
             "INSERT INTO about (version) VALUES ('" + VERSION + "')",
         };
