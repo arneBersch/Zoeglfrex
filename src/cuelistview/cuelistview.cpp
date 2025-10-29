@@ -36,11 +36,13 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     model = new CuelistTableModel();
     cuelistTableView->setModel(model);
 
-    new QShortcut(Qt::Key_Left, this, [this] { selectItem("currentgroup_fixtures", "fixture_key", false); });
-    new QShortcut(Qt::Key_Right, this, [this] { selectItem("currentgroup_fixtures", "fixture_key", true); });
+    new QShortcut(Qt::Key_Left, this, [this] { selectItem("currentgroup_fixtures", "SELECT currentgroup_fixtures.sortkey FROM currentitems, currentgroup_fixtures WHERE currentitems.fixture_key = currentgroup_fixtures.key", "UPDATE currentitems SET fixture_key = :key", false); });
+    new QShortcut(Qt::Key_Right, this, [this] { selectItem("currentgroup_fixtures", "SELECT currentgroup_fixtures.sortkey FROM currentitems, currentgroup_fixtures WHERE currentitems.fixture_key = currentgroup_fixtures.key", "UPDATE currentitems SET fixture_key = :key", true); });
     new QShortcut(Qt::Key_Escape, this, [this] { deselectItem("fixture_key"); });
-    new QShortcut(Qt::Key_Up, this, [this] { selectItem("groups", "group_key", false); });
-    new QShortcut(Qt::Key_Down, this, [this] { selectItem("groups", "group_key", true); });
+    new QShortcut(Qt::Key_Up, this, [this] { selectItem("groups", "SELECT groups.sortkey FROM currentitems, groups WHERE currentitems.group_key = groups.key", "UPDATE currentitems SET group_key = :key", false); });
+    new QShortcut(Qt::Key_Down, this, [this] { selectItem("groups", "SELECT groups.sortkey FROM currentitems, groups WHERE currentitems.group_key = groups.key", "UPDATE currentitems SET group_key = :key", true); });
+    new QShortcut(Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cuelists, cues, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cues.key = cuelists.currentcue_key", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", true); });
+    new QShortcut(Qt::SHIFT | Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cuelists, cues, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cues.key = cuelists.currentcue_key", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", false); });
 
     reload();
 }
@@ -65,9 +67,9 @@ void CuelistView::reload() {
     model->reload();
 }
 
-void CuelistView::selectItem(const QString table, const QString currentItemsTableKey, const bool next) {
+void CuelistView::selectItem(const QString table, const QString currentSortkeyQueryText, const QString updateQueryText, const bool next) {
     QSqlQuery currentSortkeyQuery;
-    currentSortkeyQuery.prepare("SELECT " + table + ".sortkey FROM currentitems, " + table + " WHERE currentitems." + currentItemsTableKey + " = " + table + ".key");
+    currentSortkeyQuery.prepare(currentSortkeyQueryText);
     if (!currentSortkeyQuery.exec()) {
         qWarning() << Q_FUNC_INFO << currentSortkeyQuery.executedQuery() << currentSortkeyQuery.lastError().text();
         return;
@@ -93,7 +95,7 @@ void CuelistView::selectItem(const QString table, const QString currentItemsTabl
     }
     const int key = keyQuery.value(0).toInt();
     QSqlQuery updateQuery;
-    updateQuery.prepare("UPDATE currentitems SET " + currentItemsTableKey + " = :key");
+    updateQuery.prepare(updateQueryText);
     updateQuery.bindValue(":key", key);
     if (!updateQuery.exec()) {
         qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();

@@ -23,7 +23,7 @@ signals:
 public slots:
     void reload();
 private:
-    void selectItem(QString table, QString currentItemsTableKey, bool next);
+    void selectItem(QString table, QString currentSortkeyQueryText, QString updateQueryText, bool next);
     void deselectItem(QString currentItemsTableKey);
     CuelistTableModel* model;
     QTableView *cuelistTableView;
