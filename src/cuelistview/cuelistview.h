@@ -31,6 +31,7 @@ private:
     QLabel* groupLabel;
     QLabel* cueLabel;
     QLabel* cuelistLabel;
+    QComboBox* modeComboBox;
 };
 
 #endif // CUELISTVIEW_H

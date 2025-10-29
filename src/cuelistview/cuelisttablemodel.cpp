@@ -9,17 +9,25 @@
 #include "cuelisttablemodel.h"
 
 CuelistTableModel::CuelistTableModel() {
-    setQuery("SELECT id, label FROM currentcuelist_cues ORDER BY sortkey");
-    setHeaderData(0, Qt::Horizontal, "ID");
-    setHeaderData(1, Qt::Horizontal, "Label");
+    setCueMode(false);
 }
 
 void CuelistTableModel::reload() {
+    currentGroupId = QString();
     currentCueId = QString();
     QSqlQuery query;
-    if (query.exec("SELECT cues.id FROM cues, cuelists, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cuelists.currentcue_key = cues.key")) {
+    if (cueMode) {
+        query.prepare("SELECT groups.id FROM groups, currentitems WHERE currentitems.group_key = groups.key");
+    } else {
+        query.prepare("SELECT cues.id FROM cues, cuelists, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cuelists.currentcue_key = cues.key");
+    }
+    if (query.exec()) {
         if (query.next()) {
-            currentCueId = query.value(0).toString();
+            if (cueMode) {
+                currentGroupId = query.value(0).toString();
+            } else {
+                currentCueId = query.value(0).toString();
+            }
         }
     } else {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
@@ -27,10 +35,23 @@ void CuelistTableModel::reload() {
     refresh();
 }
 
+void CuelistTableModel::setCueMode(bool newCueMode) {
+    cueMode = newCueMode;
+    if (cueMode) {
+        setQuery("SELECT id, label FROM groups ORDER BY sortkey");
+    } else {
+        setQuery("SELECT id, label FROM currentcuelist_cues ORDER BY sortkey");
+    }
+    setHeaderData(0, Qt::Horizontal, "ID");
+    setHeaderData(1, Qt::Horizontal, "Label");
+    reload();
+}
+
 QVariant CuelistTableModel::data(const QModelIndex &index, int role) const
 {
     if (role == Qt::BackgroundRole) {
-        if (data(index.siblingAtColumn(0), Qt::DisplayRole).toString() == currentCueId) {
+        const QString id = data(index.siblingAtColumn(0), Qt::DisplayRole).toString();
+        if ((cueMode && (id == currentGroupId)) || (!cueMode && (id == currentCueId))) {
             return QColor(48, 48, 48);
         }
     }

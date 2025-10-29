@@ -63,6 +63,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
     } else {
+        qInfo() << "Created File" << fileName;
         const QStringList createTableQueries = {
             "PRAGMA foreign_keys = ON",
             "CREATE TABLE models (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', channels TEXT DEFAULT 'D' NOT NULL, panrange REAL DEFAULT 540 NOT NULL, tiltrange REAL DEFAULT 270 NOT NULL, minzoom REAL DEFAULT 5 NOT NULL, maxzoom REAL DEFAULT 60 NOT NULL, PRIMARY KEY (key))",

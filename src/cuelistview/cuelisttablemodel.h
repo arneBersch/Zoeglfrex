@@ -17,7 +17,10 @@ public:
     CuelistTableModel();
     QVariant data(const QModelIndex &index, int role) const override;
     void reload();
+    void setCueMode(bool cueMode);
 private:
+    bool cueMode = true;
+    QString currentGroupId;
     QString currentCueId;
 };
 
