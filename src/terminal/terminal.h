@@ -98,6 +98,7 @@ private:
     template <typename T> void setItemSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, QString exceptionTable, QString exceptionTableItemAttribute, QString exceptionTableForeignItemAttribute, QString exceptionTableValueAttribute, NumberInfos number);
     void setItemSpecificItemAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, ItemInfos valueItem, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueAttribute);
     void setItemSpecificItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, ItemInfos valueItem, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueAttribute);
+    template <typename T> void setNumberSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QString numberId, QList<Key> valueKeys, QString valueTable, QString valueTableItemAttribute, QString valueTableNumberAttribute, QString valueTableValueAttribute, NumberInfos keyNumber, NumberInfos valueNumber);
     float keysToFloat(QList<Key> keys, bool* ok, float currentValue, NumberInfos number) const;
     QStringList keysToIds(QList<Key> keys) const;
     QString keysToString(QList<Key> keys) const;

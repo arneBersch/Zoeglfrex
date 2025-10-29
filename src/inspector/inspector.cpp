@@ -129,6 +129,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "position_fixture_focus", "position_key", "fixture_key", "focus", "%", id));
                     infos.append(QString(AttributeIds::positionRaws) + " Raws: " + getItemListAttribute(table, "raws", "position_raws", "position_key", "raw_key", id));
                 } else if (table == "raws") {
+                    infos.append(QString(AttributeIds::rawChannelValues) + " Channel Values: " + getNumberSpecificNumberAttribute(table, "raw_channels", "raw_key", "channel", "value", id, ""));
                     infos.append(QString(AttributeIds::rawMoveWhileDark) + " Move while Dark: " + getBoolAttribute(table, "movewhiledark", id));
                     infos.append(QString(AttributeIds::rawFade) + " Fade: " + getBoolAttribute(table, "fade", id));
                 } else if (table == "effects") {
@@ -285,4 +286,19 @@ QString Inspector::getItemSpecificItemListAttribute(const QString table, const Q
         values.append(foreignItem + " @ " + foreignItemValues.value(foreignItem).join(", "));
     }
     return values.join("; ");
+}
+
+QString Inspector::getNumberSpecificNumberAttribute(const QString table, const QString valueTable, const QString valueTableItemAttribute, const QString valueTableNumberAttribute, const QString valueTableValueAttribute, const QString id, const QString unit) const {
+    QSqlQuery query;
+    query.prepare("SELECT " + valueTable + "." + valueTableNumberAttribute + ", " + valueTable + "." + valueTableValueAttribute + " FROM " + table + ", " + valueTable + " WHERE " + table + ".id = :id AND " + valueTable + "." + valueTableItemAttribute + " = " + table + ".key ORDER BY " + valueTable + "." + valueTableNumberAttribute);
+    query.bindValue(":id", id);
+    if (!query.exec()) {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        return QString();
+    }
+    QStringList values;
+    while (query.next()) {
+        values.append(query.value(0).toString() + " @ " + query.value(1).toString() + unit);
+    }
+    return values.join(", ");
 }
