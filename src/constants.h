@@ -43,6 +43,10 @@ const char* const positionZoom = "4";
 const char* const positionFocus = "5";
 const char* const positionRaws = "6";
 
+const char* const rawChannelValues = "2";
+const char* const rawMoveWhileDark = "3";
+const char* const rawFade = "4";
+
 const char* const effectSteps = "2";
 
 const char* const cuelistPriority = "2";

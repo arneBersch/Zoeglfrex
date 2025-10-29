@@ -347,6 +347,10 @@ void Terminal::execute() {
             moveItems(rawInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(rawInfos, "label", "Label", ids, "");
+        } else if (attribute == AttributeIds::rawMoveWhileDark) {
+            setBoolAttribute(rawInfos, "movewhiledark", "Move while Dark", ids, valueKeys);
+        } else if (attribute == AttributeIds::rawFade) {
+            setBoolAttribute(rawInfos, "fade", "Fade", ids, valueKeys);
         } else {
             error("Unknown Raw Attribute.");
         }

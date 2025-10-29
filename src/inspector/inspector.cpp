@@ -129,6 +129,8 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "position_fixture_focus", "position_key", "fixture_key", "focus", "%", id));
                     infos.append(QString(AttributeIds::positionRaws) + " Raws: " + getItemListAttribute(table, "raws", "position_raws", "position_key", "raw_key", id));
                 } else if (table == "raws") {
+                    infos.append(QString(AttributeIds::rawMoveWhileDark) + " Move while Dark: " + getBoolAttribute(table, "movewhiledark", id));
+                    infos.append(QString(AttributeIds::rawFade) + " Fade: " + getBoolAttribute(table, "fade", id));
                 } else if (table == "effects") {
                     infos.append(QString(AttributeIds::effectSteps) + " Steps: " + getNumberAttribute(table, "steps", id, ""));
                 } else if (table == "cuelists") {
