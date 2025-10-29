@@ -9,6 +9,10 @@
 #include "cuelistview.h"
 
 CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
+    settings = new QSettings("Zoeglfrex");
+
+    model = new CuelistTableModel();
+
     QVBoxLayout *layout = new QVBoxLayout(this);
 
     QGridLayout* labelHeader = new QGridLayout();
@@ -30,10 +34,11 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     modeComboBox->addItem("Cue Mode");
     connect(modeComboBox, &QComboBox::currentIndexChanged, this, [this] (const int index) {
         model->setCueMode(index == 1);
+        settings->setValue("cuelistview/mode", index);
     });
+    modeComboBox->setCurrentIndex(settings->value("cuelistview/mode", 0).toInt());
     buttonHeader->addWidget(modeComboBox);
 
-    model = new CuelistTableModel();
     cuelistTableView = new QTableView();
     cuelistTableView->setModel(model);
     cuelistTableView->verticalHeader()->hide();

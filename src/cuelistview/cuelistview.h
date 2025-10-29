@@ -25,6 +25,7 @@ public slots:
 private:
     void selectItem(QString table, QString currentSortkeyQueryText, QString updateQueryText, bool next);
     void deselectItem(QString currentItemsTableKey);
+    QSettings* settings;
     CuelistTableModel* model;
     QTableView *cuelistTableView;
     QLabel* fixtureLabel;
