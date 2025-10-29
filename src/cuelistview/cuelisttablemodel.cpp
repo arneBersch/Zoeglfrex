@@ -6,21 +6,31 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "itemtablemodel.h"
+#include "cuelisttablemodel.h"
 
-ItemTableModel::ItemTableModel() {}
-
-void ItemTableModel::setTable(QString table, QStringList currentIds) {
-    ids = currentIds;
-    setQuery("SELECT id, label FROM " + table + " ORDER BY sortkey");
+CuelistTableModel::CuelistTableModel() {
+    setQuery("SELECT id, label FROM currentcuelist_cues ORDER BY sortkey");
     setHeaderData(0, Qt::Horizontal, "ID");
     setHeaderData(1, Qt::Horizontal, "Label");
 }
 
-QVariant ItemTableModel::data(const QModelIndex &index, int role) const
+void CuelistTableModel::reload() {
+    currentCueId = QString();
+    QSqlQuery query;
+    if (query.exec("SELECT cues.id FROM cues, cuelists, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cuelists.currentcue_key = cues.key")) {
+        if (query.next()) {
+            currentCueId = query.value(0).toString();
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+    }
+    refresh();
+}
+
+QVariant CuelistTableModel::data(const QModelIndex &index, int role) const
 {
     if (role == Qt::BackgroundRole) {
-        if (ids.contains(data(index.siblingAtColumn(0), Qt::DisplayRole).toString())) {
+        if (data(index.siblingAtColumn(0), Qt::DisplayRole).toString() == currentCueId) {
             return QColor(48, 48, 48);
         }
     }

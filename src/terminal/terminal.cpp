@@ -123,12 +123,12 @@ void Terminal::execute() {
         error("Invalid selection ID given.");
         return;
     }
-    if (attributeKeys.isEmpty() && valueKeys.isEmpty()) {
+    if (!attributeReached && !valueReached) {
         if (ids.size() != 1) {
             error("Can't select multiple Items.");
             return;
         }
-        auto setCurrentItem = [this](const ItemInfos item, const QString itemTable, const QString id, const QString currentItemsTableKey) {
+        auto setCurrentItem = [this](const ItemInfos item, const QString itemTable, const QString id, const QString updateQueryText) {
             QSqlQuery keyQuery;
             keyQuery.prepare("SELECT key FROM " + itemTable + " WHERE id = :id");
             keyQuery.bindValue(":id", id);
@@ -136,7 +136,7 @@ void Terminal::execute() {
                 if (keyQuery.next()) {
                     const int key = keyQuery.value(0).toInt();
                     QSqlQuery updateQuery;
-                    updateQuery.prepare("UPDATE currentitems SET " + currentItemsTableKey + " = :key");
+                    updateQuery.prepare(updateQueryText);
                     updateQuery.bindValue(":key", key);
                     if (!updateQuery.exec()) {
                         qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
@@ -152,11 +152,13 @@ void Terminal::execute() {
             }
         };
         if (selectionType == Fixture) {
-            setCurrentItem(fixtureInfos, "currentgroup_fixtures", ids.first(), "fixture_key");
+            setCurrentItem(fixtureInfos, "currentgroup_fixtures", ids.first(), "UPDATE currentitems SET fixture_key = :key");
         } else if (selectionType == Group) {
-            setCurrentItem(groupInfos, groupInfos.selectTable, ids.first(), "group_key");
+            setCurrentItem(groupInfos, groupInfos.selectTable, ids.first(), "UPDATE currentitems SET group_key = :key");
         } else if (selectionType == Cuelist) {
-            setCurrentItem(cuelistInfos, cuelistInfos.selectTable, ids.first(), "cuelist_key");
+            setCurrentItem(cuelistInfos, cuelistInfos.selectTable, ids.first(), "UPDATE currentitems SET cuelist_key = :key");
+        } else if (selectionType == Cue) {
+            setCurrentItem(cueInfos, cueInfos.selectTable, ids.first(), "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)");
         } else {
             error("Can't select this Item type: " + keysToString({selectionType}));
         }
@@ -1423,6 +1425,8 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
             query.prepare("SELECT groups.id FROM groups, currentitems WHERE groups.key = currentitems.group_key");
         } else if (itemType == Cuelist) {
             query.prepare("SELECT cuelists.id FROM cuelists, currentitems WHERE cuelists.key = currentitems.cuelist_key");
+        } else if (itemType == Cue) {
+            query.prepare("SELECT cues.id FROM cues, cuelists, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cuelists.currentcue_key = cues.key");
         } else {
             return QStringList();
         }

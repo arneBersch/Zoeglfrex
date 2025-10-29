@@ -33,10 +33,7 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     cuelistTableView->setFocusPolicy(Qt::NoFocus);
     layout->addWidget(cuelistTableView);
 
-    model = new QSqlQueryModel();
-    model->setQuery("SELECT id, label FROM currentcuelist_cues ORDER BY sortkey");
-    model->setHeaderData(0, Qt::Horizontal, "ID");
-    model->setHeaderData(1, Qt::Horizontal, "Label");
+    model = new CuelistTableModel();
     cuelistTableView->setModel(model);
 
     new QShortcut(Qt::Key_Left, this, [this] { selectItem("currentgroup_fixtures", "fixture_key", false); });
@@ -65,7 +62,7 @@ void CuelistView::reload() {
     setCurrentItemLabel("fixtures", "fixture_key", "Fixture", fixtureLabel);
     setCurrentItemLabel("groups", "group_key", "Group", groupLabel);
     setCurrentItemLabel("cuelists", "cuelist_key", "Cuelist", cuelistLabel);
-    model->refresh();
+    model->reload();
 }
 
 void CuelistView::selectItem(const QString table, const QString currentItemsTableKey, const bool next) {

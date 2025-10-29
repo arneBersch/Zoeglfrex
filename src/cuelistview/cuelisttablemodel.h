@@ -6,31 +6,19 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef CUELISTVIEW_H
-#define CUELISTVIEW_H
+#ifndef CUELISTTABLEMODEL_H
+#define CUELISTTABLEMODEL_H
 
-#include <QtWidgets>
 #include <QtSql>
 
-#include "cuelisttablemodel.h"
-
-class CuelistView : public QWidget {
+class CuelistTableModel : public QSqlQueryModel {
     Q_OBJECT
 public:
-    CuelistView(QWidget *parent = nullptr);
-signals:
-    void dbChanged();
-public slots:
+    CuelistTableModel();
+    QVariant data(const QModelIndex &index, int role) const override;
     void reload();
 private:
-    void selectItem(QString table, QString currentItemsTableKey, bool next);
-    void deselectItem(QString currentItemsTableKey);
-    CuelistTableModel* model;
-    QTableView *cuelistTableView;
-    QLabel* fixtureLabel;
-    QLabel* groupLabel;
-    QLabel* cueLabel;
-    QLabel* cuelistLabel;
+    QString currentCueId;
 };
 
-#endif // CUELISTVIEW_H
+#endif // CUELISTTABLEMODEL_H

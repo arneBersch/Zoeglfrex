@@ -13,6 +13,7 @@ CONFIG += c++17
 
 SOURCES += \
     aboutwindow/aboutwindow.cpp \
+    cuelistview/cuelisttablemodel.cpp \
     cuelistview/cuelistview.cpp \
     inspector/inspector.cpp \
     inspector/itemtablemodel.cpp \
@@ -24,6 +25,7 @@ SOURCES += \
 HEADERS += \
     aboutwindow/aboutwindow.h \
     constants.h \
+    cuelistview/cuelisttablemodel.h \
     cuelistview/cuelistview.h \
     inspector/inspector.h \
     inspector/itemtablemodel.h \
