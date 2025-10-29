@@ -11,17 +11,19 @@
 
 #include <QtSql>
 
-class CuelistTableModel : public QSqlQueryModel {
+class CuelistTableModel : public QAbstractTableModel {
     Q_OBJECT
 public:
     CuelistTableModel();
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
-    void reload();
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    void refresh();
     void setCueMode(bool cueMode);
 private:
     bool cueMode = true;
-    QString currentGroupId;
-    QString currentCueId;
+    int currentRow;
 };
 
 #endif // CUELISTTABLEMODEL_H

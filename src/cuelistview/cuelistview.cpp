@@ -84,7 +84,7 @@ void CuelistView::reload() {
     setCurrentItemLabel("SELECT CONCAT('Group ', groups.id, ' ', groups.label) FROM groups, currentitems WHERE groups.key = currentitems.group_key", "Group", groupLabel);
     setCurrentItemLabel("SELECT CONCAT('Cuelist ', cuelists.id, ' ', cuelists.label) FROM cuelists, currentitems WHERE cuelists.key = currentitems.cuelist_key", "Cuelist", cuelistLabel);
     setCurrentItemLabel("SELECT CONCAT('Cue ', cues.id, ' ', cues.label) FROM cues, cuelists, currentitems WHERE cues.key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key", "Cue", cueLabel);
-    model->reload();
+    model->refresh();
 }
 
 void CuelistView::selectItem(const QString table, const QString currentSortkeyQueryText, const QString updateQueryText, const bool next) {
