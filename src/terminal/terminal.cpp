@@ -125,41 +125,98 @@ void Terminal::execute() {
         return;
     }
     if (!attributeReached && !valueReached) {
-        if (ids.size() != 1) {
-            error("Can't select multiple Items.");
-            return;
-        }
-        auto setCurrentItem = [this](const ItemInfos item, const QString itemTable, const QString id, const QString updateQueryText) {
+        auto setCurrentItem = [this](const ItemInfos item, const QString itemTable, const QStringList ids, const QString updateQueryText) {
+            if (ids.size() != 1) {
+                error("Can't select multiple " + item.plural + ".");
+                return;
+            }
             QSqlQuery keyQuery;
             keyQuery.prepare("SELECT key FROM " + itemTable + " WHERE id = :id");
-            keyQuery.bindValue(":id", id);
-            if (keyQuery.exec()) {
-                if (keyQuery.next()) {
-                    const int key = keyQuery.value(0).toInt();
-                    QSqlQuery updateQuery;
-                    updateQuery.prepare(updateQueryText);
-                    updateQuery.bindValue(":key", key);
-                    if (!updateQuery.exec()) {
-                        qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                        error("Failed to select " + item.singular + ".");
-                    }
-                    emit dbChanged();
-                } else {
-                    error("Can't select " + item.singular + " " + id + ".");
-                }
-            } else {
+            keyQuery.bindValue(":id", ids.first());
+            if (!keyQuery.exec()) {
                 qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-                error("Can't select " + item.singular + " because the key request for " + item.singular + " " + id + " failed.");
+                error("Can't select " + item.singular + " because the key request for " + item.singular + " " + ids.first() + " failed.");
+                return;
             }
+            if (!keyQuery.next()) {
+                error("Can't select " + item.singular + " " + ids.first() + ".");
+                return;
+            }
+            const int key = keyQuery.value(0).toInt();
+            QSqlQuery updateQuery;
+            updateQuery.prepare(updateQueryText);
+            updateQuery.bindValue(":key", key);
+            if (!updateQuery.exec()) {
+                qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
+                error("Failed to select " + item.singular + ".");
+            }
+            emit dbChanged();
+        };
+        auto setCueItem = [this] (const ItemInfos item, const QString valueTable, const QStringList ids) {
+            if (ids.size() != 1) {
+                error("Can't select multiple " + item.plural + ".");
+                return;
+            }
+            QSqlQuery itemKeyQuery;
+            itemKeyQuery.prepare("SELECT key FROM " + item.selectTable + " WHERE id = :id");
+            itemKeyQuery.bindValue(":id", ids.first());
+            if (!itemKeyQuery.exec()) {
+                qWarning() << Q_FUNC_INFO << itemKeyQuery.executedQuery() << itemKeyQuery.lastError().text();
+                error("Can't set Cue " + item.plural + " because the key request for " + item.singular + " " + ids.first() + " failed.");
+                return;
+            }
+            if (!itemKeyQuery.next()) {
+                error("Can't select " + item.singular + " " + ids.first() + " because this " + item.singular + " doesn't exist.");
+                return;
+            }
+            const int itemKey = itemKeyQuery.value(0).toInt();
+            QSqlQuery groupKeyQuery;
+            if (!groupKeyQuery.exec("SELECT group_key FROM currentitems WHERE group_key IS NOT NULL")) {
+                qWarning() << Q_FUNC_INFO << groupKeyQuery.executedQuery() << groupKeyQuery.lastError().text();
+                error("Can't set Cue " + item.plural + " because request for the current Group failed.");
+                return;
+            }
+            if (!groupKeyQuery.next()) {
+                error("Can't set Cue " + item.plural + " because no Group is currently selected.");
+                return;
+            }
+            const int groupKey = groupKeyQuery.value(0).toInt();
+            QSqlQuery cueKeyQuery;
+            if (!cueKeyQuery.exec("SELECT cuelists.currentcue_key FROM cuelists, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cuelists.currentcue_key IS NOT NULL")) {
+                qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
+                error("Can't set Cue " + item.plural + " because the request for the current Cue failed.");
+                return;
+            }
+            if (!cueKeyQuery.next()) {
+                error("Can't set Cue " + item.plural + " because no Cue is currently selected.");
+                return;
+            }
+            const int cueKey = cueKeyQuery.value(0).toInt();
+            QSqlQuery query;
+            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, valueitem_key) VALUES (:cue, :group, :item)");
+            query.bindValue(":cue", cueKey);
+            query.bindValue(":group", groupKey);
+            query.bindValue(":item", itemKey);
+            if (!query.exec()) {
+                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                error("Failed to set Cue " + item.plural + ".");
+            }
+            emit dbChanged();
         };
         if (selectionType == Fixture) {
-            setCurrentItem(fixtureInfos, "currentgroup_fixtures", ids.first(), "UPDATE currentitems SET fixture_key = :key");
+            setCurrentItem(fixtureInfos, "currentgroup_fixtures", ids, "UPDATE currentitems SET fixture_key = :key");
         } else if (selectionType == Group) {
-            setCurrentItem(groupInfos, groupInfos.selectTable, ids.first(), "UPDATE currentitems SET group_key = :key");
+            setCurrentItem(groupInfos, groupInfos.selectTable, ids, "UPDATE currentitems SET group_key = :key");
+        } else if (selectionType == Intensity) {
+            setCueItem(intensityInfos, "cue_group_intensities", ids);
+        } else if (selectionType == Color) {
+            setCueItem(colorInfos, "cue_group_colors", ids);
+        } else if (selectionType == Position) {
+            setCueItem(positionInfos, "cue_group_positions", ids);
         } else if (selectionType == Cuelist) {
-            setCurrentItem(cuelistInfos, cuelistInfos.selectTable, ids.first(), "UPDATE currentitems SET cuelist_key = :key");
+            setCurrentItem(cuelistInfos, cuelistInfos.selectTable, ids, "UPDATE currentitems SET cuelist_key = :key");
         } else if (selectionType == Cue) {
-            setCurrentItem(cueInfos, cueInfos.selectTable, ids.first(), "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)");
+            setCurrentItem(cueInfos, cueInfos.selectTable, ids, "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)");
         } else {
             error("Can't select this Item type: " + keysToString({selectionType}));
         }
