@@ -348,7 +348,13 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(rawInfos, "label", "Label", ids, "");
         } else if (attribute.startsWith(QString(AttributeIds::rawChannelValues) + ".")) {
-            setNumberSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attribute, valueKeys, "raw_channels", "raw_key", "channel", "value", {1, 512}, {0, 255});
+            if (attributes.contains(Model)) {
+                setItemAndNumberSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attributes.value(Model), attribute, valueKeys, modelInfos, "raw_model_channels", "raw_key", "model_key", "channel", "value", {1, 512}, {0, 255});
+            } else if (attributes.contains(Fixture)) {
+                setItemAndNumberSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attributes.value(Fixture), attribute, valueKeys, fixtureInfos, "raw_fixture_channels", "raw_key", "fixture_key", "channel", "value", {1, 512}, {0, 255});
+            } else {
+                setNumberSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attribute, valueKeys, "raw_channels", "raw_key", "channel", "value", {1, 512}, {0, 255});
+            }
         } else if (attribute == AttributeIds::rawMoveWhileDark) {
             setBoolAttribute(rawInfos, "movewhiledark", "Move while Dark", ids, valueKeys);
         } else if (attribute == AttributeIds::rawFade) {
@@ -1390,7 +1396,7 @@ template <typename T> void Terminal::setNumberSpecificNumberAttribute(const Item
                             if (currentValueQuery.next()) {
                                 value = keysToFloat(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), valueNumber);
                             } else {
-                                value = keysToFloat(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), valueNumber);
+                                value = keysToFloat(valueKeys, &valueOk, 0, valueNumber);
                             }
                             if (!valueOk) {
                                 error("Invalid value given for " + item.singular + " " + id + ".");
@@ -1441,6 +1447,157 @@ template <typename T> void Terminal::setNumberSpecificNumberAttribute(const Item
                 success("Set " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " at " + QString::number(key) + keyNumber.unit + " to " + QString::number(value) + valueNumber.unit + ".");
             } else if (successfulIds.length() > 1) {
                 success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + QString::number(key) + keyNumber.unit + " to " + QString::number(value) + valueNumber.unit + ".");
+            }
+        }
+    }
+    emit dbChanged();
+}
+
+template <typename T> void Terminal::setItemAndNumberSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QString numberId, QList<Key> valueKeys, ItemInfos foreignItem, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableNumberAttribute, QString valueTableValueAttribute, NumberInfos keyNumber, NumberInfos valueNumber) {
+    Q_ASSERT(!ids.isEmpty());
+    QList<QString> numberIdParts = numberId.split(".");
+    if (numberIdParts.length() != 2) {
+        error("Can't set " + item.singular + " " + attributeName + " because the given Attribute is not valid.");
+        return;
+    }
+    bool ok;
+    int key = numberIdParts.last().toInt(&ok);
+    if (!ok) {
+        error("Can't set " + item.singular + " " + attributeName + " because the given Attribute is not valid.");
+        return;
+    }
+    key = keysToFloat({Plus, Zero}, &ok, key, keyNumber);
+    if (!ok) {
+        error("Can't set " + item.singular + " " + attributeName + " because the given Attribute is not valid.");
+        return;
+    }
+    const bool removeValues = ((valueKeys.size() == 1) && valueKeys.startsWith(Minus));
+    const bool difference = valueKeys.startsWith(Plus);
+    T value;
+    if (!removeValues && !difference) {
+        bool ok;
+        value = keysToFloat(valueKeys, &ok, 0, valueNumber);
+        if (!ok) {
+            error("Invalid value given.");
+            return;
+        }
+    }
+    QList<int> foreignItemKeys;
+    QStringList foreignItemIdStrings;
+    for (QString foreignItemId : foreignItemIds) {
+        QSqlQuery foreignItemQuery;
+        foreignItemQuery.prepare("SELECT key FROM " + foreignItem.selectTable + " WHERE id = :id");
+        foreignItemQuery.bindValue(":id", foreignItemId);
+        if (foreignItemQuery.exec()) {
+            if (foreignItemQuery.next()) {
+                foreignItemKeys.append(foreignItemQuery.value(0).toInt());
+                foreignItemIdStrings.append(foreignItemId);
+            } else {
+                warning("Can't set " + attributeName + " for " + foreignItem.singular + " " + foreignItemId + " because this " + foreignItem.singular + " doesn't exist.");
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << foreignItemQuery.executedQuery() << foreignItemQuery.lastError().text();
+            error("Failed to execute check if " + foreignItem.singular + " " + foreignItemId + " exists.");
+        }
+    }
+    Q_ASSERT(foreignItemKeys.length() == foreignItemIdStrings.length());
+    if (foreignItemKeys.isEmpty()) {
+        error("No valid " + foreignItem.plural + " were found.");
+        return;
+    }
+    createItems(item, ids);
+    QStringList successfulIds;
+    for (QString id : ids) {
+        QSqlQuery keyQuery;
+        keyQuery.prepare("SELECT key FROM " + item.selectTable + " WHERE id = :id");
+        keyQuery.bindValue(":id", id);
+        if (keyQuery.exec()) {
+            if (keyQuery.next()) {
+                const int itemKey = keyQuery.value(0).toInt();
+                bool allQueriesSuccessful = true;
+                for (const int foreignItemKey : foreignItemKeys) {
+                    if (removeValues) {
+                        QSqlQuery query;
+                        query.prepare("DELETE FROM " + valueTable + " WHERE " + valueTableItemAttribute + " = :item AND " + valueTableForeignItemAttribute + " = :foreign_item AND " + valueTableNumberAttribute + " = :key");
+                        query.bindValue(":item", itemKey);
+                        query.bindValue(":foreign_item", foreignItemKey);
+                        query.bindValue(":key", key);
+                        if (!query.exec()) {
+                            allQueriesSuccessful = false;
+                            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                            error("Failed removing the " + attributeName + " of " + item.singular + " " + id + ".");
+                        }
+                    } else {
+                        bool valueOk = true;
+                        if (difference) {
+                            QSqlQuery currentValueQuery;
+                            currentValueQuery.prepare("SELECT " + valueTableValueAttribute + " FROM " + valueTable + " WHERE " + valueTableItemAttribute + " = :item AND " + valueTableForeignItemAttribute + " = :foreign_item AND " + valueTableNumberAttribute + " = :key");
+                            currentValueQuery.bindValue(":item", itemKey);
+                            currentValueQuery.bindValue(":foreign_item", foreignItemKey);
+                            currentValueQuery.bindValue(":key", key);
+                            if (currentValueQuery.exec()) {
+                                if (currentValueQuery.next()) {
+                                    value = keysToFloat(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), valueNumber);
+                                } else {
+                                    value = keysToFloat(valueKeys, &valueOk, 0, valueNumber);
+                                }
+                                if (!valueOk) {
+                                    error("Invalid value given for " + item.singular + " " + id + ".");
+                                }
+                            } else {
+                                qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
+                                error("Failed loading the current " + attributeName + " of " + item.singular + " " + id + ".");
+                                valueOk = false;
+                            }
+                        }
+                        if (valueOk) {
+                            QSqlQuery query;
+                            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (" + valueTableItemAttribute + ", " + valueTableForeignItemAttribute + ", " + valueTableNumberAttribute + ", " + valueTableValueAttribute + ") VALUES (:item, :foreign_item, :key, :value)");
+                            query.bindValue(":item", itemKey);
+                            query.bindValue(":foreign_item", foreignItemKey);
+                            query.bindValue(":key", key);
+                            query.bindValue(":value", value);
+                            if (!query.exec()) {
+                                allQueriesSuccessful = false;
+                                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                                error("Failed removing the " + attributeName + " of " + item.singular + " " + id + ".");
+                            }
+                        }
+                    }
+                }
+                if (allQueriesSuccessful) {
+                    successfulIds.append(id);
+                }
+            } else {
+                error("Failed loading " + item.singular + " " + id + " because this " + item.singular + " wasn't found.");
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
+            error("Failed loading " + item.singular + " " + id + ".");
+        }
+    }
+    QString foreignItemString = foreignItem.plural + " " + foreignItemIdStrings.join(", ");
+    if (foreignItemKeys.length() == 1) {
+        foreignItemString = foreignItem.singular + " " + foreignItemIdStrings.join(", ");
+    }
+    if (removeValues) {
+        if (successfulIds.length() == 1) {
+            success("Removed " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " at " + foreignItemString + " and " + QString::number(key) + ".");
+        } else if (successfulIds.length() > 1) {
+            success("Removed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString +  QString::number(key) + ".");
+        }
+    } else {
+        if (difference) {
+            if (successfulIds.length() == 1) {
+                success("Changed " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " at " + foreignItemString + " and " + QString::number(key) + keyNumber.unit + " by " + QString::number(value) + valueNumber.unit + ".");
+            } else if (successfulIds.length() > 1) {
+                success("Changed " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString + " and " + QString::number(key) + keyNumber.unit + " by " + QString::number(value) + valueNumber.unit + ".");
+            }
+        } else {
+            if (successfulIds.length() == 1) {
+                success("Set " + attributeName + " of " + item.singular + " " + successfulIds.join(", ") + " at " + foreignItemString + " and " + QString::number(key) + keyNumber.unit + " to " + QString::number(value) + valueNumber.unit + ".");
+            } else if (successfulIds.length() > 1) {
+                success("Set " + attributeName + " of " + item.plural + " " + successfulIds.join(", ") + " at " + foreignItemString + " and " + QString::number(key) + keyNumber.unit + " to " + QString::number(value) + valueNumber.unit + ".");
             }
         }
     }

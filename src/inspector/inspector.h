@@ -31,6 +31,7 @@ private:
     QString getItemSpecificItemAttribute(QString table, QString foreignItemTable, QString valueItemTable, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueItemAttribute, QString id) const;
     QString getItemSpecificItemListAttribute(QString table, QString foreignItemTable, QString valueItemTable, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueItemAttribute, QString id) const;
     QString getNumberSpecificNumberAttribute(QString table, QString valueTable, QString valueTableItemAttribute, QString valueTableNumberAttribute, QString valueTableValueAttribute, QString id, QString unit) const;
+    QString getItemAndNumberSpecificNumberAttribute(QString table, QString foreignItemTable, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableNumberAttribute, QString valueTableValueAttribute, QString id, QString unit) const;
     ItemTableModel* model;
     QTableView* table;
     QLabel* titleLabel;
