@@ -15,7 +15,8 @@ class ItemTableModel : public QSqlQueryModel {
     Q_OBJECT
 public:
     ItemTableModel();
-    void setTable(QString table, QStringList ids);
+    void setTable(QString table);
+    void setIds(QStringList ids);
     QVariant data(const QModelIndex &index, int role) const override;
 private:
     QStringList ids;

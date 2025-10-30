@@ -10,11 +10,14 @@
 
 ItemTableModel::ItemTableModel() {}
 
-void ItemTableModel::setTable(QString table, QStringList currentIds) {
-    ids = currentIds;
+void ItemTableModel::setTable(const QString table) {
     setQuery("SELECT id, label FROM " + table + " ORDER BY sortkey");
     setHeaderData(0, Qt::Horizontal, "ID");
     setHeaderData(1, Qt::Horizontal, "Label");
+}
+
+void ItemTableModel::setIds(const QStringList newIds) {
+    ids = newIds;
 }
 
 QVariant ItemTableModel::data(const QModelIndex &index, int role) const

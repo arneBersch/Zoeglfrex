@@ -39,6 +39,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
     promptLabel = new QLabel();
+    promptLabel->setStyleSheet("padding: 10px; background-color: #303030;");
     layout->addWidget(promptLabel);
 
     messages = new QPlainTextEdit();
@@ -606,6 +607,7 @@ void Terminal::moveItems(const ItemInfos item, QStringList ids, QList<Key> value
             } else {
                 QSqlQuery keyQuery;
                 keyQuery.prepare("SELECT key FROM " + item.selectTable + " WHERE id = :id");
+                keyQuery.bindValue(":id", id);
                 if (keyQuery.exec()) {
                     if (keyQuery.next()) {
                         QSqlQuery updateQuery;
@@ -943,25 +945,29 @@ void Terminal::setItemListAttribute(const ItemInfos item, const QString attribut
         if (keyQuery.exec()) {
             if (keyQuery.next()) {
                 const int itemKey = keyQuery.value(0).toInt();
+                bool allQueriesSuccessful = true;
                 QSqlQuery deleteQuery;
                 deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key =  :key");
                 deleteQuery.bindValue(":key", itemKey);
                 if (deleteQuery.exec()) {
                     for (const int foreignItemKey : foreignItemKeys) {
                         QSqlQuery insertQuery;
-                        insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, foreignitem_key) VALUES (:item, :foreign_item)");
+                        insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, valueitem_key) VALUES (:item, :foreign_item)");
                         insertQuery.bindValue(":item", itemKey);
                         insertQuery.bindValue(":foreign_item", foreignItemKey);
-                        if (insertQuery.exec()) {
-                            successfulIds.append(id);
-                        } else {
+                        if (!insertQuery.exec()) {
+                            allQueriesSuccessful = false;
                             qWarning() << Q_FUNC_INFO << insertQuery.executedQuery() << insertQuery.lastError().text();
                             error("Failed to insert a " + foreignItem.singular + " into " + item.singular + " " + id + ".");
                         }
                     }
                 } else {
+                    allQueriesSuccessful = false;
                     qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
                     error("Failed deleting old " + attributeName + " of " + item.singular + " " + id + ".");
+                }
+                if (allQueriesSuccessful) {
+                    successfulIds.append(id);
                 }
             } else {
                 error("Failed loading " + item.singular + " " + id + " because this " + item.singular + " wasn't found.");
@@ -1735,13 +1741,13 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
             if (currentFixture) {
                 query.prepare("SELECT models.id FROM models, fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key AND models.key = fixtures.model_key");
             } else {
-                query.prepare("SELECT models.id FROM models, fixtures, currentitems, group_fixtures WHERE fixtures.key = group_fixtures.foreignitem_key AND currentitems.group_key = group_fixtures.item_key AND fixtures.model_key = models.key");
+                query.prepare("SELECT models.id FROM models, fixtures, currentitems, group_fixtures WHERE fixtures.key = group_fixtures.valueitem_key AND currentitems.group_key = group_fixtures.item_key AND fixtures.model_key = models.key");
             }
         } else if (itemType == Fixture) {
             if (currentFixture) {
                 query.prepare("SELECT fixtures.id FROM fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key");
             } else {
-                query.prepare("SELECT fixtures.id FROM fixtures, currentitems, group_fixtures WHERE fixtures.key = group_fixtures.foreignitem_key AND currentitems.group_key = group_fixtures.item_key");
+                query.prepare("SELECT fixtures.id FROM fixtures, currentitems, group_fixtures WHERE fixtures.key = group_fixtures.valueitem_key AND currentitems.group_key = group_fixtures.item_key");
             }
         } else if (itemType == Group) {
             query.prepare("SELECT groups.id FROM groups, currentitems WHERE groups.key = currentitems.group_key");

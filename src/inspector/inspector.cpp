@@ -79,7 +79,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
     QStringList infos;
     if (!table.isEmpty()) {
         titleLabel->setText(title);
-        model->setTable(table, ids);
+        model->setTable(table);
         if (!ids.isEmpty()) {
             const QString id = ids.last();
             const QString label = getTextAttribute(table, "label", id);
@@ -169,6 +169,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
         infosLabel->setText(infos.join("\n"));
         infosLabel->show();
     }
+    model->setIds(ids);
     model->refresh();
 }
 
@@ -236,7 +237,7 @@ QString Inspector::getItemAttribute(const QString table, const QString attribute
 
 QString Inspector::getItemListAttribute(const QString table, const QString valueItemTable, const QString valueTable, const QString id) const {
     QSqlQuery query;
-    query.prepare("SELECT CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + table + ", " + valueTable + ", " + valueItemTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + ".item_key AND " + valueItemTable + ".key = " + valueTable + ".foreignitem_key ORDER BY " + valueItemTable + ".sortkey");
+    query.prepare("SELECT CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + table + ", " + valueTable + ", " + valueItemTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + ".item_key AND " + valueItemTable + ".key = " + valueTable + ".valueitem_key ORDER BY " + valueItemTable + ".sortkey");
     query.bindValue(":id", id);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
