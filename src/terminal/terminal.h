@@ -97,7 +97,8 @@ private:
     void setItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QList<Key> valueKeys, ItemInfos foreignItem, QString valueTable);
     template <typename T> void setItemSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, QString valueTable, NumberInfos number);
     void setItemSpecificItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, ItemInfos valueItem, QString valueTable, bool limitToOne = false);
-    template <typename T> void setIntegerSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QString numberId, QList<Key> valueKeys, QString valueTable, NumberInfos keyNumber, NumberInfos valueNumber);
+    template <typename T> void setIntegerSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QString integerId, QList<Key> valueKeys, QString valueTable, NumberInfos keyInteger, NumberInfos valueNumber);
+    void setIntegerSpecificItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QString integerId, QList<Key> valueKeys, ItemInfos valueItem, QString valueTable, NumberInfos keyInteger, bool limitToOne = false);
     template <typename T> void setItemAndIntegerSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QString numberId, QList<Key> valueKeys, ItemInfos foreignItem, QString valueTable, NumberInfos keyNumber, NumberInfos valueNumber);
     float keysToFloat(QList<Key> keys, bool* ok, float currentValue, NumberInfos number) const;
     QStringList keysToIds(QList<Key> keys) const;

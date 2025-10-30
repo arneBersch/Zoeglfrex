@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
     } else {
         qInfo() << "Created File" << fileName;
         auto createItemListAttributeTable = [] (const QString tableName, const QString itemTable, const QString foreignItemTable) {
-            return "CREATE TABLE " + tableName + " (item_key INTEGER REFERENCES " + itemTable + " (key) ON DELETE CASCADE NOT NULL, foreignitem_key INTEGER REFERENCES " + foreignItemTable + " (key) ON DELETE CASCADE NOT NULL, PRIMARY KEY (item_key, foreignitem_key))";
+            return "CREATE TABLE " + tableName + " (item_key INTEGER REFERENCES " + itemTable + " (key) ON DELETE CASCADE NOT NULL, valueitem_key INTEGER REFERENCES " + foreignItemTable + " (key) ON DELETE CASCADE NOT NULL, PRIMARY KEY (item_key, valueitem_key))";
         };
         auto createItemSpecificNumberAttributeTable = [] (const QString tableName, const QString itemTable, const QString foreignItemTable, const QString valueType) {
             return "CREATE TABLE " + tableName + " (item_key INTEGER REFERENCES " + itemTable + " (key) ON DELETE CASCADE NOT NULL, foreignitem_key INTEGER REFERENCES " + foreignItemTable + " (key) ON DELETE CASCADE NOT NULL, value " + valueType + " DEFAULT 0 NOT NULL, PRIMARY KEY (item_key, foreignitem_key))";
@@ -75,6 +75,12 @@ int main(int argc, char *argv[]) {
         };
         auto createItemSpecificItemListAttributeTable = [] (const QString tableName, const QString itemTable, const QString foreignItemTable, const QString valueItemTable) {
             return "CREATE TABLE " + tableName + " (item_key INTEGER REFERENCES " + itemTable + " (key) ON DELETE CASCADE NOT NULL, foreignitem_key INTEGER REFERENCES " + foreignItemTable + " (key) ON DELETE CASCADE NOT NULL, valueitem_key INTEGER REFERENCES " + valueItemTable + " (key) ON DELETE CASCADE NOT NULL, PRIMARY KEY (item_key, foreignitem_key, valueitem_key))";
+        };
+        auto createIntegerSpecificItemAttribute = [] (const QString tableName, const QString itemTable, const QString valueItemTable) {
+            return "CREATE TABLE " + tableName + " (item_key INTEGER REFERENCES " + itemTable + " (key) ON DELETE CASCADE NOT NULL, key INTEGER NOT NULL, valueitem_key INTEGER REFERENCES " + valueItemTable + " (key) ON DELETE CASCADE NOT NULL, PRIMARY KEY (item_key, key))";
+        };
+        auto createIntegerSpecificItemListAttribute = [] (const QString tableName, const QString itemTable, const QString valueItemTable) {
+            return "CREATE TABLE " + tableName + " (item_key INTEGER REFERENCES " + itemTable + " (key) ON DELETE CASCADE NOT NULL, key INTEGER NOT NULL, valueitem_key INTEGER REFERENCES " + valueItemTable + " (key) ON DELETE CASCADE NOT NULL, PRIMARY KEY (item_key, key, valueitem_key))";
         };
         auto createIntegerSpecificNumberAttribute = [] (const QString tableName, const QString itemTable, const QString valueType) {
             return "CREATE TABLE " + tableName + " (item_key INTEGER REFERENCES " + itemTable + " (key) ON DELETE CASCADE NOT NULL, key INTEGER NOT NULL, value " + valueType + " DEFAULT 0 NOT NULL, PRIMARY KEY (item_key, key))";
@@ -113,6 +119,10 @@ int main(int argc, char *argv[]) {
             createItemSpecificNumberAttributeTable("position_fixture_focus", "positions", "fixtures", "REAL"),
             createItemListAttributeTable("position_raws", "positions", "raws"),
             "CREATE TABLE effects (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', steps INTEGER DEFAULT 2 NOT NULL, hold REAL DEFAULT 0 NOT NULL, fade REAL DEFAULT 0 NOT NULL, phase REAL DEFAULT 0 NOT NULL, PRIMARY KEY (key))",
+            createIntegerSpecificItemAttribute("effect_step_intensities", "effects", "intensities"),
+            createIntegerSpecificItemAttribute("effect_step_colors", "effects", "colors"),
+            createIntegerSpecificItemAttribute("effect_step_positions", "effects", "positions"),
+            createIntegerSpecificItemListAttribute("effect_step_raws", "effects", "raws"),
             createIntegerSpecificNumberAttribute("effect_step_hold", "effects", "REAL"),
             createIntegerSpecificNumberAttribute("effect_step_fade", "effects", "REAL"),
             createItemSpecificNumberAttributeTable("effect_fixture_phase", "effects", "fixtures", "REAL"),

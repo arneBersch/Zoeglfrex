@@ -136,6 +136,10 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append(QString(AttributeIds::rawFade) + " Fade: " + getBoolAttribute(table, "fade", id));
                 } else if (table == "effects") {
                     infos.append(QString(AttributeIds::effectSteps) + " Steps: " + getNumberAttribute(table, "steps", id, ""));
+                    infos.append(QString(AttributeIds::effectIntensities) + " Intensities: " + getIntegerSpecificItemListAttribute(table, "intensities", "effect_step_intensities", id));
+                    infos.append(QString(AttributeIds::effectColors) + " Colors: " + getIntegerSpecificItemListAttribute(table, "colors", "effect_step_effects", id));
+                    infos.append(QString(AttributeIds::effectPositions) + " Positions: " + getIntegerSpecificItemListAttribute(table, "positions", "effect_step_positions", id));
+                    infos.append(QString(AttributeIds::effectRaws) + " Raws: " + getIntegerSpecificItemListAttribute(table, "raws", "effect_step_raws", id));
                     infos.append(QString(AttributeIds::effectHold) + " Hold: " + getNumberAttribute(table, "hold", id, "s"));
                     infos.append("   Step Exceptions: " + getIntegerSpecificNumberAttribute(table, "effect_step_hold", id, "s"));
                     infos.append(QString(AttributeIds::effectFade) + " Fade: " + getNumberAttribute(table, "fade", id, "s"));
@@ -216,9 +220,9 @@ QString Inspector::getNumberAttribute(const QString table, const QString attribu
     return query.value(0).toString() + unit;
 }
 
-QString Inspector::getItemAttribute(const QString table, const QString attribute, const QString id, const QString foreignItemTable) const {
+QString Inspector::getItemAttribute(const QString table, const QString attribute, const QString id, const QString valueItemTable) const {
     QSqlQuery query;
-    query.prepare("SELECT CONCAT(" + foreignItemTable + ".id, ' ', " + foreignItemTable + ".label) FROM " + table + ", " + foreignItemTable + " WHERE " + table + "." + " id = :id AND " + table + "." + attribute + " = " + foreignItemTable + ".key");
+    query.prepare("SELECT CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + table + ", " + valueItemTable + " WHERE " + table + "." + " id = :id AND " + table + "." + attribute + " = " + valueItemTable + ".key");
     query.bindValue(":id", id);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
@@ -230,9 +234,9 @@ QString Inspector::getItemAttribute(const QString table, const QString attribute
     return query.value(0).toString();
 }
 
-QString Inspector::getItemListAttribute(const QString table, const QString foreignItemsTable, const QString valueTable, const QString id) const {
+QString Inspector::getItemListAttribute(const QString table, const QString valueItemTable, const QString valueTable, const QString id) const {
     QSqlQuery query;
-    query.prepare("SELECT CONCAT(" + foreignItemsTable + ".id, ' ', " + foreignItemsTable + ".label) FROM " + table + ", " + valueTable + ", " + foreignItemsTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + ".item_key AND " + foreignItemsTable + ".key = " + valueTable + ".foreignitem_key ORDER BY " + foreignItemsTable + ".sortkey");
+    query.prepare("SELECT CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + table + ", " + valueTable + ", " + valueItemTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + ".item_key AND " + valueItemTable + ".key = " + valueTable + ".foreignitem_key ORDER BY " + valueItemTable + ".sortkey");
     query.bindValue(":id", id);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
@@ -296,6 +300,29 @@ QString Inspector::getIntegerSpecificNumberAttribute(const QString table, const 
         values.append(query.value(0).toString() + " @ " + query.value(1).toString() + unit);
     }
     return values.join(", ");
+}
+
+QString Inspector::getIntegerSpecificItemListAttribute(const QString table, const QString valueItemTable, const QString valueTable, const QString id) const {
+    QSqlQuery query;
+    query.prepare("SELECT " + valueTable + ".key, CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label), FROM " + table + ", " + valueItemTable + ", " + valueTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + ".item_key AND " + valueItemTable + ".key = " + valueTable + ".valueitem_key AND " + valueItemTable + ".key = " + valueTable + ".valueitem_key ORDER BY " + valueTable + ".key, " + valueItemTable + ".sortkey");
+    query.bindValue(":id", id);
+    if (!query.exec()) {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        return QString();
+    }
+    QMap<QString, QStringList> foreignItemValues;
+    while (query.next()) {
+        const QString foreignItem = query.value(0).toString();
+        if (!foreignItemValues.contains(foreignItem)) {
+            foreignItemValues[foreignItem] = QStringList();
+        }
+        foreignItemValues[foreignItem].append(query.value(1).toString());
+    }
+    QStringList values;
+    for (QString foreignItem : foreignItemValues.keys()) {
+        values.append(foreignItem + " @ " + foreignItemValues.value(foreignItem).join(", "));
+    }
+    return values.join("; ");
 }
 
 QString Inspector::getItemAndIntegerSpecificNumberAttribute(const QString table, const QString foreignItemTable, const QString valueTable, const QString id, const QString unit) const {
