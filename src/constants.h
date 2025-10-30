@@ -48,6 +48,13 @@ const char* const rawMoveWhileDark = "3";
 const char* const rawFade = "4";
 
 const char* const effectSteps = "2";
+const char* const effectIntensities = "3";
+const char* const effectColors = "4";
+const char* const effectPositions = "5";
+const char* const effectRaws = "6";
+const char* const effectHold = "7";
+const char* const effectFade = "8";
+const char* const effectPhase = "9";
 
 const char* const cuelistPriority = "2";
 const char* const cuelistMoveWhileDark = "3";

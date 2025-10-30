@@ -371,6 +371,20 @@ void Terminal::execute() {
             setTextAttribute(effectInfos, "label", "Label", ids, "");
         } else if ((attribute == AttributeIds::effectSteps) || !attributes.contains(Attribute)) {
             setNumberAttribute<int>(effectInfos, "steps", "Steps", ids, valueKeys, {2, 99});
+        } else if (attribute == AttributeIds::effectHold) {
+            setNumberAttribute<float>(effectInfos, "hold", "Hold", ids, valueKeys, {0, 600, false, "s"});
+        } else if (attribute.startsWith(QString(AttributeIds::effectHold) + ".")) {
+            setNumberSpecificNumberAttribute<float>(effectInfos, "Hold", ids, attribute, valueKeys, "effect_step_hold", "effect_key", "step", "hold", {1, 99}, {0, 600, false, "s"});
+        } else if (attribute == AttributeIds::effectFade) {
+            setNumberAttribute<float>(effectInfos, "fade", "Fade", ids, valueKeys, {0, 600, false, "s"});
+        } else if (attribute.startsWith(QString(AttributeIds::effectFade) + ".")) {
+            setNumberSpecificNumberAttribute<float>(effectInfos, "Fade", ids, attribute, valueKeys, "effect_step_fade", "effect_key", "step", "fade", {1, 99}, {0, 600, false, "s"});
+        } else if (attribute == AttributeIds::effectPhase) {
+            if (attributes.contains(Fixture)) {
+                setItemSpecificNumberAttribute<float>(effectInfos, "Phase", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "effect_fixture_phase", "effect_key", "fixture_key", "phase", angleInfos);
+            } else {
+                setNumberAttribute<float>(effectInfos, "phase", "Phase", ids, valueKeys, angleInfos);
+            }
         } else {
             error("Unknown Effect Attribute.");
         }
@@ -767,7 +781,7 @@ template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, co
             if (keyQuery.exec()) {
                 if (keyQuery.next()) {
                     QSqlQuery updateQuery;
-                    updateQuery.prepare("UPDATE " + item.updateTable + " SET " + attribute + " = :value WHERE id = :id");
+                    updateQuery.prepare("UPDATE " + item.updateTable + " SET " + attribute + " = :value WHERE key = :key");
                     updateQuery.bindValue(":key", keyQuery.value(0).toInt());
                     updateQuery.bindValue(":value", value);
                     if (updateQuery.exec()) {

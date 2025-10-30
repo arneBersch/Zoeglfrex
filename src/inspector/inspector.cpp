@@ -136,6 +136,12 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append(QString(AttributeIds::rawFade) + " Fade: " + getBoolAttribute(table, "fade", id));
                 } else if (table == "effects") {
                     infos.append(QString(AttributeIds::effectSteps) + " Steps: " + getNumberAttribute(table, "steps", id, ""));
+                    infos.append(QString(AttributeIds::effectHold) + " Hold: " + getNumberAttribute(table, "hold", id, "s"));
+                    infos.append("   Step Exceptions: " + getNumberSpecificNumberAttribute(table, "effect_step_hold", "effect_key", "step", "hold", id, "s"));
+                    infos.append(QString(AttributeIds::effectFade) + " Fade: " + getNumberAttribute(table, "fade", id, "s"));
+                    infos.append("   Step Exceptions: " + getNumberSpecificNumberAttribute(table, "effect_step_fade", "effect_key", "step", "fade", id, "s"));
+                    infos.append(QString(AttributeIds::effectPhase) + " Phase: " + getNumberAttribute(table, "phase", id, "°"));
+                    infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "effect_fixture_phase", "effect_key", "fixture_key", "phase", "°", id));
                 } else if (table == "cuelists") {
                     infos.append(QString(AttributeIds::cuelistPriority) + " Priority: " + getNumberAttribute(table, "priority", id, ""));
                     infos.append(QString(AttributeIds::cuelistMoveWhileDark) + " Move while Dark: " + getBoolAttribute(table, "movewhiledark", id));
@@ -241,7 +247,7 @@ QString Inspector::getItemListAttribute(const QString table, const QString forei
 
 QString Inspector::getItemSpecificNumberAttribute(const QString table, const QString foreignItemsTable, const QString exceptionTable, const QString exceptionTableItemAttribute, const QString exceptionTableForeignItemsAttribute, const QString exceptionTableValueAttribute, const QString unit, const QString id) const {
     QSqlQuery query;
-    query.prepare("SELECT CONCAT(" + foreignItemsTable + ".id, ' ', " + foreignItemsTable + ".label), " + exceptionTable + "." + exceptionTableValueAttribute + " FROM " + table + ", " + exceptionTable + ", " + foreignItemsTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + exceptionTable + "." + exceptionTableItemAttribute + " AND " + foreignItemsTable + ".key = " + exceptionTable + "." + exceptionTableForeignItemsAttribute + " ORDER BY " + foreignItemsTable + ".sortkey");
+    query.prepare("SELECT CONCAT(" + foreignItemsTable + ".id, ' ', " + foreignItemsTable + ".label), ROUND(" + exceptionTable + "." + exceptionTableValueAttribute + ", 3) FROM " + table + ", " + exceptionTable + ", " + foreignItemsTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + exceptionTable + "." + exceptionTableItemAttribute + " AND " + foreignItemsTable + ".key = " + exceptionTable + "." + exceptionTableForeignItemsAttribute + " ORDER BY " + foreignItemsTable + ".sortkey");
     query.bindValue(":id", id);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
@@ -279,7 +285,7 @@ QString Inspector::getItemSpecificItemListAttribute(const QString table, const Q
 
 QString Inspector::getNumberSpecificNumberAttribute(const QString table, const QString valueTable, const QString valueTableItemAttribute, const QString valueTableNumberAttribute, const QString valueTableValueAttribute, const QString id, const QString unit) const {
     QSqlQuery query;
-    query.prepare("SELECT " + valueTable + "." + valueTableNumberAttribute + ", " + valueTable + "." + valueTableValueAttribute + " FROM " + table + ", " + valueTable + " WHERE " + table + ".id = :id AND " + valueTable + "." + valueTableItemAttribute + " = " + table + ".key ORDER BY " + valueTable + "." + valueTableNumberAttribute);
+    query.prepare("SELECT " + valueTable + "." + valueTableNumberAttribute + ", ROUND(" + valueTable + "." + valueTableValueAttribute + ", 3) FROM " + table + ", " + valueTable + " WHERE " + table + ".id = :id AND " + valueTable + "." + valueTableItemAttribute + " = " + table + ".key ORDER BY " + valueTable + "." + valueTableNumberAttribute);
     query.bindValue(":id", id);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
@@ -294,7 +300,7 @@ QString Inspector::getNumberSpecificNumberAttribute(const QString table, const Q
 
 QString Inspector::getItemAndNumberSpecificNumberAttribute(const QString table, const QString foreignItemTable, const QString valueTable, const QString valueTableItemAttribute, const QString valueTableForeignItemAttribute, const QString valueTableNumberAttribute, const QString valueTableValueAttribute, const QString id, const QString unit) const {
     QSqlQuery query;
-    query.prepare("SELECT CONCAT(" + foreignItemTable + ".id, ' ', " + foreignItemTable + ".label), " + valueTable + "." + valueTableNumberAttribute + ", " + valueTable + "." + valueTableValueAttribute + " FROM " + table + ", " + foreignItemTable + ", " + valueTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + "." + valueTableItemAttribute + " AND " + foreignItemTable + ".key = " + valueTable + "." + valueTableForeignItemAttribute + " ORDER BY " + foreignItemTable + ".sortkey, " + valueTable + "." + valueTableNumberAttribute);
+    query.prepare("SELECT CONCAT(" + foreignItemTable + ".id, ' ', " + foreignItemTable + ".label), " + valueTable + "." + valueTableNumberAttribute + ", ROUND(" + valueTable + "." + valueTableValueAttribute + ", 3) FROM " + table + ", " + foreignItemTable + ", " + valueTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + "." + valueTableItemAttribute + " AND " + foreignItemTable + ".key = " + valueTable + "." + valueTableForeignItemAttribute + " ORDER BY " + foreignItemTable + ".sortkey, " + valueTable + "." + valueTableNumberAttribute);
     query.bindValue(":id", id);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
