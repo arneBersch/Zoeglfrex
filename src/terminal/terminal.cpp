@@ -242,7 +242,7 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(groupInfos, "label", "Label", ids, "");
         } else if ((attribute == AttributeIds::groupFixtures) || !attributes.contains(Attribute)) {
-            setItemListAttribute(groupInfos, "Fixtures", ids, valueKeys, fixtureInfos, "group_fixtures", "group_key", "fixture_key");
+            setItemListAttribute(groupInfos, "Fixtures", ids, valueKeys, fixtureInfos, "group_fixtures");
         } else {
             error("Unknown Group Attribute.");
         }
@@ -255,14 +255,14 @@ void Terminal::execute() {
             setTextAttribute(intensityInfos, "label", "Label", ids, "");
         } else if ((attribute == AttributeIds::intensityDimmer) || !attributes.contains(Attribute)) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "intensity_model_dimmer", "intensity_key", "model_key", "dimmer", percentageInfos);
+                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "intensity_model_dimmer", percentageInfos);
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "intensity_fixture_dimmer", "intensity_key", "fixture_key", "dimmer", percentageInfos);
+                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "intensity_fixture_dimmer", percentageInfos);
             } else {
                 setNumberAttribute<float>(intensityInfos, "dimmer", "Dimmer", ids, valueKeys, percentageInfos);
             }
         } else if (attribute == AttributeIds::intensityRaws) {
-            setItemListAttribute(intensityInfos, "Raws", ids, valueKeys, rawInfos, "intensity_raws", "intensity_key", "raw_key");
+            setItemListAttribute(intensityInfos, "Raws", ids, valueKeys, rawInfos, "intensity_raws");
         } else {
             error("Unknown Intensity Attribute.");
         }
@@ -275,24 +275,24 @@ void Terminal::execute() {
             setTextAttribute(colorInfos, "label", "Label", ids, "");
         } else if ((attribute == AttributeIds::colorHue) || !attributes.contains(Attribute)) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_hue", "color_key", "model_key", "hue", angleInfos);
+                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_hue", angleInfos);
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_hue", "color_key", "fixture_key", "hue", angleInfos);
+                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_hue", angleInfos);
             } else {
                 setNumberAttribute<float>(colorInfos, "hue", "Hue", ids, valueKeys, angleInfos);
             }
         } else if (attribute == AttributeIds::colorSaturation) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_saturation", "color_key", "model_key", "saturation", percentageInfos);
+                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_saturation", percentageInfos);
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_saturation", "color_key", "fixture_key", "saturation", percentageInfos);
+                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_saturation", percentageInfos);
             } else {
                 setNumberAttribute<float>(colorInfos, "saturation", "Saturation", ids, valueKeys, percentageInfos);
             }
         } else if (attribute == AttributeIds::colorQuality) {
             setNumberAttribute<float>(colorInfos, "quality", "Quality", ids, valueKeys, percentageInfos);
         } else if (attribute == AttributeIds::colorRaws) {
-            setItemListAttribute(colorInfos, "Raws", ids, valueKeys, rawInfos, "color_raws", "color_key", "raw_key");
+            setItemListAttribute(colorInfos, "Raws", ids, valueKeys, rawInfos, "color_raws");
         } else {
             error("Unknown Color Attribute.");
         }
@@ -305,38 +305,38 @@ void Terminal::execute() {
             setTextAttribute(positionInfos, "label", "Label", ids, "");
         } else if ((attribute == AttributeIds::positionPan) || !attributes.contains(Attribute)) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_pan", "position_key", "model_key", "pan", angleInfos);
+                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_pan", angleInfos);
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_pan", "position_key", "fixture_key", "pan", angleInfos);
+                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_pan", angleInfos);
             } else {
                 setNumberAttribute<float>(positionInfos, "pan", "Pan", ids, valueKeys, angleInfos);
             }
         } else if (attribute == AttributeIds::positionTilt) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_tilt", "position_key", "model_key", "tilt", {-180, 180, false, "°"});
+                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_tilt", {-180, 180, false, "°"});
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_tilt", "position_key", "fixture_key", "tilt", {-180, 180, false, "°"});
+                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_tilt", {-180, 180, false, "°"});
             } else {
                 setNumberAttribute<float>(positionInfos, "tilt", "Tilt", ids, valueKeys, {-180, 180, false, "°"});
             }
         } else if (attribute == AttributeIds::positionZoom) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_zoom", "position_key", "model_key", "zoom", {0, 180, false, "°"});
+                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_zoom", {0, 180, false, "°"});
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_zoom", "position_key", "fixture_key", "zoom", {0, 180, false, "°"});
+                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_zoom", {0, 180, false, "°"});
             } else {
                 setNumberAttribute<float>(positionInfos, "zoom", "Zoom", ids, valueKeys, {0, 180, false, "°"});
             }
         } else if (attribute == AttributeIds::positionFocus) {
             if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Focus Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_focus", "position_key", "model_key", "focus", percentageInfos);
+                setItemSpecificNumberAttribute<float>(positionInfos, "Focus Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_focus", percentageInfos);
             } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Focus Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_focus", "position_key", "fixture_key", "focus", percentageInfos);
+                setItemSpecificNumberAttribute<float>(positionInfos, "Focus Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_focus", percentageInfos);
             } else {
                 setNumberAttribute<float>(positionInfos, "focus", "Focus", ids, valueKeys, percentageInfos);
             }
         } else if (attribute == AttributeIds::positionRaws) {
-            setItemListAttribute(positionInfos, "Raws", ids, valueKeys, rawInfos, "position_raws", "position_key", "raw_key");
+            setItemListAttribute(positionInfos, "Raws", ids, valueKeys, rawInfos, "position_raws");
         } else {
             error("Unknown Position Attribute.");
         }
@@ -349,11 +349,11 @@ void Terminal::execute() {
             setTextAttribute(rawInfos, "label", "Label", ids, "");
         } else if (attribute.startsWith(QString(AttributeIds::rawChannelValues) + ".")) {
             if (attributes.contains(Model)) {
-                setItemAndNumberSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attributes.value(Model), attribute, valueKeys, modelInfos, "raw_model_channels", "raw_key", "model_key", "channel", "value", {1, 512}, {0, 255});
+                setItemAndIntegerSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attributes.value(Model), attribute, valueKeys, modelInfos, "raw_model_channel_values", {1, 512}, {0, 255});
             } else if (attributes.contains(Fixture)) {
-                setItemAndNumberSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attributes.value(Fixture), attribute, valueKeys, fixtureInfos, "raw_fixture_channels", "raw_key", "fixture_key", "channel", "value", {1, 512}, {0, 255});
+                setItemAndIntegerSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attributes.value(Fixture), attribute, valueKeys, fixtureInfos, "raw_fixture_channel_values", {1, 512}, {0, 255});
             } else {
-                setNumberSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attribute, valueKeys, "raw_channels", "raw_key", "channel", "value", {1, 512}, {0, 255});
+                setIntegerSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attribute, valueKeys, "raw_channel_values", {1, 512}, {0, 255});
             }
         } else if (attribute == AttributeIds::rawMoveWhileDark) {
             setBoolAttribute(rawInfos, "movewhiledark", "Move while Dark", ids, valueKeys);
@@ -374,14 +374,14 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::effectHold) {
             setNumberAttribute<float>(effectInfos, "hold", "Hold", ids, valueKeys, {0, 600, false, "s"});
         } else if (attribute.startsWith(QString(AttributeIds::effectHold) + ".")) {
-            setNumberSpecificNumberAttribute<float>(effectInfos, "Hold", ids, attribute, valueKeys, "effect_step_hold", "effect_key", "step", "hold", {1, 99}, {0, 600, false, "s"});
+            setIntegerSpecificNumberAttribute<float>(effectInfos, "Hold", ids, attribute, valueKeys, "effect_step_hold", {1, 99}, {0, 600, false, "s"});
         } else if (attribute == AttributeIds::effectFade) {
             setNumberAttribute<float>(effectInfos, "fade", "Fade", ids, valueKeys, {0, 600, false, "s"});
         } else if (attribute.startsWith(QString(AttributeIds::effectFade) + ".")) {
-            setNumberSpecificNumberAttribute<float>(effectInfos, "Fade", ids, attribute, valueKeys, "effect_step_fade", "effect_key", "step", "fade", {1, 99}, {0, 600, false, "s"});
+            setIntegerSpecificNumberAttribute<float>(effectInfos, "Fade", ids, attribute, valueKeys, "effect_step_fade", {1, 99}, {0, 600, false, "s"});
         } else if (attribute == AttributeIds::effectPhase) {
             if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(effectInfos, "Phase", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "effect_fixture_phase", "effect_key", "fixture_key", "phase", angleInfos);
+                setItemSpecificNumberAttribute<float>(effectInfos, "Phase", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "effect_fixture_phase", angleInfos);
             } else {
                 setNumberAttribute<float>(effectInfos, "phase", "Phase", ids, valueKeys, angleInfos);
             }
@@ -422,31 +422,31 @@ void Terminal::execute() {
             setTextAttribute(cueInfos, "label", "Label", ids, "");
         } else if (attribute == AttributeIds::cueIntensities) {
             if (attributes.contains(Group)) {
-                setItemSpecificItemListAttribute(cueInfos, "Intensities", ids, attributes.value(Group), valueKeys, groupInfos, intensityInfos, "cue_intensities", "cue_key", "group_key", "intensity_key", true);
+                setItemSpecificItemListAttribute(cueInfos, "Intensities", ids, attributes.value(Group), valueKeys, groupInfos, intensityInfos, "cue_group_intensities", true);
             } else {
                 error("Can't set Cue Intensities because no Group Attribute was provided.");
             }
         } else if (attribute == AttributeIds::cueColors) {
             if (attributes.contains(Group)) {
-                setItemSpecificItemListAttribute(cueInfos, "Colors", ids, attributes.value(Group), valueKeys, groupInfos, colorInfos, "cue_colors", "cue_key", "group_key", "color_key", true);
+                setItemSpecificItemListAttribute(cueInfos, "Colors", ids, attributes.value(Group), valueKeys, groupInfos, colorInfos, "cue_group_colors", true);
             } else {
                 error("Can't set Cue Colors because no Group Attribute was provided.");
             }
         } else if (attribute == AttributeIds::cuePositions) {
             if (attributes.contains(Group)) {
-                setItemSpecificItemListAttribute(cueInfos, "Positions", ids, attributes.value(Group), valueKeys, groupInfos, positionInfos, "cue_positions", "cue_key", "group_key", "position_key", true);
+                setItemSpecificItemListAttribute(cueInfos, "Positions", ids, attributes.value(Group), valueKeys, groupInfos, positionInfos, "cue_group_positions", true);
             } else {
                 error("Can't set Cue Positions because no Group Attribute was provided.");
             }
         } else if (attribute == AttributeIds::cueRaws) {
             if (attributes.contains(Group)) {
-                setItemSpecificItemListAttribute(cueInfos, "Raws", ids, attributes.value(Group), valueKeys, groupInfos, rawInfos, "cue_raws", "cue_key", "group_key", "raw_key");
+                setItemSpecificItemListAttribute(cueInfos, "Raws", ids, attributes.value(Group), valueKeys, groupInfos, rawInfos, "cue_group_raws");
             } else {
                 error("Can't set Cue Raws because no Group Attribute was provided.");
             }
         } else if (attribute == AttributeIds::cueEffects) {
             if (attributes.contains(Group)) {
-                setItemSpecificItemListAttribute(cueInfos, "Effects", ids, attributes.value(Group), valueKeys, groupInfos, effectInfos, "cue_effects", "cue_key", "group_key", "effect_key");
+                setItemSpecificItemListAttribute(cueInfos, "Effects", ids, attributes.value(Group), valueKeys, groupInfos, effectInfos, "cue_group_effects");
             } else {
                 error("Can't set Cue Effects because no Group Attribute was provided.");
             }
@@ -890,7 +890,7 @@ void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, c
     emit dbChanged();
 }
 
-void Terminal::setItemListAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QList<Key> valueKeys, const ItemInfos foreignItem, const QString listTable, const QString listTableItemAttribute, const QString listTableForeignItemsAttribute) {
+void Terminal::setItemListAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QList<Key> valueKeys, const ItemInfos foreignItem, const QString valueTable) {
     Q_ASSERT(!ids.isEmpty());
     QList<int> foreignItemKeys;
     QStringList foreignItemIdStrings;
@@ -936,12 +936,12 @@ void Terminal::setItemListAttribute(const ItemInfos item, const QString attribut
             if (keyQuery.next()) {
                 const int itemKey = keyQuery.value(0).toInt();
                 QSqlQuery deleteQuery;
-                deleteQuery.prepare("DELETE FROM " + listTable + " WHERE " + listTableItemAttribute + " =  :key");
+                deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key =  :key");
                 deleteQuery.bindValue(":key", itemKey);
                 if (deleteQuery.exec()) {
                     for (const int foreignItemKey : foreignItemKeys) {
                         QSqlQuery insertQuery;
-                        insertQuery.prepare("INSERT INTO " + listTable + " (" + listTableItemAttribute + ", " + listTableForeignItemsAttribute + ") VALUES (:item, :foreign_item)");
+                        insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, foreignitem_key) VALUES (:item, :foreign_item)");
                         insertQuery.bindValue(":item", itemKey);
                         insertQuery.bindValue(":foreign_item", foreignItemKey);
                         if (insertQuery.exec()) {
@@ -975,7 +975,7 @@ void Terminal::setItemListAttribute(const ItemInfos item, const QString attribut
     emit dbChanged();
 }
 
-template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, const ItemInfos foreignItem, const QString exceptionTable, const QString exceptionTableItemAttribute, const QString exceptionTableForeignItemAttribute, const QString exceptionTableValueAttribute, const NumberInfos number) {
+template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, const ItemInfos foreignItem, const QString valueTable, const NumberInfos number) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(!foreignItemIds.isEmpty());
     const bool removeValues = ((valueKeys.size() == 1) && valueKeys.startsWith(Minus));
@@ -1025,7 +1025,7 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
                 for (const int foreignItemKey : foreignItemKeys) {
                     if (removeValues) {
                         QSqlQuery query;
-                        query.prepare("DELETE FROM " + exceptionTable + " WHERE " + exceptionTableItemAttribute + " = :item AND " + exceptionTableForeignItemAttribute + " = :foreign_item");
+                        query.prepare("DELETE FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item");
                         query.bindValue(":item", itemKey);
                         query.bindValue(":foreign_item", foreignItemKey);
                         if (!query.exec()) {
@@ -1037,7 +1037,7 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
                         bool valueOk = true;
                         if (difference) {
                             QSqlQuery currentValueQuery;
-                            currentValueQuery.prepare("SELECT " + exceptionTableValueAttribute + " FROM " + exceptionTable + " WHERE " + exceptionTableItemAttribute + " = :item AND " + exceptionTableForeignItemAttribute + " = :foreign_item");
+                            currentValueQuery.prepare("SELECT value FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item");
                             currentValueQuery.bindValue(":item", itemKey);
                             currentValueQuery.bindValue(":foreign_item", foreignItemKey);
                             if (currentValueQuery.exec()) {
@@ -1057,7 +1057,7 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
                         }
                         if (valueOk) {
                             QSqlQuery query;
-                            query.prepare("INSERT OR REPLACE INTO " + exceptionTable + " (" + exceptionTableItemAttribute + ", " + exceptionTableForeignItemAttribute + ", " + exceptionTableValueAttribute + ") VALUES (:item, :foreign_item, :value)");
+                            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, value) VALUES (:item, :foreign_item, :value)");
                             query.bindValue(":item", itemKey);
                             query.bindValue(":foreign_item", foreignItemKey);
                             query.bindValue(":value", value);
@@ -1110,7 +1110,7 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
     emit dbChanged();
 }
 
-void Terminal::setItemSpecificItemListAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, const ItemInfos foreignItem, const ItemInfos valueItem, const QString valueTable, const QString valueTableItemAttribute, const QString valueTableForeignItemAttribute, const QString valueTableValueAttribute, const bool limitToOne) {
+void Terminal::setItemSpecificItemListAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, const ItemInfos foreignItem, const ItemInfos valueItem, const QString valueTable, const bool limitToOne) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(!foreignItemIds.isEmpty());
     const bool removeValues = ((valueKeys.size() == 1) && valueKeys.startsWith(Minus));
@@ -1191,7 +1191,7 @@ void Terminal::setItemSpecificItemListAttribute(const ItemInfos item, const QStr
                 bool allQueriesSuccessful = true;
                 for (const int foreignItemKey : foreignItemKeys) {
                     QSqlQuery deleteQuery;
-                    deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE " + valueTableItemAttribute + " =  :item AND " + valueTableForeignItemAttribute + " = :foreign_item");
+                    deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key =  :item AND foreignitem_key = :foreign_item");
                     deleteQuery.bindValue(":item", itemKey);
                     deleteQuery.bindValue(":foreign_item", foreignItemKey);
                     if (!deleteQuery.exec()) {
@@ -1201,7 +1201,7 @@ void Terminal::setItemSpecificItemListAttribute(const ItemInfos item, const QStr
                     }
                     for (const int valueItemKey : valueItemKeys) {
                         QSqlQuery insertQuery;
-                        insertQuery.prepare("INSERT INTO " + valueTable + " (" + valueTableItemAttribute + ", " + valueTableForeignItemAttribute + ", " + valueTableValueAttribute + ") VALUES (:item, :foreign_item, :value_item)");
+                        insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, foreignitem_key, valueitem_key) VALUES (:item, :foreign_item, :value_item)");
                         insertQuery.bindValue(":item", itemKey);
                         insertQuery.bindValue(":foreign_item", foreignItemKey);
                         insertQuery.bindValue(":value_item", valueItemKey);
@@ -1247,7 +1247,7 @@ void Terminal::setItemSpecificItemListAttribute(const ItemInfos item, const QStr
     emit dbChanged();
 }
 
-template <typename T> void Terminal::setNumberSpecificNumberAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QString numberId, QList<Key> valueKeys, const QString valueTable, const QString valueTableItemAttribute, const QString valueTableNumberAttribute, const QString valueTableValueAttribute, const NumberInfos keyNumber, const NumberInfos valueNumber) {
+template <typename T> void Terminal::setIntegerSpecificNumberAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QString numberId, QList<Key> valueKeys, const QString valueTable, const NumberInfos keyNumber, const NumberInfos valueNumber) {
     Q_ASSERT(!ids.isEmpty());
     QList<QString> numberIdParts = numberId.split(".");
     if (numberIdParts.length() != 2) {
@@ -1287,7 +1287,7 @@ template <typename T> void Terminal::setNumberSpecificNumberAttribute(const Item
                 const int itemKey = keyQuery.value(0).toInt();
                 if (removeValues) {
                     QSqlQuery query;
-                    query.prepare("DELETE FROM " + valueTable + " WHERE " + valueTableItemAttribute + " = :item AND " + valueTableNumberAttribute + " = :key");
+                    query.prepare("DELETE FROM " + valueTable + " WHERE item_key = :item AND key = :key");
                     query.bindValue(":item", itemKey);
                     query.bindValue(":key", key);
                     if (query.exec()) {
@@ -1300,7 +1300,7 @@ template <typename T> void Terminal::setNumberSpecificNumberAttribute(const Item
                     bool valueOk = true;
                     if (difference) {
                         QSqlQuery currentValueQuery;
-                        currentValueQuery.prepare("SELECT " + valueTableValueAttribute + " FROM " + valueTable + " WHERE " + valueTableItemAttribute + " = :item AND " + valueTableNumberAttribute + " = :key");
+                        currentValueQuery.prepare("SELECT value FROM " + valueTable + " WHERE item_key = :item AND key = :key");
                         currentValueQuery.bindValue(":item", itemKey);
                         currentValueQuery.bindValue(":key", key);
                         if (currentValueQuery.exec()) {
@@ -1320,7 +1320,7 @@ template <typename T> void Terminal::setNumberSpecificNumberAttribute(const Item
                     }
                     if (valueOk) {
                         QSqlQuery query;
-                        query.prepare("INSERT OR REPLACE INTO " + valueTable + " (" + valueTableItemAttribute + ", " + valueTableNumberAttribute + ", " + valueTableValueAttribute + ") VALUES (:item, :key, :value)");
+                        query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, key, value) VALUES (:item, :key, :value)");
                         query.bindValue(":item", itemKey);
                         query.bindValue(":key", key);
                         query.bindValue(":value", value);
@@ -1364,7 +1364,7 @@ template <typename T> void Terminal::setNumberSpecificNumberAttribute(const Item
     emit dbChanged();
 }
 
-template <typename T> void Terminal::setItemAndNumberSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QString numberId, QList<Key> valueKeys, ItemInfos foreignItem, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableNumberAttribute, QString valueTableValueAttribute, NumberInfos keyNumber, NumberInfos valueNumber) {
+template <typename T> void Terminal::setItemAndIntegerSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QString numberId, QList<Key> valueKeys, ItemInfos foreignItem, QString valueTable, NumberInfos keyNumber, NumberInfos valueNumber) {
     Q_ASSERT(!ids.isEmpty());
     QList<QString> numberIdParts = numberId.split(".");
     if (numberIdParts.length() != 2) {
@@ -1429,7 +1429,7 @@ template <typename T> void Terminal::setItemAndNumberSpecificNumberAttribute(Ite
                 for (const int foreignItemKey : foreignItemKeys) {
                     if (removeValues) {
                         QSqlQuery query;
-                        query.prepare("DELETE FROM " + valueTable + " WHERE " + valueTableItemAttribute + " = :item AND " + valueTableForeignItemAttribute + " = :foreign_item AND " + valueTableNumberAttribute + " = :key");
+                        query.prepare("DELETE FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item AND key = :key");
                         query.bindValue(":item", itemKey);
                         query.bindValue(":foreign_item", foreignItemKey);
                         query.bindValue(":key", key);
@@ -1442,7 +1442,7 @@ template <typename T> void Terminal::setItemAndNumberSpecificNumberAttribute(Ite
                         bool valueOk = true;
                         if (difference) {
                             QSqlQuery currentValueQuery;
-                            currentValueQuery.prepare("SELECT " + valueTableValueAttribute + " FROM " + valueTable + " WHERE " + valueTableItemAttribute + " = :item AND " + valueTableForeignItemAttribute + " = :foreign_item AND " + valueTableNumberAttribute + " = :key");
+                            currentValueQuery.prepare("SELECT value FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item AND key = :key");
                             currentValueQuery.bindValue(":item", itemKey);
                             currentValueQuery.bindValue(":foreign_item", foreignItemKey);
                             currentValueQuery.bindValue(":key", key);
@@ -1463,7 +1463,7 @@ template <typename T> void Terminal::setItemAndNumberSpecificNumberAttribute(Ite
                         }
                         if (valueOk) {
                             QSqlQuery query;
-                            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (" + valueTableItemAttribute + ", " + valueTableForeignItemAttribute + ", " + valueTableNumberAttribute + ", " + valueTableValueAttribute + ") VALUES (:item, :foreign_item, :key, :value)");
+                            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, key, value) VALUES (:item, :foreign_item, :key, :value)");
                             query.bindValue(":item", itemKey);
                             query.bindValue(":foreign_item", foreignItemKey);
                             query.bindValue(":key", key);
@@ -1604,13 +1604,13 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
             if (currentFixture) {
                 query.prepare("SELECT models.id FROM models, fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key AND models.key = fixtures.model_key");
             } else {
-                query.prepare("SELECT models.id FROM models, fixtures, currentitems, group_fixtures WHERE fixtures.key = group_fixtures.fixture_key AND currentitems.group_key = group_fixtures.group_key AND fixtures.model_key = models.key");
+                query.prepare("SELECT models.id FROM models, fixtures, currentitems, group_fixtures WHERE fixtures.key = group_fixtures.foreignitem_key AND currentitems.group_key = group_fixtures.item_key AND fixtures.model_key = models.key");
             }
         } else if (itemType == Fixture) {
             if (currentFixture) {
                 query.prepare("SELECT fixtures.id FROM fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key");
             } else {
-                query.prepare("SELECT fixtures.id FROM fixtures, currentitems, group_fixtures WHERE fixtures.key = group_fixtures.fixture_key AND currentitems.group_key = group_fixtures.group_key");
+                query.prepare("SELECT fixtures.id FROM fixtures, currentitems, group_fixtures WHERE fixtures.key = group_fixtures.foreignitem_key AND currentitems.group_key = group_fixtures.item_key");
             }
         } else if (itemType == Group) {
             query.prepare("SELECT groups.id FROM groups, currentitems WHERE groups.key = currentitems.group_key");

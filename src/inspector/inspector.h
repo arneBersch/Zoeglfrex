@@ -26,11 +26,11 @@ private:
     QString getTextAttribute(QString table, QString attribute, QString id) const;
     QString getNumberAttribute(QString table, QString attribute, QString id, QString unit) const;
     QString getItemAttribute(QString table, QString attribute, QString id, QString valueItemTable) const;
-    QString getItemListAttribute(QString table, QString foreignItemsTable, QString listTable, QString listTableItemAttribute, QString listTableForeignItemsAttribute, QString id) const;
-    QString getItemSpecificNumberAttribute(QString table, QString foreignItemsTable, QString exceptionTable, QString exceptionTableItemAttribute, QString exceptionTableForeignItemsAttribute, QString exceptionTableValueAttribute, QString unit, QString id) const;
-    QString getItemSpecificItemListAttribute(QString table, QString foreignItemTable, QString valueItemTable, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableValueItemAttribute, QString id) const;
-    QString getNumberSpecificNumberAttribute(QString table, QString valueTable, QString valueTableItemAttribute, QString valueTableNumberAttribute, QString valueTableValueAttribute, QString id, QString unit) const;
-    QString getItemAndNumberSpecificNumberAttribute(QString table, QString foreignItemTable, QString valueTable, QString valueTableItemAttribute, QString valueTableForeignItemAttribute, QString valueTableNumberAttribute, QString valueTableValueAttribute, QString id, QString unit) const;
+    QString getItemListAttribute(QString table, QString foreignItemsTable, QString valueTable, QString id) const;
+    QString getItemSpecificNumberAttribute(QString table, QString foreignItemsTable, QString valueTable, QString unit, QString id) const;
+    QString getItemSpecificItemListAttribute(QString table, QString foreignItemTable, QString valueItemTable, QString valueTable, QString id) const;
+    QString getIntegerSpecificNumberAttribute(QString table, QString valueTable, QString id, QString unit) const;
+    QString getItemAndIntegerSpecificNumberAttribute(QString table, QString foreignItemTable, QString valueTable, QString id, QString unit) const;
     ItemTableModel* model;
     QTableView* table;
     QLabel* titleLabel;

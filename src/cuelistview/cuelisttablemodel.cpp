@@ -66,32 +66,38 @@ QVariant CuelistTableModel::data(const QModelIndex &index, int role) const {
         const int column = index.column();
         QString queryText;
         if (cueMode) {
+            auto createQuery = [] (const QString itemTable, const QString valueTable) {
+                return "SELECT CONCAT(" + itemTable + ".id, ' ', " + itemTable + ".label) FROM " + itemTable + ", groups, " + valueTable + ", cuelists, currentitems WHERE groups.sortkey = :sortkey AND " + valueTable + ".foreignitem_key = groups.key AND " + valueTable + ".valueitem_key = " + itemTable + ".key AND " + valueTable + ".item_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key";
+            };
             if (column == 0) {
                 queryText = "SELECT CONCAT(id, ' ', label) FROM groups WHERE sortkey = :sortkey";
             } else if (column == 1) {
-                queryText = "SELECT CONCAT(intensities.id, ' ', intensities.label) FROM intensities, groups, cue_intensities, cuelists, currentitems WHERE groups.sortkey = :sortkey AND cue_intensities.group_key = groups.key AND cue_intensities.intensity_key = intensities.key AND cue_intensities.cue_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key";
+                queryText = createQuery("intensities", "cue_group_intensities");
             } else if (column == 2) {
-                queryText = "SELECT CONCAT(colors.id, ' ', colors.label) FROM colors, groups, cue_colors, cuelists, currentitems WHERE groups.sortkey = :sortkey AND cue_colors.group_key = groups.key AND cue_colors.color_key = colors.key AND cue_colors.cue_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key";
+                queryText = createQuery("colors", "cue_group_colors");
             } else if (column == 3) {
-                queryText = "SELECT CONCAT(positions.id, ' ', positions.label) FROM positions, groups, cue_positions, cuelists, currentitems WHERE groups.sortkey = :sortkey AND cue_positions.group_key = groups.key AND cue_positions.position_key = positions.key AND cue_positions.cue_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key";
+                queryText = createQuery("positions", "cue_group_positions");
             } else if (column == 4) {
-                queryText = "SELECT CONCAT(raws.id, ' ', raws.label) FROM raws, groups, cue_raws, cuelists, currentitems WHERE groups.sortkey = :sortkey AND cue_raws.group_key = groups.key AND cue_raws.raw_key = raws.key AND cue_raws.cue_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key";
+                queryText = createQuery("raws", "cue_group_raws");
             } else if (column == 5) {
-                queryText = "SELECT CONCAT(effects.id, ' ', effects.label) FROM effects, groups, cue_effects, cuelists, currentitems WHERE groups.sortkey = :sortkey AND cue_effects.group_key = groups.key AND cue_effects.effect_key = effects.key AND cue_effects.cue_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key";
+                queryText = createQuery("effects", "cue_group_effects");
             }
         } else {
+            auto createQuery = [] (const QString itemTable, const QString valueTable) {
+                return "SELECT CONCAT(" + itemTable + ".id, ' ', " + itemTable + ".label) FROM " + itemTable + ", " + valueTable + ", currentitems, currentcuelist_cues WHERE currentcuelist_cues.sortkey = :sortkey AND " + valueTable + ".foreignitem_key = currentitems.group_key AND " + valueTable + ".valueitem_key = " + itemTable + ".key AND currentcuelist_cues.key = " + valueTable + ".item_key";
+            };
             if (column == 0) {
                 queryText = "SELECT CONCAT(id, ' ', label) FROM currentcuelist_cues WHERE sortkey = :sortkey";
             } else if (column == 1) {
-                queryText = "SELECT CONCAT(intensities.id, ' ', intensities.label) FROM intensities, cue_intensities, currentitems, currentcuelist_cues WHERE currentcuelist_cues.sortkey = :sortkey AND cue_intensities.group_key = currentitems.group_key AND cue_intensities.intensity_key = intensities.key AND currentcuelist_cues.key = cue_intensities.cue_key";
+                queryText = createQuery("intensities", "cue_group_intensities");
             } else if (column == 2) {
-                queryText = "SELECT CONCAT(colors.id, ' ', colors.label) FROM colors, cue_colors, currentitems, currentcuelist_cues WHERE currentcuelist_cues.sortkey = :sortkey AND cue_colors.group_key = currentitems.group_key AND cue_colors.color_key = colors.key AND currentcuelist_cues.key = cue_colors.cue_key";
+                queryText = createQuery("colors", "cue_group_colors");
             } else if (column == 3) {
-                queryText = "SELECT CONCAT(positions.id, ' ', positions.label) FROM positions, cue_positions, currentitems, currentcuelist_cues WHERE currentcuelist_cues.sortkey = :sortkey AND cue_positions.group_key = currentitems.group_key AND cue_positions.position_key = positions.key AND currentcuelist_cues.key = cue_positions.cue_key";
+                queryText = createQuery("positions", "cue_group_positions");
             } else if (column == 4) {
-                queryText = "SELECT CONCAT(raws.id, ' ', raws.label) FROM raws, cue_raws, currentitems, currentcuelist_cues WHERE currentcuelist_cues.sortkey = :sortkey AND cue_raws.group_key = currentitems.group_key AND cue_raws.raw_key = raws.key AND currentcuelist_cues.key = cue_raws.cue_key";
+                queryText = createQuery("raws", "cue_group_raws");
             } else if (column == 5) {
-                queryText = "SELECT CONCAT(effects.id, ' ', effects.label) FROM effects, cue_effects, currentitems, currentcuelist_cues WHERE currentcuelist_cues.sortkey = :sortkey AND cue_effects.group_key = currentitems.group_key AND cue_effects.effect_key = effects.key AND currentcuelist_cues.key = cue_raws.cue_key";
+                queryText = createQuery("effects", "cue_group_effects");
             }
         }
         if (!queryText.isEmpty()) {
