@@ -57,6 +57,8 @@ const char* const cueColors = "3";
 const char* const cuePositions = "4";
 const char* const cueRaws = "5";
 const char* const cueEffects = "6";
+const char* const cueFade = "7";
+const char* const cueBlock = "8";
 }
 
 #endif // CONSTANTS_H

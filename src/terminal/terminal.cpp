@@ -436,6 +436,10 @@ void Terminal::execute() {
             } else {
                 error("Can't set Cue Effects because no Group Attribute was provided.");
             }
+        } else if ((attribute == AttributeIds::cueFade) || (!attributes.contains(Attribute))) {
+            setNumberAttribute<float>(cueInfos, "fade", "Fade", ids, valueKeys, {0, 600, false, "s"});
+        } else if (attribute == AttributeIds::cueBlock) {
+            setBoolAttribute(cueInfos, "block", "Block", ids, valueKeys);
         } else {
             error("Unknown Cue Attribute.");
             return;

@@ -145,6 +145,8 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append(QString(AttributeIds::cuePositions) + " Positions: " + getItemSpecificItemAttribute(table, "groups", "positions", "cue_positions", "cue_key", "group_key", "position_key", id));
                     infos.append(QString(AttributeIds::cueRaws) + " Raws: " + getItemSpecificItemListAttribute(table, "groups", "raws", "cue_raws", "cue_key", "group_key", "raw_key", id));
                     infos.append(QString(AttributeIds::cueEffects) + " Effects: " + getItemSpecificItemListAttribute(table, "groups", "effects", "cue_effects", "cue_key", "group_key", "effect_key", id));
+                    infos.append(QString(AttributeIds::cueFade) + " Fade: " + getNumberAttribute(table, "fade", id, "s"));
+                    infos.append(QString(AttributeIds::cueBlock) + " Block: " + getBoolAttribute(table, "block", id));
                 } else {
                     Q_ASSERT(false);
                 }
