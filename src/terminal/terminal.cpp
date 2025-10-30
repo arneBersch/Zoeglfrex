@@ -152,24 +152,12 @@ void Terminal::execute() {
             }
             emit dbChanged();
         };
-        auto setCueItem = [this] (const ItemInfos item, const QString valueTable, const QStringList ids) {
-            if (ids.size() != 1) {
+        auto setCueItem = [this] (const ItemInfos item, const QString valueTable, const QStringList ids, const bool multipleItemsAllowed) {
+            Q_ASSERT(!ids.isEmpty());
+            if (!multipleItemsAllowed && (ids.size() > 1)) {
                 error("Can't select multiple " + item.plural + ".");
                 return;
             }
-            QSqlQuery itemKeyQuery;
-            itemKeyQuery.prepare("SELECT key FROM " + item.selectTable + " WHERE id = :id");
-            itemKeyQuery.bindValue(":id", ids.first());
-            if (!itemKeyQuery.exec()) {
-                qWarning() << Q_FUNC_INFO << itemKeyQuery.executedQuery() << itemKeyQuery.lastError().text();
-                error("Can't set Cue " + item.plural + " because the key request for " + item.singular + " " + ids.first() + " failed.");
-                return;
-            }
-            if (!itemKeyQuery.next()) {
-                error("Can't select " + item.singular + " " + ids.first() + " because this " + item.singular + " doesn't exist.");
-                return;
-            }
-            const int itemKey = itemKeyQuery.value(0).toInt();
             QSqlQuery groupKeyQuery;
             if (!groupKeyQuery.exec("SELECT group_key FROM currentitems WHERE group_key IS NOT NULL")) {
                 qWarning() << Q_FUNC_INFO << groupKeyQuery.executedQuery() << groupKeyQuery.lastError().text();
@@ -192,14 +180,44 @@ void Terminal::execute() {
                 return;
             }
             const int cueKey = cueKeyQuery.value(0).toInt();
-            QSqlQuery query;
-            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, valueitem_key) VALUES (:cue, :group, :item)");
-            query.bindValue(":cue", cueKey);
-            query.bindValue(":group", groupKey);
-            query.bindValue(":item", itemKey);
-            if (!query.exec()) {
-                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                error("Failed to set Cue " + item.plural + ".");
+            QList<int> itemKeys;
+            for (QString id : ids) {
+                QSqlQuery itemKeyQuery;
+                itemKeyQuery.prepare("SELECT key FROM " + item.selectTable + " WHERE id = :id");
+                itemKeyQuery.bindValue(":id", id);
+                if (itemKeyQuery.exec()) {
+                    if (itemKeyQuery.next()) {
+                        itemKeys.append(itemKeyQuery.value(0).toInt());
+                    } else {
+                        warning("Can't select " + item.singular + " " + id + " because this " + item.singular + " doesn't exist.");
+                    }
+                } else {
+                    qWarning() << Q_FUNC_INFO << itemKeyQuery.executedQuery() << itemKeyQuery.lastError().text();
+                    error("Can't set Cue " + item.plural + " because the key request for " + item.singular + " " + ids.first() + " failed.");
+                }
+            }
+            if (itemKeys.isEmpty()) {
+                error("No valid " + item.plural + " were given.");
+                return;
+            }
+            QSqlQuery deleteQuery;
+            deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key = :cue AND foreignitem_key = :group");
+            deleteQuery.bindValue(":cue", cueKey);
+            deleteQuery.bindValue(":group", groupKey);
+            if (!deleteQuery.exec()) {
+                qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
+                error("Failed deleting Cue " + item.plural + ".");
+            }
+            for (const int key : itemKeys) {
+                QSqlQuery query;
+                query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, valueitem_key) VALUES (:cue, :group, :item)");
+                query.bindValue(":cue", cueKey);
+                query.bindValue(":group", groupKey);
+                query.bindValue(":item", key);
+                if (!query.exec()) {
+                    qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                    error("Failed inserting " + item.singular + ".");
+                }
             }
             emit dbChanged();
         };
@@ -208,11 +226,15 @@ void Terminal::execute() {
         } else if (selectionType == Group) {
             setCurrentItem(groupInfos, groupInfos.selectTable, ids, "UPDATE currentitems SET group_key = :key");
         } else if (selectionType == Intensity) {
-            setCueItem(intensityInfos, "cue_group_intensities", ids);
+            setCueItem(intensityInfos, "cue_group_intensities", ids, false);
         } else if (selectionType == Color) {
-            setCueItem(colorInfos, "cue_group_colors", ids);
+            setCueItem(colorInfos, "cue_group_colors", ids, false);
         } else if (selectionType == Position) {
-            setCueItem(positionInfos, "cue_group_positions", ids);
+            setCueItem(positionInfos, "cue_group_positions", ids, false);
+        } else if (selectionType == Raw) {
+            setCueItem(rawInfos, "cue_group_raws", ids, true);
+        } else if (selectionType == Effect) {
+            setCueItem(effectInfos, "cue_group_effects", ids, true);
         } else if (selectionType == Cuelist) {
             setCurrentItem(cuelistInfos, cuelistInfos.selectTable, ids, "UPDATE currentitems SET cuelist_key = :key");
         } else if (selectionType == Cue) {

@@ -137,7 +137,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                 } else if (table == "effects") {
                     infos.append(QString(AttributeIds::effectSteps) + " Steps: " + getNumberAttribute(table, "steps", id, ""));
                     infos.append(QString(AttributeIds::effectIntensities) + " Intensities: " + getIntegerSpecificItemListAttribute(table, "intensities", "effect_step_intensities", id));
-                    infos.append(QString(AttributeIds::effectColors) + " Colors: " + getIntegerSpecificItemListAttribute(table, "colors", "effect_step_effects", id));
+                    infos.append(QString(AttributeIds::effectColors) + " Colors: " + getIntegerSpecificItemListAttribute(table, "colors", "effect_step_colors", id));
                     infos.append(QString(AttributeIds::effectPositions) + " Positions: " + getIntegerSpecificItemListAttribute(table, "positions", "effect_step_positions", id));
                     infos.append(QString(AttributeIds::effectRaws) + " Raws: " + getIntegerSpecificItemListAttribute(table, "raws", "effect_step_raws", id));
                     infos.append(QString(AttributeIds::effectHold) + " Hold: " + getNumberAttribute(table, "hold", id, "s"));
@@ -305,7 +305,7 @@ QString Inspector::getIntegerSpecificNumberAttribute(const QString table, const 
 
 QString Inspector::getIntegerSpecificItemListAttribute(const QString table, const QString valueItemTable, const QString valueTable, const QString id) const {
     QSqlQuery query;
-    query.prepare("SELECT " + valueTable + ".key, CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label), FROM " + table + ", " + valueItemTable + ", " + valueTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + ".item_key AND " + valueItemTable + ".key = " + valueTable + ".valueitem_key AND " + valueItemTable + ".key = " + valueTable + ".valueitem_key ORDER BY " + valueTable + ".key, " + valueItemTable + ".sortkey");
+    query.prepare("SELECT " + valueTable + ".key, CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + table + ", " + valueItemTable + ", " + valueTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + ".item_key AND " + valueItemTable + ".key = " + valueTable + ".valueitem_key ORDER BY " + valueTable + ".key, " + valueItemTable + ".sortkey");
     query.bindValue(":id", id);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
