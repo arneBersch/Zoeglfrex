@@ -140,9 +140,9 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append(QString(AttributeIds::cuelistPriority) + " Priority: " + getNumberAttribute(table, "priority", id, ""));
                     infos.append(QString(AttributeIds::cuelistMoveWhileDark) + " Move while Dark: " + getBoolAttribute(table, "movewhiledark", id));
                 } else if (table == "currentcuelist_cues") {
-                    infos.append(QString(AttributeIds::cueIntensities) + " Intensities: " + getItemSpecificItemAttribute(table, "groups", "intensities", "cue_intensities", "cue_key", "group_key", "intensity_key", id));
-                    infos.append(QString(AttributeIds::cueColors) + " Colors: " + getItemSpecificItemAttribute(table, "groups", "colors", "cue_colors", "cue_key", "group_key", "color_key", id));
-                    infos.append(QString(AttributeIds::cuePositions) + " Positions: " + getItemSpecificItemAttribute(table, "groups", "positions", "cue_positions", "cue_key", "group_key", "position_key", id));
+                    infos.append(QString(AttributeIds::cueIntensities) + " Intensities: " + getItemSpecificItemListAttribute(table, "groups", "intensities", "cue_intensities", "cue_key", "group_key", "intensity_key", id));
+                    infos.append(QString(AttributeIds::cueColors) + " Colors: " + getItemSpecificItemListAttribute(table, "groups", "colors", "cue_colors", "cue_key", "group_key", "color_key", id));
+                    infos.append(QString(AttributeIds::cuePositions) + " Positions: " + getItemSpecificItemListAttribute(table, "groups", "positions", "cue_positions", "cue_key", "group_key", "position_key", id));
                     infos.append(QString(AttributeIds::cueRaws) + " Raws: " + getItemSpecificItemListAttribute(table, "groups", "raws", "cue_raws", "cue_key", "group_key", "raw_key", id));
                     infos.append(QString(AttributeIds::cueEffects) + " Effects: " + getItemSpecificItemListAttribute(table, "groups", "effects", "cue_effects", "cue_key", "group_key", "effect_key", id));
                     infos.append(QString(AttributeIds::cueFade) + " Fade: " + getNumberAttribute(table, "fade", id, "s"));
@@ -250,21 +250,6 @@ QString Inspector::getItemSpecificNumberAttribute(const QString table, const QSt
     QStringList values;
     while (query.next()) {
         values.append(query.value(0).toString() + " @ " + query.value(1).toString() + unit);
-    }
-    return values.join(", ");
-}
-
-QString Inspector::getItemSpecificItemAttribute(const QString table, const QString foreignItemTable, const QString valueItemTable, const QString valueTable, const QString valueTableItemAttribute, const QString valueTableForeignItemAttribute, const QString valueTableValueItemAttribute, const QString id) const {
-    QSqlQuery query;
-    query.prepare("SELECT CONCAT(" + foreignItemTable + ".id, ' ', " + foreignItemTable + ".label), CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + table + ", " + foreignItemTable + ", " + valueItemTable + ", " + valueTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + "." + valueTableItemAttribute + " AND " + foreignItemTable + ".key = " + valueTable + "." + valueTableForeignItemAttribute + " AND " + valueItemTable + ".key = " + valueTable + "." + valueTableValueItemAttribute + " ORDER BY " + foreignItemTable + ".sortkey");
-    query.bindValue(":id", id);
-    if (!query.exec()) {
-        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-        return QString();
-    }
-    QStringList values;
-    while (query.next()) {
-        values.append(query.value(0).toString() + " @ " + query.value(1).toString());
     }
     return values.join(", ");
 }
