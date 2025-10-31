@@ -20,6 +20,7 @@ public:
     CuelistView(QWidget *parent = nullptr);
 signals:
     void dbChanged();
+    void trackingChanged(bool tracking);
 public slots:
     void reload();
 private:
@@ -33,6 +34,7 @@ private:
     QLabel* cueLabel;
     QLabel* cuelistLabel;
     QComboBox* modeComboBox;
+    QPushButton* trackingButton;
 };
 
 #endif // CUELISTVIEW_H

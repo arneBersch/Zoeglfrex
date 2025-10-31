@@ -19,3 +19,7 @@ QPushButton, QComboBox, QTextEdit, QSpinBox, QLineEdit, QHeaderView, QScrollBar,
 QPushButton, QComboBox, QTextEdit, QSpinBox, QLineEdit {
     padding: 10px;
 }
+
+QPushButton::checked {
+    border: 1px solid white;
+}

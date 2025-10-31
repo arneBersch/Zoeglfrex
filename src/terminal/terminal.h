@@ -83,6 +83,7 @@ signals:
     void itemChanged(QString itemType, QStringList ids);
 public slots:
     void reload();
+    void setTracking(bool tracking);
 private:
     void execute();
     void updateSortingKeys(ItemInfos item);
@@ -111,6 +112,7 @@ private:
     QLabel* promptLabel;
     const QList<Key> itemKeys = {Model, Fixture, Group, Intensity, Color, Position, Raw, Effect, Cuelist, Cue};
     QMap<Key, QString> keyStrings;
+    bool tracking;
 };
 
 #endif // TERMINAL_H

@@ -203,17 +203,19 @@ void Terminal::execute() {
                 return;
             }
             cueKeys.append(cueKeyQuery.value(0).toInt());
-            QSqlQuery cueTrackingKeyQuery;
-            cueTrackingKeyQuery.prepare("SELECT key, block FROM currentcuelist_cues WHERE sortkey > :sortkey ORDER BY sortkey");
-            cueTrackingKeyQuery.bindValue(":sortkey", cueKeyQuery.value(1).toInt());
-            if (cueTrackingKeyQuery.exec()) {
-                while (cueTrackingKeyQuery.next() && (cueTrackingKeyQuery.value(1).toInt() == 0)) {
-                    cueKeys.append(cueTrackingKeyQuery.value(0).toInt());
+            if (tracking) {
+                QSqlQuery cueTrackingKeyQuery;
+                cueTrackingKeyQuery.prepare("SELECT key, block FROM currentcuelist_cues WHERE sortkey > :sortkey ORDER BY sortkey");
+                cueTrackingKeyQuery.bindValue(":sortkey", cueKeyQuery.value(1).toInt());
+                if (cueTrackingKeyQuery.exec()) {
+                    while (cueTrackingKeyQuery.next() && (cueTrackingKeyQuery.value(1).toInt() == 0)) {
+                        cueKeys.append(cueTrackingKeyQuery.value(0).toInt());
+                    }
+                } else {
+                    qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
+                    error("Can't set Cue " + item.plural + " because the Cue tracking request failed.");
+                    return;
                 }
-            } else {
-                qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
-                error("Can't set Cue " + item.plural + " because the Cue tracking request failed.");
-                return;
             }
             for (const int cueKey : cueKeys) {
                 QSqlQuery deleteQuery;
@@ -2049,4 +2051,8 @@ void Terminal::warning(QString message) {
 void Terminal::error(QString message) {
     messages->appendHtml("<span style=\"color: red\">" + message + "</span>");
     qCritical() << message;
+}
+
+void Terminal::setTracking(bool newTracking) {
+    tracking = newTracking;
 }

@@ -39,6 +39,16 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     modeComboBox->setCurrentIndex(settings->value("cuelistview/mode", 0).toInt());
     buttonHeader->addWidget(modeComboBox);
 
+    trackingButton = new QPushButton("Tracking");
+    trackingButton->setCheckable(true);
+    connect(trackingButton, &QPushButton::clicked, this, [this] {
+        bool checked = trackingButton->isChecked();
+        emit trackingChanged(checked);
+        settings->setValue("cuelistview/tracking", checked);
+    });
+    trackingButton->setChecked(settings->value("cuelistview/tracking", true).toBool());
+    buttonHeader->addWidget(trackingButton);
+
     cuelistTableView = new QTableView();
     cuelistTableView->setModel(model);
     cuelistTableView->verticalHeader()->hide();
@@ -55,6 +65,7 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     new QShortcut(Qt::Key_Down, this, [this] { selectItem("groups", "SELECT groups.sortkey FROM currentitems, groups WHERE currentitems.group_key = groups.key", "UPDATE currentitems SET group_key = :key", true); });
     new QShortcut(Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cuelists, cues, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cues.key = cuelists.currentcue_key", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", true); });
     new QShortcut(Qt::SHIFT | Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cuelists, cues, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cues.key = cuelists.currentcue_key", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", false); });
+
     new QShortcut(Qt::SHIFT | Qt::Key_M, this, [this] {
         if (modeComboBox->currentIndex() == 0) {
             modeComboBox->setCurrentIndex(1);
@@ -62,11 +73,11 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
             modeComboBox->setCurrentIndex(0);
         }
     });
-
-    reload();
+    new QShortcut(Qt::SHIFT | Qt::Key_T, this, [this] { trackingButton->click(); });
 }
 
 void CuelistView::reload() {
+    emit trackingChanged(trackingButton->isChecked());
     auto setCurrentItemLabel = [](const QString keyQuery, const QString itemName, QLabel* label) {
         QSqlQuery query;
         if (query.exec(keyQuery)) {

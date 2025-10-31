@@ -19,8 +19,10 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     inspector = new Inspector();
     sacnServer = new SacnServer();
     connect(cuelistView, &CuelistView::dbChanged, this, &MainWindow::reload);
+    connect(cuelistView, &CuelistView::trackingChanged, terminal, &Terminal::setTracking);
     connect(terminal, &Terminal::dbChanged, this, &MainWindow::reload);
     connect(terminal, &Terminal::itemChanged, inspector, &Inspector::loadItems);
+    reload();
 
     new QShortcut(Qt::CTRL | Qt::Key_Q, this, [this] { close(); });
 
