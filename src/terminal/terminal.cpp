@@ -152,6 +152,10 @@ void Terminal::execute() {
             QList<int> itemKeys;
             if (((idKeys.size() != 2) || !idKeys.endsWith(Minus))) {
                 const QStringList ids = keysToIds(idKeys);
+                if (ids.isEmpty()) {
+                    error("Invalid " + item.singular + " selection given.");
+                    return;
+                }
                 if (!multipleItemsAllowed && (ids.size() > 1)) {
                     error("Can't select multiple " + item.plural + ".");
                     return;
@@ -187,8 +191,9 @@ void Terminal::execute() {
                 return;
             }
             const int groupKey = groupKeyQuery.value(0).toInt();
+            QList<int> cueKeys;
             QSqlQuery cueKeyQuery;
-            if (!cueKeyQuery.exec("SELECT cuelists.currentcue_key FROM cuelists, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cuelists.currentcue_key IS NOT NULL")) {
+            if (!cueKeyQuery.exec("SELECT cues.key, cues.sortkey FROM cues, cuelists, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cuelists.currentcue_key = cues.key")) {
                 qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
                 error("Can't set Cue " + item.plural + " because the request for the current Cue failed.");
                 return;
@@ -197,24 +202,38 @@ void Terminal::execute() {
                 error("Can't set Cue " + item.plural + " because no Cue is currently selected.");
                 return;
             }
-            const int cueKey = cueKeyQuery.value(0).toInt();
-            QSqlQuery deleteQuery;
-            deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key = :cue AND foreignitem_key = :group");
-            deleteQuery.bindValue(":cue", cueKey);
-            deleteQuery.bindValue(":group", groupKey);
-            if (!deleteQuery.exec()) {
-                qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
-                error("Failed deleting Cue " + item.plural + ".");
+            cueKeys.append(cueKeyQuery.value(0).toInt());
+            QSqlQuery cueTrackingKeyQuery;
+            cueTrackingKeyQuery.prepare("SELECT key, block FROM currentcuelist_cues WHERE sortkey > :sortkey ORDER BY sortkey");
+            cueTrackingKeyQuery.bindValue(":sortkey", cueKeyQuery.value(1).toInt());
+            if (cueTrackingKeyQuery.exec()) {
+                while (cueTrackingKeyQuery.next() && (cueTrackingKeyQuery.value(1).toInt() == 0)) {
+                    cueKeys.append(cueTrackingKeyQuery.value(0).toInt());
+                }
+            } else {
+                qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
+                error("Can't set Cue " + item.plural + " because the Cue tracking request failed.");
+                return;
             }
-            for (const int key : itemKeys) {
-                QSqlQuery query;
-                query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, valueitem_key) VALUES (:cue, :group, :item)");
-                query.bindValue(":cue", cueKey);
-                query.bindValue(":group", groupKey);
-                query.bindValue(":item", key);
-                if (!query.exec()) {
-                    qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                    error("Failed inserting " + item.singular + ".");
+            for (const int cueKey : cueKeys) {
+                QSqlQuery deleteQuery;
+                deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key = :cue AND foreignitem_key = :group");
+                deleteQuery.bindValue(":cue", cueKey);
+                deleteQuery.bindValue(":group", groupKey);
+                if (!deleteQuery.exec()) {
+                    qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
+                    error("Failed deleting Cue " + item.plural + ".");
+                }
+                for (const int key : itemKeys) {
+                    QSqlQuery query;
+                    query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, valueitem_key) VALUES (:cue, :group, :item)");
+                    query.bindValue(":cue", cueKey);
+                    query.bindValue(":group", groupKey);
+                    query.bindValue(":item", key);
+                    if (!query.exec()) {
+                        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                        error("Failed inserting " + item.singular + ".");
+                    }
                 }
             }
             emit dbChanged();
