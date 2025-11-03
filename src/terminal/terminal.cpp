@@ -1887,6 +1887,16 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
             }
         } else if (itemType == Group) {
             query.prepare("SELECT groups.id FROM groups, currentitems WHERE groups.key = currentitems.group_key");
+        } else if (itemType == Intensity) {
+            query.prepare("SELECT intensities.id FROM intensities, currentitems, cuelists, cue_group_intensities WHERE currentitems.group_key = cue_group_intensities.foreignitem_key AND cue_group_intensities.valueitem_key = intensities.key AND cue_group_intensities.item_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key");
+        } else if (itemType == Color) {
+            query.prepare("SELECT colors.id FROM colors, currentitems, cuelists, cue_group_colors WHERE currentitems.group_key = cue_group_colors.foreignitem_key AND cue_group_colors.valueitem_key = colors.key AND cue_group_colors.item_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key");
+        } else if (itemType == Position) {
+            query.prepare("SELECT positions.id FROM positions, currentitems, cuelists, cue_group_positions WHERE currentitems.group_key = cue_group_positions.foreignitem_key AND cue_group_positions.valueitem_key = positions.key AND cue_group_positions.item_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key");
+        } else if (itemType == Raw) {
+            query.prepare("SELECT raws.id FROM raws, currentitems, cuelists, cue_group_raws WHERE currentitems.group_key = cue_group_raws.foreignitem_key AND cue_group_raws.valueitem_key = raws.key AND cue_group_raws.item_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key");
+        } else if (itemType == Effect) {
+            query.prepare("SELECT effects.id FROM effects, currentitems, cuelists, cue_group_effects WHERE currentitems.group_key = cue_group_effects.foreignitem_key AND cue_group_effects.valueitem_key = effects.key AND cue_group_effects.item_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key");
         } else if (itemType == Cuelist) {
             query.prepare("SELECT cuelists.id FROM cuelists, currentitems WHERE cuelists.key = currentitems.cuelist_key");
         } else if (itemType == Cue) {
