@@ -11,16 +11,15 @@
 
 #include<QtWidgets>
 #include<QtNetwork>
-#include<QtSql>
 
 class SacnServer : public QWidget {
     Q_OBJECT
 public:
     SacnServer(QWidget* parent = nullptr);
-private:
-    void generateDmx();
-    void reloadNetworkInterfaces();
+public slots:
     void sendUniverse(int universe, QByteArray channels);
+private:
+    void reloadNetworkInterfaces();
     QSettings* settings;
     QByteArray packetHeader;
     QUdpSocket *socket = nullptr;

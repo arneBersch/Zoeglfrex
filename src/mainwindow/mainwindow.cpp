@@ -14,10 +14,12 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
 
     resize(1200, 800);
 
+    engine = new Engine(this);
     cuelistView = new CuelistView(this);
     terminal = new Terminal(this);
     inspector = new Inspector(this);
     sacnServer = new SacnServer(this);
+    connect(engine, &Engine::sendUniverse, sacnServer, &SacnServer::sendUniverse);
     connect(cuelistView, &CuelistView::dbChanged, this, &MainWindow::reload);
     connect(cuelistView, &CuelistView::trackingChanged, terminal, &Terminal::setTracking);
     connect(terminal, &Terminal::dbChanged, this, &MainWindow::reload);

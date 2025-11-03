@@ -15,6 +15,7 @@ SOURCES += \
     aboutwindow/aboutwindow.cpp \
     cuelistview/cuelisttablemodel.cpp \
     cuelistview/cuelistview.cpp \
+    engine/engine.cpp \
     inspector/inspector.cpp \
     inspector/itemtablemodel.cpp \
     main.cpp \
@@ -27,6 +28,7 @@ HEADERS += \
     constants.h \
     cuelistview/cuelisttablemodel.h \
     cuelistview/cuelistview.h \
+    engine/engine.h \
     inspector/inspector.h \
     inspector/itemtablemodel.h \
     mainwindow/mainwindow.h \

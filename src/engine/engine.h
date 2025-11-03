@@ -6,35 +6,20 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef ENGINE_H
+#define ENGINE_H
 
 #include <QtWidgets>
 #include <QtSql>
 
-#include "aboutwindow/aboutwindow.h"
-#include "engine/engine.h"
-#include "cuelistview/cuelistview.h"
-#include "terminal/terminal.h"
-#include "inspector/inspector.h"
-#include "sacnserver/sacnserver.h"
-
-class MainWindow : public QMainWindow {
+class Engine : public QWidget {
     Q_OBJECT
 public:
-    MainWindow(QString version, QString copyright, QWidget *parent = nullptr);
-public slots:
-    void reload();
+    Engine(QWidget* parent = nullptr);
+signals:
+    void sendUniverse(int universe, QByteArray data);
 private:
-    QString VERSION;
-    QString COPYRIGHT;
-    void about();
-    void closeEvent(QCloseEvent *event) override;
-    Engine* engine;
-    CuelistView* cuelistView;
-    Terminal* terminal;
-    Inspector* inspector;
-    SacnServer* sacnServer;
+    void generateDmx();
 };
 
-#endif // MAINWINDOW_H
+#endif // ENGINE_H
