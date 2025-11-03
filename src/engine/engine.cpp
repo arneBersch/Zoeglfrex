@@ -35,12 +35,14 @@ void Engine::generateDmx() {
         getCurrentCueItems(cueKey, priority, "cue_group_colors", &fixtureColors, &fixtureColorPriorities);
         getCurrentCueItems(cueKey, priority, "cue_group_positions", &fixturePositions, &fixturePositionPriorities);
     }
-    QMap<int, QByteArray> dmxUniverses;
     QSqlQuery fixtureQuery;
     if (!fixtureQuery.exec("SELECT key, universe, address FROM fixtures")) {
         qWarning() << Q_FUNC_INFO << fixtureQuery.executedQuery() << fixtureQuery.lastError().text();
         return;
     }
+    QMap<int, QByteArray> dmxUniverses;
+    QMap<int, float> lastFrameFixturePan = fixturePan;
+    fixturePan.clear();
     while (fixtureQuery.next()) {
         const int fixtureKey = fixtureQuery.value(0).toInt();
         const int universe = fixtureQuery.value(1).toInt();
@@ -100,12 +102,18 @@ void Engine::generateDmx() {
             focus = getFixtureValue(fixtureKey, fixturePositions.value(fixtureKey), "positions", "focus", "position_model_focus", "position_fixture_focus");
         }
         if (address > 0) {
-            QSqlQuery channelsQuery;
-            channelsQuery.prepare("SELECT models.channels FROM fixtures, models WHERE fixtures.key = :key AND fixtures.model_key = models.key");
-            channelsQuery.bindValue(":key", fixtureKey);
-            if (channelsQuery.exec()) {
-                if (channelsQuery.next()) {
-                    const QString channels = channelsQuery.value(0).toString();
+            QSqlQuery modelQuery;
+            modelQuery.prepare("SELECT models.channels, models.panrange, models.tiltrange, models.minzoom, models.maxzoom, fixtures.rotation, fixtures.invertpan FROM fixtures, models WHERE fixtures.key = :key AND fixtures.model_key = models.key");
+            modelQuery.bindValue(":key", fixtureKey);
+            if (modelQuery.exec()) {
+                if (modelQuery.next()) {
+                    const QString channels = modelQuery.value(0).toString();
+                    const float panRange = modelQuery.value(1).toFloat();
+                    const float tiltRange = modelQuery.value(2).toFloat();
+                    const float minZoom = modelQuery.value(3).toFloat();
+                    const float maxZoom = modelQuery.value(4).toFloat();
+                    const float rotation = modelQuery.value(5).toFloat();
+                    const int invertPan = modelQuery.value(6).toInt();
                     if (!dmxUniverses.contains(universe)) {
                         dmxUniverses[universe] = QByteArray(512, 0);
                     }
@@ -120,6 +128,33 @@ void Engine::generateDmx() {
                         green -= white * (quality / 100);
                         blue -= white * (quality / 100);
                     }
+                    if (invertPan == 1) {
+                        pan = rotation - pan;
+                    } else {
+                        pan = rotation + pan;
+                    }
+                    while (pan >= 360) {
+                        pan -= 360;
+                    }
+                    while (pan < 0) {
+                        pan += 360;
+                    }
+                    pan = pan / panRange * 100;
+                    pan = std::min<float>(pan, 100);
+                    const float lastFramePan = lastFrameFixturePan.value(fixtureKey, 0);
+                    for (float angle = pan; angle <= panRange; angle += 360) {
+                        const float anglePan = angle / panRange * 100;
+                        if (std::abs(lastFramePan - anglePan) < std::abs(lastFramePan - pan)) {
+                            pan = anglePan;
+                        }
+                    }
+                    fixturePan[fixtureKey] = pan;
+                    tilt = 50 + (tilt / (tiltRange / 2) * 50);
+                    tilt = std::min<float>(tilt, 100);
+                    tilt = std::max<float>(tilt, 0);
+                    zoom = (zoom - minZoom) / (maxZoom - minZoom) * 100;
+                    zoom = std::min<float>(zoom, 100);
+                    zoom = std::max<float>(zoom, 0);
                     for (int channel = address; channel < (address + channels.size()); channel++) {
                         QChar channelType = channels.at(channel - address);
                         const bool fine = (channelType != channelType.toUpper());
@@ -142,8 +177,11 @@ void Engine::generateDmx() {
                         } else if (channelType == QChar('Y')) { // Yellow
                             value = (100 - blue);
                         } else if (channelType == QChar('P')) { // Pan
+                            value = pan;
                         } else if (channelType == QChar('T')) { // Tilt
+                            value = tilt;
                         } else if (channelType == QChar('Z')) { // Zoom
+                            value = zoom;
                         } else if (channelType == QChar('F')) { // Focus
                             value = focus;
                         } else if (channelType == QChar('0')) { // DMX 0
@@ -165,7 +203,7 @@ void Engine::generateDmx() {
                     }
                 }
             } else {
-                qWarning() << Q_FUNC_INFO << channelsQuery.executedQuery() << channelsQuery.lastError().text();
+                qWarning() << Q_FUNC_INFO << modelQuery.executedQuery() << modelQuery.lastError().text();
             }
         }
     }

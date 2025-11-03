@@ -22,6 +22,7 @@ private:
     void generateDmx();
     void getCurrentCueItems(const int cueId, const int priority, const QString table, QMap<int, int>* fixtureItemKeys, QMap<int, int>* fixtureItemPriorities);
     float getFixtureValue(int fixtureKey, int itemKey, const QString itemTable, const QString itemTableAttribute, const QString modelExceptionTable, const QString fixtureExceptionTable);
+    QMap<int, float> fixturePan;
 };
 
 #endif // ENGINE_H
