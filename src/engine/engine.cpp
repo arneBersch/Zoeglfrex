@@ -52,9 +52,11 @@ void Engine::generateDmx() {
         float red = 100;
         float green = 100;
         float blue = 100;
+        float quality = 100;
         if (fixtureColors.contains(fixtureKey)) {
             const float hue = getFixtureValue(fixtureKey, fixtureColors.value(fixtureKey), "colors", "hue", "color_model_hue", "color_fixture_hue");
             const float saturation = getFixtureValue(fixtureKey, fixtureColors.value(fixtureKey), "colors", "saturation", "color_model_saturation", "color_fixture_saturation");
+            quality = getFixtureValue(fixtureKey, fixtureColors.value(fixtureKey), "colors", "quality", "color_model_quality", "color_fixture_quality");
             const float h = (hue / 60.0);
             const int i = (int)h;
             const float f = h - i;
@@ -107,6 +109,17 @@ void Engine::generateDmx() {
                     if (!dmxUniverses.contains(universe)) {
                         dmxUniverses[universe] = QByteArray(512, 0);
                     }
+                    if (!channels.contains('D')) {
+                        red *= (dimmer / 100);
+                        green *= (dimmer / 100);
+                        blue *= (dimmer / 100);
+                    }
+                    const float white = std::min(std::min(red, green), blue);
+                    if (channels.contains('W')) {
+                        red -= white * (quality / 100);
+                        green -= white * (quality / 100);
+                        blue -= white * (quality / 100);
+                    }
                     for (int channel = address; channel < (address + channels.size()); channel++) {
                         QChar channelType = channels.at(channel - address);
                         const bool fine = (channelType != channelType.toUpper());
@@ -121,6 +134,7 @@ void Engine::generateDmx() {
                         } else if (channelType == QChar('B')) { // Blue
                             value = blue;
                         } else if (channelType == QChar('W')) { // White
+                            value = white;
                         } else if (channelType == QChar('C')) { // Cyan
                             value = (100 - red);
                         } else if (channelType == QChar('M')) { // Magenta

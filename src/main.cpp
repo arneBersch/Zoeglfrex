@@ -107,6 +107,8 @@ int main(int argc, char *argv[]) {
             createItemSpecificNumberAttributeTable("color_fixture_hue", "colors", "fixtures", "REAL"),
             createItemSpecificNumberAttributeTable("color_model_saturation", "colors", "models", "REAL"),
             createItemSpecificNumberAttributeTable("color_fixture_saturation", "colors", "fixtures", "REAL"),
+            createItemSpecificNumberAttributeTable("color_model_quality", "colors", "models", "REAL"),
+            createItemSpecificNumberAttributeTable("color_fixture_quality", "colors", "fixtures", "REAL"),
             createItemListAttributeTable("color_raws", "colors", "raws"),
             "CREATE TABLE positions (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', pan REAL DEFAULT 0 NOT NULL, tilt REAL DEFAULT 0 NOT NULL, zoom REAL DEFAULT 15 NOT NULL, focus REAL DEFAULT 0 NOT NULL, PRIMARY KEY (key))",
             createItemSpecificNumberAttributeTable("position_model_pan", "positions", "models", "REAL"),

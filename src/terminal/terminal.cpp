@@ -427,7 +427,13 @@ void Terminal::execute() {
                 setNumberAttribute<float>(colorInfos, "saturation", "Saturation", ids, valueKeys, percentageInfos);
             }
         } else if (attribute == AttributeIds::colorQuality) {
-            setNumberAttribute<float>(colorInfos, "quality", "Quality", ids, valueKeys, percentageInfos);
+            if (attributes.contains(Model)) {
+                setItemSpecificNumberAttribute<float>(colorInfos, "Quality Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_quality", percentageInfos);
+            } else if (attributes.contains(Fixture)) {
+                setItemSpecificNumberAttribute<float>(colorInfos, "Quality Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_quality", percentageInfos);
+            } else {
+                setNumberAttribute<float>(colorInfos, "quality", "Quality", ids, valueKeys, percentageInfos);
+            }
         } else if (attribute == AttributeIds::colorRaws) {
             setItemListAttribute(colorInfos, "Raws", ids, valueKeys, rawInfos, "color_raws");
         } else {
