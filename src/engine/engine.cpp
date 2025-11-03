@@ -10,6 +10,7 @@
 
 Engine::Engine(QWidget* parent) : QWidget(parent, Qt::Window) {
     setWindowTitle("Zöglfrex Engine");
+    resize(500, 300);
 
     QTimer* timer = new QTimer();
     connect(timer, &QTimer::timeout, this, &Engine::generateDmx);
@@ -36,10 +37,11 @@ void Engine::generateDmx() {
         getCurrentCueItems(cueKey, priority, "cue_group_positions", &fixturePositions, &fixturePositionPriorities);
     }
     QSqlQuery fixtureQuery;
-    if (!fixtureQuery.exec("SELECT key, universe, address FROM fixtures")) {
+    if (!fixtureQuery.exec("SELECT key, universe, address, xposition, yposition FROM fixtures")) {
         qWarning() << Q_FUNC_INFO << fixtureQuery.executedQuery() << fixtureQuery.lastError().text();
         return;
     }
+    previewFixtures.clear();
     QMap<int, QByteArray> dmxUniverses;
     QMap<int, float> lastFrameFixturePan = fixturePan;
     fixturePan.clear();
@@ -47,6 +49,9 @@ void Engine::generateDmx() {
         const int fixtureKey = fixtureQuery.value(0).toInt();
         const int universe = fixtureQuery.value(1).toInt();
         const int address = fixtureQuery.value(2).toInt();
+        PreviewFixture previewFixture;
+        previewFixture.x = fixtureQuery.value(3).toFloat();
+        previewFixture.y = fixtureQuery.value(4).toFloat();
         float dimmer = 0;
         if (fixtureIntensities.contains(fixtureKey)) {
             dimmer = getFixtureValue(fixtureKey, fixtureIntensities.value(fixtureKey), "intensities", "dimmer", "intensity_model_dimmer", "intensity_fixture_dimmer");
@@ -101,6 +106,8 @@ void Engine::generateDmx() {
             zoom = getFixtureValue(fixtureKey, fixturePositions.value(fixtureKey), "positions", "zoom", "position_model_zoom", "position_fixture_zoom");
             focus = getFixtureValue(fixtureKey, fixturePositions.value(fixtureKey), "positions", "focus", "position_model_focus", "position_fixture_focus");
         }
+        previewFixture.color = QColor((red / 100) * (dimmer / 100) * 255, (green / 100) * (dimmer / 100) * 255, (blue / 100) * (dimmer / 100) * 255);
+        previewFixtures.append(previewFixture);
         if (address > 0) {
             QSqlQuery modelQuery;
             modelQuery.prepare("SELECT models.channels, models.panrange, models.tiltrange, models.minzoom, models.maxzoom, fixtures.rotation, fixtures.invertpan FROM fixtures, models WHERE fixtures.key = :key AND fixtures.model_key = models.key");
@@ -210,6 +217,7 @@ void Engine::generateDmx() {
     for (const int universe : dmxUniverses.keys()) {
         emit sendUniverse(universe, dmxUniverses.value(universe));
     }
+    update();
 }
 
 void Engine::getCurrentCueItems(const int cueId, const int priority, const QString table, QMap<int, int>* fixtureItemKeys, QMap<int, int>* fixtureItemPriorities) {
@@ -264,4 +272,16 @@ float Engine::getFixtureValue(const int fixtureKey, const int itemKey, const QSt
     }
     Q_ASSERT(false);
     return 0;
+}
+
+void Engine::paintEvent(QPaintEvent* event) {
+    const float fixtureDiameter = 50;
+    Q_UNUSED(event);
+    QPainter painter = QPainter(this);
+    painter.setPen(Qt::NoPen);
+    for (PreviewFixture fixture : previewFixtures) {
+        QBrush brush = QBrush(fixture.color);
+        painter.setBrush(brush);
+        painter.drawEllipse((fixture.x - (fixtureDiameter / 2)), (fixture.y - (fixtureDiameter / 2)), fixtureDiameter, fixtureDiameter);
+    }
 }

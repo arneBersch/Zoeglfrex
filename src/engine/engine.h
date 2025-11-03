@@ -14,6 +14,12 @@
 
 class Engine : public QWidget {
     Q_OBJECT
+private:
+    struct PreviewFixture {
+        float x;
+        float y;
+        QColor color;
+    };
 public:
     Engine(QWidget* parent = nullptr);
 signals:
@@ -22,7 +28,10 @@ private:
     void generateDmx();
     void getCurrentCueItems(const int cueId, const int priority, const QString table, QMap<int, int>* fixtureItemKeys, QMap<int, int>* fixtureItemPriorities);
     float getFixtureValue(int fixtureKey, int itemKey, const QString itemTable, const QString itemTableAttribute, const QString modelExceptionTable, const QString fixtureExceptionTable);
+    QList<PreviewFixture> previewFixtures;
     QMap<int, float> fixturePan;
+protected:
+    void paintEvent(QPaintEvent* event) override;
 };
 
 #endif // ENGINE_H
