@@ -204,16 +204,49 @@ void Terminal::execute() {
             }
             cueKeys.append(cueKeyQuery.value(0).toInt());
             if (tracking) {
-                QSqlQuery cueTrackingKeyQuery;
-                cueTrackingKeyQuery.prepare("SELECT key, block FROM currentcuelist_cues WHERE sortkey > :sortkey ORDER BY sortkey");
-                cueTrackingKeyQuery.bindValue(":sortkey", cueKeyQuery.value(1).toInt());
-                if (cueTrackingKeyQuery.exec()) {
-                    while (cueTrackingKeyQuery.next() && (cueTrackingKeyQuery.value(1).toInt() == 0)) {
-                        cueKeys.append(cueTrackingKeyQuery.value(0).toInt());
+                QSqlQuery currentCueValueQuery;
+                currentCueValueQuery.prepare("SELECT valueitem_key FROM " + valueTable + " WHERE item_key = :cue AND foreignitem_key = :group");
+                currentCueValueQuery.bindValue(":cue", cueKeys.first());
+                currentCueValueQuery.bindValue(":group", groupKey);
+                if (currentCueValueQuery.exec()) {
+                    QSet<int> currentCueValueKeys;
+                    while (currentCueValueQuery.next()) {
+                        currentCueValueKeys.insert(currentCueValueQuery.value(0).toInt());
+                    }
+                    QSqlQuery cueTrackingKeyQuery;
+                    cueTrackingKeyQuery.prepare("SELECT key, block FROM currentcuelist_cues WHERE sortkey > :sortkey ORDER BY sortkey");
+                    cueTrackingKeyQuery.bindValue(":sortkey", cueKeyQuery.value(1).toInt());
+                    if (cueTrackingKeyQuery.exec()) {
+                        bool sameValue = true;
+                        while (cueTrackingKeyQuery.next() && (cueTrackingKeyQuery.value(1).toInt() == 0) && sameValue) {
+                            const int cueKey = cueTrackingKeyQuery.value(0).toInt();
+                            QSqlQuery cueValueQuery;
+                            cueValueQuery.prepare("SELECT valueitem_key FROM " + valueTable + " WHERE item_key = :cue AND foreignitem_key = :group");
+                            cueValueQuery.bindValue(":cue", cueKey);
+                            cueValueQuery.bindValue(":group", groupKey);
+                            if (cueValueQuery.exec()) {
+                                QSet<int> cueValueKeys;
+                                while (cueValueQuery.next()) {
+                                    cueValueKeys.insert(cueValueQuery.value(0).toInt());
+                                }
+                                sameValue = (cueValueKeys == currentCueValueKeys);
+                                if (sameValue) {
+                                    cueKeys.append(cueKey);
+                                }
+                            } else {
+                                qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
+                                error("Can't set Cue " + item.plural + " because the Cue tracking request failed.");
+                                return;
+                            }
+                        }
+                    } else {
+                        qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
+                        error("Can't set Cue " + item.plural + " because the Cue tracking request failed.");
+                        return;
                     }
                 } else {
                     qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
-                    error("Can't set Cue " + item.plural + " because the Cue tracking request failed.");
+                    error("Can't set Cue " + item.plural + " because the request for the " + item.singular + " in the current Cue failed.");
                     return;
                 }
             }
