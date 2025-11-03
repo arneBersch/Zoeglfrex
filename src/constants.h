@@ -24,8 +24,10 @@ const char* const modelMaxZoom = "4.2";
 const char* const fixtureModel = "2";
 const char* const fixtureUniverse = "3.1";
 const char* const fixtureAddress = "3.2";
-const char* const fixtureRotation = "4.1";
-const char* const fixtureInvertPan = "4.2";
+const char* const fixtureXPosition = "4.1";
+const char* const fixtureYPosition = "4.2";
+const char* const fixtureRotation = "5.1";
+const char* const fixtureInvertPan = "5.2";
 
 const char* const groupFixtures = "2";
 

@@ -13,7 +13,8 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
 
     model = new CuelistTableModel();
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout();
+    setLayout(layout);
 
     QGridLayout* labelHeader = new QGridLayout();
     layout->addLayout(labelHeader);

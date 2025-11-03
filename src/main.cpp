@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
         const QStringList createTableQueries = {
             "PRAGMA foreign_keys = ON",
             "CREATE TABLE models (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', channels TEXT DEFAULT 'D' NOT NULL, panrange REAL DEFAULT 540 NOT NULL, tiltrange REAL DEFAULT 270 NOT NULL, minzoom REAL DEFAULT 5 NOT NULL, maxzoom REAL DEFAULT 60 NOT NULL, PRIMARY KEY (key))",
-            "CREATE TABLE fixtures (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', model_key INTEGER REFERENCES models (key) ON DELETE SET NULL, universe INTEGER DEFAULT 1 NOT NULL, address INTEGER DEFAULT 0 NOT NULL, rotation REAL DEFAULT 0 NOT NULL, invertpan INTEGER DEFAULT 0 NOT NULL, PRIMARY KEY (key))",
+            "CREATE TABLE fixtures (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', model_key INTEGER REFERENCES models (key) ON DELETE SET NULL, universe INTEGER DEFAULT 1 NOT NULL, address INTEGER DEFAULT 0 NOT NULL, xposition REAL DEFAULT 0 NOT NULL, yposition REAL DEFAULT 0 NOT NULL, rotation REAL DEFAULT 0 NOT NULL, invertpan INTEGER DEFAULT 0 NOT NULL, PRIMARY KEY (key))",
             "CREATE TABLE groups (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', PRIMARY KEY (key))",
             createItemListAttributeTable("group_fixtures", "groups", "fixtures"),
             "CREATE TABLE raws (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', movewhiledark INTEGER DEFAULT 0 NOT NULL, fade INTEGER DEFAULT 0 NOT NULL, PRIMARY KEY (key))",

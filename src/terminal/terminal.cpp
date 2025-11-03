@@ -36,7 +36,8 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     keyStrings[Thru] = " Thru ";
     keyStrings[Period] = ".";
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout();
+    setLayout(layout);
 
     promptLabel = new QLabel();
     promptLabel->setStyleSheet("padding: 10px; background-color: #303030;");
@@ -364,6 +365,10 @@ void Terminal::execute() {
             setNumberAttribute<int>(fixtureInfos, "universe", "Universe", ids, valueKeys, {1, 63999});
         } else if ((attribute == AttributeIds::fixtureAddress) || !attributes.contains(Attribute)) {
             setNumberAttribute<int>(fixtureInfos, "address", "Address", ids, valueKeys, {0, 512});
+        } else if (attribute == AttributeIds::fixtureXPosition) {
+            setNumberAttribute<float>(fixtureInfos, "xposition", "X Position", ids, valueKeys, {-100, 100});
+        } else if (attribute == AttributeIds::fixtureYPosition) {
+            setNumberAttribute<float>(fixtureInfos, "yposition", "Y Position", ids, valueKeys, {-100, 100});
         } else if (attribute == AttributeIds::fixtureRotation) {
             setNumberAttribute<float>(fixtureInfos, "rotation", "Rotation", ids, valueKeys, angleInfos);
         } else if (attribute == AttributeIds::fixtureInvertPan) {

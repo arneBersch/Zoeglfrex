@@ -9,7 +9,8 @@
 #include "inspector.h"
 
 Inspector::Inspector(QWidget *parent) : QWidget(parent) {
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout();
+    setLayout(layout);
 
     titleLabel = new QLabel("Cues");
     layout->addWidget(titleLabel);
@@ -96,6 +97,8 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append(QString(AttributeIds::fixtureModel) + " Model: " + getItemAttribute(table, "model_key", id, "models"));
                     infos.append(QString(AttributeIds::fixtureUniverse) + " Universe: " + getNumberAttribute(table, "universe", id, ""));
                     infos.append(QString(AttributeIds::fixtureAddress) + " Address: " + getNumberAttribute(table, "address", id, ""));
+                    infos.append(QString(AttributeIds::fixtureXPosition) + " X Position: " + getNumberAttribute(table, "xposition", id, ""));
+                    infos.append(QString(AttributeIds::fixtureYPosition) + " Y Position: " + getNumberAttribute(table, "yposition", id, ""));
                     infos.append(QString(AttributeIds::fixtureRotation) + " Rotation: " + getNumberAttribute(table, "rotation", id, "°"));
                     infos.append(QString(AttributeIds::fixtureInvertPan) + " Invert Pan: " + getBoolAttribute(table, "invertPan", id));
                 } else if (table == "groups") {

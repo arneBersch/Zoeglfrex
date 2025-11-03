@@ -10,7 +10,8 @@
 
 SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
     settings = new QSettings("Zoeglfrex");
-    QGridLayout* layout = new QGridLayout(this);
+    QGridLayout* layout = new QGridLayout();
+    setLayout(layout);
     setWindowTitle("Zöglfrex sACN Settings");
 
     QLabel* networkInterfaceLabel = new QLabel("Network Interface");

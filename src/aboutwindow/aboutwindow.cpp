@@ -10,6 +10,8 @@
 
 AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : QDialog(parent) {
     QVBoxLayout *layout = new QVBoxLayout();
+    setLayout(layout);
+
     QHBoxLayout *headerLayout = new QHBoxLayout();
     layout->addLayout(headerLayout);
 
@@ -36,6 +38,5 @@ AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : 
     license->setPlainText(licenseFile.readAll());
     layout->addWidget(license);
 
-    setLayout(layout);
     setWindowTitle("About Zöglfrex");
 }

@@ -33,9 +33,12 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     fileMenu->addAction(quitAction);
     connect(quitAction, &QAction::triggered, this, &MainWindow::close);
 
-    QMenu* confMenu = menuBar()->addMenu("Configuration");
+    QMenu* outputMenu = menuBar()->addMenu("Output");
+    QAction* preview2dAction = new QAction("2D Preview");
+    outputMenu->addAction(preview2dAction);
+    connect(preview2dAction, &QAction::triggered, engine, &Engine::show);
     QAction* sacnSettingsAction = new QAction("sACN Settings");
-    confMenu->addAction(sacnSettingsAction);
+    outputMenu->addAction(sacnSettingsAction);
     connect(sacnSettingsAction, &QAction::triggered, sacnServer, &SacnServer::show);
 
     QMenu* helpMenu = menuBar()->addMenu("Help");
