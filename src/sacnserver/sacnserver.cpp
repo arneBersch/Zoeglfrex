@@ -17,7 +17,7 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent) {
     layout->addWidget(networkInterfaceLabel, 0, 0);
     networkInterfaceComboBox = new QComboBox();
     reloadNetworkInterfaces();
-    connect(networkInterfaceComboBox, &QComboBox::currentIndexChanged, this, [this](int index) {
+    auto loadSocket = [this](int index) {
         index--;
         delete socket;
         socket = nullptr;
@@ -32,7 +32,9 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent) {
             settings->setValue("sacn/interface", "none");
             settings->setValue("sacn/address", "none");
         }
-    });
+    };
+    loadSocket(networkInterfaceComboBox->currentIndex());
+    connect(networkInterfaceComboBox, &QComboBox::currentIndexChanged, this, loadSocket);
     layout->addWidget(networkInterfaceComboBox, 0, 1);
 
     QPushButton* reloadNetworkInterfaceButton = new QPushButton("Reload Network Interfaces");
@@ -88,7 +90,7 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent) {
     packetHeader.append((char)0x04);
 
     // CID (Octet 22-37)
-    QByteArray cid = QUuid::createUuid().toRfc4122();
+    const QByteArray cid = QUuid::createUuid().toRfc4122();
     packetHeader.append(cid);
 
     // Framing Layer
@@ -183,14 +185,14 @@ void SacnServer::sendUniverse(const int universe, QByteArray data) {
     Q_ASSERT(data.size() == 512);
     Q_ASSERT(universe <= 63999);
     Q_ASSERT(universe >= 1);
-    QByteArray dmx = packetHeader;
-    dmx.append(data);
-    dmx[108] = (char)settings->value("sacn/priority", 100).toInt();
-    dmx[111] = sequence;
-    dmx[113] = (char)(universe / 256);
-    dmx[114] = (char)(universe % 256);
+    QByteArray sacnPacket = packetHeader;
+    sacnPacket.append(data);
+    sacnPacket[108] = (char)settings->value("sacn/priority", 100).toInt();
+    sacnPacket[111] = sequence;
+    sacnPacket[113] = (char)(universe / 256);
+    sacnPacket[114] = (char)(universe % 256);
     const QString address = "239.255." + QString::number(universe / 256) + "." + QString::number(universe % 256);
-    qint64 result = socket->writeDatagram(dmx.data(), dmx.size(), QHostAddress(address), 5568);
+    qint64 result = socket->writeDatagram(sacnPacket.data(), sacnPacket.size(), QHostAddress(address), 5568);
     if (result < 0) {
         qWarning() << Q_FUNC_INFO << socket->error() << socket->errorString();
     }
