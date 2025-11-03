@@ -58,13 +58,13 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     cuelistTableView->setFocusPolicy(Qt::NoFocus);
     layout->addWidget(cuelistTableView);
 
-    new QShortcut(Qt::Key_Left, this, [this] { selectItem("currentgroup_fixtures", "SELECT currentgroup_fixtures.sortkey FROM currentitems, currentgroup_fixtures WHERE currentitems.fixture_key = currentgroup_fixtures.key", "UPDATE currentitems SET fixture_key = :key", false); });
-    new QShortcut(Qt::Key_Right, this, [this] { selectItem("currentgroup_fixtures", "SELECT currentgroup_fixtures.sortkey FROM currentitems, currentgroup_fixtures WHERE currentitems.fixture_key = currentgroup_fixtures.key", "UPDATE currentitems SET fixture_key = :key", true); });
-    new QShortcut(Qt::Key_Escape, this, [this] { deselectItem("fixture_key"); });
-    new QShortcut(Qt::Key_Up, this, [this] { selectItem("groups", "SELECT groups.sortkey FROM currentitems, groups WHERE currentitems.group_key = groups.key", "UPDATE currentitems SET group_key = :key", false); });
-    new QShortcut(Qt::Key_Down, this, [this] { selectItem("groups", "SELECT groups.sortkey FROM currentitems, groups WHERE currentitems.group_key = groups.key", "UPDATE currentitems SET group_key = :key", true); });
-    new QShortcut(Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cuelists, cues, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cues.key = cuelists.currentcue_key", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", true); });
-    new QShortcut(Qt::SHIFT | Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cuelists, cues, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cues.key = cuelists.currentcue_key", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", false); });
+    new QShortcut(Qt::Key_Left, this, [this] { selectItem("currentgroup_fixtures", "SELECT currentgroup_fixtures.sortkey FROM currentitems, currentgroup_fixtures WHERE currentitems.fixture_key = currentgroup_fixtures.key", "UPDATE currentitems SET fixture_key = :key", false); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Right, this, [this] { selectItem("currentgroup_fixtures", "SELECT currentgroup_fixtures.sortkey FROM currentitems, currentgroup_fixtures WHERE currentitems.fixture_key = currentgroup_fixtures.key", "UPDATE currentitems SET fixture_key = :key", true); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Escape, this, [this] { deselectItem("fixture_key"); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Up, this, [this] { selectItem("groups", "SELECT groups.sortkey FROM currentitems, groups WHERE currentitems.group_key = groups.key", "UPDATE currentitems SET group_key = :key", false); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Down, this, [this] { selectItem("groups", "SELECT groups.sortkey FROM currentitems, groups WHERE currentitems.group_key = groups.key", "UPDATE currentitems SET group_key = :key", true); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cuelists, cues, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cues.key = cuelists.currentcue_key", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", true); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::SHIFT | Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cuelists, cues, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cues.key = cuelists.currentcue_key", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", false); }, Qt::ApplicationShortcut);
 
     new QShortcut(Qt::SHIFT | Qt::Key_M, this, [this] {
         if (modeComboBox->currentIndex() == 0) {
@@ -72,8 +72,8 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
         } else {
             modeComboBox->setCurrentIndex(0);
         }
-    });
-    new QShortcut(Qt::SHIFT | Qt::Key_T, this, [this] { trackingButton->click(); });
+    }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::SHIFT | Qt::Key_T, this, [this] { trackingButton->click(); }, Qt::ApplicationShortcut);
 }
 
 void CuelistView::reload() {

@@ -14,17 +14,17 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
 
     resize(1200, 800);
 
-    cuelistView = new CuelistView();
-    terminal = new Terminal();
-    inspector = new Inspector();
-    sacnServer = new SacnServer();
+    cuelistView = new CuelistView(this);
+    terminal = new Terminal(this);
+    inspector = new Inspector(this);
+    sacnServer = new SacnServer(this);
     connect(cuelistView, &CuelistView::dbChanged, this, &MainWindow::reload);
     connect(cuelistView, &CuelistView::trackingChanged, terminal, &Terminal::setTracking);
     connect(terminal, &Terminal::dbChanged, this, &MainWindow::reload);
     connect(terminal, &Terminal::itemChanged, inspector, &Inspector::loadItems);
     reload();
 
-    new QShortcut(Qt::CTRL | Qt::Key_Q, this, [this] { close(); });
+    new QShortcut(Qt::CTRL | Qt::Key_Q, this, [this] { close(); }, Qt::ApplicationShortcut);
 
     QMenu* fileMenu = menuBar()->addMenu("File");
     QAction* quitAction = new QAction("Quit (CTRL+Q)");

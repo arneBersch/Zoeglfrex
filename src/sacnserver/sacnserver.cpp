@@ -8,7 +8,7 @@
 
 #include "sacnserver.h"
 
-SacnServer::SacnServer(QWidget* parent) : QWidget(parent) {
+SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
     settings = new QSettings("Zoeglfrex");
     QGridLayout* layout = new QGridLayout(this);
     setWindowTitle("Zöglfrex sACN Settings");

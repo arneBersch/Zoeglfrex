@@ -46,40 +46,40 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     messages->setReadOnly(true);
     layout->addWidget(messages);
 
-    new QShortcut(Qt::Key_0, this, [this] { writeKey(Zero); });
-    new QShortcut(Qt::Key_1, this, [this] { writeKey(One); });
-    new QShortcut(Qt::Key_2, this, [this] { writeKey(Two); });
-    new QShortcut(Qt::Key_3, this, [this] { writeKey(Three); });
-    new QShortcut(Qt::Key_4, this, [this] { writeKey(Four); });
-    new QShortcut(Qt::Key_5, this, [this] { writeKey(Five); });
-    new QShortcut(Qt::Key_6, this, [this] { writeKey(Six); });
-    new QShortcut(Qt::Key_7, this, [this] { writeKey(Seven); });
-    new QShortcut(Qt::Key_8, this, [this] { writeKey(Eight); });
-    new QShortcut(Qt::Key_9, this, [this] { writeKey(Nine); });
+    new QShortcut(Qt::Key_0, this, [this] { writeKey(Zero); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_1, this, [this] { writeKey(One); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_2, this, [this] { writeKey(Two); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_3, this, [this] { writeKey(Three); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_4, this, [this] { writeKey(Four); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_5, this, [this] { writeKey(Five); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_6, this, [this] { writeKey(Six); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_7, this, [this] { writeKey(Seven); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_8, this, [this] { writeKey(Eight); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_9, this, [this] { writeKey(Nine); }, Qt::ApplicationShortcut);
 
-    new QShortcut(Qt::Key_Plus, this, [this] { writeKey(Plus); });
-    new QShortcut(Qt::Key_Minus, this, [this] { writeKey(Minus); });
-    new QShortcut(Qt::Key_T, this, [this] { writeKey(Thru); });
-    new QShortcut(Qt::Key_Period, this, [this] { writeKey(Period); });
-    new QShortcut(Qt::Key_Comma, this, [this] { writeKey(Period); });
-    new QShortcut(Qt::Key_A, this, [this] { writeKey(Attribute); });
-    new QShortcut(Qt::Key_S, this, [this] { writeKey(Set); });
+    new QShortcut(Qt::Key_Plus, this, [this] { writeKey(Plus); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Minus, this, [this] { writeKey(Minus); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_T, this, [this] { writeKey(Thru); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Period, this, [this] { writeKey(Period); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Comma, this, [this] { writeKey(Period); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_A, this, [this] { writeKey(Attribute); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_S, this, [this] { writeKey(Set); }, Qt::ApplicationShortcut);
 
-    new QShortcut(Qt::Key_M, this, [this] { writeKey(Model); });
-    new QShortcut(Qt::Key_F, this, [this] { writeKey(Fixture); });
-    new QShortcut(Qt::Key_G, this, [this] { writeKey(Group); });
-    new QShortcut(Qt::Key_I, this, [this] { writeKey(Intensity); });
-    new QShortcut(Qt::Key_C, this, [this] { writeKey(Color); });
-    new QShortcut(Qt::Key_P, this, [this] { writeKey(Position); });
-    new QShortcut(Qt::Key_R, this, [this] { writeKey(Raw); });
-    new QShortcut(Qt::Key_E, this, [this] { writeKey(Effect); });
-    new QShortcut(Qt::Key_L, this, [this] { writeKey(Cuelist); });
-    new QShortcut(Qt::Key_Q, this, [this] { writeKey(Cue); });
+    new QShortcut(Qt::Key_M, this, [this] { writeKey(Model); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_F, this, [this] { writeKey(Fixture); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_G, this, [this] { writeKey(Group); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_I, this, [this] { writeKey(Intensity); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_C, this, [this] { writeKey(Color); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_P, this, [this] { writeKey(Position); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_R, this, [this] { writeKey(Raw); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_E, this, [this] { writeKey(Effect); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_L, this, [this] { writeKey(Cuelist); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Q, this, [this] { writeKey(Cue); }, Qt::ApplicationShortcut);
 
-    new QShortcut(Qt::Key_Backspace, this, [this] { backspace(); });
-    new QShortcut(Qt::SHIFT | Qt::Key_Backspace, this, [this] { clearPrompt(); });
-    new QShortcut(Qt::Key_Enter, this, [this] { execute(); });
-    new QShortcut(Qt::Key_Return, this, [this] { execute(); });
+    new QShortcut(Qt::Key_Backspace, this, [this] { backspace(); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::SHIFT | Qt::Key_Backspace, this, [this] { clearPrompt(); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Enter, this, [this] { execute(); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Return, this, [this] { execute(); }, Qt::ApplicationShortcut);
 }
 
 void Terminal::execute() {
