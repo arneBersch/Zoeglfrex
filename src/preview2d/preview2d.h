@@ -19,6 +19,9 @@ public:
         float x;
         float y;
         QColor color;
+        float pan;
+        float tilt;
+        float zoom;
     };
 public slots:
     void setFixtures(QList<PreviewFixture> fixtures);
@@ -26,6 +29,9 @@ protected:
     void paintEvent(QPaintEvent* event) override;
 private:
     QList<PreviewFixture> previewFixtures;
+    const int windowWidth = 400;
+    const int fixtureDiameter = 20;
+    const int maxBeamLength = 50;
 };
 
 #endif // PREVIEW2D_H

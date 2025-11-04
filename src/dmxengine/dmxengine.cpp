@@ -46,9 +46,6 @@ void DmxEngine::generateDmx() {
         const int fixtureKey = fixtureQuery.value(0).toInt();
         const int universe = fixtureQuery.value(1).toInt();
         const int address = fixtureQuery.value(2).toInt();
-        Preview2d::PreviewFixture previewFixture;
-        previewFixture.x = fixtureQuery.value(3).toFloat();
-        previewFixture.y = fixtureQuery.value(4).toFloat();
         float dimmer = 0;
         if (fixtureIntensities.contains(fixtureKey)) {
             dimmer = getFixtureValue(fixtureKey, fixtureIntensities.value(fixtureKey), "intensities", "dimmer", "intensity_model_dimmer", "intensity_fixture_dimmer");
@@ -103,7 +100,13 @@ void DmxEngine::generateDmx() {
             zoom = getFixtureValue(fixtureKey, fixturePositions.value(fixtureKey), "positions", "zoom", "position_model_zoom", "position_fixture_zoom");
             focus = getFixtureValue(fixtureKey, fixturePositions.value(fixtureKey), "positions", "focus", "position_model_focus", "position_fixture_focus");
         }
-        previewFixture.color = QColor((red / 100) * (dimmer / 100) * 255, (green / 100) * (dimmer / 100) * 255, (blue / 100) * (dimmer / 100) * 255);
+        Preview2d::PreviewFixture previewFixture;
+        previewFixture.x = fixtureQuery.value(3).toFloat();
+        previewFixture.y = fixtureQuery.value(4).toFloat();
+        previewFixture.color = QColor(red * 2.55, green * 2.55, blue * 2.55, dimmer * 2.55);
+        previewFixture.pan = pan;
+        previewFixture.tilt = tilt;
+        previewFixture.zoom = zoom;
         previewFixtures.append(previewFixture);
         if (address > 0) {
             QSqlQuery modelQuery;
@@ -267,6 +270,5 @@ float DmxEngine::getFixtureValue(const int fixtureKey, const int itemKey, const 
     if (itemQuery.next()) {
         return itemQuery.value(0).toFloat();
     }
-    Q_ASSERT(false);
     return 0;
 }
