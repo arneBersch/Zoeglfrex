@@ -14,12 +14,14 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
 
     resize(1200, 800);
 
-    engine = new Engine(this);
+    dmxEngine = new DmxEngine();
+    preview2d = new Preview2d(this);
     cuelistView = new CuelistView(this);
     terminal = new Terminal(this);
     inspector = new Inspector(this);
     sacnServer = new SacnServer(this);
-    connect(engine, &Engine::sendUniverse, sacnServer, &SacnServer::sendUniverse);
+    connect(dmxEngine, &DmxEngine::sendUniverse, sacnServer, &SacnServer::sendUniverse);
+    connect(dmxEngine, &DmxEngine::updatePreviewFixtures, preview2d, &Preview2d::setFixtures);
     connect(cuelistView, &CuelistView::dbChanged, this, &MainWindow::reload);
     connect(cuelistView, &CuelistView::trackingChanged, terminal, &Terminal::setTracking);
     connect(terminal, &Terminal::dbChanged, this, &MainWindow::reload);
@@ -36,7 +38,7 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     QMenu* outputMenu = menuBar()->addMenu("Output");
     QAction* preview2dAction = new QAction("2D Preview");
     outputMenu->addAction(preview2dAction);
-    connect(preview2dAction, &QAction::triggered, engine, &Engine::show);
+    connect(preview2dAction, &QAction::triggered, preview2d, &Preview2d::show);
     QAction* sacnSettingsAction = new QAction("sACN Settings");
     outputMenu->addAction(sacnSettingsAction);
     connect(sacnSettingsAction, &QAction::triggered, sacnServer, &SacnServer::show);

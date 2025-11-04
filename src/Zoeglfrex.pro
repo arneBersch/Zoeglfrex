@@ -15,11 +15,12 @@ SOURCES += \
     aboutwindow/aboutwindow.cpp \
     cuelistview/cuelisttablemodel.cpp \
     cuelistview/cuelistview.cpp \
-    engine/engine.cpp \
+    dmxengine/dmxengine.cpp \
     inspector/inspector.cpp \
     inspector/itemtablemodel.cpp \
     main.cpp \
     mainwindow/mainwindow.cpp \
+    preview2d/preview2d.cpp \
     sacnserver/sacnserver.cpp \
     terminal/terminal.cpp
 
@@ -28,10 +29,11 @@ HEADERS += \
     constants.h \
     cuelistview/cuelisttablemodel.h \
     cuelistview/cuelistview.h \
-    engine/engine.h \
+    dmxengine/dmxengine.h \
     inspector/inspector.h \
     inspector/itemtablemodel.h \
     mainwindow/mainwindow.h \
+    preview2d/preview2d.h \
     sacnserver/sacnserver.h \
     terminal/terminal.h
 

@@ -6,37 +6,26 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef DMXENGINE_H
+#define DMXENGINE_H
 
 #include <QtWidgets>
 #include <QtSql>
 
-#include "aboutwindow/aboutwindow.h"
-#include "dmxengine/dmxengine.h"
 #include "preview2d/preview2d.h"
-#include "cuelistview/cuelistview.h"
-#include "terminal/terminal.h"
-#include "inspector/inspector.h"
-#include "sacnserver/sacnserver.h"
 
-class MainWindow : public QMainWindow {
+class DmxEngine : public QObject {
     Q_OBJECT
 public:
-    MainWindow(QString version, QString copyright, QWidget *parent = nullptr);
-public slots:
-    void reload();
+    DmxEngine();
+signals:
+    void sendUniverse(int universe, QByteArray data);
+    void updatePreviewFixtures(QList<Preview2d::PreviewFixture> fixtures);
 private:
-    QString VERSION;
-    QString COPYRIGHT;
-    void about();
-    void closeEvent(QCloseEvent *event) override;
-    DmxEngine* dmxEngine;
-    Preview2d* preview2d;
-    CuelistView* cuelistView;
-    Terminal* terminal;
-    Inspector* inspector;
-    SacnServer* sacnServer;
+    void generateDmx();
+    void getCurrentCueItems(const int cueId, const int priority, const QString table, QMap<int, int>* fixtureItemKeys, QMap<int, int>* fixtureItemPriorities);
+    float getFixtureValue(int fixtureKey, int itemKey, const QString itemTable, const QString itemTableAttribute, const QString modelExceptionTable, const QString fixtureExceptionTable);
+    QMap<int, float> fixturePan;
 };
 
-#endif // MAINWINDOW_H
+#endif // DMXENGINE_H

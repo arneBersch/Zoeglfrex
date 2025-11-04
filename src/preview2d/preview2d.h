@@ -6,32 +6,26 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ENGINE_H
-#define ENGINE_H
+#ifndef PREVIEW2D_H
+#define PREVIEW2D_H
 
-#include <QtWidgets>
-#include <QtSql>
+#include<QtWidgets>
 
-class Engine : public QWidget {
+class Preview2d : public QWidget {
     Q_OBJECT
-private:
+public:
+    Preview2d(QWidget* parent = nullptr);
     struct PreviewFixture {
         float x;
         float y;
         QColor color;
     };
-public:
-    Engine(QWidget* parent = nullptr);
-signals:
-    void sendUniverse(int universe, QByteArray data);
-private:
-    void generateDmx();
-    void getCurrentCueItems(const int cueId, const int priority, const QString table, QMap<int, int>* fixtureItemKeys, QMap<int, int>* fixtureItemPriorities);
-    float getFixtureValue(int fixtureKey, int itemKey, const QString itemTable, const QString itemTableAttribute, const QString modelExceptionTable, const QString fixtureExceptionTable);
-    QList<PreviewFixture> previewFixtures;
-    QMap<int, float> fixturePan;
+public slots:
+    void setFixtures(QList<PreviewFixture> fixtures);
 protected:
     void paintEvent(QPaintEvent* event) override;
+private:
+    QList<PreviewFixture> previewFixtures;
 };
 
-#endif // ENGINE_H
+#endif // PREVIEW2D_H

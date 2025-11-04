@@ -6,18 +6,15 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "engine.h"
+#include "dmxengine.h"
 
-Engine::Engine(QWidget* parent) : QWidget(parent, Qt::Window) {
-    setWindowTitle("Zöglfrex Engine");
-    resize(500, 300);
-
+DmxEngine::DmxEngine() {
     QTimer* timer = new QTimer();
-    connect(timer, &QTimer::timeout, this, &Engine::generateDmx);
+    connect(timer, &QTimer::timeout, this, &DmxEngine::generateDmx);
     timer->start(25);
 }
 
-void Engine::generateDmx() {
+void DmxEngine::generateDmx() {
     QSqlQuery cuelistQuery;
     if (!cuelistQuery.exec("SELECT currentcue_key, priority FROM cuelists ORDER BY sortkey")) {
         qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
@@ -41,7 +38,7 @@ void Engine::generateDmx() {
         qWarning() << Q_FUNC_INFO << fixtureQuery.executedQuery() << fixtureQuery.lastError().text();
         return;
     }
-    previewFixtures.clear();
+    QList<Preview2d::PreviewFixture> previewFixtures;
     QMap<int, QByteArray> dmxUniverses;
     QMap<int, float> lastFrameFixturePan = fixturePan;
     fixturePan.clear();
@@ -49,7 +46,7 @@ void Engine::generateDmx() {
         const int fixtureKey = fixtureQuery.value(0).toInt();
         const int universe = fixtureQuery.value(1).toInt();
         const int address = fixtureQuery.value(2).toInt();
-        PreviewFixture previewFixture;
+        Preview2d::PreviewFixture previewFixture;
         previewFixture.x = fixtureQuery.value(3).toFloat();
         previewFixture.y = fixtureQuery.value(4).toFloat();
         float dimmer = 0;
@@ -217,10 +214,10 @@ void Engine::generateDmx() {
     for (const int universe : dmxUniverses.keys()) {
         emit sendUniverse(universe, dmxUniverses.value(universe));
     }
-    update();
+    emit updatePreviewFixtures(previewFixtures);
 }
 
-void Engine::getCurrentCueItems(const int cueId, const int priority, const QString table, QMap<int, int>* fixtureItemKeys, QMap<int, int>* fixtureItemPriorities) {
+void DmxEngine::getCurrentCueItems(const int cueId, const int priority, const QString table, QMap<int, int>* fixtureItemKeys, QMap<int, int>* fixtureItemPriorities) {
     QSqlQuery query;
     query.prepare("SELECT group_fixtures.valueitem_key, " + table + ".valueitem_key FROM group_fixtures, groups, " + table + " WHERE group_fixtures.item_key = groups.key AND " + table + ".foreignitem_key = groups.key AND " + table + ".item_key = :cue ORDER BY groups.sortkey");
     query.bindValue(":cue", cueId);
@@ -237,7 +234,7 @@ void Engine::getCurrentCueItems(const int cueId, const int priority, const QStri
     }
 }
 
-float Engine::getFixtureValue(const int fixtureKey, const int itemKey, const QString itemTable, const QString itemTableAttribute, const QString modelExceptionTable, const QString fixtureExceptionTable) {
+float DmxEngine::getFixtureValue(const int fixtureKey, const int itemKey, const QString itemTable, const QString itemTableAttribute, const QString modelExceptionTable, const QString fixtureExceptionTable) {
     QSqlQuery fixtureExceptionQuery;
     fixtureExceptionQuery.prepare("SELECT value FROM " + fixtureExceptionTable + " WHERE item_key = :item AND foreignitem_key = :fixture");
     fixtureExceptionQuery.bindValue(":item", itemKey);
@@ -272,16 +269,4 @@ float Engine::getFixtureValue(const int fixtureKey, const int itemKey, const QSt
     }
     Q_ASSERT(false);
     return 0;
-}
-
-void Engine::paintEvent(QPaintEvent* event) {
-    const float fixtureDiameter = 50;
-    Q_UNUSED(event);
-    QPainter painter = QPainter(this);
-    painter.setPen(Qt::NoPen);
-    for (PreviewFixture fixture : previewFixtures) {
-        QBrush brush = QBrush(fixture.color);
-        painter.setBrush(brush);
-        painter.drawEllipse((fixture.x - (fixtureDiameter / 2)), (fixture.y - (fixtureDiameter / 2)), fixtureDiameter, fixtureDiameter);
-    }
 }
