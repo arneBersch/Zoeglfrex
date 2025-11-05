@@ -1876,26 +1876,11 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
     keys.removeFirst();
     QStringList ids;
     if (keys.isEmpty()) {
-        QSqlQuery currentFixtureQuery;
-        bool currentFixture = false;
-        if (currentFixtureQuery.exec("SELECT fixtures.id FROM fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key")) {
-            currentFixture = currentFixtureQuery.next();
-        } else {
-            qWarning() << Q_FUNC_INFO << currentFixtureQuery.executedQuery() << currentFixtureQuery.lastError().text();
-        }
         QSqlQuery query;
         if (itemType == Model) {
-            if (currentFixture) {
-                query.prepare("SELECT models.id FROM models, fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key AND models.key = fixtures.model_key");
-            } else {
-                query.prepare("SELECT models.id FROM models, fixtures, currentitems, group_fixtures WHERE fixtures.key = group_fixtures.valueitem_key AND currentitems.group_key = group_fixtures.item_key AND fixtures.model_key = models.key");
-            }
+            query.prepare("SELECT models.id FROM models, currentfixtures WHERE currentfixtures.model_key = models.key");
         } else if (itemType == Fixture) {
-            if (currentFixture) {
-                query.prepare("SELECT fixtures.id FROM fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key");
-            } else {
-                query.prepare("SELECT fixtures.id FROM fixtures, currentitems, group_fixtures WHERE fixtures.key = group_fixtures.valueitem_key AND currentitems.group_key = group_fixtures.item_key");
-            }
+            query.prepare("SELECT id FROM currentfixtures");
         } else if (itemType == Group) {
             query.prepare("SELECT groups.id FROM groups, currentitems WHERE groups.key = currentitems.group_key");
         } else if (itemType == Intensity) {

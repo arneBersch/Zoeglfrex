@@ -139,6 +139,7 @@ int main(int argc, char *argv[]) {
             "CREATE TABLE currentitems (group_key INTEGER REFERENCES groups (key) ON DELETE SET NULL, fixture_key INTEGER REFERENCES fixtures (key) ON DELETE SET NULL, cuelist_key INTEGER REFERENCES cuelists (key) ON DELETE SET NULL, PRIMARY KEY (group_key, fixture_key, cuelist_key))",
             "INSERT INTO currentitems (group_key, fixture_key, cuelist_key) VALUES (NULL, NULL, NULL)",
             "CREATE VIEW currentgroup_fixtures AS SELECT fixtures.* FROM fixtures, group_fixtures, currentitems WHERE group_fixtures.item_key = currentitems.group_key AND fixtures.key = group_fixtures.valueitem_key",
+            "CREATE VIEW currentfixtures AS SELECT fixtures.* FROM fixtures, currentitems, currentgroup_fixtures WHERE currentitems.fixture_key = fixtures.key OR (currentitems.fixture_key IS NULL AND currentgroup_fixtures.key = fixtures.key)",
             "CREATE TRIGGER resetfixture_trigger AFTER UPDATE OF group_key ON currentitems BEGIN UPDATE currentitems SET fixture_key = NULL; END",
             "CREATE VIEW currentcuelist_cues AS SELECT cues.* FROM cues, currentitems WHERE cues.cuelist_key = currentitems.cuelist_key",
             "CREATE TRIGGER createcues_trigger AFTER INSERT ON cues BEGIN UPDATE cues SET cuelist_key = (SELECT cuelist_key FROM currentitems) WHERE id = NEW.id AND cuelist_key IS NULL; END",
