@@ -64,8 +64,8 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     new QShortcut(Qt::Key_Escape, this, [this] { deselectItem("fixture_key"); }, Qt::ApplicationShortcut);
     new QShortcut(Qt::Key_Up, this, [this] { selectItem("groups", "SELECT groups.sortkey FROM currentitems, groups WHERE currentitems.group_key = groups.key", "UPDATE currentitems SET group_key = :key", false); }, Qt::ApplicationShortcut);
     new QShortcut(Qt::Key_Down, this, [this] { selectItem("groups", "SELECT groups.sortkey FROM currentitems, groups WHERE currentitems.group_key = groups.key", "UPDATE currentitems SET group_key = :key", true); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cuelists, cues, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cues.key = cuelists.currentcue_key", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", true); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::SHIFT | Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cuelists, cues, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cues.key = cuelists.currentcue_key", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", false); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cues, currentitems WHERE currentitems.cue_key = cues.key", "UPDATE currentitems SET cue_key = :key", true); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::SHIFT | Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cues, currentitems WHERE currentitems.cue_key = cues.key", "UPDATE currentitems SET cue_key = :key", false); }, Qt::ApplicationShortcut);
 
     new QShortcut(Qt::SHIFT | Qt::Key_M, this, [this] {
         if (modeComboBox->currentIndex() == 0) {
@@ -79,9 +79,9 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
 
 void CuelistView::reload() {
     emit trackingChanged(trackingButton->isChecked());
-    auto setCurrentItemLabel = [](const QString keyQuery, const QString itemName, QLabel* label) {
+    auto setCurrentItemLabel = [](const QString table, const QString currentitemsAttribute, const QString itemName, QLabel* label) {
         QSqlQuery query;
-        if (query.exec(keyQuery)) {
+        if (query.exec("SELECT CONCAT('" + itemName + " ', " + table + ".id, ' ', " + table + ".label) FROM " + table + ", currentitems WHERE " + table + ".key = currentitems." + currentitemsAttribute)) {
             if (query.next()) {
                 label->setText(query.value(0).toString());
             } else {
@@ -92,10 +92,10 @@ void CuelistView::reload() {
             label->setText(QString());
         }
     };
-    setCurrentItemLabel("SELECT CONCAT('Fixture ', fixtures.id, ' ', fixtures.label) FROM fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key", "Fixture", fixtureLabel);
-    setCurrentItemLabel("SELECT CONCAT('Group ', groups.id, ' ', groups.label) FROM groups, currentitems WHERE groups.key = currentitems.group_key", "Group", groupLabel);
-    setCurrentItemLabel("SELECT CONCAT('Cuelist ', cuelists.id, ' ', cuelists.label) FROM cuelists, currentitems WHERE cuelists.key = currentitems.cuelist_key", "Cuelist", cuelistLabel);
-    setCurrentItemLabel("SELECT CONCAT('Cue ', cues.id, ' ', cues.label) FROM cues, cuelists, currentitems WHERE cues.key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key", "Cue", cueLabel);
+    setCurrentItemLabel("fixtures", "fixture_key", "Fixture", fixtureLabel);
+    setCurrentItemLabel("groups", "group_key", "Group", groupLabel);
+    setCurrentItemLabel("cuelists", "cuelist_key", "Cuelist", cuelistLabel);
+    setCurrentItemLabel("cues", "cue_key", "Cue", cueLabel);
     model->refresh();
 }
 

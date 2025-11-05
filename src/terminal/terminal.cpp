@@ -121,7 +121,7 @@ void Terminal::execute() {
         }
     }
     if (!attributeReached && !valueReached) {
-        auto setCurrentItem = [this](const ItemInfos item, const QString itemTable, const QList<Key> idKeys, const QString updateQueryText) {
+        auto setCurrentItem = [this](const ItemInfos item, const QString itemTable, const QList<Key> idKeys, const QString currentitemsAttribute) {
             const QStringList ids = keysToIds(idKeys);
             if (ids.size() != 1) {
                 error("Invalid " + item.singular + " selection given.");
@@ -141,7 +141,7 @@ void Terminal::execute() {
             }
             const int key = keyQuery.value(0).toInt();
             QSqlQuery updateQuery;
-            updateQuery.prepare(updateQueryText);
+            updateQuery.prepare("UPDATE currentitems SET " + currentitemsAttribute + " = :key");
             updateQuery.bindValue(":key", key);
             if (!updateQuery.exec()) {
                 qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
@@ -194,7 +194,7 @@ void Terminal::execute() {
             const int groupKey = groupKeyQuery.value(0).toInt();
             QList<int> cueKeys;
             QSqlQuery cueKeyQuery;
-            if (!cueKeyQuery.exec("SELECT cues.key, cues.sortkey FROM cues, cuelists, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cuelists.currentcue_key = cues.key")) {
+            if (!cueKeyQuery.exec("SELECT cue_key FROM currentitems")) {
                 qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
                 error("Can't set Cue " + item.plural + " because the request for the current Cue failed.");
                 return;
@@ -275,9 +275,9 @@ void Terminal::execute() {
             emit dbChanged();
         };
         if (selectionType == Fixture) {
-            setCurrentItem(fixtureInfos, "currentgroup_fixtures", selectionIdKeys, "UPDATE currentitems SET fixture_key = :key");
+            setCurrentItem(fixtureInfos, "currentgroup_fixtures", selectionIdKeys, "fixture_key");
         } else if (selectionType == Group) {
-            setCurrentItem(groupInfos, groupInfos.selectTable, selectionIdKeys, "UPDATE currentitems SET group_key = :key");
+            setCurrentItem(groupInfos, groupInfos.selectTable, selectionIdKeys, "group_key");
         } else if (selectionType == Intensity) {
             setCueItem(intensityInfos, "cue_group_intensities", selectionIdKeys, false);
         } else if (selectionType == Color) {
@@ -289,9 +289,9 @@ void Terminal::execute() {
         } else if (selectionType == Effect) {
             setCueItem(effectInfos, "cue_group_effects", selectionIdKeys, true);
         } else if (selectionType == Cuelist) {
-            setCurrentItem(cuelistInfos, cuelistInfos.selectTable, selectionIdKeys, "UPDATE currentitems SET cuelist_key = :key");
+            setCurrentItem(cuelistInfos, cuelistInfos.selectTable, selectionIdKeys, "cuelist_key");
         } else if (selectionType == Cue) {
-            setCurrentItem(cueInfos, cueInfos.selectTable, selectionIdKeys, "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)");
+            setCurrentItem(cueInfos, cueInfos.selectTable, selectionIdKeys, "cue_key");
         } else {
             error("Can't select this Item type: " + keysToString({selectionType}));
         }
@@ -1884,19 +1884,19 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
         } else if (itemType == Group) {
             query.prepare("SELECT groups.id FROM groups, currentitems WHERE groups.key = currentitems.group_key");
         } else if (itemType == Intensity) {
-            query.prepare("SELECT intensities.id FROM intensities, currentitems, cuelists, cue_group_intensities WHERE currentitems.group_key = cue_group_intensities.foreignitem_key AND cue_group_intensities.valueitem_key = intensities.key AND cue_group_intensities.item_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key");
+            query.prepare("SELECT intensities.id FROM intensities, currentitems, cue_group_intensities WHERE currentitems.group_key = cue_group_intensities.foreignitem_key AND cue_group_intensities.valueitem_key = intensities.key AND cue_group_intensities.item_key = currentitems.cue_key");
         } else if (itemType == Color) {
-            query.prepare("SELECT colors.id FROM colors, currentitems, cuelists, cue_group_colors WHERE currentitems.group_key = cue_group_colors.foreignitem_key AND cue_group_colors.valueitem_key = colors.key AND cue_group_colors.item_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key");
+            query.prepare("SELECT colors.id FROM colors, currentitems, cuelists, cue_group_colors WHERE currentitems.group_key = cue_group_colors.foreignitem_key AND cue_group_colors.valueitem_key = colors.key AND cue_group_colors.item_key = currentitems.cue_key");
         } else if (itemType == Position) {
-            query.prepare("SELECT positions.id FROM positions, currentitems, cuelists, cue_group_positions WHERE currentitems.group_key = cue_group_positions.foreignitem_key AND cue_group_positions.valueitem_key = positions.key AND cue_group_positions.item_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key");
+            query.prepare("SELECT positions.id FROM positions, currentitems, cuelists, cue_group_positions WHERE currentitems.group_key = cue_group_positions.foreignitem_key AND cue_group_positions.valueitem_key = positions.key AND cue_group_positions.item_key = currentitems.cue_key");
         } else if (itemType == Raw) {
-            query.prepare("SELECT raws.id FROM raws, currentitems, cuelists, cue_group_raws WHERE currentitems.group_key = cue_group_raws.foreignitem_key AND cue_group_raws.valueitem_key = raws.key AND cue_group_raws.item_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key");
+            query.prepare("SELECT raws.id FROM raws, currentitems, cuelists, cue_group_raws WHERE currentitems.group_key = cue_group_raws.foreignitem_key AND cue_group_raws.valueitem_key = raws.key AND cue_group_raws.item_key = currentitems.cue_key");
         } else if (itemType == Effect) {
-            query.prepare("SELECT effects.id FROM effects, currentitems, cuelists, cue_group_effects WHERE currentitems.group_key = cue_group_effects.foreignitem_key AND cue_group_effects.valueitem_key = effects.key AND cue_group_effects.item_key = cuelists.currentcue_key AND cuelists.key = currentitems.cuelist_key");
+            query.prepare("SELECT effects.id FROM effects, currentitems, cuelists, cue_group_effects WHERE currentitems.group_key = cue_group_effects.foreignitem_key AND cue_group_effects.valueitem_key = effects.key AND cue_group_effects.item_key = currentitems.cue_key");
         } else if (itemType == Cuelist) {
             query.prepare("SELECT cuelists.id FROM cuelists, currentitems WHERE cuelists.key = currentitems.cuelist_key");
         } else if (itemType == Cue) {
-            query.prepare("SELECT cues.id FROM cues, cuelists, currentitems WHERE currentitems.cuelist_key = cuelists.key AND cuelists.currentcue_key = cues.key");
+            query.prepare("SELECT cues.id FROM cues, currentitems WHERE currentitems.cue_key = cues.key");
         } else {
             return QStringList();
         }
