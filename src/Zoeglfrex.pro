@@ -20,6 +20,7 @@ SOURCES += \
     inspector/itemtablemodel.cpp \
     main.cpp \
     mainwindow/mainwindow.cpp \
+    playbackmonitor/playbackmonitor.cpp \
     preview2d/preview2d.cpp \
     sacnserver/sacnserver.cpp \
     terminal/terminal.cpp
@@ -33,6 +34,7 @@ HEADERS += \
     inspector/inspector.h \
     inspector/itemtablemodel.h \
     mainwindow/mainwindow.h \
+    playbackmonitor/playbackmonitor.h \
     preview2d/preview2d.h \
     sacnserver/sacnserver.h \
     terminal/terminal.h

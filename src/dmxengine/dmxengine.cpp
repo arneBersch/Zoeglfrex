@@ -16,7 +16,7 @@ DmxEngine::DmxEngine() {
 
 void DmxEngine::generateDmx() {
     QSqlQuery cuelistQuery;
-    if (!cuelistQuery.exec("SELECT currentcue_key, priority FROM cuelists ORDER BY sortkey")) {
+    if (!cuelistQuery.exec("SELECT currentcue_key, priority FROM cuelists WHERE currentcue_key IS NOT NULL ORDER BY sortkey")) {
         qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
         return;
     }

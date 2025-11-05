@@ -18,6 +18,7 @@
 #include "cuelistview/cuelistview.h"
 #include "terminal/terminal.h"
 #include "inspector/inspector.h"
+#include "playbackmonitor/playbackmonitor.h"
 #include "sacnserver/sacnserver.h"
 
 class MainWindow : public QMainWindow {
@@ -31,12 +32,13 @@ private:
     QString COPYRIGHT;
     void about();
     void closeEvent(QCloseEvent *event) override;
-    DmxEngine* dmxEngine;
-    Preview2d* preview2d;
-    CuelistView* cuelistView;
-    Terminal* terminal;
-    Inspector* inspector;
-    SacnServer* sacnServer;
+    DmxEngine* dmxEngine = new DmxEngine();
+    Preview2d* preview2d = new Preview2d(this);
+    CuelistView* cuelistView = new CuelistView(this);
+    Terminal* terminal = new Terminal(this);
+    Inspector* inspector = new Inspector(this);
+    PlaybackMonitor* playbackMonitor = new PlaybackMonitor(this);
+    SacnServer* sacnServer = new SacnServer(this);
 };
 
 #endif // MAINWINDOW_H
