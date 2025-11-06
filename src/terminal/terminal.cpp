@@ -48,6 +48,22 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     promptLabel->setStyleSheet("padding: 10px; background-color: #303030;");
     promptLayout->addWidget(promptLabel);
 
+    blindButton = new QPushButton("Blind");
+    blindButton->setCheckable(true);
+    connect(blindButton, &QPushButton::clicked, this, [this] {
+        QSqlQuery query;
+        if (blindButton->isChecked()) {
+            query.prepare("UPDATE currentitems SET cue_key = (SELECT cuelists.currentcue_key FROM cuelists, currentitems WHERE cuelists.key = currentitems.cuelist_key)");
+        } else {
+            query.prepare("UPDATE currentitems SET cue_key = NULL");
+        }
+        if (!query.exec()) {
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        }
+        emit dbChanged();
+    });
+    promptLayout->addWidget(blindButton);
+
     trackingButton = new QPushButton("Tracking");
     trackingButton->setCheckable(true);
     connect(trackingButton, &QPushButton::clicked, this, [this] {
@@ -95,6 +111,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     new QShortcut(Qt::Key_Enter, this, [this] { execute(); }, Qt::ApplicationShortcut);
     new QShortcut(Qt::Key_Return, this, [this] { execute(); }, Qt::ApplicationShortcut);
 
+    new QShortcut(Qt::SHIFT | Qt::Key_B, this, [this] { blindButton->click(); }, Qt::ApplicationShortcut);
     new QShortcut(Qt::SHIFT | Qt::Key_T, this, [this] { trackingButton->click(); }, Qt::ApplicationShortcut);
 }
 

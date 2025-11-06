@@ -111,8 +111,9 @@ private:
     QList<Key> promptKeys;
     QPlainTextEdit *messages;
     QLabel* promptLabel;
-    QMap<Key, QString> keyStrings;
+    QPushButton* blindButton;
     QPushButton* trackingButton;
+    QMap<Key, QString> keyStrings;
 };
 
 #endif // TERMINAL_H
