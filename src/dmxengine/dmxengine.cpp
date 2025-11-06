@@ -20,18 +20,79 @@ void DmxEngine::generateDmx() {
         qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
         return;
     }
-    QMap<int, int> fixtureIntensities;
+    QMap<int, float> fixtureIntensities;
     QMap<int, int> fixtureIntensityPriorities;
-    QMap<int, int> fixtureColors;
+    QMap<int, ColorData> fixtureColors;
     QMap<int, int> fixtureColorPriorities;
-    QMap<int, int> fixturePositions;
+    QMap<int, PositionData> fixturePositions;
     QMap<int, int> fixturePositionPriorities;
     while (cuelistQuery.next()) {
         const int cueKey = cuelistQuery.value(0).toInt();
         const int priority = cuelistQuery.value(1).toInt();
-        getCurrentCueItems(cueKey, priority, "cue_group_intensities", &fixtureIntensities, &fixtureIntensityPriorities);
-        getCurrentCueItems(cueKey, priority, "cue_group_colors", &fixtureColors, &fixtureColorPriorities);
-        getCurrentCueItems(cueKey, priority, "cue_group_positions", &fixturePositions, &fixturePositionPriorities);
+        const QMap<int, int> fixtureIntensityKeys = getCurrentCueItems(cueKey, "cue_group_intensities");
+        for (const int fixtureKey : fixtureIntensityKeys.keys()) {
+            if (priority >= fixtureIntensityPriorities.value(fixtureKey, 0)) {
+                fixtureIntensityPriorities[fixtureKey] = priority;
+                const float dimmer = getFixtureValue(fixtureKey, fixtureIntensityKeys.value(fixtureKey), "intensities", "dimmer", "intensity_model_dimmer", "intensity_fixture_dimmer");
+                fixtureIntensities[fixtureKey] = dimmer;
+            }
+        }
+        const QMap<int, int> fixtureColorKeys = getCurrentCueItems(cueKey, "cue_group_colors");
+        for (const int fixtureKey : fixtureColorKeys.keys()) {
+            if (priority >= fixtureColorPriorities.value(fixtureKey, 0)) {
+                fixtureColorPriorities[fixtureKey] = priority;
+                const int colorKey = fixtureColorKeys.value(fixtureKey);
+                const float hue = getFixtureValue(fixtureKey, colorKey, "colors", "hue", "color_model_hue", "color_fixture_hue");
+                const float saturation = getFixtureValue(fixtureKey, colorKey, "colors", "saturation", "color_model_saturation", "color_fixture_saturation");
+                ColorData color;
+                const float h = (hue / 60.0);
+                const int i = (int)h;
+                const float f = h - i;
+                const float p = (100 - saturation);
+                const float q = (100 - (saturation * f));
+                const float t = (100 - (saturation * (1 - f)));
+                if (i == 0) {
+                    color.red = 100;
+                    color.green = t;
+                    color.blue = p;
+                } else if (i == 1) {
+                    color.red = q;
+                    color.green = 100.0;
+                    color.blue = p;
+                } else if (i == 2) {
+                    color.red = p;
+                    color.green = 100.0;
+                    color.blue = t;
+                } else if (i == 3) {
+                    color.red = p;
+                    color.green = q;
+                    color.blue = 100.0;
+                } else if (i == 4) {
+                    color.red = t;
+                    color.green = p;
+                    color.blue = 100.0;
+                } else if (i == 5) {
+                    color.red = 100.0;
+                    color.green = p;
+                    color.blue = q;
+                }
+                color.quality = getFixtureValue(fixtureKey, fixtureColorKeys.value(fixtureKey), "colors", "quality", "color_model_quality", "color_fixture_quality");
+                fixtureColors[fixtureKey] = color;
+            }
+        }
+        const QMap<int, int> fixturePositionKeys = getCurrentCueItems(cueKey, "cue_group_positions");
+        for (const int fixtureKey : fixturePositionKeys.keys()) {
+            if (priority >= fixturePositionPriorities.value(fixtureKey, 0)) {
+                fixturePositionPriorities[fixtureKey] = priority;
+                const int positionKey = fixturePositionKeys.value(fixtureKey);
+                PositionData position;
+                position.pan = getFixtureValue(fixtureKey, positionKey, "positions", "pan", "position_model_pan", "position_fixture_pan");
+                position.tilt = getFixtureValue(fixtureKey, positionKey, "positions", "tilt", "position_model_tilt", "position_fixture_tilt");
+                position.zoom = getFixtureValue(fixtureKey, positionKey, "positions", "zoom", "position_model_zoom", "position_fixture_zoom");
+                position.focus = getFixtureValue(fixtureKey, positionKey, "positions", "focus", "position_model_focus", "position_fixture_focus");
+                fixturePositions[fixtureKey] = position;
+            }
+        }
     }
     QSqlQuery fixtureQuery;
     if (!fixtureQuery.exec("SELECT key, universe, address, xposition, yposition FROM fixtures")) {
@@ -46,60 +107,17 @@ void DmxEngine::generateDmx() {
         const int fixtureKey = fixtureQuery.value(0).toInt();
         const int universe = fixtureQuery.value(1).toInt();
         const int address = fixtureQuery.value(2).toInt();
-        float dimmer = 0;
-        if (fixtureIntensities.contains(fixtureKey)) {
-            dimmer = getFixtureValue(fixtureKey, fixtureIntensities.value(fixtureKey), "intensities", "dimmer", "intensity_model_dimmer", "intensity_fixture_dimmer");
-        }
-        float red = 100;
-        float green = 100;
-        float blue = 100;
-        float quality = 100;
-        if (fixtureColors.contains(fixtureKey)) {
-            const float hue = getFixtureValue(fixtureKey, fixtureColors.value(fixtureKey), "colors", "hue", "color_model_hue", "color_fixture_hue");
-            const float saturation = getFixtureValue(fixtureKey, fixtureColors.value(fixtureKey), "colors", "saturation", "color_model_saturation", "color_fixture_saturation");
-            quality = getFixtureValue(fixtureKey, fixtureColors.value(fixtureKey), "colors", "quality", "color_model_quality", "color_fixture_quality");
-            const float h = (hue / 60.0);
-            const int i = (int)h;
-            const float f = h - i;
-            const float p = (100 - saturation);
-            const float q = (100 - (saturation * f));
-            const float t = (100 - (saturation * (1 - f)));
-            if (i == 0) {
-                red = 100.0;
-                green = t;
-                blue = p;
-            } else if (i == 1) {
-                red = q;
-                green = 100.0;
-                blue = p;
-            } else if (i == 2) {
-                red = p;
-                green = 100.0;
-                blue = t;
-            } else if (i == 3) {
-                red = p;
-                green = q;
-                blue = 100.0;
-            } else if (i == 4) {
-                red = t;
-                green = p;
-                blue = 100.0;
-            } else if (i == 5) {
-                red = 100.0;
-                green = p;
-                blue = q;
-            }
-        }
-        float pan = 0;
-        float tilt = 0;
-        float zoom = 0;
-        float focus = 0;
-        if (fixturePositions.contains(fixtureKey)) {
-            pan = getFixtureValue(fixtureKey, fixturePositions.value(fixtureKey), "positions", "pan", "position_model_pan", "position_fixture_pan");
-            tilt = getFixtureValue(fixtureKey, fixturePositions.value(fixtureKey), "positions", "tilt", "position_model_tilt", "position_fixture_tilt");
-            zoom = getFixtureValue(fixtureKey, fixturePositions.value(fixtureKey), "positions", "zoom", "position_model_zoom", "position_fixture_zoom");
-            focus = getFixtureValue(fixtureKey, fixturePositions.value(fixtureKey), "positions", "focus", "position_model_focus", "position_fixture_focus");
-        }
+        const float dimmer = fixtureIntensities.value(fixtureKey);
+        const ColorData color = fixtureColors.value(fixtureKey);
+        float red = color.red;
+        float green = color.green;
+        float blue = color.blue;
+        float quality = color.quality;
+        const PositionData position = fixturePositions.value(fixtureKey);
+        float pan = position.pan;
+        float tilt = position.tilt;
+        float zoom = position.zoom;
+        float focus = position.focus;
         Preview2d::PreviewFixture previewFixture;
         previewFixture.x = fixtureQuery.value(3).toFloat();
         previewFixture.y = fixtureQuery.value(4).toFloat();
@@ -220,20 +238,17 @@ void DmxEngine::generateDmx() {
     emit updatePreviewFixtures(previewFixtures);
 }
 
-void DmxEngine::getCurrentCueItems(const int cueId, const int priority, const QString table, QMap<int, int>* fixtureItemKeys, QMap<int, int>* fixtureItemPriorities) {
+QMap<int, int> DmxEngine::getCurrentCueItems(const int cueId, const QString table) {
     QSqlQuery query;
     query.prepare("SELECT group_fixtures.valueitem_key, " + table + ".valueitem_key FROM group_fixtures, groups, " + table + " WHERE group_fixtures.item_key = groups.key AND " + table + ".foreignitem_key = groups.key AND " + table + ".item_key = :cue ORDER BY groups.sortkey");
     query.bindValue(":cue", cueId);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-        return;
+        return QMap<int, int>();
     }
+    QMap<int, int> fixtureKeys;
     while (query.next()) {
-        const int fixtureKey = query.value(0).toInt();
-        if (priority >= fixtureItemPriorities->value(fixtureKey, 0)) {
-            (*fixtureItemKeys)[fixtureKey] = query.value(1).toInt();
-            (*fixtureItemPriorities)[fixtureKey] = priority;
-        }
+        fixtureKeys[query.value(0).toInt()] = query.value(1).toInt();
     }
 }
 

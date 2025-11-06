@@ -23,9 +23,21 @@ signals:
     void updatePreviewFixtures(QList<Preview2d::PreviewFixture> fixtures);
 private:
     void generateDmx();
-    void getCurrentCueItems(const int cueId, const int priority, const QString table, QMap<int, int>* fixtureItemKeys, QMap<int, int>* fixtureItemPriorities);
+    QMap<int, int> getCurrentCueItems(const int cueId, const QString table);
     float getFixtureValue(int fixtureKey, int itemKey, const QString itemTable, const QString itemTableAttribute, const QString modelExceptionTable, const QString fixtureExceptionTable);
     QMap<int, float> fixturePan;
+    struct ColorData {
+        float red = 0;
+        float green = 0;
+        float blue = 0;
+        float quality = 0;
+    };
+    struct PositionData {
+        float pan = 0;
+        float tilt = 0;
+        float zoom = 15;
+        float focus = 0;
+    };
 };
 
 #endif // DMXENGINE_H
