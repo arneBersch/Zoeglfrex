@@ -142,6 +142,7 @@ int main(int argc, char *argv[]) {
             "CREATE VIEW currentfixtures AS SELECT fixtures.* FROM fixtures, currentitems, currentgroup_fixtures WHERE currentitems.fixture_key = fixtures.key OR (currentitems.fixture_key IS NULL AND currentgroup_fixtures.key = fixtures.key)",
             "CREATE TRIGGER resetfixture_trigger AFTER UPDATE OF group_key ON currentitems BEGIN UPDATE currentitems SET fixture_key = NULL; END",
             "CREATE VIEW currentcuelist_cues AS SELECT cues.* FROM cues, currentitems WHERE cues.cuelist_key = currentitems.cuelist_key",
+            "CREATE VIEW currentcue AS SELECT cues.* FROM cues, currentitems, cuelists WHERE currentitems.cue_key = cues.key OR (currentitems.cue_key IS NULL AND currentitems.cuelist_key = cuelists.key AND cuelists.currentcue_key = cues.key)",
             "CREATE TRIGGER resetcue_trigger AFTER UPDATE OF cuelist_key ON currentitems BEGIN UPDATE currentitems SET cue_key = NULL; END",
             "CREATE TRIGGER createcues_trigger AFTER INSERT ON cues BEGIN UPDATE cues SET cuelist_key = (SELECT cuelist_key FROM currentitems) WHERE id = NEW.id AND cuelist_key IS NULL; END",
             "CREATE TABLE about (version TEXT PRIMARY KEY)",

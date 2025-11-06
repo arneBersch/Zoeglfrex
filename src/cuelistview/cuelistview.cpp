@@ -64,8 +64,30 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     new QShortcut(Qt::Key_Escape, this, [this] { deselectItem("fixture_key"); }, Qt::ApplicationShortcut);
     new QShortcut(Qt::Key_Up, this, [this] { selectItem("groups", "SELECT groups.sortkey FROM currentitems, groups WHERE currentitems.group_key = groups.key", "UPDATE currentitems SET group_key = :key", false); }, Qt::ApplicationShortcut);
     new QShortcut(Qt::Key_Down, this, [this] { selectItem("groups", "SELECT groups.sortkey FROM currentitems, groups WHERE currentitems.group_key = groups.key", "UPDATE currentitems SET group_key = :key", true); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cues, currentitems WHERE currentitems.cue_key = cues.key", "UPDATE currentitems SET cue_key = :key", true); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::SHIFT | Qt::Key_Space, this, [this] { selectItem("currentcuelist_cues", "SELECT cues.sortkey FROM cues, currentitems WHERE currentitems.cue_key = cues.key", "UPDATE currentitems SET cue_key = :key", false); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::SHIFT | Qt::Key_Space, this, [this] {
+        QSqlQuery currentCueQuery;
+        if (currentCueQuery.exec("SELECT cue_key FROM currentitems WHERE cue_key IS NOT NULL")) {
+            if (currentCueQuery.next()) {
+                selectItem("currentcuelist_cues", "SELECT sortkey FROM currentcue", "UPDATE currentitems SET cue_key = :key", false);
+            } else {
+                selectItem("currentcuelist_cues", "SELECT sortkey FROM currentcue", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", false);
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << currentCueQuery.executedQuery() << currentCueQuery.lastError().text();
+        }
+    }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Space, this, [this] {
+        QSqlQuery currentCueQuery;
+        if (currentCueQuery.exec("SELECT cue_key FROM currentitems WHERE cue_key IS NOT NULL")) {
+            if (currentCueQuery.next()) {
+                selectItem("currentcuelist_cues", "SELECT sortkey FROM currentcue", "UPDATE currentitems SET cue_key = :key", true);
+            } else {
+                selectItem("currentcuelist_cues", "SELECT sortkey FROM currentcue", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", true);
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << currentCueQuery.executedQuery() << currentCueQuery.lastError().text();
+        }
+    }, Qt::ApplicationShortcut);
 
     new QShortcut(Qt::SHIFT | Qt::Key_M, this, [this] {
         if (modeComboBox->currentIndex() == 0) {

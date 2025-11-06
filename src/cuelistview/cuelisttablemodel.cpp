@@ -19,7 +19,7 @@ void CuelistTableModel::refresh() {
     if (cueMode) {
         query.prepare("SELECT groups.sortkey FROM groups, currentitems WHERE currentitems.group_key = groups.key");
     } else {
-        query.prepare("SELECT cues.sortkey FROM cues, currentitems WHERE currentitems.cue_key = cues.key");
+        query.prepare("SELECT key FROM currentcue");
     }
     if (query.exec()) {
         if (query.next()) {
@@ -67,7 +67,7 @@ QVariant CuelistTableModel::data(const QModelIndex &index, int role) const {
         QString queryText;
         if (cueMode) {
             auto createQuery = [] (const QString itemTable, const QString valueTable) {
-                return "SELECT CONCAT(" + itemTable + ".id, ' ', " + itemTable + ".label) FROM " + itemTable + ", groups, " + valueTable + ", currentitems WHERE groups.sortkey = :sortkey AND " + valueTable + ".foreignitem_key = groups.key AND " + valueTable + ".valueitem_key = " + itemTable + ".key AND " + valueTable + ".item_key = currentitems.cue_key";
+                return "SELECT CONCAT(" + itemTable + ".id, ' ', " + itemTable + ".label) FROM " + itemTable + ", groups, " + valueTable + ", currentcue WHERE groups.sortkey = :sortkey AND " + valueTable + ".foreignitem_key = groups.key AND " + valueTable + ".valueitem_key = " + itemTable + ".key AND " + valueTable + ".item_key = currentcue.key";
             };
             if (column == 0) {
                 queryText = "SELECT CONCAT(id, ' ', label) FROM groups WHERE sortkey = :sortkey";
