@@ -40,16 +40,6 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     modeComboBox->setCurrentIndex(settings->value("cuelistview/mode", 0).toInt());
     buttonHeader->addWidget(modeComboBox);
 
-    trackingButton = new QPushButton("Tracking");
-    trackingButton->setCheckable(true);
-    connect(trackingButton, &QPushButton::clicked, this, [this] {
-        bool checked = trackingButton->isChecked();
-        emit trackingChanged(checked);
-        settings->setValue("cuelistview/tracking", checked);
-    });
-    trackingButton->setChecked(settings->value("cuelistview/tracking", true).toBool());
-    buttonHeader->addWidget(trackingButton);
-
     cuelistTableView = new QTableView();
     cuelistTableView->setModel(model);
     cuelistTableView->verticalHeader()->hide();
@@ -96,11 +86,9 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
             modeComboBox->setCurrentIndex(0);
         }
     }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::SHIFT | Qt::Key_T, this, [this] { trackingButton->click(); }, Qt::ApplicationShortcut);
 }
 
 void CuelistView::reload() {
-    emit trackingChanged(trackingButton->isChecked());
     auto setCurrentItemLabel = [](const QString table, const QString currentitemsAttribute, const QString itemName, QLabel* label) {
         QSqlQuery query;
         if (query.exec("SELECT CONCAT('" + itemName + " ', " + table + ".id, ' ', " + table + ".label) FROM " + table + ", currentitems WHERE " + table + ".key = currentitems." + currentitemsAttribute)) {

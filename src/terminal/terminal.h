@@ -62,6 +62,7 @@ private:
     const ItemInfos effectInfos = {"effects", "effects", "Effect", "Effects", Effect};
     const ItemInfos cuelistInfos = {"cuelists", "cuelists", "Cuelist", "Cuelists", Cuelist};
     const ItemInfos cueInfos = {"currentcuelist_cues", "cues", "Cue", "Cues", Cue};
+    const QList<Key> itemKeys = {Model, Fixture, Group, Intensity, Color, Position, Raw, Effect, Cuelist, Cue};
 
     struct NumberInfos {
         float minValue;
@@ -83,7 +84,6 @@ signals:
     void itemChanged(QString itemType, QStringList ids);
 public slots:
     void reload();
-    void setTracking(bool tracking);
 private:
     void execute();
     void updateSortingKeys(ItemInfos item);
@@ -107,12 +107,12 @@ private:
     void writeKey(Key key);
     void backspace();
     void clearPrompt();
+    QSettings* settings;
     QList<Key> promptKeys;
     QPlainTextEdit *messages;
     QLabel* promptLabel;
-    const QList<Key> itemKeys = {Model, Fixture, Group, Intensity, Color, Position, Raw, Effect, Cuelist, Cue};
     QMap<Key, QString> keyStrings;
-    bool tracking;
+    QPushButton* trackingButton;
 };
 
 #endif // TERMINAL_H

@@ -8,7 +8,9 @@
 
 #include "terminal.h"
 
-Terminal::Terminal(QWidget *parent) : QWidget(parent) {  
+Terminal::Terminal(QWidget *parent) : QWidget(parent) {
+    settings = new QSettings("Zoeglfrex");
+
     keyStrings[Zero] = "0";
     keyStrings[One] = "1";
     keyStrings[Two] = "2";
@@ -38,10 +40,21 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
 
     QVBoxLayout *layout = new QVBoxLayout();
     setLayout(layout);
+    QHBoxLayout* promptLayout = new QHBoxLayout();
+    layout->addLayout(promptLayout);
 
     promptLabel = new QLabel();
+    promptLabel->setWordWrap(true);
     promptLabel->setStyleSheet("padding: 10px; background-color: #303030;");
-    layout->addWidget(promptLabel);
+    promptLayout->addWidget(promptLabel);
+
+    trackingButton = new QPushButton("Tracking");
+    trackingButton->setCheckable(true);
+    connect(trackingButton, &QPushButton::clicked, this, [this] {
+        settings->setValue("cuelistview/tracking", trackingButton->isChecked());
+    });
+    trackingButton->setChecked(settings->value("cuelistview/tracking", true).toBool());
+    promptLayout->addWidget(trackingButton);
 
     messages = new QPlainTextEdit();
     messages->setReadOnly(true);
@@ -81,6 +94,8 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     new QShortcut(Qt::SHIFT | Qt::Key_Backspace, this, [this] { clearPrompt(); }, Qt::ApplicationShortcut);
     new QShortcut(Qt::Key_Enter, this, [this] { execute(); }, Qt::ApplicationShortcut);
     new QShortcut(Qt::Key_Return, this, [this] { execute(); }, Qt::ApplicationShortcut);
+
+    new QShortcut(Qt::SHIFT | Qt::Key_T, this, [this] { trackingButton->click(); }, Qt::ApplicationShortcut);
 }
 
 void Terminal::execute() {
@@ -204,7 +219,7 @@ void Terminal::execute() {
                 return;
             }
             cueKeys.append(cueKeyQuery.value(0).toInt());
-            if (tracking) {
+            if (trackingButton->isChecked()) {
                 QSqlQuery currentCueValueQuery;
                 currentCueValueQuery.prepare("SELECT valueitem_key FROM " + valueTable + " WHERE item_key = :cue AND foreignitem_key = :group");
                 currentCueValueQuery.bindValue(":cue", cueKeys.first());
@@ -2099,8 +2114,4 @@ void Terminal::warning(QString message) {
 void Terminal::error(QString message) {
     messages->appendHtml("<span style=\"color: red\">" + message + "</span>");
     qCritical() << message;
-}
-
-void Terminal::setTracking(bool newTracking) {
-    tracking = newTracking;
 }
