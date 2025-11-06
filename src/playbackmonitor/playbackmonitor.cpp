@@ -13,9 +13,11 @@ PlaybackMonitor::PlaybackMonitor(QWidget *parent) : QWidget(parent, Qt::Window) 
     resize(500, 300);
 
     model = new QSqlQueryModel();
-    model->setQuery("SELECT CONCAT(id, ' ', label), key FROM cuelists ORDER BY sortkey");
+    model->setQuery("SELECT CONCAT(id, ' ', label), key, key, key FROM cuelists ORDER BY sortkey");
     model->setHeaderData(0, Qt::Horizontal, "Cuelist");
     model->setHeaderData(1, Qt::Horizontal, "Cue");
+    model->setHeaderData(2, Qt::Horizontal, "");
+    model->setHeaderData(3, Qt::Horizontal, "");
 
     tableView = new QTableView();
     tableView->setModel(model);
@@ -36,26 +38,38 @@ void PlaybackMonitor::reload() {
         const int cuelistKey = model->data(model->index(row, 1), Qt::DisplayRole).toInt();
         QComboBox* cueComboBox = new QComboBox();
         tableView->setIndexWidget(model->index(row, 1), cueComboBox);
-        QSqlQuery cueQuery;
-        cueQuery.prepare("SELECT CONCAT(id, ' ', label) FROM cues WHERE cuelist_key = :key ORDER BY sortkey");
-        cueQuery.bindValue(":key", cuelistKey);
-        if (cueQuery.exec()) {
-            while (cueQuery.next()) {
-                cueComboBox->addItem(cueQuery.value(0).toString());
+        QPushButton* goButton = new QPushButton("GO");
+        tableView->setIndexWidget(model->index(row, 2), goButton);
+        QPushButton* goBackButton = new QPushButton("GO BACK");
+        tableView->setIndexWidget(model->index(row, 3), goBackButton);
+        QSqlQuery currentSortkeyQuery;
+        currentSortkeyQuery.prepare("SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key");
+        currentSortkeyQuery.bindValue(":cuelist", cuelistKey);
+        if (currentSortkeyQuery.exec()) {
+            int sortkey = -1;
+            if (currentSortkeyQuery.next()) {
+                sortkey = currentSortkeyQuery.value(0).toInt();
             }
-            QSqlQuery currentSortkeyQuery;
-            currentSortkeyQuery.prepare("SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key");
-            currentSortkeyQuery.bindValue(":cuelist", cuelistKey);
-            if (currentSortkeyQuery.exec()) {
-                if (currentSortkeyQuery.next()) {
-                    cueComboBox->setCurrentIndex(currentSortkeyQuery.value(0).toInt() - 1);
+            QSqlQuery cueQuery;
+            cueQuery.prepare("SELECT CONCAT(id, ' ', label) FROM cues WHERE cuelist_key = :key ORDER BY sortkey");
+            cueQuery.bindValue(":key", cuelistKey);
+            if (cueQuery.exec()) {
+                while (cueQuery.next()) {
+                    cueComboBox->addItem(cueQuery.value(0).toString());
                 }
+                if (sortkey >= 0) {
+                    cueComboBox->setCurrentIndex(sortkey - 1);
+                    connect(goButton, &QPushButton::clicked, this, [this, cuelistKey, sortkey] { updateCue(cuelistKey, sortkey + 1); });
+                    connect(goBackButton, &QPushButton::clicked, this, [this, cuelistKey, sortkey] { updateCue(cuelistKey, sortkey - 1); });
+                } else {
+                    updateCue(cuelistKey, 1);
+                }
+                connect(cueComboBox, &QComboBox::currentIndexChanged, this, [this, cuelistKey] (const int newIndex) { updateCue(cuelistKey, newIndex + 1); });
             } else {
-                qWarning() << Q_FUNC_INFO << currentSortkeyQuery.executedQuery() << currentSortkeyQuery.lastError().text();
+                qWarning() << Q_FUNC_INFO << cueQuery.executedQuery() << cueQuery.lastError().text();
             }
-            connect(cueComboBox, &QComboBox::currentIndexChanged, this, [this, cuelistKey] (const int newIndex) { updateCue(cuelistKey, newIndex + 1); });
         } else {
-            qWarning() << Q_FUNC_INFO << cueQuery.executedQuery() << cueQuery.lastError().text();
+            qWarning() << Q_FUNC_INFO << currentSortkeyQuery.executedQuery() << currentSortkeyQuery.lastError().text();
         }
     }
 }
@@ -70,7 +84,6 @@ void PlaybackMonitor::updateCue(const int cuelistKey, const int newCueIndex) {
         return;
     }
     if (!cueKeyQuery.next()) {
-        Q_ASSERT(false);
         return;
     }
     const int cueKey = cueKeyQuery.value(0).toInt();
