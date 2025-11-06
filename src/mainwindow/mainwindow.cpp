@@ -20,6 +20,7 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     connect(cuelistView, &CuelistView::trackingChanged, terminal, &Terminal::setTracking);
     connect(terminal, &Terminal::dbChanged, this, &MainWindow::reload);
     connect(terminal, &Terminal::itemChanged, inspector, &Inspector::loadItems);
+    connect(playbackMonitor, &PlaybackMonitor::dbChanged, this, &MainWindow::reload);
     reload();
 
     new QShortcut(Qt::CTRL | Qt::Key_Q, this, [this] { close(); }, Qt::ApplicationShortcut);

@@ -18,7 +18,10 @@ public:
     PlaybackMonitor(QWidget *parent = nullptr);
 public slots:
     void reload();
+signals:
+    void dbChanged();
 private:
+    void updateCue(const int cuelistKey, const int newCueIndex);
     QSqlQueryModel* model;
     QTableView* tableView;
 };
