@@ -271,6 +271,15 @@ void DmxEngine::generateDmx() {
         fadeProgressBar->setRange(0, 1);
         fadeProgressBar->setValue(1);
     }
+    QSet<int> currentFixtureKeys;
+    QSqlQuery currentFixtureQuery;
+    if (currentFixtureQuery.exec("SELECT key FROM currentfixtures")) {
+        while (currentFixtureQuery.next()) {
+            currentFixtureKeys.insert(currentFixtureQuery.value(0).toInt());
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << currentFixtureQuery.executedQuery() << currentFixtureQuery.lastError().text();
+    }
     QSqlQuery fixtureQuery;
     if (!fixtureQuery.exec("SELECT key, universe, address, xposition, yposition FROM fixtures")) {
         qWarning() << Q_FUNC_INFO << fixtureQuery.executedQuery() << fixtureQuery.lastError().text();
@@ -284,12 +293,19 @@ void DmxEngine::generateDmx() {
         const int fixtureKey = fixtureQuery.value(0).toInt();
         const int universe = fixtureQuery.value(1).toInt();
         const int address = fixtureQuery.value(2).toInt();
-        const float dimmer = fixtureIntensities.value(fixtureKey);
+        float dimmer = fixtureIntensities.value(fixtureKey);
         const ColorData color = fixtureColors.value(fixtureKey);
         float red = color.red;
         float green = color.green;
         float blue = color.blue;
         float quality = color.quality;
+        if (currentFixtureKeys.contains(fixtureKey) && highlightButton->isChecked()) {
+            dimmer = 100;
+            red = 100;
+            green = 100;
+            blue = 100;
+            quality = 0;
+        }
         const PositionData position = fixturePositions.value(fixtureKey);
         float pan = position.pan;
         float tilt = position.tilt;
