@@ -23,8 +23,7 @@ signals:
     void updatePreviewFixtures(QList<Preview2d::PreviewFixture> fixtures);
 private:
     void generateDmx();
-    QMap<int, int> getCurrentCueItems(const int cueId, const QString table);
-    float getFixtureValue(int fixtureKey, int itemKey, const QString itemTable, const QString itemTableAttribute, const QString modelExceptionTable, const QString fixtureExceptionTable);
+    float getFixtureValue(int fixtureKey, int itemKey, QString itemTable, QString itemTableAttribute, QString modelExceptionTable, QString fixtureExceptionTable);
     QProgressBar* fadeProgressBar;
     QMap<int, float> fixturePan;
     QMap<int, int> cuelistCurrentCueKeys;
@@ -43,9 +42,12 @@ private:
         float zoom = 15;
         float focus = 0;
     };
-    float getFixtureIntensity(const int fixtureKey, const int intensityKey);
-    ColorData getFixtureColor(const int fixtureKey, const int colorKey);
-    PositionData getFixturePosition(const int fixtureKey, const int positionKey);
+    QMap<int, int> getCurrentCueItems(int cueId, QString table);
+    QMap<int, QList<int>> getCurrentCueItemList(int cueId, QString table);
+    float getFixtureIntensity(int fixtureKey, int intensityKey);
+    ColorData getFixtureColor(int fixtureKey, int colorKey);
+    PositionData getFixturePosition(int fixtureKey, int positionKey);
+    QMap<int, uchar> getFixtureRaws(int fixtureKey, QList<int> rawKeys);
 };
 
 #endif // DMXENGINE_H

@@ -48,6 +48,8 @@ void DmxEngine::generateDmx() {
     QMap<int, int> fixtureColorPriorities;
     QMap<int, PositionData> fixturePositions;
     QMap<int, int> fixturePositionPriorities;
+    QMap<int, QMap<int, uchar>> fixtureChannelRaws;
+    QMap<int, QMap<int, int>> fixtureChannelRawPriorities;
     while (cuelistQuery.next()) {
         const int cuelistKey = cuelistQuery.value(0).toInt();
         const int currentCueKey = cuelistQuery.value(1).toInt();
@@ -74,8 +76,11 @@ void DmxEngine::generateDmx() {
         }
         cuelistCurrentCueKeys[cuelistKey] = currentCueKey;
         const float fade = (float)cuelistRemainingFadeFrames.value(cuelistKey, 0) / (float)cuelistTotalFadeFrames.value(cuelistKey, 1);
+        const QMap<int, int> currentCueFixtureIntensityKeys = getCurrentCueItems(currentCueKey, "cue_group_intensities");
+        const QMap<int, int> currentCueFixtureColorKeys = getCurrentCueItems(currentCueKey, "cue_group_colors");
+        const QMap<int, int> currentCueFixturePositionKeys = getCurrentCueItems(currentCueKey, "cue_group_positions");
+        const QMap<int, QList<int>> currentCueFixtureRawKeys = getCurrentCueItemList(currentCueKey, "cue_group_raws");
         if (fade > 0) {
-            const QMap<int, int> currentCueFixtureIntensityKeys = getCurrentCueItems(currentCueKey, "cue_group_intensities");
             const QMap<int, int> lastCueFixtureIntensityKeys = getCurrentCueItems(lastCueKey, "cue_group_intensities");
             QSet<int> intensityFixtureKeys;
             for (const int fixtureKey : currentCueFixtureIntensityKeys.keys()) {
@@ -98,7 +103,6 @@ void DmxEngine::generateDmx() {
                     fixtureIntensities[fixtureKey] = currentIntensity;
                 }
             }
-            const QMap<int, int> currentCueFixtureColorKeys = getCurrentCueItems(currentCueKey, "cue_group_colors");
             const QMap<int, int> lastCueFixtureColorKeys = getCurrentCueItems(lastCueKey, "cue_group_colors");
             QSet<int> colorFixtureKeys;
             for (const int fixtureKey : currentCueFixtureColorKeys.keys()) {
@@ -125,15 +129,7 @@ void DmxEngine::generateDmx() {
                     }
                 }
             }
-            /*const QMap<int, int> fixturePositionKeys = getCurrentCueItems(currentCueKey, "cue_group_positions");
-            for (const int fixtureKey : fixturePositionKeys.keys()) {
-                if (priority >= fixturePositionPriorities.value(fixtureKey, 0)) {
-                    fixturePositionPriorities[fixtureKey] = priority;
-                    fixturePositions[fixtureKey] = getFixturePosition(fixtureKey, fixturePositionKeys.value(fixtureKey));
-                }
-            }*/
-            const QMap<int, int> currentCueFixturePositionKeys = getCurrentCueItems(currentCueKey, "cue_group_position");
-            const QMap<int, int> lastCueFixturePositionKeys = getCurrentCueItems(lastCueKey, "cue_group_position");
+            const QMap<int, int> lastCueFixturePositionKeys = getCurrentCueItems(lastCueKey, "cue_group_positions");
             QSet<int> positionFixtureKeys;
             for (const int fixtureKey : currentCueFixturePositionKeys.keys()) {
                 positionFixtureKeys.insert(fixtureKey);
@@ -160,25 +156,34 @@ void DmxEngine::generateDmx() {
                 }
             }
         } else {
-            const QMap<int, int> fixtureIntensityKeys = getCurrentCueItems(currentCueKey, "cue_group_intensities");
-            for (const int fixtureKey : fixtureIntensityKeys.keys()) {
-                const float dimmer = getFixtureIntensity(fixtureKey, fixtureIntensityKeys.value(fixtureKey));
+            for (const int fixtureKey : currentCueFixtureIntensityKeys.keys()) {
+                const float dimmer = getFixtureIntensity(fixtureKey, currentCueFixtureIntensityKeys.value(fixtureKey));
                 if (dimmer > fixtureIntensities.value(fixtureKey, 0)) {
                     fixtureIntensities[fixtureKey] = dimmer;
                 }
             }
-            const QMap<int, int> fixtureColorKeys = getCurrentCueItems(currentCueKey, "cue_group_colors");
-            for (const int fixtureKey : fixtureColorKeys.keys()) {
+            for (const int fixtureKey : currentCueFixtureColorKeys.keys()) {
                 if (priority >= fixtureColorPriorities.value(fixtureKey, 0)) {
                     fixtureColorPriorities[fixtureKey] = priority;
-                    fixtureColors[fixtureKey] = getFixtureColor(fixtureKey, fixtureColorKeys.value(fixtureKey));
+                    fixtureColors[fixtureKey] = getFixtureColor(fixtureKey, currentCueFixtureColorKeys.value(fixtureKey));
                 }
             }
-            const QMap<int, int> fixturePositionKeys = getCurrentCueItems(currentCueKey, "cue_group_positions");
-            for (const int fixtureKey : fixturePositionKeys.keys()) {
+            for (const int fixtureKey : currentCueFixturePositionKeys.keys()) {
                 if (priority >= fixturePositionPriorities.value(fixtureKey, 0)) {
                     fixturePositionPriorities[fixtureKey] = priority;
-                    fixturePositions[fixtureKey] = getFixturePosition(fixtureKey, fixturePositionKeys.value(fixtureKey));
+                    fixturePositions[fixtureKey] = getFixturePosition(fixtureKey, currentCueFixturePositionKeys.value(fixtureKey));
+                }
+            }
+        }
+        for (const int fixtureKey : currentCueFixtureRawKeys.keys()) {
+            const QMap<int, uchar> channelValues = getFixtureRaws(fixtureKey, currentCueFixtureRawKeys.value(fixtureKey));
+            for (const int channel : channelValues.keys()) {
+                if (!fixtureChannelRaws.contains(fixtureKey)) {
+                    fixtureChannelRaws[fixtureKey] = QMap<int, uchar>();
+                    fixtureChannelRawPriorities[fixtureKey] = QMap<int, int>();
+                }
+                if (priority >= fixtureChannelRawPriorities.value(fixtureKey).value(channel, 0)) {
+                    fixtureChannelRaws[fixtureKey][channel] = channelValues.value(channel);
                 }
             }
         }
@@ -322,6 +327,12 @@ void DmxEngine::generateDmx() {
                             }
                         }
                     }
+                    for (const int channel : fixtureChannelRaws.value(fixtureKey, QMap<int, uchar>()).keys()) {
+                        const int dmxChannel = address + channel - 1;
+                        if (dmxChannel <= 512) {
+                            dmxUniverses[universe][dmxChannel - 1] = fixtureChannelRaws.value(fixtureKey).value(channel);
+                        }
+                    }
                 }
             } else {
                 qWarning() << Q_FUNC_INFO << modelQuery.executedQuery() << modelQuery.lastError().text();
@@ -347,6 +358,25 @@ QMap<int, int> DmxEngine::getCurrentCueItems(const int cueId, const QString tabl
         fixtureKeys[query.value(0).toInt()] = query.value(1).toInt();
     }
     return fixtureKeys;
+}
+
+QMap<int, QList<int>> DmxEngine::getCurrentCueItemList(const int cueId, const QString table) {
+    QSqlQuery query;
+    query.prepare("SELECT group_fixtures.valueitem_key, " + table + ".valueitem_key FROM group_fixtures, groups, " + table + " WHERE group_fixtures.item_key = groups.key AND " + table + ".foreignitem_key = groups.key AND " + table + ".item_key = :cue ORDER BY groups.sortkey");
+    query.bindValue(":cue", cueId);
+    if (!query.exec()) {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        return QMap<int, QList<int>>();
+    }
+    QMap<int, QList<int>> fixtureKeyLists;
+    while (query.next()) {
+        const int fixtureKey = query.value(0).toInt();
+        if (!fixtureKeyLists.contains(fixtureKey)) {
+            fixtureKeyLists[fixtureKey] = QList<int>();
+        }
+        fixtureKeyLists[fixtureKey].append(query.value(1).toInt());
+    }
+    return fixtureKeyLists;
 }
 
 float DmxEngine::getFixtureValue(const int fixtureKey, const int itemKey, const QString itemTable, const QString itemTableAttribute, const QString modelExceptionTable, const QString fixtureExceptionTable) {
@@ -435,4 +465,43 @@ DmxEngine::PositionData DmxEngine::getFixturePosition(const int fixtureKey, cons
     position.zoom = getFixtureValue(fixtureKey, positionKey, "positions", "zoom", "position_model_zoom", "position_fixture_zoom");
     position.focus = getFixtureValue(fixtureKey, positionKey, "positions", "focus", "position_model_focus", "position_fixture_focus");
     return position;
+}
+
+QMap<int, uchar> DmxEngine::getFixtureRaws(const int fixtureKey, const QList<int> rawKeys) {
+    QMap<int, uchar> channels;
+    for (const int rawKey : rawKeys) {
+        QSqlQuery itemQuery;
+        itemQuery.prepare("SELECT key, value FROM raw_channel_values WHERE item_key = :raw");
+        itemQuery.bindValue(":raw", rawKey);
+        if (itemQuery.exec()) {
+            while (itemQuery.next()) {
+                channels[itemQuery.value(0).toInt()] = (uchar)itemQuery.value(1).toUInt();
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << itemQuery.executedQuery() << itemQuery.lastError().text();
+        }
+        QSqlQuery modelExceptionQuery;
+        modelExceptionQuery.prepare("SELECT raw_model_channel_values.key, raw_model_channel_values.value FROM raw_model_channel_values, fixtures WHERE raw_model_channel_values.item_key = :raw AND raw_model_channel_values.foreignitem_key = fixtures.model_key AND fixtures.key = :fixture");
+        modelExceptionQuery.bindValue(":raw", rawKey);
+        modelExceptionQuery.bindValue(":fixture", fixtureKey);
+        if (modelExceptionQuery.exec()) {
+            while (modelExceptionQuery.next()) {
+                channels[modelExceptionQuery.value(0).toInt()] = (uchar)modelExceptionQuery.value(1).toUInt();
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << modelExceptionQuery.executedQuery() << modelExceptionQuery.lastError().text();
+        }
+        QSqlQuery fixtureExceptionQuery;
+        fixtureExceptionQuery.prepare("SELECT key, value FROM raw_fixture_channel_values WHERE item_key = :raw AND foreignitem_key = :fixture");
+        fixtureExceptionQuery.bindValue(":raw", rawKey);
+        fixtureExceptionQuery.bindValue(":fixture", fixtureKey);
+        if (fixtureExceptionQuery.exec()) {
+            while (fixtureExceptionQuery.next()) {
+                channels[fixtureExceptionQuery.value(0).toInt()] = (uchar)fixtureExceptionQuery.value(1).toUInt();
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << fixtureExceptionQuery.executedQuery() << fixtureExceptionQuery.lastError().text();
+        }
+    }
+    return channels;
 }
