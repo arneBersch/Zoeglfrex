@@ -305,6 +305,8 @@ void DmxEngine::generateDmx() {
             green = 100;
             blue = 100;
             quality = 0;
+        } else if (!currentFixtureKeys.contains(fixtureKey) && soloButton->isChecked()) {
+            dimmer = 0;
         }
         const PositionData position = fixturePositions.value(fixtureKey);
         float pan = position.pan;
