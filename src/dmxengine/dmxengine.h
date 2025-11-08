@@ -24,7 +24,11 @@ signals:
 private:
     void generateDmx();
     float getFixtureValue(int fixtureKey, int itemKey, QString itemTable, QString itemTableAttribute, QString modelExceptionTable, QString fixtureExceptionTable);
+    QSettings* settings;
+    QPushButton* highlightButton;
+    QPushButton* soloButton;
     QProgressBar* fadeProgressBar;
+    QPushButton* skipFadeButton;
     QMap<int, float> fixturePan;
     QMap<int, int> cuelistCurrentCueKeys;
     QMap<int, int> cuelistRemainingFadeFrames;

@@ -9,13 +9,43 @@
 #include "dmxengine.h"
 
 DmxEngine::DmxEngine(QWidget* parent) : QWidget(parent) {
+    settings = new QSettings("Zoeglfrex");
+
     QHBoxLayout* layout = new QHBoxLayout();
     setLayout(layout);
+
+    highlightButton = new QPushButton("Highlight");
+    highlightButton->setCheckable(true);
+    connect(highlightButton, &QPushButton::clicked, this, [this] {
+        settings->setValue("cuelistview/highlight", highlightButton->isChecked());
+    });
+    highlightButton->setChecked(settings->value("cuelistview/highlight", true).toBool());
+    layout->addWidget(highlightButton);
+
+    soloButton = new QPushButton("Solo");
+    soloButton->setCheckable(true);
+    connect(soloButton, &QPushButton::clicked, this, [this] {
+        settings->setValue("cuelistview/solo", soloButton->isChecked());
+    });
+    soloButton->setChecked(settings->value("cuelistview/solo", true).toBool());
+    layout->addWidget(soloButton);
 
     fadeProgressBar = new QProgressBar();
     fadeProgressBar->setRange(0, 10);
     fadeProgressBar->setValue(5);
     layout->addWidget(fadeProgressBar);
+
+    skipFadeButton = new QPushButton("Skip Fade");
+    skipFadeButton->setCheckable(true);
+    connect(skipFadeButton, &QPushButton::clicked, this, [this] {
+        settings->setValue("cuelistview/skipfade", skipFadeButton->isChecked());
+    });
+    skipFadeButton->setChecked(settings->value("cuelistview/skipfade", true).toBool());
+    layout->addWidget(skipFadeButton);
+
+    new QShortcut(Qt::SHIFT | Qt::Key_H, this, [this] { highlightButton->click(); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::SHIFT | Qt::Key_S, this, [this] { soloButton->click(); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::SHIFT | Qt::Key_F, this, [this] { skipFadeButton->click(); }, Qt::ApplicationShortcut);
 
     QTimer* timer = new QTimer();
     connect(timer, &QTimer::timeout, this, &DmxEngine::generateDmx);
@@ -55,24 +85,26 @@ void DmxEngine::generateDmx() {
         const int currentCueKey = cuelistQuery.value(1).toInt();
         const int lastCueKey = cuelistQuery.value(2).toInt();
         const int priority = cuelistQuery.value(3).toInt();
-        if (oldCuelistCurrentCueKeys.value(cuelistKey, -1) != currentCueKey) {
-            QSqlQuery fadeQuery;
-            fadeQuery.prepare("SELECT fade FROM cues WHERE key = :key");
-            fadeQuery.bindValue(":key", currentCueKey);
-            if (fadeQuery.exec()) {
-                if (fadeQuery.next()) {
-                    const int fadeFrames = (fadeQuery.value(0).toFloat() * 1000 / FRAMEDURATION);
-                    if (fadeFrames > 0) {
-                        cuelistRemainingFadeFrames[cuelistKey] = fadeFrames;
-                        cuelistTotalFadeFrames[cuelistKey] = fadeFrames;
+        if (!skipFadeButton->isChecked()) {
+            if (oldCuelistCurrentCueKeys.value(cuelistKey, -1) != currentCueKey) {
+                QSqlQuery fadeQuery;
+                fadeQuery.prepare("SELECT fade FROM cues WHERE key = :key");
+                fadeQuery.bindValue(":key", currentCueKey);
+                if (fadeQuery.exec()) {
+                    if (fadeQuery.next()) {
+                        const int fadeFrames = (fadeQuery.value(0).toFloat() * 1000 / FRAMEDURATION);
+                        if (fadeFrames > 0) {
+                            cuelistRemainingFadeFrames[cuelistKey] = fadeFrames;
+                            cuelistTotalFadeFrames[cuelistKey] = fadeFrames;
+                        }
                     }
+                } else {
+                    qWarning() << Q_FUNC_INFO << fadeQuery.executedQuery() << fadeQuery.lastError().text();
                 }
-            } else {
-                qWarning() << Q_FUNC_INFO << fadeQuery.executedQuery() << fadeQuery.lastError().text();
+            } else if (oldCuelistRemainingFadeFrames.value(cuelistKey, 0) > 0) {
+                cuelistRemainingFadeFrames[cuelistKey] = (oldCuelistRemainingFadeFrames.value(cuelistKey, 0) - 1);
+                cuelistTotalFadeFrames[cuelistKey] = oldCuelistTotalFadeFrames.value(cuelistKey);
             }
-        } else if (oldCuelistRemainingFadeFrames.value(cuelistKey, 0) > 0) {
-            cuelistRemainingFadeFrames[cuelistKey] = (oldCuelistRemainingFadeFrames.value(cuelistKey, 0) - 1);
-            cuelistTotalFadeFrames[cuelistKey] = oldCuelistTotalFadeFrames.value(cuelistKey);
         }
         cuelistCurrentCueKeys[cuelistKey] = currentCueKey;
         const float fade = (float)cuelistRemainingFadeFrames.value(cuelistKey, 0) / (float)cuelistTotalFadeFrames.value(cuelistKey, 1);
