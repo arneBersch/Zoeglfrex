@@ -32,10 +32,10 @@ private:
     QMap<int, int> cuelistTotalFadeFrames;
     const int FRAMEDURATION = 25;
     struct ColorData {
-        float red = 0;
-        float green = 0;
-        float blue = 0;
-        float quality = 0;
+        float red = 100;
+        float green = 100;
+        float blue = 100;
+        float quality = 100;
     };
     struct PositionData {
         float pan = 0;

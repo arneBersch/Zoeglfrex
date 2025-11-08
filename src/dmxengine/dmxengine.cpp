@@ -60,8 +60,10 @@ void DmxEngine::generateDmx() {
             if (fadeQuery.exec()) {
                 if (fadeQuery.next()) {
                     const int fadeFrames = (fadeQuery.value(0).toFloat() * 1000 / FRAMEDURATION);
-                    cuelistRemainingFadeFrames[cuelistKey] = fadeFrames;
-                    cuelistTotalFadeFrames[cuelistKey] = fadeFrames;
+                    if (fadeFrames > 0) {
+                        cuelistRemainingFadeFrames[cuelistKey] = fadeFrames;
+                        cuelistTotalFadeFrames[cuelistKey] = fadeFrames;
+                    }
                 }
             } else {
                 qWarning() << Q_FUNC_INFO << fadeQuery.executedQuery() << fadeQuery.lastError().text();
@@ -71,11 +73,33 @@ void DmxEngine::generateDmx() {
             cuelistTotalFadeFrames[cuelistKey] = oldCuelistTotalFadeFrames.value(cuelistKey);
         }
         cuelistCurrentCueKeys[cuelistKey] = currentCueKey;
-        const QMap<int, int> fixtureIntensityKeys = getCurrentCueItems(currentCueKey, "cue_group_intensities");
-        for (const int fixtureKey : fixtureIntensityKeys.keys()) {
-            const float dimmer = getFixtureValue(fixtureKey, fixtureIntensityKeys.value(fixtureKey), "intensities", "dimmer", "intensity_model_dimmer", "intensity_fixture_dimmer");
-            if (dimmer > fixtureIntensities.value(fixtureKey, -1)) {
-                fixtureIntensities[fixtureKey] = dimmer;
+        const float fade = (float)cuelistRemainingFadeFrames.value(cuelistKey, 0) / (float)cuelistTotalFadeFrames.value(cuelistKey, 1);
+        if (fade > 0) {
+            const QMap<int, int> currentCueFixtureIntensityKeys = getCurrentCueItems(currentCueKey, "cue_group_intensities");
+            const QMap<int, int> lastCueFixtureIntensityKeys = getCurrentCueItems(lastCueKey, "cue_group_intensities");
+            QList<int> fixtureKeys = currentCueFixtureIntensityKeys.keys();
+            fixtureKeys.append(lastCueFixtureIntensityKeys.keys());
+            for (const int fixtureKey : fixtureKeys) {
+                float lastCueDimmer = 0;
+                if (lastCueFixtureIntensityKeys.contains(fixtureKey)) {
+                    lastCueDimmer = getFixtureValue(fixtureKey, lastCueFixtureIntensityKeys.value(fixtureKey), "intensities", "dimmer", "intensity_model_dimmer", "intensity_fixture_dimmer");
+                }
+                float currentCueDimmer = 0;
+                if (currentCueFixtureIntensityKeys.contains(fixtureKey)) {
+                    currentCueDimmer = getFixtureValue(fixtureKey, currentCueFixtureIntensityKeys.value(fixtureKey), "intensities", "dimmer", "intensity_model_dimmer", "intensity_fixture_dimmer");
+                }
+                const float dimmer = currentCueDimmer + (lastCueDimmer - currentCueDimmer) * fade;
+                if (dimmer > fixtureIntensities.value(fixtureKey, 0)) {
+                    fixtureIntensities[fixtureKey] = dimmer;
+                }
+            }
+        } else {
+            const QMap<int, int> fixtureIntensityKeys = getCurrentCueItems(currentCueKey, "cue_group_intensities");
+            for (const int fixtureKey : fixtureIntensityKeys.keys()) {
+                const float dimmer = getFixtureValue(fixtureKey, fixtureIntensityKeys.value(fixtureKey), "intensities", "dimmer", "intensity_model_dimmer", "intensity_fixture_dimmer");
+                if (dimmer > fixtureIntensities.value(fixtureKey, 0)) {
+                    fixtureIntensities[fixtureKey] = dimmer;
+                }
             }
         }
         const QMap<int, int> fixtureColorKeys = getCurrentCueItems(currentCueKey, "cue_group_colors");
@@ -169,7 +193,7 @@ void DmxEngine::generateDmx() {
         Preview2d::PreviewFixture previewFixture;
         previewFixture.x = fixtureQuery.value(3).toFloat();
         previewFixture.y = fixtureQuery.value(4).toFloat();
-        previewFixture.color = QColor(red * 2.55, green * 2.55, blue * 2.55, dimmer * 2.55);
+        previewFixture.color = QColor((red / 100) * (dimmer / 100) * 255, (green / 100) * (dimmer / 100) * 255, (blue / 100) * (dimmer / 100) * 255);
         previewFixture.pan = pan;
         previewFixture.tilt = tilt;
         previewFixture.zoom = zoom;
