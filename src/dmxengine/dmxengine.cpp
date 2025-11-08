@@ -166,17 +166,17 @@ void DmxEngine::generateDmx() {
             }
             for (const int fixtureKey : rawFixtureKeys) {
                 QSet<int> channels;
-                QMap<int, uchar> currentChannelValues;
+                RawData currentRaws;
                 if (currentCueFixtureRawKeys.contains(fixtureKey)) {
-                    currentChannelValues = getFixtureRaws(fixtureKey, currentCueFixtureRawKeys.value(fixtureKey));
-                    for (const int channel : currentChannelValues.keys()) {
+                    currentRaws = getFixtureRaws(fixtureKey, currentCueFixtureRawKeys.value(fixtureKey));
+                    for (const int channel : currentRaws.channelValues.keys()) {
                         channels.insert(channel);
                     }
                 }
-                QMap<int, uchar> lastChannelValues;
+                RawData lastRaws;
                 if (lastCueFixtureRawKeys.contains(fixtureKey)) {
-                    lastChannelValues = getFixtureRaws(fixtureKey, lastCueFixtureRawKeys.value(fixtureKey));
-                    for (const int channel : lastChannelValues.keys()) {
+                    lastRaws = getFixtureRaws(fixtureKey, lastCueFixtureRawKeys.value(fixtureKey));
+                    for (const int channel : lastRaws.channelValues.keys()) {
                         channels.insert(channel);
                     }
                 }
@@ -187,14 +187,14 @@ void DmxEngine::generateDmx() {
                     }
                     if (priority >= fixtureChannelRawPriorities.value(fixtureKey).value(channel, 0)) {
                         fixtureChannelRawPriorities[fixtureKey][channel] = priority;
-                        if (currentChannelValues.contains(channel)) {
-                            uchar value = currentChannelValues.value(channel);
-                            if (lastChannelValues.contains(channel)) {
-                                value += (lastChannelValues.value(channel) - value) * fade;
+                        if (currentRaws.channelValues.contains(channel)) {
+                            uchar value = currentRaws.channelValues.value(channel);
+                            if (lastRaws.channelValues.contains(channel) && currentRaws.channelFading.contains(channel)) {
+                                value += (lastRaws.channelValues.value(channel) - value) * fade;
                             }
                             fixtureChannelRaws[fixtureKey][channel] = value;
-                        } else if (lastChannelValues.contains(channel)) {
-                            fixtureChannelRaws[fixtureKey][channel] = lastChannelValues.value(channel);
+                        } else if (lastRaws.channelValues.contains(channel)) {
+                            fixtureChannelRaws[fixtureKey][channel] = lastRaws.channelValues.value(channel);
                         }
                     }
                 }
@@ -219,14 +219,14 @@ void DmxEngine::generateDmx() {
                 }
             }
             for (const int fixtureKey : currentCueFixtureRawKeys.keys()) {
-                const QMap<int, uchar> channelValues = getFixtureRaws(fixtureKey, currentCueFixtureRawKeys.value(fixtureKey));
-                for (const int channel : channelValues.keys()) {
+                const RawData raws = getFixtureRaws(fixtureKey, currentCueFixtureRawKeys.value(fixtureKey));
+                for (const int channel : raws.channelValues.keys()) {
                     if (!fixtureChannelRaws.contains(fixtureKey)) {
                         fixtureChannelRaws[fixtureKey] = QMap<int, uchar>();
                         fixtureChannelRawPriorities[fixtureKey] = QMap<int, int>();
                     }
                     if (priority >= fixtureChannelRawPriorities.value(fixtureKey).value(channel, 0)) {
-                        fixtureChannelRaws[fixtureKey][channel] = channelValues.value(channel);
+                        fixtureChannelRaws[fixtureKey][channel] = raws.channelValues.value(channel);
                     }
                 }
             }
@@ -511,15 +511,28 @@ DmxEngine::PositionData DmxEngine::getFixturePosition(const int fixtureKey, cons
     return position;
 }
 
-QMap<int, uchar> DmxEngine::getFixtureRaws(const int fixtureKey, const QList<int> rawKeys) {
-    QMap<int, uchar> channels;
+DmxEngine::RawData DmxEngine::getFixtureRaws(const int fixtureKey, const QList<int> rawKeys) {
+    RawData channels;
     for (const int rawKey : rawKeys) {
+        bool fading = false;
+        QSqlQuery fadingQuery;
+        fadingQuery.prepare("SELECT fade FROM raws WHERE key = :raw");
+        fadingQuery.bindValue(":raw", rawKey);
+        if (fadingQuery.exec()) {
+            if (fadingQuery.next()) {
+                fading = (fadingQuery.value(0).toInt() == 1);
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << fadingQuery.executedQuery() << fadingQuery.lastError().text();
+        }
         QSqlQuery itemQuery;
         itemQuery.prepare("SELECT key, value FROM raw_channel_values WHERE item_key = :raw");
         itemQuery.bindValue(":raw", rawKey);
         if (itemQuery.exec()) {
             while (itemQuery.next()) {
-                channels[itemQuery.value(0).toInt()] = (uchar)itemQuery.value(1).toUInt();
+                const int channel = itemQuery.value(0).toInt();
+                channels.channelValues[channel] = (uchar)itemQuery.value(1).toUInt();
+                channels.channelFading[channel] = fading;
             }
         } else {
             qWarning() << Q_FUNC_INFO << itemQuery.executedQuery() << itemQuery.lastError().text();
@@ -530,7 +543,9 @@ QMap<int, uchar> DmxEngine::getFixtureRaws(const int fixtureKey, const QList<int
         modelExceptionQuery.bindValue(":fixture", fixtureKey);
         if (modelExceptionQuery.exec()) {
             while (modelExceptionQuery.next()) {
-                channels[modelExceptionQuery.value(0).toInt()] = (uchar)modelExceptionQuery.value(1).toUInt();
+                const int channel = itemQuery.value(0).toInt();
+                channels.channelValues[channel] = (uchar)modelExceptionQuery.value(1).toUInt();
+                channels.channelFading[channel] = fading;
             }
         } else {
             qWarning() << Q_FUNC_INFO << modelExceptionQuery.executedQuery() << modelExceptionQuery.lastError().text();
@@ -541,7 +556,9 @@ QMap<int, uchar> DmxEngine::getFixtureRaws(const int fixtureKey, const QList<int
         fixtureExceptionQuery.bindValue(":fixture", fixtureKey);
         if (fixtureExceptionQuery.exec()) {
             while (fixtureExceptionQuery.next()) {
-                channels[fixtureExceptionQuery.value(0).toInt()] = (uchar)fixtureExceptionQuery.value(1).toUInt();
+                const int channel = itemQuery.value(0).toInt();
+                channels.channelValues[channel] = (uchar)fixtureExceptionQuery.value(1).toUInt();
+                channels.channelFading[channel] = fading;
             }
         } else {
             qWarning() << Q_FUNC_INFO << fixtureExceptionQuery.executedQuery() << fixtureExceptionQuery.lastError().text();

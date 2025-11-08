@@ -42,12 +42,16 @@ private:
         float zoom = 15;
         float focus = 0;
     };
+    struct RawData {
+        QMap<int, uchar> channelValues;
+        QMap<int, bool> channelFading;
+    };
     QMap<int, int> getCurrentCueItems(int cueId, QString table);
     QMap<int, QList<int>> getCurrentCueItemList(int cueId, QString table);
     float getFixtureIntensity(int fixtureKey, int intensityKey);
     ColorData getFixtureColor(int fixtureKey, int colorKey);
     PositionData getFixturePosition(int fixtureKey, int positionKey);
-    QMap<int, uchar> getFixtureRaws(int fixtureKey, QList<int> rawKeys);
+    RawData getFixtureRaws(int fixtureKey, QList<int> rawKeys);
 };
 
 #endif // DMXENGINE_H
