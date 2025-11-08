@@ -137,6 +137,8 @@ int main(int argc, char *argv[]) {
         queries.append(createItemSpecificItemListAttributeTable("cue_group_raws", "cues", "groups", "raws"));
         queries.append(createItemSpecificItemListAttributeTable("cue_group_effects", "cues", "groups", "effects"));
         queries.append("ALTER TABLE cuelists ADD COLUMN currentcue_key INTEGER REFERENCES cues (key) ON DELETE SET NULL");
+        queries.append("ALTER TABLE cuelists ADD COLUMN lastcue_key INTEGER REFERENCES cues (key) ON DELETE SET NULL");
+        queries.append("CREATE TRIGGER updatelastcue_trigger AFTER UPDATE OF currentcue_key ON cuelists BEGIN UPDATE cuelists SET lastcue_key = OLD.currentcue_key WHERE key = OLD.key AND OLD.currentcue_key != NEW.currentcue_key; END");
         queries.append("CREATE TABLE currentitems (group_key INTEGER REFERENCES groups (key) ON DELETE SET NULL, fixture_key INTEGER REFERENCES fixtures (key) ON DELETE SET NULL, cuelist_key INTEGER REFERENCES cuelists (key) ON DELETE SET NULL, cue_key INTEGER REFERENCES cues (key) ON DELETE SET NULL, PRIMARY KEY (group_key, fixture_key, cuelist_key, cue_key))");
         queries.append("INSERT INTO currentitems (group_key, fixture_key, cuelist_key, cue_key) VALUES (NULL, NULL, NULL, NULL)");
         queries.append("CREATE VIEW currentgroup_fixtures AS SELECT fixtures.* FROM fixtures, group_fixtures, currentitems WHERE group_fixtures.item_key = currentitems.group_key AND fixtures.key = group_fixtures.valueitem_key");

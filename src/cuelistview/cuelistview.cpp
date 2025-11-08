@@ -89,9 +89,9 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
 }
 
 void CuelistView::reload() {
-    auto setCurrentItemLabel = [](const QString table, const QString currentitemsAttribute, const QString itemName, QLabel* label) {
+    auto setCurrentItemLabel = [](const QString queryText, const QString itemName, QLabel* label) {
         QSqlQuery query;
-        if (query.exec("SELECT CONCAT('" + itemName + " ', " + table + ".id, ' ', " + table + ".label) FROM " + table + ", currentitems WHERE " + table + ".key = currentitems." + currentitemsAttribute)) {
+        if (query.exec(queryText)) {
             if (query.next()) {
                 label->setText(query.value(0).toString());
             } else {
@@ -102,10 +102,10 @@ void CuelistView::reload() {
             label->setText(QString());
         }
     };
-    setCurrentItemLabel("fixtures", "fixture_key", "Fixture", fixtureLabel);
-    setCurrentItemLabel("groups", "group_key", "Group", groupLabel);
-    setCurrentItemLabel("cuelists", "cuelist_key", "Cuelist", cuelistLabel);
-    setCurrentItemLabel("cues", "cue_key", "Cue", cueLabel);
+    setCurrentItemLabel("SELECT CONCAT('Fixture ', fixtures.id, ' ', fixtures.label) FROM fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key", "Fixture", fixtureLabel);
+    setCurrentItemLabel("SELECT CONCAT('Group ', groups.id, ' ', groups.label) FROM groups, currentitems WHERE groups.key = currentitems.group_key", "Group", groupLabel);
+    setCurrentItemLabel("SELECT CONCAT('Cuelist ', cuelists.id, ' ', cuelists.label) FROM cuelists, currentitems WHERE cuelists.key = currentitems.cuelist_key", "Cuelist", cuelistLabel);
+    setCurrentItemLabel("SELECT CONCAT('Cue ', id, ' ', label) FROM currentcue", "Cue", cueLabel);
     model->refresh();
 }
 

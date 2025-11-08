@@ -14,10 +14,10 @@
 
 #include "preview2d/preview2d.h"
 
-class DmxEngine : public QObject {
+class DmxEngine : public QWidget {
     Q_OBJECT
 public:
-    DmxEngine();
+    DmxEngine(QWidget* parent = nullptr);
 signals:
     void sendUniverse(int universe, QByteArray data);
     void updatePreviewFixtures(QList<Preview2d::PreviewFixture> fixtures);
@@ -25,7 +25,12 @@ private:
     void generateDmx();
     QMap<int, int> getCurrentCueItems(const int cueId, const QString table);
     float getFixtureValue(int fixtureKey, int itemKey, const QString itemTable, const QString itemTableAttribute, const QString modelExceptionTable, const QString fixtureExceptionTable);
+    QProgressBar* fadeProgressBar;
     QMap<int, float> fixturePan;
+    QMap<int, int> cuelistCurrentCueKeys;
+    QMap<int, int> cuelistRemainingFadeFrames;
+    QMap<int, int> cuelistTotalFadeFrames;
+    const int FRAMEDURATION = 25;
     struct ColorData {
         float red = 0;
         float green = 0;

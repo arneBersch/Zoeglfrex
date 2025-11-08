@@ -8,36 +8,77 @@
 
 #include "dmxengine.h"
 
-DmxEngine::DmxEngine() {
+DmxEngine::DmxEngine(QWidget* parent) : QWidget(parent) {
+    QHBoxLayout* layout = new QHBoxLayout();
+    setLayout(layout);
+
+    fadeProgressBar = new QProgressBar();
+    fadeProgressBar->setRange(0, 10);
+    fadeProgressBar->setValue(5);
+    layout->addWidget(fadeProgressBar);
+
     QTimer* timer = new QTimer();
     connect(timer, &QTimer::timeout, this, &DmxEngine::generateDmx);
-    timer->start(25);
+    timer->start(FRAMEDURATION);
 }
 
 void DmxEngine::generateDmx() {
+    int currentCuelistKey = -1;
+    QSqlQuery currentCuelistQuery;
+    if (currentCuelistQuery.exec("SELECT cuelist_key FROM currentitems")) {
+        if (currentCuelistQuery.next()) {
+            currentCuelistKey = currentCuelistQuery.value(0).toInt();
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << currentCuelistQuery.executedQuery() << currentCuelistQuery.lastError().text();
+    }
     QSqlQuery cuelistQuery;
-    if (!cuelistQuery.exec("SELECT currentcue_key, priority FROM cuelists WHERE currentcue_key IS NOT NULL ORDER BY sortkey")) {
+    if (!cuelistQuery.exec("SELECT key, currentcue_key, lastcue_key, priority FROM cuelists WHERE currentcue_key IS NOT NULL ORDER BY sortkey")) {
         qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
         return;
     }
+    QMap<int, int> oldCuelistCurrentCueKeys = cuelistCurrentCueKeys;
+    cuelistCurrentCueKeys.clear();
+    QMap<int, int> oldCuelistRemainingFadeFrames = cuelistRemainingFadeFrames;
+    cuelistRemainingFadeFrames.clear();
+    QMap<int, int> oldCuelistTotalFadeFrames = cuelistTotalFadeFrames;
+    cuelistTotalFadeFrames.clear();
     QMap<int, float> fixtureIntensities;
-    QMap<int, int> fixtureIntensityPriorities;
     QMap<int, ColorData> fixtureColors;
     QMap<int, int> fixtureColorPriorities;
     QMap<int, PositionData> fixturePositions;
     QMap<int, int> fixturePositionPriorities;
     while (cuelistQuery.next()) {
-        const int cueKey = cuelistQuery.value(0).toInt();
-        const int priority = cuelistQuery.value(1).toInt();
-        const QMap<int, int> fixtureIntensityKeys = getCurrentCueItems(cueKey, "cue_group_intensities");
+        const int cuelistKey = cuelistQuery.value(0).toInt();
+        const int currentCueKey = cuelistQuery.value(1).toInt();
+        const int lastCueKey = cuelistQuery.value(2).toInt();
+        const int priority = cuelistQuery.value(3).toInt();
+        if (oldCuelistCurrentCueKeys.value(cuelistKey, -1) != currentCueKey) {
+            QSqlQuery fadeQuery;
+            fadeQuery.prepare("SELECT fade FROM cues WHERE key = :key");
+            fadeQuery.bindValue(":key", currentCueKey);
+            if (fadeQuery.exec()) {
+                if (fadeQuery.next()) {
+                    const int fadeFrames = (fadeQuery.value(0).toFloat() * 1000 / FRAMEDURATION);
+                    cuelistRemainingFadeFrames[cuelistKey] = fadeFrames;
+                    cuelistTotalFadeFrames[cuelistKey] = fadeFrames;
+                }
+            } else {
+                qWarning() << Q_FUNC_INFO << fadeQuery.executedQuery() << fadeQuery.lastError().text();
+            }
+        } else if (oldCuelistRemainingFadeFrames.value(cuelistKey, 0) > 0) {
+            cuelistRemainingFadeFrames[cuelistKey] = (oldCuelistRemainingFadeFrames.value(cuelistKey, 0) - 1);
+            cuelistTotalFadeFrames[cuelistKey] = oldCuelistTotalFadeFrames.value(cuelistKey);
+        }
+        cuelistCurrentCueKeys[cuelistKey] = currentCueKey;
+        const QMap<int, int> fixtureIntensityKeys = getCurrentCueItems(currentCueKey, "cue_group_intensities");
         for (const int fixtureKey : fixtureIntensityKeys.keys()) {
-            if (priority >= fixtureIntensityPriorities.value(fixtureKey, 0)) {
-                fixtureIntensityPriorities[fixtureKey] = priority;
-                const float dimmer = getFixtureValue(fixtureKey, fixtureIntensityKeys.value(fixtureKey), "intensities", "dimmer", "intensity_model_dimmer", "intensity_fixture_dimmer");
+            const float dimmer = getFixtureValue(fixtureKey, fixtureIntensityKeys.value(fixtureKey), "intensities", "dimmer", "intensity_model_dimmer", "intensity_fixture_dimmer");
+            if (dimmer > fixtureIntensities.value(fixtureKey, -1)) {
                 fixtureIntensities[fixtureKey] = dimmer;
             }
         }
-        const QMap<int, int> fixtureColorKeys = getCurrentCueItems(cueKey, "cue_group_colors");
+        const QMap<int, int> fixtureColorKeys = getCurrentCueItems(currentCueKey, "cue_group_colors");
         for (const int fixtureKey : fixtureColorKeys.keys()) {
             if (priority >= fixtureColorPriorities.value(fixtureKey, 0)) {
                 fixtureColorPriorities[fixtureKey] = priority;
@@ -80,7 +121,7 @@ void DmxEngine::generateDmx() {
                 fixtureColors[fixtureKey] = color;
             }
         }
-        const QMap<int, int> fixturePositionKeys = getCurrentCueItems(cueKey, "cue_group_positions");
+        const QMap<int, int> fixturePositionKeys = getCurrentCueItems(currentCueKey, "cue_group_positions");
         for (const int fixtureKey : fixturePositionKeys.keys()) {
             if (priority >= fixturePositionPriorities.value(fixtureKey, 0)) {
                 fixturePositionPriorities[fixtureKey] = priority;
@@ -93,6 +134,13 @@ void DmxEngine::generateDmx() {
                 fixturePositions[fixtureKey] = position;
             }
         }
+    }
+    if (cuelistTotalFadeFrames.contains(currentCuelistKey)) {
+        fadeProgressBar->setRange(0, cuelistTotalFadeFrames.value(currentCuelistKey));
+        fadeProgressBar->setValue(oldCuelistTotalFadeFrames.value(currentCuelistKey) - cuelistRemainingFadeFrames.value(currentCuelistKey, 0));
+    } else {
+        fadeProgressBar->setRange(0, 1);
+        fadeProgressBar->setValue(1);
     }
     QSqlQuery fixtureQuery;
     if (!fixtureQuery.exec("SELECT key, universe, address, xposition, yposition FROM fixtures")) {
@@ -250,6 +298,7 @@ QMap<int, int> DmxEngine::getCurrentCueItems(const int cueId, const QString tabl
     while (query.next()) {
         fixtureKeys[query.value(0).toInt()] = query.value(1).toInt();
     }
+    return fixtureKeys;
 }
 
 float DmxEngine::getFixtureValue(const int fixtureKey, const int itemKey, const QString itemTable, const QString itemTableAttribute, const QString modelExceptionTable, const QString fixtureExceptionTable) {

@@ -55,11 +55,17 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     helpMenu->addAction(openReferenceAction);
     connect(openReferenceAction, &QAction::triggered, this, [] { QDesktopServices::openUrl(QUrl("https://github.com/arneBersch/Zoeglfrex/blob/main/docs/reference.md")); });
 
+    QVBoxLayout* terminalLayout = new QVBoxLayout();
+    terminalLayout->addWidget(dmxEngine);
+    terminalLayout->addWidget(terminal);
+    QWidget* terminalWidget = new QWidget();
+    terminalWidget->setLayout(terminalLayout);
+
     QSplitter* leftColumn = new QSplitter();
     leftColumn->setOrientation(Qt::Vertical);
     leftColumn->setChildrenCollapsible(false);
     leftColumn->addWidget(cuelistView);
-    leftColumn->addWidget(terminal);
+    leftColumn->addWidget(terminalWidget);
     leftColumn->setSizes(QList<int>() << 300 << 100);
 
     QSplitter* mainColumns = new QSplitter();

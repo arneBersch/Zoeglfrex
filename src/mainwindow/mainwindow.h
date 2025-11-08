@@ -32,7 +32,7 @@ private:
     QString COPYRIGHT;
     void about();
     void closeEvent(QCloseEvent *event) override;
-    DmxEngine* dmxEngine = new DmxEngine();
+    DmxEngine* dmxEngine = new DmxEngine(this);
     Preview2d* preview2d = new Preview2d(this);
     CuelistView* cuelistView = new CuelistView(this);
     Terminal* terminal = new Terminal(this);
