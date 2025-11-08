@@ -43,6 +43,9 @@ private:
         float zoom = 15;
         float focus = 0;
     };
+    float getFixtureIntensity(const int fixtureKey, const int intensityKey);
+    ColorData getFixtureColor(const int fixtureKey, const int colorKey);
+    PositionData getFixturePosition(const int fixtureKey, const int positionKey);
 };
 
 #endif // DMXENGINE_H
