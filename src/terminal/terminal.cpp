@@ -46,7 +46,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     promptLabel = new QLabel();
     promptLabel->setWordWrap(true);
     promptLabel->setStyleSheet("padding: 10px; background-color: #303030;");
-    promptLayout->addWidget(promptLabel);
+    promptLayout->addWidget(promptLabel, 1);
 
     blindButton = new QPushButton("Blind");
     blindButton->setCheckable(true);

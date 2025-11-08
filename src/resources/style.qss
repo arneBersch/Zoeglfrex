@@ -23,3 +23,13 @@ QPushButton, QComboBox, QTextEdit, QSpinBox, QLineEdit {
 QPushButton::checked {
     border: 1px solid white;
 }
+
+QScrollBar, QMenu, QProgressBar::chunk {
+    background-color: #303030;
+}
+
+QProgressBar {
+    background-color: #151515;
+    text-align: center;
+    border-radius: 0px;
+}
