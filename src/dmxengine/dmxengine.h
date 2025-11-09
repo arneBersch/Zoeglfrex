@@ -29,10 +29,12 @@ private:
     QPushButton* soloButton;
     QProgressBar* fadeProgressBar;
     QPushButton* skipFadeButton;
-    QMap<int, float> fixturePan;
-    QMap<int, int> cuelistCurrentCueKeys;
-    QMap<int, int> cuelistRemainingFadeFrames;
-    QMap<int, int> cuelistTotalFadeFrames;
+    QList<int> groupKeys;
+    QHash<int, QSet<int>> groupFixtureKeys;
+    QHash<int, float> fixturePan;
+    QHash<int, int> cuelistCurrentCueKeys;
+    QHash<int, int> cuelistRemainingFadeFrames;
+    QHash<int, int> cuelistTotalFadeFrames;
     const int FRAMEDURATION = 25;
     struct ColorData {
         float red = 100;
@@ -47,11 +49,10 @@ private:
         float focus = 0;
     };
     struct RawData {
-        QMap<int, uchar> channelValues;
-        QMap<int, bool> channelFading;
+        QHash<int, uint8_t> channelValues = QHash<int, uint8_t>();;
+        QHash<int, bool> channelFading = QHash<int, bool>();;
     };
-    QMap<int, int> getCurrentCueItems(int cueId, QString table);
-    QMap<int, QList<int>> getCurrentCueItemList(int cueId, QString table);
+    void renderCue(int cueKey, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, RawData>* fixtureRaws);
     float getFixtureIntensity(int fixtureKey, int intensityKey);
     ColorData getFixtureColor(int fixtureKey, int colorKey);
     PositionData getFixturePosition(int fixtureKey, int positionKey);

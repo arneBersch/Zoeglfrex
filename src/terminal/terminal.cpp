@@ -343,7 +343,7 @@ void Terminal::execute() {
         error("Invalid selection ID given.");
         return;
     }
-    QMap<Key, QStringList> attributes;
+    QHash<Key, QStringList> attributes;
     if (!attributeKeys.isEmpty()) {
         attributeKeys.append(Attribute);
         QList<Key> currentItemKeys;

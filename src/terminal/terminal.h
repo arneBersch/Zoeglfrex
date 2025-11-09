@@ -113,7 +113,7 @@ private:
     QLabel* promptLabel;
     QPushButton* blindButton;
     QPushButton* trackingButton;
-    QMap<Key, QString> keyStrings;
+    QHash<Key, QString> keyStrings;
 };
 
 #endif // TERMINAL_H
