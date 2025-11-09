@@ -36,6 +36,7 @@ private:
     QHash<int, int> cuelistCurrentCueKeys;
     QHash<int, int> cuelistRemainingFadeFrames;
     QHash<int, int> cuelistTotalFadeFrames;
+    QHash<int, bool> cuelistSineFade;
     const int FRAMEDURATION = 25;
     struct ColorData {
         float red = 100;

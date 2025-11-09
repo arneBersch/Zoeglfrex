@@ -151,7 +151,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append("   Step Exceptions: " + getIntegerSpecificNumberAttribute(table, "effect_step_fade", id, "s"));
                     infos.append(QString(AttributeIds::effectPhase) + " Phase: " + getNumberAttribute(table, "phase", id, "°"));
                     infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "effect_fixture_phase", "°", id));
-                    infos.append(QString(AttributeIds::effectSinusFade) + " Sinus Fade: " + getBoolAttribute(table, "sinusfade", id));
+                    infos.append(QString(AttributeIds::effectSineFade) + " Sine Fade: " + getBoolAttribute(table, "sinefade", id));
                 } else if (table == "cuelists") {
                     infos.append(QString(AttributeIds::cuelistPriority) + " Priority: " + getNumberAttribute(table, "priority", id, ""));
                     infos.append(QString(AttributeIds::cuelistMoveWhileDark) + " Move while Dark: " + getBoolAttribute(table, "movewhiledark", id));
@@ -165,7 +165,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append(QString(AttributeIds::cueFade) + " Fade: " + getNumberAttribute(table, "fade", id, "s"));
                     infos.append(QString(AttributeIds::cueDelay) + " Delay: " + getNumberAttribute(table, "delay", id, "s"));
                     infos.append(QString(AttributeIds::cueFollow) + " Follow: " + getBoolAttribute(table, "follow", id));
-                    infos.append(QString(AttributeIds::cueSinusFade) + " Sinus Fade: " + getBoolAttribute(table, "sinusfade", id));
+                    infos.append(QString(AttributeIds::cueSineFade) + " Sine Fade: " + getBoolAttribute(table, "sinefade", id));
                 } else {
                     Q_ASSERT(false);
                 }

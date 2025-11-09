@@ -94,8 +94,6 @@ void DmxEngine::generateDmx() {
     cuelistCurrentCueKeys.clear();
     QHash<int, int> oldCuelistRemainingFadeFrames = cuelistRemainingFadeFrames;
     cuelistRemainingFadeFrames.clear();
-    QHash<int, int> oldCuelistTotalFadeFrames = cuelistTotalFadeFrames;
-    cuelistTotalFadeFrames.clear();
     QHash<int, float> fixtureIntensities;
     QHash<int, ColorData> fixtureColors;
     QHash<int, int> fixtureColorPriorities;
@@ -111,14 +109,16 @@ void DmxEngine::generateDmx() {
         if (!skipFadeButton->isChecked()) {
             if (oldCuelistCurrentCueKeys.value(cuelistKey, -1) != currentCueKey) {
                 QSqlQuery fadeQuery;
-                fadeQuery.prepare("SELECT fade FROM cues WHERE key = :key");
+                fadeQuery.prepare("SELECT fade, sinefade FROM cues WHERE key = :key");
                 fadeQuery.bindValue(":key", currentCueKey);
                 if (fadeQuery.exec()) {
                     if (fadeQuery.next()) {
                         const int fadeFrames = (fadeQuery.value(0).toFloat() * 1000 / FRAMEDURATION);
+                        const bool sineFade = (fadeQuery.value(1).toInt() == 1);
                         if (fadeFrames > 0) {
                             cuelistRemainingFadeFrames[cuelistKey] = fadeFrames;
                             cuelistTotalFadeFrames[cuelistKey] = fadeFrames;
+                            cuelistSineFade[cuelistKey] = sineFade;
                         }
                     }
                 } else {
@@ -126,11 +126,13 @@ void DmxEngine::generateDmx() {
                 }
             } else if (oldCuelistRemainingFadeFrames.value(cuelistKey, 0) > 0) {
                 cuelistRemainingFadeFrames[cuelistKey] = (oldCuelistRemainingFadeFrames.value(cuelistKey, 0) - 1);
-                cuelistTotalFadeFrames[cuelistKey] = oldCuelistTotalFadeFrames.value(cuelistKey);
             }
         }
         cuelistCurrentCueKeys[cuelistKey] = currentCueKey;
-        const float fade = (float)cuelistRemainingFadeFrames.value(cuelistKey, 0) / (float)cuelistTotalFadeFrames.value(cuelistKey, 1);
+        float fade = (float)cuelistRemainingFadeFrames.value(cuelistKey, 0) / (float)cuelistTotalFadeFrames.value(cuelistKey, 1);
+        if (cuelistSineFade.value(cuelistKey, false)) {
+            fade = std::cos(M_PI * (1 - fade)) / 2 + 0.5;
+        }
         QHash<int, float> currentCueFixtureIntensities;
         QHash<int, float> lastCueFixtureIntensities;
         QHash<int, ColorData> currentCueFixtureColors;
@@ -230,7 +232,7 @@ void DmxEngine::generateDmx() {
     }
     if (cuelistTotalFadeFrames.contains(currentCuelistKey)) {
         fadeProgressBar->setRange(0, cuelistTotalFadeFrames.value(currentCuelistKey));
-        fadeProgressBar->setValue(oldCuelistTotalFadeFrames.value(currentCuelistKey) - cuelistRemainingFadeFrames.value(currentCuelistKey, 0));
+        fadeProgressBar->setValue(cuelistTotalFadeFrames.value(currentCuelistKey) - cuelistRemainingFadeFrames.value(currentCuelistKey, 0));
     } else {
         fadeProgressBar->setRange(0, 1);
         fadeProgressBar->setValue(1);
@@ -524,7 +526,7 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
                     groupEffectFrames[groupKey][effectKey] = 1;
                 }
                 QSqlQuery effectAttributesQuery;
-                effectAttributesQuery.prepare("SELECT steps, hold, fade, phase FROM effects WHERE key = :effect");
+                effectAttributesQuery.prepare("SELECT steps, hold, fade, phase, sinefade FROM effects WHERE key = :effect");
                 effectAttributesQuery.bindValue(":effect", effectKey);
                 if (effectAttributesQuery.exec()) {
                     if (effectAttributesQuery.next()) {
@@ -532,6 +534,7 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
                         const int standardHoldFrames = (effectAttributesQuery.value(1).toFloat() * 1000 / FRAMEDURATION);
                         const int standardFadeFrames = (effectAttributesQuery.value(2).toFloat() * 1000 / FRAMEDURATION);
                         const int standardPhase = effectAttributesQuery.value(3).toFloat();
+                        const bool sineFade = (effectAttributesQuery.value(4).toInt() == 1);
                         QHash<int, int> stepHoldFrames;
                         QSqlQuery stepHoldQuery;
                         stepHoldQuery.prepare("SELECT key, value FROM effect_step_hold WHERE item_key = :effect");
@@ -654,6 +657,9 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
                                 int nextStep = currentStep + 1;
                                 if (nextStep > stepAmount) {
                                     nextStep = 1;
+                                }
+                                if (sineFade) {
+                                    fade = std::cos(M_PI * (1 - fade)) / 2 + 0.5;
                                 }
                                 if (!stepIntensityKeys.isEmpty()) {
                                     float dimmer = 0;

@@ -582,8 +582,8 @@ void Terminal::execute() {
             } else {
                 setNumberAttribute<float>(effectInfos, "phase", "Phase", ids, valueKeys, angleInfos);
             }
-        } else if (attribute == AttributeIds::effectSinusFade) {
-            setBoolAttribute(effectInfos, "sinusfade", "Sinus Fade", ids, valueKeys);
+        } else if (attribute == AttributeIds::effectSineFade) {
+            setBoolAttribute(effectInfos, "sinefade", "Sine Fade", ids, valueKeys);
         } else {
             error("Unknown Effect Attribute.");
         }
@@ -657,8 +657,8 @@ void Terminal::execute() {
             setNumberAttribute<float>(cueInfos, "delay", "Delay", ids, valueKeys, {0, 600, false, "s"});
         } else if (attribute == AttributeIds::cueFollow) {
             setBoolAttribute(cueInfos, "follow", "Follow", ids, valueKeys);
-        } else if (attribute == AttributeIds::cueSinusFade) {
-            setBoolAttribute(cueInfos, "sinusfade", "Sinus Fade", ids, valueKeys);
+        } else if (attribute == AttributeIds::cueSineFade) {
+            setBoolAttribute(cueInfos, "sinefade", "Sine Fade", ids, valueKeys);
         } else {
             error("Unknown Cue Attribute.");
             return;
