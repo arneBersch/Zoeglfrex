@@ -65,6 +65,7 @@ void DmxEngine::generateDmx() {
 
     groupKeys.clear();
     groupFixtureKeys.clear();
+    QSet<int> fixtureKeys;
     QSqlQuery groupFixturesQuery;
     if (groupFixturesQuery.exec("SELECT groups.key, group_fixtures.valueitem_key FROM groups, group_fixtures WHERE groups.key = group_fixtures.item_key ORDER BY groups.sortkey")) {
         while (groupFixturesQuery.next()) {
@@ -75,6 +76,7 @@ void DmxEngine::generateDmx() {
                 groupFixtureKeys[groupKey] = QSet<int>();
             }
             groupFixtureKeys[groupKey].insert(fixtureKey);
+            fixtureKeys.insert(fixtureKey);
         }
     } else {
         qWarning() << Q_FUNC_INFO << groupFixturesQuery.executedQuery() << groupFixturesQuery.lastError().text();
@@ -139,31 +141,14 @@ void DmxEngine::generateDmx() {
         if (fade > 0) {
             renderCue(lastCueKey, &lastCueFixtureIntensities, &lastCueFixtureColors, &lastCueFixturePositions, &lastCueFixtureRaws);
         }
-        QSet<int> intensityFixtureKeys;
-        for (const int fixtureKey : currentCueFixtureIntensities.keys()) {
-            intensityFixtureKeys.insert(fixtureKey);
-        }
-        for (const int fixtureKey : lastCueFixtureIntensities.keys()) {
-            intensityFixtureKeys.insert(fixtureKey);
-        }
-        for (const int fixtureKey : intensityFixtureKeys) {
+        for (const int fixtureKey : fixtureKeys) {
             float currentIntensity = currentCueFixtureIntensities.value(fixtureKey, 0);
             float lastIntensity = lastCueFixtureIntensities.value(fixtureKey, 0);
             currentIntensity += (lastIntensity - currentIntensity) * fade;
             if (currentIntensity > fixtureIntensities.value(fixtureKey, 0)) {
                 fixtureIntensities[fixtureKey] = currentIntensity;
             }
-        }
-        QSet<int> colorFixtureKeys;
-        for (const int fixtureKey : currentCueFixtureColors.keys()) {
-            colorFixtureKeys.insert(fixtureKey);
-        }
-        for (const int fixtureKey : lastCueFixtureColors.keys()) {
-            colorFixtureKeys.insert(fixtureKey);
-        }
-        for (const int fixtureKey : colorFixtureKeys) {
             if (priority >= fixtureColorPriorities.value(fixtureKey, 0)) {
-                fixtureColorPriorities[fixtureKey] = priority;
                 if (lastCueFixtureColors.contains(fixtureKey)) {
                     ColorData lastColor = lastCueFixtureColors.value(fixtureKey);
                     if (currentCueFixtureColors.contains(fixtureKey)) {
@@ -174,54 +159,49 @@ void DmxEngine::generateDmx() {
                         lastColor.quality = currentColor.quality + (lastColor.quality - currentColor.quality) * fade;
                     }
                     fixtureColors[fixtureKey] = lastColor;
+                    fixtureColorPriorities[fixtureKey] = priority;
                 } else if (currentCueFixtureColors.contains(fixtureKey)) {
                     fixtureColors[fixtureKey] = currentCueFixtureColors.value(fixtureKey);
+                    fixtureColorPriorities[fixtureKey] = priority;
                 }
             }
-        }
-        QSet<int> positionFixtureKeys;
-        for (const int fixtureKey : currentCueFixturePositions.keys()) {
-            positionFixtureKeys.insert(fixtureKey);
-        }
-        for (const int fixtureKey : lastCueFixturePositions.keys()) {
-            positionFixtureKeys.insert(fixtureKey);
-        }
-        for (const int fixtureKey : positionFixtureKeys) {
             if (priority >= fixturePositionPriorities.value(fixtureKey, 0)) {
-                fixturePositionPriorities[fixtureKey] = priority;
                 if (lastCueFixturePositions.contains(fixtureKey)) {
                     PositionData lastPosition = lastCueFixturePositions.value(fixtureKey);
                     if (currentCueFixturePositions.contains(fixtureKey)) {
                         PositionData currentPosition = currentCueFixturePositions.value(fixtureKey);
+                        if (std::abs(currentPosition.pan - lastPosition.pan) > 180) {
+                            if (lastPosition.pan > currentPosition.pan) {
+                                currentPosition.pan += 360;
+                            } else {
+                                lastPosition.pan += 360;
+                            }
+                        }
                         lastPosition.pan = currentPosition.pan + (lastPosition.pan - currentPosition.pan) * fade;
+                        while (lastPosition.pan >= 360) {
+                            lastPosition.pan -= 360;
+                        }
                         lastPosition.tilt = currentPosition.tilt + (lastPosition.tilt - currentPosition.tilt) * fade;
                         lastPosition.zoom = currentPosition.zoom + (lastPosition.zoom - currentPosition.zoom) * fade;
                         lastPosition.focus = currentPosition.focus + (lastPosition.focus - currentPosition.focus) * fade;
                     }
                     fixturePositions[fixtureKey] = lastPosition;
+                    fixturePositionPriorities[fixtureKey] = priority;
                 } else if (currentCueFixturePositions.contains(fixtureKey)) {
                     fixturePositions[fixtureKey] = currentCueFixturePositions.value(fixtureKey);
+                    fixturePositionPriorities[fixtureKey] = priority;
                 }
             }
-        }
-        QSet<int> rawFixtureKeys;
-        for (const int fixtureKey : currentCueFixtureRaws.keys()) {
-            rawFixtureKeys.insert(fixtureKey);
-        }
-        for (const int fixtureKey : lastCueFixtureRaws.keys()) {
-            rawFixtureKeys.insert(fixtureKey);
-        }
-        for (const int fixtureKey : rawFixtureKeys) {
-            QSet<int> channels;
+            QSet<int> rawChannels;
             RawData currentRaws = currentCueFixtureRaws.value(fixtureKey);
             for (const int channel : currentRaws.channelValues.keys()) {
-                channels.insert(channel);
+                rawChannels.insert(channel);
             }
             RawData lastRaws = lastCueFixtureRaws.value(fixtureKey);
             for (const int channel : lastRaws.channelValues.keys()) {
-                channels.insert(channel);
+                rawChannels.insert(channel);
             }
-            for (const int channel : channels) {
+            for (const int channel : rawChannels) {
                 if (!fixtureChannelRaws.contains(fixtureKey)) {
                     fixtureChannelRaws[fixtureKey] = QHash<int, uint8_t>();
                     fixtureChannelRawPriorities[fixtureKey] = QHash<int, int>();
@@ -423,6 +403,7 @@ void DmxEngine::generateDmx() {
 
 void DmxEngine::renderCue(const int cueKey, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, RawData>* fixtureRaws) {
     for (const int groupKey : groupKeys) {
+        QList<int> rawKeys;
         QSqlQuery intensityQuery;
         intensityQuery.prepare("SELECT valueitem_key FROM cue_group_intensities WHERE item_key = :cue AND foreignitem_key = :group");
         intensityQuery.bindValue(":group", groupKey);
@@ -435,6 +416,16 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, float>* fixtureIntensitie
                     if (fixtureIntensities->value(fixtureKey, 0) <= dimmer) {
                         (*fixtureIntensities)[fixtureKey] = dimmer;
                     }
+                }
+                QSqlQuery rawsQuery;
+                rawsQuery.prepare("SELECT intensity_raws.valueitem_key FROM intensity_raws, raws WHERE intensity_raws.item_key = :intensity AND intensity_raws.valueitem_key = raws.key ORDER BY raws.sortkey");
+                rawsQuery.bindValue(":intensity", intensityKey);
+                if (rawsQuery.exec()) {
+                    while (rawsQuery.next()) {
+                        rawKeys.append(rawsQuery.value(0).toInt());
+                    }
+                } else {
+                    qWarning() << Q_FUNC_INFO << rawsQuery.executedQuery() << rawsQuery.lastError().text();
                 }
             }
         } else {
@@ -450,6 +441,16 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, float>* fixtureIntensitie
                 for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
                     (*fixtureColors)[fixtureKey] = getFixtureColor(fixtureKey, colorKey);
                 }
+                QSqlQuery rawsQuery;
+                rawsQuery.prepare("SELECT color_raws.valueitem_key FROM color_raws, raws WHERE color_raws.item_key = :color AND color_raws.valueitem_key = raws.key ORDER BY raws.sortkey");
+                rawsQuery.bindValue(":color", colorKey);
+                if (rawsQuery.exec()) {
+                    while (rawsQuery.next()) {
+                        rawKeys.append(rawsQuery.value(0).toInt());
+                    }
+                } else {
+                    qWarning() << Q_FUNC_INFO << rawsQuery.executedQuery() << rawsQuery.lastError().text();
+                }
             }
         } else {
             qWarning() << Q_FUNC_INFO << colorQuery.executedQuery() << colorQuery.lastError().text();
@@ -464,6 +465,16 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, float>* fixtureIntensitie
                 for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
                     (*fixturePositions)[fixtureKey] = getFixturePosition(fixtureKey, positionKey);
                 }
+                QSqlQuery rawsQuery;
+                rawsQuery.prepare("SELECT position_raws.valueitem_key FROM position_raws, raws WHERE position_raws.item_key = :position AND position_raws.valueitem_key = raws.key ORDER BY raws.sortkey");
+                rawsQuery.bindValue(":position", positionKey);
+                if (rawsQuery.exec()) {
+                    while (rawsQuery.next()) {
+                        rawKeys.append(rawsQuery.value(0).toInt());
+                    }
+                } else {
+                    qWarning() << Q_FUNC_INFO << rawsQuery.executedQuery() << rawsQuery.lastError().text();
+                }
             }
         } else {
             qWarning() << Q_FUNC_INFO << positionQuery.executedQuery() << positionQuery.lastError().text();
@@ -473,25 +484,24 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, float>* fixtureIntensitie
         rawQuery.bindValue(":group", groupKey);
         rawQuery.bindValue(":cue", cueKey);
         if (rawQuery.exec()) {
-            QList<int> rawKeys;
             while (rawQuery.next()) {
                 rawKeys.append(rawQuery.value(0).toInt());
             }
-            if (!rawKeys.isEmpty()) {
-                for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
-                    const RawData raws = getFixtureRaws(fixtureKey, rawKeys);
-                    if (fixtureRaws->contains(fixtureKey)) {
-                        for (const int channel : raws.channelValues.keys()) {
-                            (*fixtureRaws)[fixtureKey].channelValues[channel] = raws.channelValues.value(channel);
-                            (*fixtureRaws)[fixtureKey].channelFading[channel] = raws.channelFading.value(channel);
-                        }
-                    } else {
-                        (*fixtureRaws)[fixtureKey] = raws;
-                    }
-                }
-            }
         } else {
             qWarning() << Q_FUNC_INFO << positionQuery.executedQuery() << positionQuery.lastError().text();
+        }
+        if (!rawKeys.isEmpty()) {
+            for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
+                const RawData raws = getFixtureRaws(fixtureKey, rawKeys);
+                if (fixtureRaws->contains(fixtureKey)) {
+                    for (const int channel : raws.channelValues.keys()) {
+                        (*fixtureRaws)[fixtureKey].channelValues[channel] = raws.channelValues.value(channel);
+                        (*fixtureRaws)[fixtureKey].channelFading[channel] = raws.channelFading.value(channel);
+                    }
+                } else {
+                    (*fixtureRaws)[fixtureKey] = raws;
+                }
+            }
         }
     }
 }
