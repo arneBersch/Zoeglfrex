@@ -32,6 +32,7 @@ private:
     QList<int> groupKeys;
     QHash<int, QSet<int>> groupFixtureKeys;
     QHash<int, float> fixturePan;
+    QHash<int, QHash<int, int>> groupEffectFrames;
     QHash<int, int> cuelistCurrentCueKeys;
     QHash<int, int> cuelistRemainingFadeFrames;
     QHash<int, int> cuelistTotalFadeFrames;
@@ -52,7 +53,7 @@ private:
         QHash<int, uint8_t> channelValues = QHash<int, uint8_t>();;
         QHash<int, bool> channelFading = QHash<int, bool>();;
     };
-    void renderCue(int cueKey, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, RawData>* fixtureRaws);
+    void renderCue(int cueKey, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, RawData>* fixtureRaws);
     float getFixtureIntensity(int fixtureKey, int intensityKey);
     ColorData getFixtureColor(int fixtureKey, int colorKey);
     PositionData getFixturePosition(int fixtureKey, int positionKey);

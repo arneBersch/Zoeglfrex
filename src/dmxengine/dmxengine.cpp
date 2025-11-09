@@ -88,6 +88,8 @@ void DmxEngine::generateDmx() {
         qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
         return;
     }
+    QHash<int, QHash<int, int>> oldGroupEffectFrames = groupEffectFrames;
+    groupEffectFrames.clear();
     QHash<int, int> oldCuelistCurrentCueKeys = cuelistCurrentCueKeys;
     cuelistCurrentCueKeys.clear();
     QHash<int, int> oldCuelistRemainingFadeFrames = cuelistRemainingFadeFrames;
@@ -137,9 +139,9 @@ void DmxEngine::generateDmx() {
         QHash<int, PositionData> lastCueFixturePositions;
         QHash<int, RawData> currentCueFixtureRaws;
         QHash<int, RawData> lastCueFixtureRaws;
-        renderCue(currentCueKey, &currentCueFixtureIntensities, &currentCueFixtureColors, &currentCueFixturePositions, &currentCueFixtureRaws);
+        renderCue(currentCueKey, oldGroupEffectFrames, &currentCueFixtureIntensities, &currentCueFixtureColors, &currentCueFixturePositions, &currentCueFixtureRaws);
         if (fade > 0) {
-            renderCue(lastCueKey, &lastCueFixtureIntensities, &lastCueFixtureColors, &lastCueFixturePositions, &lastCueFixtureRaws);
+            renderCue(lastCueKey, oldGroupEffectFrames, &lastCueFixtureIntensities, &lastCueFixtureColors, &lastCueFixturePositions, &lastCueFixtureRaws);
         }
         for (const int fixtureKey : fixtureKeys) {
             float currentIntensity = currentCueFixtureIntensities.value(fixtureKey, 0);
@@ -401,7 +403,7 @@ void DmxEngine::generateDmx() {
     emit updatePreviewFixtures(previewFixtures);
 }
 
-void DmxEngine::renderCue(const int cueKey, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, RawData>* fixtureRaws) {
+void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, RawData>* fixtureRaws) {
     for (const int groupKey : groupKeys) {
         QList<int> rawKeys;
         QSqlQuery intensityQuery;
@@ -488,7 +490,100 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, float>* fixtureIntensitie
                 rawKeys.append(rawQuery.value(0).toInt());
             }
         } else {
-            qWarning() << Q_FUNC_INFO << positionQuery.executedQuery() << positionQuery.lastError().text();
+            qWarning() << Q_FUNC_INFO << rawQuery.executedQuery() << rawQuery.lastError().text();
+        }
+        QSqlQuery effectQuery;
+        effectQuery.prepare("SELECT cue_group_effects.valueitem_key FROM cue_group_effects, effects WHERE cue_group_effects.item_key = :cue AND cue_group_effects.foreignitem_key = :group AND cue_group_effects.valueitem_key = effects.key ORDER BY effects.sortkey");
+        effectQuery.bindValue(":group", groupKey);
+        effectQuery.bindValue(":cue", cueKey);
+        if (effectQuery.exec()) {
+            QList<int> effectKeys;
+            while (effectQuery.next()) {
+                effectKeys.append(rawQuery.value(0).toInt());
+            }
+            for (const int effectKey : effectKeys) {
+                if (!groupEffectFrames.contains(groupKey)) {
+                    groupEffectFrames[groupKey] = QHash<int, int>();
+                }
+                if (oldGroupEffectFrames.value(groupKey).contains(effectKey)) {
+                    groupEffectFrames[groupKey][effectKey] = oldGroupEffectFrames.value(groupKey).value(effectKey) + 1;
+                } else {
+                    groupEffectFrames[groupKey][effectKey] = 1;
+                }
+                QSqlQuery effectAttributesQuery;
+                effectAttributesQuery.prepare("SELECT steps, hold FROM effects WHERE key = :effect");
+                effectAttributesQuery.bindValue(":effect", effectKey);
+                if (effectAttributesQuery.exec()) {
+                    if (effectAttributesQuery.next()) {
+                        const int stepAmount = effectAttributesQuery.value(0).toInt();
+                        const int currentStep = (groupEffectFrames.value(groupKey).value(effectKey) / (effectAttributesQuery.value(1).toInt() * 1000 / FRAMEDURATION)) % stepAmount;
+                        QHash<int, int> stepIntensityKeys;
+                        QSqlQuery intensityStepQuery;
+                        intensityStepQuery.prepare("SELECT key, valueitem_key FROM effect_step_intensities WHERE item_key = :effect");
+                        intensityStepQuery.bindValue(":effect", effectKey);
+                        if (intensityStepQuery.exec()) {
+                            while (intensityStepQuery.next()) {
+                                const int step = intensityStepQuery.value(0).toInt();
+                                if (step <= stepAmount) {
+                                    stepIntensityKeys[step] = intensityStepQuery.value(1).toInt();
+                                }
+                            }
+                        } else {
+                            qWarning() << Q_FUNC_INFO << intensityStepQuery.executedQuery() << intensityStepQuery.lastError().text();
+                        }
+                        if (stepIntensityKeys.contains(currentStep)) {
+                            for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
+                                const float dimmer = getFixtureIntensity(fixtureKey, stepIntensityKeys.value(currentStep));
+                                if (dimmer >= fixtureIntensities->value(fixtureKey, 0)) {
+                                    (*fixtureIntensities)[fixtureKey] = dimmer;
+                                }
+                            }
+                        }
+                        QHash<int, int> stepColorKeys;
+                        QSqlQuery colorStepQuery;
+                        colorStepQuery.prepare("SELECT key, valueitem_key FROM effect_step_colors WHERE item_key = :effect");
+                        colorStepQuery.bindValue(":effect", effectKey);
+                        if (colorStepQuery.exec()) {
+                            while (colorStepQuery.next()) {
+                                const int step = colorStepQuery.value(0).toInt();
+                                if (step <= stepAmount) {
+                                    stepColorKeys[step] = colorStepQuery.value(1).toInt();
+                                }
+                            }
+                        } else {
+                            qWarning() << Q_FUNC_INFO << colorStepQuery.executedQuery() << colorStepQuery.lastError().text();
+                        }
+                        if (stepColorKeys.contains(currentStep)) {
+                            for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
+                                (*fixtureColors)[fixtureKey] = getFixtureColor(fixtureKey, stepColorKeys.value(currentStep));
+                            }
+                        }
+                        QHash<int, int> stepPositionKeys;
+                        QSqlQuery positionStepQuery;
+                        positionStepQuery.prepare("SELECT key, valueitem_key FROM effect_step_positions WHERE item_key = :effect");
+                        positionStepQuery.bindValue(":effect", effectKey);
+                        if (positionStepQuery.exec()) {
+                            while (positionStepQuery.next()) {
+                                const int step = positionStepQuery.value(0).toInt();
+                                if (step <= stepAmount) {
+                                    stepPositionKeys[step] = positionStepQuery.value(1).toInt();
+                                }
+                            }
+                        } else {
+                            qWarning() << Q_FUNC_INFO << positionStepQuery.executedQuery() << positionStepQuery.lastError().text();
+                        }
+                        if (stepPositionKeys.contains(currentStep)) {
+                            for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
+                                (*fixturePositions)[fixtureKey] = getFixturePosition(fixtureKey, stepPositionKeys.value(currentStep));
+                            }
+                        }
+                    }
+                } else {
+                    qWarning() << Q_FUNC_INFO << effectAttributesQuery.executedQuery() << effectAttributesQuery.lastError().text();
+                }
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << effectQuery.executedQuery() << effectQuery.lastError().text();
         }
         if (!rawKeys.isEmpty()) {
             for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
