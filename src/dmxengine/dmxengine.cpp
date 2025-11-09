@@ -705,8 +705,45 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
                                     }
                                     (*fixturePositions)[fixtureKey] = position;
                                 }
-                                if (stepPositionKeys.contains(currentStep)) {
-                                    (*fixturePositions)[fixtureKey] = getFixturePosition(fixtureKey, stepPositionKeys.value(currentStep));
+                                if (!stepRawKeys.isEmpty()) {
+                                    RawData raws;
+                                    RawData nextRaws;
+                                    for (int step = 1; step <= stepAmount; step++) {
+                                        if (stepRawKeys.contains(step)) {
+                                            const RawData stepRaws = getFixtureRaws(fixtureKey, stepRawKeys.value(step));
+                                            for (const int channel : stepRaws.channelValues.keys()) {
+                                                if (!raws.channelValues.contains(channel)) {
+                                                    raws.channelValues[channel] = 0;
+                                                    raws.channelFading[channel] = false;
+                                                }
+                                                if (step == currentStep) {
+                                                    raws.channelValues[channel] = stepRaws.channelValues.value(channel);
+                                                    raws.channelFading[channel] = stepRaws.channelFading.value(channel);
+                                                }
+                                            }
+                                            if (step == nextStep) {
+                                                nextRaws = stepRaws;
+                                            }
+                                        }
+                                    }
+                                    if (fade > 0) {
+                                        for (const int channel : raws.channelValues.keys()) {
+                                            if (raws.channelFading.value(channel)) {
+                                                raws.channelValues[channel] += (nextRaws.channelValues.value(channel, 0) - raws.channelValues.value(channel, 0)) * fade;
+                                            } else {
+                                                raws.channelValues[channel] = nextRaws.channelValues.value(channel, 0);
+                                            }
+                                        }
+                                    }
+                                    if (!fixtureRaws->contains(fixtureKey)) {
+                                        (*fixtureRaws)[fixtureKey] = raws;
+                                    } else {
+                                        for (const int channel : raws.channelValues.keys()) {
+                                            (*fixtureRaws)[fixtureKey].channelValues[channel] = raws.channelValues.value(channel);
+                                            (*fixtureRaws)[fixtureKey].channelFading[channel] = raws.channelFading.value(channel);
+                                        }
+                                    }
+                                    (*fixtureRaws)[fixtureKey];
                                 }
                             }
                         }
