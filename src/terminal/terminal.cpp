@@ -226,7 +226,7 @@ void Terminal::execute() {
             const int groupKey = groupKeyQuery.value(0).toInt();
             QList<int> cueKeys;
             QSqlQuery cueKeyQuery;
-            if (!cueKeyQuery.exec("SELECT key FROM currentcue")) {
+            if (!cueKeyQuery.exec("SELECT key, sortkey FROM currentcue")) {
                 qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
                 error("Can't set Cue " + item.plural + " because the request for the current Cue failed.");
                 return;
