@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
         queries.append(createItemSpecificNumberAttributeTable("position_model_focus", "positions", "models", "REAL"));
         queries.append(createItemSpecificNumberAttributeTable("position_fixture_focus", "positions", "fixtures", "REAL"));
         queries.append(createItemListAttributeTable("position_raws", "positions", "raws"));
-        queries.append("CREATE TABLE effects (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', steps INTEGER DEFAULT 2 NOT NULL, hold REAL DEFAULT 0 NOT NULL, fade REAL DEFAULT 0 NOT NULL, phase REAL DEFAULT 0 NOT NULL, PRIMARY KEY (key))");
+        queries.append("CREATE TABLE effects (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', steps INTEGER DEFAULT 2 NOT NULL, hold REAL DEFAULT 0 NOT NULL, fade REAL DEFAULT 0 NOT NULL, phase REAL DEFAULT 0 NOT NULL, sinusfade INTEGER DEFAULT 0 NOT NULL, PRIMARY KEY (key))");
         queries.append(createIntegerSpecificItemAttribute("effect_step_intensities", "effects", "intensities"));
         queries.append(createIntegerSpecificItemAttribute("effect_step_colors", "effects", "colors"));
         queries.append(createIntegerSpecificItemAttribute("effect_step_positions", "effects", "positions"));
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
         queries.append(createIntegerSpecificNumberAttribute("effect_step_fade", "effects", "REAL"));
         queries.append(createItemSpecificNumberAttributeTable("effect_fixture_phase", "effects", "fixtures", "REAL"));
         queries.append("CREATE TABLE cuelists (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', priority INTEGER DEFAULT 100 NOT NULL, movewhiledark INTEGER DEFAULT 0 NOT NULL, PRIMARY KEY (key))");
-        queries.append("CREATE TABLE cues (key INTEGER, id TEXT NOT NULL, sortkey INTEGER NOT NULL, cuelist_key INTEGER REFERENCES cuelists (key) ON DELETE CASCADE, label TEXT DEFAULT '', fade REAL DEFAULT 0 NOT NULL, block INTEGER DEFAULT 0 NOT NULL, PRIMARY KEY (key), UNIQUE(id, cuelist_key))");
+        queries.append("CREATE TABLE cues (key INTEGER, id TEXT NOT NULL, sortkey INTEGER NOT NULL, cuelist_key INTEGER REFERENCES cuelists (key) ON DELETE CASCADE, label TEXT DEFAULT '', block INTEGER DEFAULT 0 NOT NULL, fade REAL DEFAULT 0 NOT NULL, delay REAL DEFAULT 0 NOT NULL, follow INTEGER DEFAULT 0 NOT NULL, sinusfade INTEGER DEFAULT 0 NOT NULL, PRIMARY KEY (key), UNIQUE(id, cuelist_key))");
         queries.append(createItemSpecificItemAttributeTable("cue_group_intensities", "cues", "groups", "intensities"));
         queries.append(createItemSpecificItemAttributeTable("cue_group_colors", "cues", "groups", "colors"));
         queries.append(createItemSpecificItemAttributeTable("cue_group_positions", "cues", "groups", "positions"));

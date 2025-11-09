@@ -57,6 +57,7 @@ const char* const effectRaws = "6";
 const char* const effectHold = "7";
 const char* const effectFade = "8";
 const char* const effectPhase = "9";
+const char* const effectSinusFade = "10";
 
 const char* const cuelistPriority = "2";
 const char* const cuelistMoveWhileDark = "3";
@@ -66,8 +67,11 @@ const char* const cueColors = "3";
 const char* const cuePositions = "4";
 const char* const cueRaws = "5";
 const char* const cueEffects = "6";
-const char* const cueFade = "7";
-const char* const cueBlock = "8";
+const char* const cueBlock = "7";
+const char* const cueFade = "8";
+const char* const cueDelay = "9";
+const char* const cueFollow = "10";
+const char* const cueSinusFade = "11";
 }
 
 #endif // CONSTANTS_H

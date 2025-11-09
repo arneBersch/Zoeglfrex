@@ -582,6 +582,8 @@ void Terminal::execute() {
             } else {
                 setNumberAttribute<float>(effectInfos, "phase", "Phase", ids, valueKeys, angleInfos);
             }
+        } else if (attribute == AttributeIds::effectSinusFade) {
+            setBoolAttribute(effectInfos, "sinusfade", "Sinus Fade", ids, valueKeys);
         } else {
             error("Unknown Effect Attribute.");
         }
@@ -647,10 +649,16 @@ void Terminal::execute() {
             } else {
                 error("Can't set Cue Effects because no Group Attribute was provided.");
             }
-        } else if ((attribute == AttributeIds::cueFade) || (!attributes.contains(Attribute))) {
-            setNumberAttribute<float>(cueInfos, "fade", "Fade", ids, valueKeys, {0, 600, false, "s"});
         } else if (attribute == AttributeIds::cueBlock) {
             setBoolAttribute(cueInfos, "block", "Block", ids, valueKeys);
+        } else if ((attribute == AttributeIds::cueFade) || (!attributes.contains(Attribute))) {
+            setNumberAttribute<float>(cueInfos, "fade", "Fade", ids, valueKeys, {0, 600, false, "s"});
+        } else if (attribute == AttributeIds::cueDelay) {
+            setNumberAttribute<float>(cueInfos, "delay", "Delay", ids, valueKeys, {0, 600, false, "s"});
+        } else if (attribute == AttributeIds::cueFollow) {
+            setBoolAttribute(cueInfos, "follow", "Follow", ids, valueKeys);
+        } else if (attribute == AttributeIds::cueSinusFade) {
+            setBoolAttribute(cueInfos, "sinusfade", "Sinus Fade", ids, valueKeys);
         } else {
             error("Unknown Cue Attribute.");
             return;
