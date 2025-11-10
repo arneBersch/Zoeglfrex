@@ -248,6 +248,36 @@ void DmxEngine::generateDmx() {
         fadeProgressBar->setRange(0, 1);
         fadeProgressBar->setValue(1);
     }
+    if (!skipFadeButton->isChecked()) {
+        QSqlQuery cuelistQuery;
+        cuelistQuery.prepare("SELECT key FROM cuelists WHERE currentcue_key IS NOT NULL");
+        if (cuelistQuery.exec()) {
+            while (cuelistQuery.next()) {
+                const int cuelistKey = cuelistQuery.value(0).toInt();
+                if (cuelistRemainingTransitionFrames.value(cuelistKey, 0) <= 0) {
+                    QSqlQuery followQuery;
+                    followQuery.prepare("SELECT follow, key FROM cues WHERE cuelist_key = :cuelist AND sortkey > (SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key) ORDER BY sortkey LIMIT 1");
+                    followQuery.bindValue(":cuelist", cuelistKey);
+                    if (followQuery.exec()) {
+                        if (followQuery.next() && (followQuery.value(0).toInt() == 1)) {
+                            QSqlQuery cueUpdateQuery;
+                            cueUpdateQuery.prepare("UPDATE cuelists SET currentcue_key = :cue WHERE key = :cuelist");
+                            cueUpdateQuery.bindValue(":cuelist", cuelistKey);
+                            cueUpdateQuery.bindValue(":cue", followQuery.value(1).toInt());
+                            if (!cueUpdateQuery.exec()) {
+                                qWarning() << Q_FUNC_INFO << cueUpdateQuery.executedQuery() << cueUpdateQuery.lastError().text();
+                            }
+                            emit dbChanged();
+                        }
+                    } else {
+                        qWarning() << Q_FUNC_INFO << followQuery.executedQuery() << followQuery.lastError().text();
+                    }
+                }
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
+        }
+    }
     QSet<int> currentFixtureKeys;
     QSqlQuery currentFixtureQuery;
     if (currentFixtureQuery.exec("SELECT key FROM currentfixtures")) {

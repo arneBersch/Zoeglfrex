@@ -16,6 +16,7 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
 
     connect(dmxEngine, &DmxEngine::sendUniverse, sacnServer, &SacnServer::sendUniverse);
     connect(dmxEngine, &DmxEngine::updatePreviewFixtures, preview2d, &Preview2d::setFixtures);
+    connect(dmxEngine, &DmxEngine::dbChanged, this, &MainWindow::reload);
     connect(cuelistView, &CuelistView::dbChanged, this, &MainWindow::reload);
     connect(terminal, &Terminal::dbChanged, this, &MainWindow::reload);
     connect(terminal, &Terminal::itemChanged, inspector, &Inspector::loadItems);

@@ -21,6 +21,7 @@ public:
 signals:
     void sendUniverse(int universe, QByteArray data);
     void updatePreviewFixtures(QList<Preview2d::PreviewFixture> fixtures);
+    void dbChanged();
 private:
     void generateDmx();
     float getFixtureValue(int fixtureKey, int itemKey, QString itemTable, QString itemTableAttribute, QString modelExceptionTable, QString fixtureExceptionTable);
