@@ -135,8 +135,8 @@ void DmxEngine::generateDmx() {
         if (cuelistRemainingTransitionFrames.value(cuelistKey, 0) > 0) {
             if (cuelistRemainingTransitionFrames.value(cuelistKey) > cuelistTotalFadeFrames.value(cuelistKey, 0)) {
                 fade = 1;
-            } else {
-                fade = (float)cuelistRemainingTransitionFrames.value(cuelistKey) / (float)cuelistTotalFadeFrames.value(cuelistKey, 1);
+            } else if (cuelistTotalFadeFrames.value(cuelistKey, 0) > 0) {
+                fade = (float)cuelistRemainingTransitionFrames.value(cuelistKey) / (float)cuelistTotalFadeFrames.value(cuelistKey);
             }
             if (cuelistSineFade.value(cuelistKey, false)) {
                 fade = std::cos(M_PI * (1 - fade)) / 2 + 0.5;
@@ -525,7 +525,7 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
         if (effectQuery.exec()) {
             QList<int> effectKeys;
             while (effectQuery.next()) {
-                effectKeys.append(rawQuery.value(0).toInt());
+                effectKeys.append(effectQuery.value(0).toInt());
             }
             for (const int effectKey : effectKeys) {
                 if (!groupEffectFrames.contains(groupKey)) {
@@ -653,21 +653,22 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
                             for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
                                 int frames = (int)(groupEffectFrames.value(groupKey).value(effectKey) + (fixtureKeyPhase.value(fixtureKey, standardPhase) / 360)) % totalFrames;
                                 int currentStep = 1;
-                                float fade = 0;
+                                float fade = 1;
                                 for (int step = 1; step <= stepAmount; step++) {
-                                    if (frames >= 0) {
+                                    if ((frames > 0) && (stepFadeFrames.value(step, standardFadeFrames) > 0)) {
+                                        currentStep = step;
+                                        fade = 1 - (float)frames / (float)stepFadeFrames.value(step, standardFadeFrames);
+                                    }
+                                    frames -= stepFadeFrames.value(step, standardFadeFrames);
+                                    if (frames > 0) {
                                         currentStep = step;
                                         fade = 0;
                                     }
                                     frames -= stepHoldFrames.value(step, standardHoldFrames);
-                                    if ((frames >= 0) && (currentStep == step)) {
-                                        fade = frames / stepFadeFrames.value(step, standardFadeFrames);
-                                    }
-                                    frames -= stepFadeFrames.value(step, standardFadeFrames);
                                 }
-                                int nextStep = currentStep + 1;
-                                if (nextStep > stepAmount) {
-                                    nextStep = 1;
+                                int lastStep = currentStep - 1;
+                                if (lastStep < 1) {
+                                    lastStep = stepAmount;
                                 }
                                 if (sineFade) {
                                     fade = std::cos(M_PI * (1 - fade)) / 2 + 0.5;
@@ -678,11 +679,11 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
                                         dimmer = getFixtureIntensity(fixtureKey, stepIntensityKeys.value(currentStep));
                                     }
                                     if (fade > 0) {
-                                        float nextDimmer = 0;
-                                        if (stepIntensityKeys.contains(nextStep)) {
-                                            nextDimmer = getFixtureIntensity(fixtureKey, stepIntensityKeys.value(nextStep));
+                                        float lastDimmer = 0;
+                                        if (stepIntensityKeys.contains(lastStep)) {
+                                            lastDimmer = getFixtureIntensity(fixtureKey, stepIntensityKeys.value(lastStep));
                                         }
-                                        dimmer += (nextDimmer - dimmer) * fade;
+                                        dimmer += (lastDimmer - dimmer) * fade;
                                     }
                                     if (dimmer >= fixtureIntensities->value(fixtureKey, 0)) {
                                         (*fixtureIntensities)[fixtureKey] = dimmer;
@@ -694,14 +695,14 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
                                         color = getFixtureColor(fixtureKey, stepColorKeys.value(currentStep));
                                     }
                                     if (fade > 0) {
-                                        ColorData nextColor;
-                                        if (stepColorKeys.contains(nextStep)) {
-                                            nextColor = getFixtureColor(fixtureKey, stepColorKeys.value(nextStep));
+                                        ColorData lastColor;
+                                        if (stepColorKeys.contains(lastStep)) {
+                                            lastColor = getFixtureColor(fixtureKey, stepColorKeys.value(lastStep));
                                         }
-                                        color.red += (nextColor.red - color.red) * fade;
-                                        color.green += (nextColor.green - color.green) * fade;
-                                        color.blue += (nextColor.blue - color.blue) * fade;
-                                        color.quality += (nextColor.quality - color.quality) * fade;
+                                        color.red += (lastColor.red - color.red) * fade;
+                                        color.green += (lastColor.green - color.green) * fade;
+                                        color.blue += (lastColor.blue - color.blue) * fade;
+                                        color.quality += (lastColor.quality - color.quality) * fade;
                                     }
                                     (*fixtureColors)[fixtureKey] = color;
                                 }
@@ -711,20 +712,20 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
                                         position = getFixturePosition(fixtureKey, stepPositionKeys.value(currentStep));
                                     }
                                     if (fade > 0) {
-                                        PositionData nextPosition;
-                                        if (stepPositionKeys.contains(nextStep)) {
-                                            nextPosition = getFixturePosition(fixtureKey, stepPositionKeys.value(nextStep));
+                                        PositionData lastPosition;
+                                        if (stepPositionKeys.contains(lastStep)) {
+                                            lastPosition = getFixturePosition(fixtureKey, stepPositionKeys.value(lastStep));
                                         }
-                                        position.pan += (nextPosition.pan - position.pan) * fade;
-                                        position.tilt += (nextPosition.tilt - position.tilt) * fade;
-                                        position.zoom += (nextPosition.zoom - position.zoom) * fade;
-                                        position.focus += (nextPosition.focus - position.focus) * fade;
+                                        position.pan += (lastPosition.pan - position.pan) * fade;
+                                        position.tilt += (lastPosition.tilt - position.tilt) * fade;
+                                        position.zoom += (lastPosition.zoom - position.zoom) * fade;
+                                        position.focus += (lastPosition.focus - position.focus) * fade;
                                     }
                                     (*fixturePositions)[fixtureKey] = position;
                                 }
                                 if (!stepRawKeys.isEmpty()) {
                                     RawData raws;
-                                    RawData nextRaws;
+                                    RawData lastRaws;
                                     for (int step = 1; step <= stepAmount; step++) {
                                         if (stepRawKeys.contains(step)) {
                                             const RawData stepRaws = getFixtureRaws(fixtureKey, stepRawKeys.value(step));
@@ -738,17 +739,17 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
                                                     raws.channelFading[channel] = stepRaws.channelFading.value(channel);
                                                 }
                                             }
-                                            if (step == nextStep) {
-                                                nextRaws = stepRaws;
+                                            if (step == lastStep) {
+                                                lastRaws = stepRaws;
                                             }
                                         }
                                     }
                                     if (fade > 0) {
                                         for (const int channel : raws.channelValues.keys()) {
                                             if (raws.channelFading.value(channel)) {
-                                                raws.channelValues[channel] += (nextRaws.channelValues.value(channel, 0) - raws.channelValues.value(channel, 0)) * fade;
+                                                raws.channelValues[channel] += (lastRaws.channelValues.value(channel, 0) - raws.channelValues.value(channel, 0)) * fade;
                                             } else {
-                                                raws.channelValues[channel] = nextRaws.channelValues.value(channel, 0);
+                                                raws.channelValues[channel] = lastRaws.channelValues.value(channel, 0);
                                             }
                                         }
                                     }
@@ -819,7 +820,7 @@ DmxEngine::ColorData DmxEngine::getFixtureColor(const int fixtureKey, const int 
     const float hue = getFixtureValue(fixtureKey, colorKey, "colors", "hue", "color_model_hue", "color_fixture_hue");
     const float saturation = getFixtureValue(fixtureKey, colorKey, "colors", "saturation", "color_model_saturation", "color_fixture_saturation");
     ColorData color;
-    const float h = (hue / 60.0);
+    const float h = (hue / 60);
     const int i = (int)h;
     const float f = h - i;
     const float p = (100 - saturation);
@@ -831,22 +832,22 @@ DmxEngine::ColorData DmxEngine::getFixtureColor(const int fixtureKey, const int 
         color.blue = p;
     } else if (i == 1) {
         color.red = q;
-        color.green = 100.0;
+        color.green = 100;
         color.blue = p;
     } else if (i == 2) {
         color.red = p;
-        color.green = 100.0;
+        color.green = 100;
         color.blue = t;
     } else if (i == 3) {
         color.red = p;
         color.green = q;
-        color.blue = 100.0;
+        color.blue = 100;
     } else if (i == 4) {
         color.red = t;
         color.green = p;
-        color.blue = 100.0;
+        color.blue = 100;
     } else if (i == 5) {
-        color.red = 100.0;
+        color.red = 100;
         color.green = p;
         color.blue = q;
     }
