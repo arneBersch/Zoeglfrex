@@ -6,31 +6,23 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef PREVIEW2D_H
-#define PREVIEW2D_H
+#ifndef FIXTUREGRAPHICSITEM_H
+#define FIXTUREGRAPHICSITEM_H
 
 #include <QtWidgets>
 
-#include "fixturegraphicsitem.h"
-
-class Preview2d : public QWidget {
-    Q_OBJECT
+class FixtureGraphicsItem : public QGraphicsItem {
 public:
-    Preview2d(QWidget* parent = nullptr);
-    struct PreviewData {
-        float xPosition;
-        float yPosition;
-        QColor color;
-        float pan;
-        float tilt;
-        float zoom;
-    };
-public slots:
-    void setFixtures(QHash<int, PreviewData> fixtures);
+    FixtureGraphicsItem();
+    QRectF boundingRect() const override;
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+    QColor color;
+    int pan = 0;
+    int tilt = 0;
+    int zoom = 0;
 private:
-    QHash<int, FixtureGraphicsItem*> fixtures;
-    QGraphicsView* view;
-    QGraphicsScene* scene;
+    const int ellipseWidth = 50;
+    const int maxBeamLength = 150;
 };
 
-#endif // PREVIEW2D_H
+#endif // FIXTUREGRAPHICSITEM_H

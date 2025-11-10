@@ -21,6 +21,7 @@ SOURCES += \
     main.cpp \
     mainwindow/mainwindow.cpp \
     playbackmonitor/playbackmonitor.cpp \
+    preview2d/fixturegraphicsitem.cpp \
     preview2d/preview2d.cpp \
     sacnserver/sacnserver.cpp \
     terminal/terminal.cpp
@@ -35,6 +36,7 @@ HEADERS += \
     inspector/itemtablemodel.h \
     mainwindow/mainwindow.h \
     playbackmonitor/playbackmonitor.h \
+    preview2d/fixturegraphicsitem.h \
     preview2d/preview2d.h \
     sacnserver/sacnserver.h \
     terminal/terminal.h

@@ -20,7 +20,7 @@ public:
     DmxEngine(QWidget* parent = nullptr);
 signals:
     void sendUniverse(int universe, QByteArray data);
-    void updatePreviewFixtures(QList<Preview2d::PreviewFixture> fixtures);
+    void updatePreviewFixtures(QHash<int, Preview2d::PreviewData> fixtures);
     void dbChanged();
 private:
     void generateDmx();

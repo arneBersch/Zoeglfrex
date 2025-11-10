@@ -10,25 +10,49 @@
 
 Preview2d::Preview2d(QWidget* parent) : QWidget(parent, Qt::Window) {
     setWindowTitle("Zöglfrex 2D Preview");
-    setFixedSize(windowWidth, windowWidth);
+    resize(500, 300);
+    QVBoxLayout *layout = new QVBoxLayout();
+    setLayout(layout);
+
+    view = new QGraphicsView();
+    scene = new QGraphicsScene();
+    view->setScene(scene);
+    view->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
+    layout->addWidget(view);
+
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    QPushButton *zoomOutButton = new QPushButton("-");
+    connect(zoomOutButton, &QPushButton::clicked, view, [this]{ view->scale(0.8, 0.8); });
+    buttonLayout->addWidget(zoomOutButton);
+    QPushButton *zoomInButton = new QPushButton("+");
+    connect(zoomInButton, &QPushButton::clicked, view, [this]{ view->scale(1.25, 1.25); });
+    buttonLayout->addWidget(zoomInButton);
+    layout->addLayout(buttonLayout);
 }
 
-void Preview2d::setFixtures(QList<PreviewFixture> fixtures) {
-    previewFixtures = fixtures;
-    update();
-}
-
-void Preview2d::paintEvent(QPaintEvent* event) {
-    Q_UNUSED(event);
-    QPainter painter = QPainter(this);
-    painter.setPen(Qt::NoPen);
-    for (PreviewFixture fixture : previewFixtures) {
-        QBrush brush = QBrush(fixture.color);
-        painter.setBrush(brush);
-        const int beamLength = maxBeamLength * std::sin(fixture.tilt * M_PI / 180);
-        const int xCoordinate = (fixture.x * 2) + (windowWidth / 2);
-        const int yCoordinate = (fixture.y * 2) + (windowWidth / 2);
-        painter.drawPie(xCoordinate - beamLength, yCoordinate - beamLength, 2 * beamLength, 2 * beamLength, 16 * (90 - fixture.pan - (fixture.zoom / 2)), 16 * fixture.zoom);
-        painter.drawEllipse(xCoordinate - (fixtureDiameter / 2), yCoordinate - (fixtureDiameter / 2), fixtureDiameter, fixtureDiameter);
+void Preview2d::setFixtures(QHash<int, PreviewData> previewData) {
+    QHash<int, FixtureGraphicsItem*> oldFixtures = fixtures;
+    fixtures.clear();
+    for (const int fixtureKey : previewData.keys()) {
+        FixtureGraphicsItem* fixture = nullptr;
+        if (oldFixtures.contains(fixtureKey)) {
+            fixture = oldFixtures.take(fixtureKey);
+        } else {
+            fixture = new FixtureGraphicsItem();
+            scene->addItem(fixture);
+        }
+        fixtures[fixtureKey] = fixture;
+        PreviewData data = previewData.value(fixtureKey);
+        QPointF position(100 * data.xPosition, -100 * data.yPosition);
+        fixture->setPos(position);
+        fixture->color = data.color;
+        fixture->pan = data.pan;
+        fixture->tilt = data.tilt;
+        fixture->zoom = data.zoom;
     }
+    for (FixtureGraphicsItem* fixture : oldFixtures.values()) {
+        delete fixture;
+    }
+    scene->update();
+    view->setSceneRect(scene->itemsBoundingRect());
 }

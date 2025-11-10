@@ -292,7 +292,7 @@ void DmxEngine::generateDmx() {
         qWarning() << Q_FUNC_INFO << fixtureQuery.executedQuery() << fixtureQuery.lastError().text();
         return;
     }
-    QList<Preview2d::PreviewFixture> previewFixtures;
+    QHash<int, Preview2d::PreviewData> previewFixtures;
     QHash<int, QByteArray> dmxUniverses;
     QHash<int, float> lastFrameFixturePan = fixturePan;
     fixturePan.clear();
@@ -320,14 +320,14 @@ void DmxEngine::generateDmx() {
         float tilt = position.tilt;
         float zoom = position.zoom;
         float focus = position.focus;
-        Preview2d::PreviewFixture previewFixture;
-        previewFixture.x = fixtureQuery.value(3).toFloat();
-        previewFixture.y = fixtureQuery.value(4).toFloat();
+        Preview2d::PreviewData previewFixture;
+        previewFixture.xPosition = fixtureQuery.value(3).toFloat();
+        previewFixture.yPosition = fixtureQuery.value(4).toFloat();
         previewFixture.color = QColor((red / 100) * (dimmer / 100) * 255, (green / 100) * (dimmer / 100) * 255, (blue / 100) * (dimmer / 100) * 255);
         previewFixture.pan = pan;
         previewFixture.tilt = tilt;
         previewFixture.zoom = zoom;
-        previewFixtures.append(previewFixture);
+        previewFixtures[fixtureKey] = previewFixture;
         if (address > 0) {
             QSqlQuery modelQuery;
             modelQuery.prepare("SELECT models.channels, models.panrange, models.tiltrange, models.minzoom, models.maxzoom, fixtures.rotation, fixtures.invertpan FROM fixtures, models WHERE fixtures.key = :key AND fixtures.model_key = models.key");
