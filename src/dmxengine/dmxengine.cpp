@@ -736,7 +736,7 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
                                     }
                                     (*fixtureColors)[fixtureKey] = color;
                                 }
-                                if (!stepColorKeys.isEmpty()) {
+                                if (!stepPositionKeys.isEmpty()) {
                                     PositionData position;
                                     if (stepPositionKeys.contains(currentStep)) {
                                         position = getFixturePosition(fixtureKey, stepPositionKeys.value(currentStep));
