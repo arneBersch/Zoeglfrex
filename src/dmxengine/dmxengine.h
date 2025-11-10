@@ -34,8 +34,9 @@ private:
     QHash<int, float> fixturePan;
     QHash<int, QHash<int, int>> groupEffectFrames;
     QHash<int, int> cuelistCurrentCueKeys;
-    QHash<int, int> cuelistRemainingFadeFrames;
     QHash<int, int> cuelistTotalFadeFrames;
+    QHash<int, int> cuelistTotalDelayFrames;
+    QHash<int, int> cuelistRemainingTransitionFrames;
     QHash<int, bool> cuelistSineFade;
     const int FRAMEDURATION = 25;
     struct ColorData {
