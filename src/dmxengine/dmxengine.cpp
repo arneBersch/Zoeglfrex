@@ -248,36 +248,6 @@ void DmxEngine::generateDmx() {
         fadeProgressBar->setRange(0, 1);
         fadeProgressBar->setValue(1);
     }
-    if (!skipFadeButton->isChecked()) {
-        QSqlQuery cuelistQuery;
-        cuelistQuery.prepare("SELECT key FROM cuelists WHERE currentcue_key IS NOT NULL");
-        if (cuelistQuery.exec()) {
-            while (cuelistQuery.next()) {
-                const int cuelistKey = cuelistQuery.value(0).toInt();
-                if (cuelistRemainingTransitionFrames.value(cuelistKey, 0) <= 0) {
-                    QSqlQuery followQuery;
-                    followQuery.prepare("SELECT follow, key FROM cues WHERE cuelist_key = :cuelist AND sortkey > (SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key) ORDER BY sortkey LIMIT 1");
-                    followQuery.bindValue(":cuelist", cuelistKey);
-                    if (followQuery.exec()) {
-                        if (followQuery.next() && (followQuery.value(0).toInt() == 1)) {
-                            QSqlQuery cueUpdateQuery;
-                            cueUpdateQuery.prepare("UPDATE cuelists SET currentcue_key = :cue WHERE key = :cuelist");
-                            cueUpdateQuery.bindValue(":cuelist", cuelistKey);
-                            cueUpdateQuery.bindValue(":cue", followQuery.value(1).toInt());
-                            if (!cueUpdateQuery.exec()) {
-                                qWarning() << Q_FUNC_INFO << cueUpdateQuery.executedQuery() << cueUpdateQuery.lastError().text();
-                            }
-                            emit dbChanged();
-                        }
-                    } else {
-                        qWarning() << Q_FUNC_INFO << followQuery.executedQuery() << followQuery.lastError().text();
-                    }
-                }
-            }
-        } else {
-            qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
-        }
-    }
     QSet<int> currentFixtureKeys;
     QSqlQuery currentFixtureQuery;
     if (currentFixtureQuery.exec("SELECT key FROM currentfixtures")) {
@@ -300,6 +270,88 @@ void DmxEngine::generateDmx() {
         const int fixtureKey = fixtureQuery.value(0).toInt();
         const int universe = fixtureQuery.value(1).toInt();
         const int address = fixtureQuery.value(2).toInt();
+        if (!fixtureIntensities.contains(fixtureKey) && !fixtureColors.contains(fixtureKey) && !fixturePositions.contains(fixtureKey) && !fixtureChannelRaws.contains(fixtureKey)) {
+            QList<int> fixtureGroupKeys;
+            for (const int groupKey : groupKeys) {
+                if (groupFixtureKeys.value(groupKey).contains(fixtureKey)) {
+                    fixtureGroupKeys.append(groupKey);
+                }
+            }
+            if (!fixtureGroupKeys.isEmpty()) {
+                QSqlQuery cuelistQuery;
+                cuelistQuery.prepare("SELECT key, priority FROM cuelists WHERE movewhiledark = 1 ORDER BY sortkey");
+                if (cuelistQuery.exec()) {
+                    int minCueRow = -1;
+                    int priority = 0;
+                    while (cuelistQuery.next()) {
+                        const int cuelistKey = cuelistQuery.value(0).toInt();
+                        const int cuelistPriority = cuelistQuery.value(0).toInt();
+                        fixtureColors.remove(fixtureKey);
+                        fixturePositions.remove(fixtureKey);
+                        QSqlQuery cueQuery;
+                        cueQuery.prepare("SELECT key FROM cue WHERE cuelist_key = :cuelist AND sortkey > (SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key) ORDER BY sortkey");
+                        cueQuery.bindValue(":cuelist", cuelistKey);
+                        if (cueQuery.exec()) {
+                            bool fixtureData = false;
+                            int cueRow = 1;
+                            while (!fixtureData && cueQuery.next() && ((cueRow < 0) || (cueRow < minCueRow) || ((cueRow <= minCueRow) && (cuelistPriority >= priority)))) {
+                                const int cueKey = cueQuery.value(0).toInt();
+                                for (const int groupKey : fixtureGroupKeys) {
+                                    QSqlQuery intensityQuery;
+                                    intensityQuery.prepare("SELECT valueitem_key FROM cue_group_intensities WHERE item_key = :cue AND foreignitem_key = :group");
+                                    intensityQuery.bindValue(":cue", cueKey);
+                                    intensityQuery.bindValue(":group", groupKey);
+                                    if (intensityQuery.exec()) {
+                                        if (intensityQuery.next()) {
+                                            fixtureData = true;
+                                        }
+                                    } else {
+                                        qWarning() << Q_FUNC_INFO << intensityQuery.executedQuery() << intensityQuery.lastError().text();
+                                    }
+                                    ColorData color;
+                                    QSqlQuery colorQuery;
+                                    colorQuery.prepare("SELECT valueitem_key FROM cue_group_colors WHERE item_key = :cue AND foreignitem_key = :group");
+                                    colorQuery.bindValue(":cue", cueKey);
+                                    colorQuery.bindValue(":group", groupKey);
+                                    if (colorQuery.exec()) {
+                                        if (colorQuery.next()) {
+                                            fixtureData = true;
+                                            const int colorKey = colorQuery.value(0).toInt();
+                                            color = getFixtureColor(fixtureKey, colorKey);
+                                        }
+                                    } else {
+                                        qWarning() << Q_FUNC_INFO << colorQuery.executedQuery() << colorQuery.lastError().text();
+                                    }
+                                    PositionData position;
+                                    QSqlQuery positionQuery;
+                                    positionQuery.prepare("SELECT valueitem_key FROM cue_group_positions WHERE item_key = :cue AND foreignitem_key = :group");
+                                    positionQuery.bindValue(":cue", cueKey);
+                                    positionQuery.bindValue(":group", groupKey);
+                                    if (positionQuery.exec()) {
+                                        if (positionQuery.next()) {
+                                            fixtureData = true;
+                                            const int positionKey = positionQuery.value(0).toInt();
+                                            position = getFixturePosition(fixtureKey, positionKey);
+                                        }
+                                    } else {
+                                        qWarning() << Q_FUNC_INFO << positionQuery.executedQuery() << positionQuery.lastError().text();
+                                    }
+                                }
+                                if (fixtureData) {
+                                    minCueRow = cueRow;
+                                    priority = cuelistPriority;
+                                }
+                                cueRow++;
+                            }
+                        } else {
+                            qWarning() << Q_FUNC_INFO << cueQuery.executedQuery() << cueQuery.lastError().text();
+                        }
+                    }
+                } else {
+                    qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
+                }
+            }
+        }
         float dimmer = fixtureIntensities.value(fixtureKey);
         const ColorData color = fixtureColors.value(fixtureKey);
         float red = color.red;
@@ -444,6 +496,36 @@ void DmxEngine::generateDmx() {
         emit sendUniverse(universe, dmxUniverses.value(universe));
     }
     emit updatePreviewFixtures(previewFixtures);
+    if (!skipFadeButton->isChecked()) {
+        QSqlQuery cuelistQuery;
+        cuelistQuery.prepare("SELECT key FROM cuelists WHERE currentcue_key IS NOT NULL");
+        if (cuelistQuery.exec()) {
+            while (cuelistQuery.next()) {
+                const int cuelistKey = cuelistQuery.value(0).toInt();
+                if (cuelistRemainingTransitionFrames.value(cuelistKey, 0) <= 0) {
+                    QSqlQuery followQuery;
+                    followQuery.prepare("SELECT follow, key FROM cues WHERE cuelist_key = :cuelist AND sortkey > (SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key) ORDER BY sortkey LIMIT 1");
+                    followQuery.bindValue(":cuelist", cuelistKey);
+                    if (followQuery.exec()) {
+                        if (followQuery.next() && (followQuery.value(0).toInt() == 1)) {
+                            QSqlQuery cueUpdateQuery;
+                            cueUpdateQuery.prepare("UPDATE cuelists SET currentcue_key = :cue WHERE key = :cuelist");
+                            cueUpdateQuery.bindValue(":cuelist", cuelistKey);
+                            cueUpdateQuery.bindValue(":cue", followQuery.value(1).toInt());
+                            if (!cueUpdateQuery.exec()) {
+                                qWarning() << Q_FUNC_INFO << cueUpdateQuery.executedQuery() << cueUpdateQuery.lastError().text();
+                            }
+                            emit dbChanged();
+                        }
+                    } else {
+                        qWarning() << Q_FUNC_INFO << followQuery.executedQuery() << followQuery.lastError().text();
+                    }
+                }
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
+        }
+    }
 }
 
 void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, RawData>* fixtureRaws) {

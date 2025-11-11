@@ -48,6 +48,7 @@ int main(int argc, char *argv[]) {
     }
 
     QStringList queries;
+    queries.append("PRAGMA foreign_keys = ON");
     if (fileExists) {
         QSqlQuery versionQuery;
         if (!versionQuery.exec("SELECT version FROM about")) {
@@ -90,7 +91,6 @@ int main(int argc, char *argv[]) {
         auto createItemAndIntegerSpecificNumberAttribute = [] (const QString tableName, const QString itemTable, const QString foreignItemTable, const QString valueType) {
             return "CREATE TABLE " + tableName + " (item_key INTEGER REFERENCES " + itemTable + " (key) ON DELETE CASCADE NOT NULL, foreignitem_key INTEGER REFERENCES " + foreignItemTable + " (key) ON DELETE CASCADE NOT NULL, key INTEGER NOT NULL, value " + valueType + " DEFAULT 0 NOT NULL, PRIMARY KEY (item_key, foreignitem_key, key))";
         };
-        queries.append("PRAGMA foreign_keys = ON");
         queries.append("CREATE TABLE models (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', channels TEXT DEFAULT 'D' NOT NULL, panrange REAL DEFAULT 540 NOT NULL, tiltrange REAL DEFAULT 270 NOT NULL, minzoom REAL DEFAULT 5 NOT NULL, maxzoom REAL DEFAULT 60 NOT NULL, PRIMARY KEY (key))");
         queries.append("CREATE TABLE fixtures (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', model_key INTEGER REFERENCES models (key) ON DELETE SET NULL, universe INTEGER DEFAULT 1 NOT NULL, address INTEGER DEFAULT 0 NOT NULL, xposition REAL DEFAULT 0 NOT NULL, yposition REAL DEFAULT 0 NOT NULL, rotation REAL DEFAULT 0 NOT NULL, invertpan INTEGER DEFAULT 0 NOT NULL, PRIMARY KEY (key))");
         queries.append("CREATE TABLE groups (key INTEGER, id TEXT UNIQUE NOT NULL, sortkey INTEGER NOT NULL, label TEXT DEFAULT '', PRIMARY KEY (key))");
