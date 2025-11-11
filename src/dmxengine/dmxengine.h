@@ -52,15 +52,16 @@ private:
         float zoom = 15;
         float focus = 0;
     };
-    struct RawData {
-        QHash<int, uint8_t> channelValues = QHash<int, uint8_t>();;
-        QHash<int, bool> channelFading = QHash<int, bool>();;
+    struct RawChannelData {
+        uint8_t value = 0;
+        bool fading = false;
+        bool moveWhileDark = false;
     };
-    void renderCue(int cueKey, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, RawData>* fixtureRaws);
+    void renderCue(int cueKey, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, QHash<int, RawChannelData>>* fixtureRaws);
     float getFixtureIntensity(int fixtureKey, int intensityKey);
     ColorData getFixtureColor(int fixtureKey, int colorKey);
     PositionData getFixturePosition(int fixtureKey, int positionKey);
-    RawData getFixtureRaws(int fixtureKey, QList<int> rawKeys);
+    QHash<int, RawChannelData> getFixtureRaws(int fixtureKey, QList<int> rawKeys);
 };
 
 #endif // DMXENGINE_H

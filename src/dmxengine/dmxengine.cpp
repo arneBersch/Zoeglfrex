@@ -148,8 +148,8 @@ void DmxEngine::generateDmx() {
         QHash<int, ColorData> lastCueFixtureColors;
         QHash<int, PositionData> currentCueFixturePositions;
         QHash<int, PositionData> lastCueFixturePositions;
-        QHash<int, RawData> currentCueFixtureRaws;
-        QHash<int, RawData> lastCueFixtureRaws;
+        QHash<int, QHash<int, RawChannelData>> currentCueFixtureRaws;
+        QHash<int, QHash<int, RawChannelData>> lastCueFixtureRaws;
         if (fade < 1) {
             renderCue(currentCueKey, oldGroupEffectFrames, &currentCueFixtureIntensities, &currentCueFixtureColors, &currentCueFixturePositions, &currentCueFixtureRaws);
         }
@@ -208,12 +208,12 @@ void DmxEngine::generateDmx() {
                 }
             }
             QSet<int> rawChannels;
-            RawData currentRaws = currentCueFixtureRaws.value(fixtureKey);
-            for (const int channel : currentRaws.channelValues.keys()) {
+            QHash<int, RawChannelData> currentRaws = currentCueFixtureRaws.value(fixtureKey);
+            for (const int channel : currentRaws.keys()) {
                 rawChannels.insert(channel);
             }
-            RawData lastRaws = lastCueFixtureRaws.value(fixtureKey);
-            for (const int channel : lastRaws.channelValues.keys()) {
+            QHash<int, RawChannelData> lastRaws = lastCueFixtureRaws.value(fixtureKey);
+            for (const int channel : lastRaws.keys()) {
                 rawChannels.insert(channel);
             }
             for (const int channel : rawChannels) {
@@ -223,19 +223,19 @@ void DmxEngine::generateDmx() {
                 }
                 if (priority >= fixtureChannelRawPriorities.value(fixtureKey).value(channel, 0)) {
                     fixtureChannelRawPriorities[fixtureKey][channel] = priority;
-                    if (lastRaws.channelValues.contains(channel)) {
-                        uint8_t lastValue = lastRaws.channelValues.value(channel);
-                        if (currentRaws.channelValues.contains(channel)) {
-                            uint8_t currentValue = currentRaws.channelValues.value(channel);
-                            if (currentRaws.channelFading.contains(channel)) {
+                    if (lastRaws.contains(channel)) {
+                        uint8_t lastValue = lastRaws.value(channel).value;
+                        if (currentRaws.contains(channel)) {
+                            uint8_t currentValue = currentRaws.value(channel).value;
+                            if (currentRaws.value(channel).fading) {
                                 lastValue = currentValue + (lastValue - currentValue) * fade;
                             } else {
                                 lastValue = currentValue;
                             }
                         }
                         fixtureChannelRaws[fixtureKey][channel] = lastValue;
-                    } else if (currentRaws.channelValues.contains(channel)) {
-                        fixtureChannelRaws[fixtureKey][channel] = currentRaws.channelValues.value(channel);
+                    } else if (currentRaws.contains(channel)) {
+                        fixtureChannelRaws[fixtureKey][channel] = currentRaws.value(channel).value;
                     }
                 }
             }
@@ -528,7 +528,7 @@ void DmxEngine::generateDmx() {
     }
 }
 
-void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, RawData>* fixtureRaws) {
+void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, QHash<int, RawChannelData>>* fixtureRaws) {
     for (const int groupKey : groupKeys) {
         QList<int> rawKeys;
         QSqlQuery intensityQuery;
@@ -619,11 +619,10 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
         }
         if (!rawKeys.isEmpty()) {
             for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
-                const RawData raws = getFixtureRaws(fixtureKey, rawKeys);
+                const QHash<int, RawChannelData> raws = getFixtureRaws(fixtureKey, rawKeys);
                 if (fixtureRaws->contains(fixtureKey)) {
-                    for (const int channel : raws.channelValues.keys()) {
-                        (*fixtureRaws)[fixtureKey].channelValues[channel] = raws.channelValues.value(channel);
-                        (*fixtureRaws)[fixtureKey].channelFading[channel] = raws.channelFading.value(channel);
+                    for (const int channel : raws.keys()) {
+                        (*fixtureRaws)[fixtureKey][channel] = raws.value(channel);
                     }
                 } else {
                     (*fixtureRaws)[fixtureKey] = raws;
@@ -836,19 +835,16 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
                                     (*fixturePositions)[fixtureKey] = position;
                                 }
                                 if (!stepRawKeys.isEmpty()) {
-                                    RawData raws;
-                                    RawData lastRaws;
+                                    QHash<int, RawChannelData> raws;
+                                    QHash<int, RawChannelData> lastRaws;
                                     for (int step = 1; step <= stepAmount; step++) {
                                         if (stepRawKeys.contains(step)) {
-                                            const RawData stepRaws = getFixtureRaws(fixtureKey, stepRawKeys.value(step));
-                                            for (const int channel : stepRaws.channelValues.keys()) {
-                                                if (!raws.channelValues.contains(channel)) {
-                                                    raws.channelValues[channel] = 0;
-                                                    raws.channelFading[channel] = false;
-                                                }
+                                            const QHash<int, RawChannelData> stepRaws = getFixtureRaws(fixtureKey, stepRawKeys.value(step));
+                                            for (const int channel : stepRaws.keys()) {
                                                 if (step == currentStep) {
-                                                    raws.channelValues[channel] = stepRaws.channelValues.value(channel);
-                                                    raws.channelFading[channel] = stepRaws.channelFading.value(channel);
+                                                    raws[channel] = stepRaws.value(channel);
+                                                } else if (!raws.contains(channel)) {
+                                                    raws[channel] = RawChannelData();
                                                 }
                                             }
                                             if (step == lastStep) {
@@ -857,21 +853,22 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
                                         }
                                     }
                                     if (fade > 0) {
-                                        for (const int channel : raws.channelValues.keys()) {
-                                            if (raws.channelFading.value(channel)) {
-                                                raws.channelValues[channel] += (lastRaws.channelValues.value(channel, 0) - raws.channelValues.value(channel, 0)) * fade;
+                                        for (const int channel : raws.keys()) {
+                                            if (raws.value(channel).fading) {
+                                                RawChannelData channelData = raws.value(channel);
+                                                channelData.value += (lastRaws.value(channel, RawChannelData()).value - raws.value(channel, RawChannelData()).value) * fade;
+                                                raws[channel] = channelData;
                                             } else {
-                                                raws.channelValues[channel] = lastRaws.channelValues.value(channel, 0);
+                                                raws[channel] = lastRaws.value(channel, RawChannelData());
                                             }
                                         }
                                     }
-                                    if (!fixtureRaws->contains(fixtureKey)) {
-                                        (*fixtureRaws)[fixtureKey] = raws;
-                                    } else {
-                                        for (const int channel : raws.channelValues.keys()) {
-                                            (*fixtureRaws)[fixtureKey].channelValues[channel] = raws.channelValues.value(channel);
-                                            (*fixtureRaws)[fixtureKey].channelFading[channel] = raws.channelFading.value(channel);
+                                    if (fixtureRaws->contains(fixtureKey)) {
+                                        for (const int channel : raws.keys()) {
+                                            (*fixtureRaws)[fixtureKey][channel] = raws.value(channel);
                                         }
+                                    } else {
+                                        (*fixtureRaws)[fixtureKey] = raws;
                                     }
                                     (*fixtureRaws)[fixtureKey];
                                 }
@@ -976,19 +973,21 @@ DmxEngine::PositionData DmxEngine::getFixturePosition(const int fixtureKey, cons
     return position;
 }
 
-DmxEngine::RawData DmxEngine::getFixtureRaws(const int fixtureKey, const QList<int> rawKeys) {
-    RawData channels;
+QHash<int, DmxEngine::RawChannelData> DmxEngine::getFixtureRaws(const int fixtureKey, const QList<int> rawKeys) {
+    QHash<int, RawChannelData> channels;
     for (const int rawKey : rawKeys) {
         bool fading = false;
-        QSqlQuery fadingQuery;
-        fadingQuery.prepare("SELECT fade FROM raws WHERE key = :raw");
-        fadingQuery.bindValue(":raw", rawKey);
-        if (fadingQuery.exec()) {
-            if (fadingQuery.next()) {
-                fading = (fadingQuery.value(0).toInt() == 1);
+        bool moveWhileDark = false;
+        QSqlQuery rawAttributesQuery;
+        rawAttributesQuery.prepare("SELECT fade, movewhiledark FROM raws WHERE key = :raw");
+        rawAttributesQuery.bindValue(":raw", rawKey);
+        if (rawAttributesQuery.exec()) {
+            if (rawAttributesQuery.next()) {
+                fading = (rawAttributesQuery.value(0).toInt() == 1);
+                moveWhileDark = (rawAttributesQuery.value(1).toInt() == 1);
             }
         } else {
-            qWarning() << Q_FUNC_INFO << fadingQuery.executedQuery() << fadingQuery.lastError().text();
+            qWarning() << Q_FUNC_INFO << rawAttributesQuery.executedQuery() << rawAttributesQuery.lastError().text();
         }
         QSqlQuery itemQuery;
         itemQuery.prepare("SELECT key, value FROM raw_channel_values WHERE item_key = :raw");
@@ -996,8 +995,12 @@ DmxEngine::RawData DmxEngine::getFixtureRaws(const int fixtureKey, const QList<i
         if (itemQuery.exec()) {
             while (itemQuery.next()) {
                 const int channel = itemQuery.value(0).toInt();
-                channels.channelValues[channel] = (uint8_t)itemQuery.value(1).toUInt();
-                channels.channelFading[channel] = fading;
+                if (!channels.contains(channel)) {
+                    channels[channel] = RawChannelData();
+                }
+                channels[channel].value = (uint8_t)itemQuery.value(1).toUInt();
+                channels[channel].fading = fading;
+                channels[channel].moveWhileDark = moveWhileDark;
             }
         } else {
             qWarning() << Q_FUNC_INFO << itemQuery.executedQuery() << itemQuery.lastError().text();
@@ -1009,8 +1012,12 @@ DmxEngine::RawData DmxEngine::getFixtureRaws(const int fixtureKey, const QList<i
         if (modelExceptionQuery.exec()) {
             while (modelExceptionQuery.next()) {
                 const int channel = itemQuery.value(0).toInt();
-                channels.channelValues[channel] = (uint8_t)modelExceptionQuery.value(1).toUInt();
-                channels.channelFading[channel] = fading;
+                if (!channels.contains(channel)) {
+                    channels[channel] = RawChannelData();
+                }
+                channels[channel].value = (uint8_t)modelExceptionQuery.value(1).toUInt();
+                channels[channel].fading = fading;
+                channels[channel].moveWhileDark = moveWhileDark;
             }
         } else {
             qWarning() << Q_FUNC_INFO << modelExceptionQuery.executedQuery() << modelExceptionQuery.lastError().text();
@@ -1022,8 +1029,12 @@ DmxEngine::RawData DmxEngine::getFixtureRaws(const int fixtureKey, const QList<i
         if (fixtureExceptionQuery.exec()) {
             while (fixtureExceptionQuery.next()) {
                 const int channel = itemQuery.value(0).toInt();
-                channels.channelValues[channel] = (uint8_t)fixtureExceptionQuery.value(1).toUInt();
-                channels.channelFading[channel] = fading;
+                if (!channels.contains(channel)) {
+                    channels[channel] = RawChannelData();
+                }
+                channels[channel].value = (uint8_t)fixtureExceptionQuery.value(1).toUInt();
+                channels[channel].fading = fading;
+                channels[channel].moveWhileDark = moveWhileDark;
             }
         } else {
             qWarning() << Q_FUNC_INFO << fixtureExceptionQuery.executedQuery() << fixtureExceptionQuery.lastError().text();
