@@ -286,8 +286,6 @@ void DmxEngine::generateDmx() {
                     while (cuelistQuery.next()) {
                         const int cuelistKey = cuelistQuery.value(0).toInt();
                         const int cuelistPriority = cuelistQuery.value(0).toInt();
-                        fixtureColors.remove(fixtureKey);
-                        fixturePositions.remove(fixtureKey);
                         QSqlQuery cueQuery;
                         cueQuery.prepare("SELECT key FROM cue WHERE cuelist_key = :cuelist AND sortkey > (SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key) ORDER BY sortkey");
                         cueQuery.bindValue(":cuelist", cuelistKey);
@@ -296,6 +294,10 @@ void DmxEngine::generateDmx() {
                             int cueRow = 1;
                             while (!fixtureData && cueQuery.next() && ((cueRow < 0) || (cueRow < minCueRow) || ((cueRow <= minCueRow) && (cuelistPriority >= priority)))) {
                                 const int cueKey = cueQuery.value(0).toInt();
+                                ColorData color;
+                                PositionData position;
+                                QHash<int, uint8_t> raws;
+                                QList<int> rawKeys;
                                 for (const int groupKey : fixtureGroupKeys) {
                                     QSqlQuery intensityQuery;
                                     intensityQuery.prepare("SELECT valueitem_key FROM cue_group_intensities WHERE item_key = :cue AND foreignitem_key = :group");
@@ -304,11 +306,21 @@ void DmxEngine::generateDmx() {
                                     if (intensityQuery.exec()) {
                                         if (intensityQuery.next()) {
                                             fixtureData = true;
+                                            const int intensityKey = intensityQuery.value(0).toInt();
+                                            QSqlQuery rawQuery;
+                                            rawQuery.prepare("SELECT valueitem_key FROM intensity_raws WHERE item_key = :intensity");
+                                            rawQuery.bindValue(":intensity", intensityKey);
+                                            if (rawQuery.exec()) {
+                                                while (rawQuery.next()) {
+                                                    rawKeys.append(rawQuery.value(0).toInt());
+                                                }
+                                            } else {
+                                                qWarning() << Q_FUNC_INFO << rawQuery.executedQuery() << rawQuery.lastError().text();
+                                            }
                                         }
                                     } else {
                                         qWarning() << Q_FUNC_INFO << intensityQuery.executedQuery() << intensityQuery.lastError().text();
                                     }
-                                    ColorData color;
                                     QSqlQuery colorQuery;
                                     colorQuery.prepare("SELECT valueitem_key FROM cue_group_colors WHERE item_key = :cue AND foreignitem_key = :group");
                                     colorQuery.bindValue(":cue", cueKey);
@@ -318,11 +330,20 @@ void DmxEngine::generateDmx() {
                                             fixtureData = true;
                                             const int colorKey = colorQuery.value(0).toInt();
                                             color = getFixtureColor(fixtureKey, colorKey);
+                                            QSqlQuery rawsQuery;
+                                            rawsQuery.prepare("SELECT valueitem_key FROM color_raws WHERE item_key = :color");
+                                            rawsQuery.bindValue(":color", colorKey);
+                                            if (rawsQuery.exec()) {
+                                                while (rawsQuery.next()) {
+                                                    rawKeys.append(rawsQuery.value(0).toInt());
+                                                }
+                                            } else {
+                                                qWarning() << Q_FUNC_INFO << rawsQuery.executedQuery() << rawsQuery.lastError().text();
+                                            }
                                         }
                                     } else {
                                         qWarning() << Q_FUNC_INFO << colorQuery.executedQuery() << colorQuery.lastError().text();
                                     }
-                                    PositionData position;
                                     QSqlQuery positionQuery;
                                     positionQuery.prepare("SELECT valueitem_key FROM cue_group_positions WHERE item_key = :cue AND foreignitem_key = :group");
                                     positionQuery.bindValue(":cue", cueKey);
@@ -332,12 +353,43 @@ void DmxEngine::generateDmx() {
                                             fixtureData = true;
                                             const int positionKey = positionQuery.value(0).toInt();
                                             position = getFixturePosition(fixtureKey, positionKey);
+                                            QSqlQuery rawsQuery;
+                                            rawsQuery.prepare("SELECT valueitem_key FROM position_raws WHERE item_key = :position");
+                                            rawsQuery.bindValue(":position", positionKey);
+                                            if (rawsQuery.exec()) {
+                                                while (rawsQuery.next()) {
+                                                    rawKeys.append(rawsQuery.value(0).toInt());
+                                                }
+                                            } else {
+                                                qWarning() << Q_FUNC_INFO << rawsQuery.executedQuery() << rawsQuery.lastError().text();
+                                            }
                                         }
                                     } else {
                                         qWarning() << Q_FUNC_INFO << positionQuery.executedQuery() << positionQuery.lastError().text();
                                     }
+                                    QSqlQuery rawsQuery;
+                                    rawsQuery.prepare("SELECT valueitem_key FROM cue_group_raws WHERE item_key = :cue AND foreignitem_key = :group");
+                                    rawsQuery.bindValue(":cue", cueKey);
+                                    rawsQuery.bindValue(":group", groupKey);
+                                    if (rawsQuery.exec()) {
+                                        while (rawsQuery.next()) {
+                                            fixtureData = true;
+                                            rawKeys.append(rawsQuery.value(0).toInt());
+                                        }
+                                    } else {
+                                        qWarning() << Q_FUNC_INFO << rawsQuery.executedQuery() << rawsQuery.lastError().text();
+                                    }
                                 }
+                                QHash<int, RawChannelData> rawChannels = getFixtureRaws(fixtureKey, rawKeys);
                                 if (fixtureData) {
+                                    fixtureColors[fixtureKey] = color;
+                                    fixturePositions[fixtureKey] = position;
+                                    fixtureChannelRaws[fixtureKey] = QHash<int, uint8_t>();
+                                    for (const int channel : rawChannels.keys()) {
+                                        if (rawChannels.value(channel).moveWhileDark) {
+                                            fixtureChannelRaws[fixtureKey][channel] = rawChannels.value(channel).value;
+                                        }
+                                    }
                                     minCueRow = cueRow;
                                     priority = cuelistPriority;
                                 }
