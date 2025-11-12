@@ -107,6 +107,7 @@ void CuelistView::reload() {
     setCurrentItemLabel("SELECT CONCAT('Cuelist ', cuelists.id, ' ', cuelists.label) FROM cuelists, currentitems WHERE cuelists.key = currentitems.cuelist_key", "Cuelist", cuelistLabel);
     setCurrentItemLabel("SELECT CONCAT('Cue ', id, ' ', label) FROM currentcue", "Cue", cueLabel);
     model->refresh();
+    cuelistTableView->scrollTo(model->getCurrentRowIndex());
 }
 
 void CuelistView::selectItem(const QString table, const QString currentSortkeyQueryText, const QString updateQueryText, const bool next) {

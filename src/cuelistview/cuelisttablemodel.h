@@ -21,6 +21,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     void refresh();
     void setCueMode(bool cueMode);
+    QModelIndex getCurrentRowIndex();
 private:
     bool cueMode = true;
     int currentRow;

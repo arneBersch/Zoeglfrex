@@ -147,3 +147,7 @@ QVariant CuelistTableModel::headerData(int section, Qt::Orientation orientation,
     }
     return QVariant();
 }
+
+QModelIndex CuelistTableModel::getCurrentRowIndex() {
+    return index(currentRow, 0);
+}
