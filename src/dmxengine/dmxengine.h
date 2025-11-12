@@ -62,6 +62,7 @@ private:
     ColorData getFixtureColor(int fixtureKey, int colorKey);
     PositionData getFixturePosition(int fixtureKey, int positionKey);
     QHash<int, RawChannelData> getFixtureRaws(int fixtureKey, QList<int> rawKeys);
+    void getFixtureEffects(int fixtureKey, QList<int> effectKeys, QHash<int, int> effectFrames, bool* intensityInformation, float* intensity, bool* colorInformation, ColorData* color, bool* PositionInformation, PositionData* position, QHash<int, RawChannelData>* raws);
 };
 
 #endif // DMXENGINE_H
