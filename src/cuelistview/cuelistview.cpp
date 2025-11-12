@@ -31,14 +31,32 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     layout->addLayout(buttonHeader);
 
     modeComboBox = new QComboBox();
-    modeComboBox->addItem("Group Mode");
     modeComboBox->addItem("Cue Mode");
+    modeComboBox->addItem("Group Mode");
     connect(modeComboBox, &QComboBox::currentIndexChanged, this, [this] (const int index) {
-        model->setCueMode(index == 1);
+        if (index == 0) {
+            model->setMode(CuelistTableModel::CueMode);
+        } else if (index == 1) {
+            model->setMode(CuelistTableModel::GroupMode);
+        }
         settings->setValue("cuelistview/mode", index);
     });
     modeComboBox->setCurrentIndex(settings->value("cuelistview/mode", 0).toInt());
     buttonHeader->addWidget(modeComboBox);
+
+    filterComboBox = new QComboBox();
+    filterComboBox->addItem("No filter");
+    filterComboBox->addItem("Active Rows filter");
+    connect(filterComboBox, &QComboBox::currentIndexChanged, this, [this] (const int index) {
+        if (index == 0) {
+            model->setFilter(CuelistTableModel::NoFilter);
+        } else if (index == 1) {
+            model->setFilter(CuelistTableModel::ActiveRowsFilter);
+        }
+        settings->setValue("cuelistview/filter", index);
+    });
+    filterComboBox->setCurrentIndex(settings->value("cuelistview/filter", 0).toInt());
+    buttonHeader->addWidget(filterComboBox);
 
     cuelistTableView = new QTableView();
     cuelistTableView->setModel(model);

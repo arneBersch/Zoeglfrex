@@ -33,6 +33,7 @@ private:
     QLabel* cueLabel;
     QLabel* cuelistLabel;
     QComboBox* modeComboBox;
+    QComboBox* filterComboBox;
 };
 
 #endif // CUELISTVIEW_H

@@ -8,15 +8,13 @@
 
 #include "cuelisttablemodel.h"
 
-CuelistTableModel::CuelistTableModel() {
-    setCueMode(false);
-}
+CuelistTableModel::CuelistTableModel() {}
 
 void CuelistTableModel::refresh() {
     beginResetModel();
     currentRow = -1;
     QSqlQuery query;
-    if (cueMode) {
+    if (mode == CueMode) {
         query.prepare("SELECT groups.sortkey FROM groups, currentitems WHERE currentitems.group_key = groups.key");
     } else {
         query.prepare("SELECT key FROM currentcue");
@@ -31,17 +29,22 @@ void CuelistTableModel::refresh() {
     endResetModel();
 }
 
-void CuelistTableModel::setCueMode(bool newCueMode) {
-    cueMode = newCueMode;
+void CuelistTableModel::setMode(Mode newMode) {
+    mode = newMode;
+    refresh();
+}
+
+void CuelistTableModel::setFilter(Filter newFilter) {
+    filter = newFilter;
     refresh();
 }
 
 int CuelistTableModel::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     QSqlQuery query;
-    if (cueMode) {
+    if (mode == CueMode) {
         query.prepare("SELECT COUNT(*) FROM groups");
-    } else {
+    } else if (mode == GroupMode) {
         query.prepare("SELECT COUNT(*) FROM currentcuelist_cues");
     }
     if (query.exec() && query.next()) {
@@ -65,7 +68,7 @@ QVariant CuelistTableModel::data(const QModelIndex &index, int role) const {
     if (role == Qt::DisplayRole) {
         const int column = index.column();
         QString queryText;
-        if (cueMode) {
+        if (mode == CueMode) {
             auto createQuery = [] (const QString itemTable, const QString valueTable) {
                 return "SELECT CONCAT(" + itemTable + ".id, ' ', " + itemTable + ".label) FROM " + itemTable + ", groups, " + valueTable + ", currentcue WHERE groups.sortkey = :sortkey AND " + valueTable + ".foreignitem_key = groups.key AND " + valueTable + ".valueitem_key = " + itemTable + ".key AND " + valueTable + ".item_key = currentcue.key";
             };
@@ -82,7 +85,7 @@ QVariant CuelistTableModel::data(const QModelIndex &index, int role) const {
             } else if (column == 5) {
                 queryText = createQuery("effects", "cue_group_effects");
             }
-        } else {
+        } else if (mode == GroupMode) {
             auto createQuery = [] (const QString itemTable, const QString valueTable) {
                 return "SELECT CONCAT(" + itemTable + ".id, ' ', " + itemTable + ".label) FROM " + itemTable + ", " + valueTable + ", currentitems, currentcuelist_cues WHERE currentcuelist_cues.sortkey = :sortkey AND " + valueTable + ".foreignitem_key = currentitems.group_key AND " + valueTable + ".valueitem_key = " + itemTable + ".key AND currentcuelist_cues.key = " + valueTable + ".item_key";
             };
@@ -128,9 +131,9 @@ QVariant CuelistTableModel::headerData(int section, Qt::Orientation orientation,
     }
     if (orientation == Qt::Horizontal) {
         if (section == 0) {
-            if (cueMode) {
+            if (mode == CueMode) {
                 return "Group";
-            } else {
+            } else if (mode == GroupMode) {
                 return "Cue";
             }
         } else if (section == 1) {

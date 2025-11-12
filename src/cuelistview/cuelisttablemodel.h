@@ -14,16 +14,26 @@
 class CuelistTableModel : public QAbstractTableModel {
     Q_OBJECT
 public:
+    enum Mode {
+        CueMode,
+        GroupMode,
+    };
+    enum Filter {
+        NoFilter,
+        ActiveRowsFilter,
+    };
     CuelistTableModel();
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     void refresh();
-    void setCueMode(bool cueMode);
+    void setMode(Mode mode);
+    void setFilter(Filter filter);
     QModelIndex getCurrentRowIndex();
 private:
-    bool cueMode = true;
+    Mode mode = CueMode;
+    Filter filter = NoFilter;
     int currentRow;
 };
 
