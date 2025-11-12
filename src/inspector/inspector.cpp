@@ -15,13 +15,13 @@ Inspector::Inspector(QWidget *parent) : QWidget(parent) {
     titleLabel = new QLabel("Cues");
     layout->addWidget(titleLabel);
 
-    table = new QTableView();
-    table->setSelectionMode(QAbstractItemView::NoSelection);
-    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    table->setFocusPolicy(Qt::NoFocus);
-    table->verticalHeader()->hide();
-    table->horizontalHeader()->setStretchLastSection(true);
-    layout->addWidget(table);
+    tableView = new QTableView();
+    tableView->setSelectionMode(QAbstractItemView::NoSelection);
+    tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tableView->setFocusPolicy(Qt::NoFocus);
+    tableView->verticalHeader()->hide();
+    tableView->horizontalHeader()->setStretchLastSection(true);
+    layout->addWidget(tableView);
 
     infosLabel = new QLabel();
     infosLabel->setWordWrap(true);
@@ -30,7 +30,7 @@ Inspector::Inspector(QWidget *parent) : QWidget(parent) {
     infosLabel->hide();
 
     model = new ItemTableModel();
-    table->setModel(model);
+    tableView->setModel(model);
 }
 
 void Inspector::loadItems(const QString itemName, const QStringList ids) {
@@ -179,6 +179,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
         infosLabel->show();
     }
     model->setIds(ids);
+    tableView->scrollTo(model->getLastSelectedRowIndex());
     model->refresh();
 }
 

@@ -33,7 +33,7 @@ private:
     QString getIntegerSpecificItemListAttribute(QString table, QString foreignItemTable, QString valueTable, QString id) const;
     QString getItemAndIntegerSpecificNumberAttribute(QString table, QString foreignItemTable, QString valueTable, QString id, QString unit) const;
     ItemTableModel* model;
-    QTableView* table;
+    QTableView* tableView;
     QLabel* titleLabel;
     QLabel* infosLabel;
 };

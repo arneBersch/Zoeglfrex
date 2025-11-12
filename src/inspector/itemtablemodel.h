@@ -18,7 +18,9 @@ public:
     void setTable(QString table);
     void setIds(QStringList ids);
     QVariant data(const QModelIndex &index, int role) const override;
+    QModelIndex getLastSelectedRowIndex();
 private:
+    QString table;
     QStringList ids;
 };
 

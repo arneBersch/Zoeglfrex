@@ -287,7 +287,7 @@ void DmxEngine::generateDmx() {
                         const int cuelistKey = cuelistQuery.value(0).toInt();
                         const int cuelistPriority = cuelistQuery.value(0).toInt();
                         QSqlQuery cueQuery;
-                        cueQuery.prepare("SELECT key FROM cue WHERE cuelist_key = :cuelist AND sortkey > (SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key) ORDER BY sortkey");
+                        cueQuery.prepare("SELECT key FROM cues WHERE cuelist_key = :cuelist AND sortkey > (SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key) ORDER BY sortkey");
                         cueQuery.bindValue(":cuelist", cuelistKey);
                         if (cueQuery.exec()) {
                             bool fixtureData = false;
