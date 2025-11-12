@@ -12,19 +12,63 @@ CuelistTableModel::CuelistTableModel() {}
 
 void CuelistTableModel::refresh() {
     beginResetModel();
-    currentRow = -1;
-    QSqlQuery query;
+    currentKey = -1;
+    QSqlQuery currentKeyQuery;
     if (mode == CueMode) {
-        query.prepare("SELECT groups.sortkey FROM groups, currentitems WHERE currentitems.group_key = groups.key");
-    } else {
-        query.prepare("SELECT key FROM currentcue");
+        currentKeyQuery.prepare("SELECT group_key FROM currentitems");
+    } else if (mode == GroupMode) {
+        currentKeyQuery.prepare("SELECT key FROM currentcue");
     }
-    if (query.exec()) {
-        if (query.next()) {
-            currentRow = (query.value(0).toInt() - 1);
+    if (currentKeyQuery.exec()) {
+        if (currentKeyQuery.next()) {
+            currentKey = currentKeyQuery.value(0).toInt();
         }
     } else {
-        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        qWarning() << Q_FUNC_INFO << currentKeyQuery.executedQuery() << currentKeyQuery.lastError().text();
+    }
+    rows.clear();
+    QSqlQuery rowQuery;
+    if (mode == CueMode) {
+        rowQuery.prepare("SELECT key, CONCAT(id, ' ', label) FROM groups");
+    } else if (mode == GroupMode) {
+        rowQuery.prepare("SELECT key, CONCAT(id, ' ', label) FROM currentcuelist_cues");
+    }
+    if (rowQuery.exec()) {
+        while (rowQuery.next()) {
+            RowData row;
+            row.key = rowQuery.value(0).toInt();
+            row.name = rowQuery.value(1).toString();
+            int cueKey = currentKey;
+            int groupKey = currentKey;
+            if (mode == CueMode) {
+                cueKey = row.key;
+            } else if (mode == GroupMode) {
+                groupKey = row.key;
+            }
+            auto getValue = [cueKey, groupKey] (const QString table)->QString {
+                QSqlQuery query;
+                query.prepare("SELECT CONCAT(" + table + ".id, ' ', " + table + ".label) FROM cue_group_" + table + ", " + table + " WHERE cue_group_" + table + ".item_key = :cue AND cue_group_" + table + ".foreignitem_key = :group AND cue_group_" + table + ".valueitem_key = " + table + ".key");
+                query.bindValue(":cue", cueKey);
+                query.bindValue(":group", groupKey);
+                if (!query.exec()) {
+                    qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                    return QString();
+                }
+                QStringList values;
+                while (query.next()) {
+                    values.append(query.value(0).toString());
+                }
+                return values.join(", ");
+            };
+            row.intensity = getValue("intensities");
+            row.color = getValue("colors");
+            row.position = getValue("positions");
+            row.raws = getValue("raws");
+            row.effects = getValue("effects");
+            rows.append(row);
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << rowQuery.executedQuery() << rowQuery.lastError().text();
     }
     endResetModel();
 }
@@ -41,18 +85,7 @@ void CuelistTableModel::setRowFilter(RowFilter newFilter) {
 
 int CuelistTableModel::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
-    QSqlQuery query;
-    if (mode == CueMode) {
-        query.prepare("SELECT COUNT(*) FROM groups");
-    } else if (mode == GroupMode) {
-        query.prepare("SELECT COUNT(*) FROM currentcuelist_cues");
-    }
-    if (query.exec() && query.next()) {
-        return query.value(0).toInt();
-    } else {
-        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-    }
-    return 0;
+    return rows.length();
 }
 
 int CuelistTableModel::columnCount(const QModelIndex &parent) const
@@ -65,60 +98,28 @@ QVariant CuelistTableModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid()) {
         return QVariant();
     }
+    if (index.row() > rows.length()) {
+        return QVariant();
+    }
+    RowData row = rows.at(index.row());
     if (role == Qt::DisplayRole) {
         const int column = index.column();
         QString queryText;
-        if (mode == CueMode) {
-            auto createQuery = [] (const QString itemTable, const QString valueTable) {
-                return "SELECT CONCAT(" + itemTable + ".id, ' ', " + itemTable + ".label) FROM " + itemTable + ", groups, " + valueTable + ", currentcue WHERE groups.sortkey = :sortkey AND " + valueTable + ".foreignitem_key = groups.key AND " + valueTable + ".valueitem_key = " + itemTable + ".key AND " + valueTable + ".item_key = currentcue.key";
-            };
-            if (column == 0) {
-                queryText = "SELECT CONCAT(id, ' ', label) FROM groups WHERE sortkey = :sortkey";
-            } else if (column == 1) {
-                queryText = createQuery("intensities", "cue_group_intensities");
-            } else if (column == 2) {
-                queryText = createQuery("colors", "cue_group_colors");
-            } else if (column == 3) {
-                queryText = createQuery("positions", "cue_group_positions");
-            } else if (column == 4) {
-                queryText = createQuery("raws", "cue_group_raws");
-            } else if (column == 5) {
-                queryText = createQuery("effects", "cue_group_effects");
-            }
-        } else if (mode == GroupMode) {
-            auto createQuery = [] (const QString itemTable, const QString valueTable) {
-                return "SELECT CONCAT(" + itemTable + ".id, ' ', " + itemTable + ".label) FROM " + itemTable + ", " + valueTable + ", currentitems, currentcuelist_cues WHERE currentcuelist_cues.sortkey = :sortkey AND " + valueTable + ".foreignitem_key = currentitems.group_key AND " + valueTable + ".valueitem_key = " + itemTable + ".key AND currentcuelist_cues.key = " + valueTable + ".item_key";
-            };
-            if (column == 0) {
-                queryText = "SELECT CONCAT(id, ' ', label) FROM currentcuelist_cues WHERE sortkey = :sortkey";
-            } else if (column == 1) {
-                queryText = createQuery("intensities", "cue_group_intensities");
-            } else if (column == 2) {
-                queryText = createQuery("colors", "cue_group_colors");
-            } else if (column == 3) {
-                queryText = createQuery("positions", "cue_group_positions");
-            } else if (column == 4) {
-                queryText = createQuery("raws", "cue_group_raws");
-            } else if (column == 5) {
-                queryText = createQuery("effects", "cue_group_effects");
-            }
-        }
-        if (!queryText.isEmpty()) {
-            QSqlQuery query;
-            query.prepare(queryText);
-            query.bindValue(":sortkey", (index.row() + 1));
-            if (query.exec()) {
-                QStringList values;
-                while (query.next()) {
-                    values.append(query.value(0).toString());
-                }
-                return values.join(", ");
-            } else {
-                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-            }
+        if (column == 0) {
+            return row.name;
+        } else if (column == 1) {
+            return row.intensity;
+        } else if (column == 2) {
+            return row.color;
+        } else if (column == 3) {
+            return row.position;
+        } else if (column == 4) {
+            return row.raws;
+        } else if (column == 5) {
+            return row.effects;
         }
     } else if (role == Qt::BackgroundRole) {
-        if (index.row() == currentRow) {
+        if (row.key == currentKey) {
             return QColor(48, 48, 48);
         }
     }
@@ -152,5 +153,10 @@ QVariant CuelistTableModel::headerData(int section, Qt::Orientation orientation,
 }
 
 QModelIndex CuelistTableModel::getCurrentRowIndex() {
-    return index(currentRow, 0);
+    for (int row = 0; row < rows.length(); row++) {
+        if (rows.at(row).key == currentKey) {
+            return index(row, 0);
+        }
+    }
+    return QModelIndex();
 }

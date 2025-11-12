@@ -34,7 +34,17 @@ public:
 private:
     Mode mode = CueMode;
     RowFilter filter = AllRows;
-    int currentRow;
+    struct RowData {
+        int key;
+        QString name;
+        QString intensity;
+        QString color;
+        QString position;
+        QString raws;
+        QString effects;
+    };
+    QList<RowData> rows;
+    int currentKey = -1;
 };
 
 #endif // CUELISTTABLEMODEL_H
