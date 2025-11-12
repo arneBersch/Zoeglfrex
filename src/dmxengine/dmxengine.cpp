@@ -296,8 +296,9 @@ void DmxEngine::generateDmx() {
                                 const int cueKey = cueQuery.value(0).toInt();
                                 ColorData color;
                                 PositionData position;
-                                QList<int> rawKeys;
+                                QHash<int, uint8_t> raws;
                                 for (const int groupKey : fixtureGroupKeys) {
+                                    QList<int> rawKeys;
                                     QSqlQuery intensityQuery;
                                     intensityQuery.prepare("SELECT valueitem_key FROM cue_group_intensities WHERE item_key = :cue AND foreignitem_key = :group");
                                     intensityQuery.bindValue(":cue", cueKey);
@@ -378,17 +379,41 @@ void DmxEngine::generateDmx() {
                                     } else {
                                         qWarning() << Q_FUNC_INFO << rawsQuery.executedQuery() << rawsQuery.lastError().text();
                                     }
+                                    QHash<int, RawChannelData> staticRaws = getFixtureRaws(fixtureKey, rawKeys);
+                                    for (const int channel : staticRaws.keys()) {
+                                        if (staticRaws.value(channel).moveWhileDark) {
+                                            raws[channel] = staticRaws.value(channel).value;
+                                        }
+                                    }
+                                    QList<int> effectKeys;
+                                    QSqlQuery effectsQuery;
+                                    effectsQuery.prepare("SELECT valueitem_key FROM cue_group_effects WHERE item_key = :cue AND foreignitem_key = :group");
+                                    effectsQuery.bindValue(":cue", cueKey);
+                                    effectsQuery.bindValue(":group", groupKey);
+                                    if (effectsQuery.exec()) {
+                                        while (effectsQuery.next()) {
+                                            fixtureData = true;
+                                            effectKeys.append(rawsQuery.value(0).toInt());
+                                        }
+                                    } else {
+                                        qWarning() << Q_FUNC_INFO << rawsQuery.executedQuery() << rawsQuery.lastError().text();
+                                    }
+                                    bool effectIntensityInformation = false;
+                                    float effectIntensity = 0;
+                                    bool effectColorInformation = false;
+                                    bool effectPositionInformation = false;
+                                    QHash<int, RawChannelData> effectRaws;
+                                    getFixtureEffects(fixtureKey, effectKeys, QHash<int, int>(), &effectIntensityInformation, &effectIntensity, &effectColorInformation, &color, &effectPositionInformation, &position, &effectRaws);
+                                    for (const int channel : effectRaws.keys()) {
+                                        if (effectRaws.value(channel).moveWhileDark) {
+                                            raws[channel] = effectRaws.value(channel).value;
+                                        }
+                                    }
                                 }
-                                QHash<int, RawChannelData> rawChannels = getFixtureRaws(fixtureKey, rawKeys);
                                 if (fixtureData) {
                                     fixtureColors[fixtureKey] = color;
                                     fixturePositions[fixtureKey] = position;
-                                    fixtureChannelRaws[fixtureKey] = QHash<int, uint8_t>();
-                                    for (const int channel : rawChannels.keys()) {
-                                        if (rawChannels.value(channel).moveWhileDark) {
-                                            fixtureChannelRaws[fixtureKey][channel] = rawChannels.value(channel).value;
-                                        }
-                                    }
+                                    fixtureChannelRaws[fixtureKey] = raws;
                                     minCueRow = cueRow;
                                     priority = cuelistPriority;
                                 }
