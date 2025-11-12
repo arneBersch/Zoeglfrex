@@ -45,13 +45,13 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     buttonHeader->addWidget(modeComboBox);
 
     filterComboBox = new QComboBox();
-    filterComboBox->addItem("No filter");
-    filterComboBox->addItem("Active Rows filter");
+    filterComboBox->addItem("All Rows");
+    filterComboBox->addItem("Active Rows only");
     connect(filterComboBox, &QComboBox::currentIndexChanged, this, [this] (const int index) {
         if (index == 0) {
-            model->setFilter(CuelistTableModel::NoFilter);
+            model->setRowFilter(CuelistTableModel::AllRows);
         } else if (index == 1) {
-            model->setFilter(CuelistTableModel::ActiveRowsFilter);
+            model->setRowFilter(CuelistTableModel::ActiveRows);
         }
         settings->setValue("cuelistview/filter", index);
     });
@@ -102,6 +102,13 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
             modeComboBox->setCurrentIndex(1);
         } else {
             modeComboBox->setCurrentIndex(0);
+        }
+    }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::SHIFT | Qt::Key_R, this, [this] {
+        if (filterComboBox->currentIndex() == 0) {
+            filterComboBox->setCurrentIndex(1);
+        } else {
+            filterComboBox->setCurrentIndex(0);
         }
     }, Qt::ApplicationShortcut);
 }

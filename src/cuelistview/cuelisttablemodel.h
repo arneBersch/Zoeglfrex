@@ -18,9 +18,9 @@ public:
         CueMode,
         GroupMode,
     };
-    enum Filter {
-        NoFilter,
-        ActiveRowsFilter,
+    enum RowFilter {
+        AllRows,
+        ActiveRows,
     };
     CuelistTableModel();
     int rowCount(const QModelIndex &parent) const override;
@@ -29,11 +29,11 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     void refresh();
     void setMode(Mode mode);
-    void setFilter(Filter filter);
+    void setRowFilter(RowFilter filter);
     QModelIndex getCurrentRowIndex();
 private:
     Mode mode = CueMode;
-    Filter filter = NoFilter;
+    RowFilter filter = AllRows;
     int currentRow;
 };
 

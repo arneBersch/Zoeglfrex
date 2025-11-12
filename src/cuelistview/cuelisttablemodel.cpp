@@ -34,7 +34,7 @@ void CuelistTableModel::setMode(Mode newMode) {
     refresh();
 }
 
-void CuelistTableModel::setFilter(Filter newFilter) {
+void CuelistTableModel::setRowFilter(RowFilter newFilter) {
     filter = newFilter;
     refresh();
 }
