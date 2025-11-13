@@ -12,19 +12,29 @@ CuelistTableModel::CuelistTableModel() {}
 
 void CuelistTableModel::refresh() {
     beginResetModel();
-    currentKey = -1;
-    QSqlQuery currentKeyQuery;
-    if (mode == CueMode) {
-        currentKeyQuery.prepare("SELECT group_key FROM currentitems");
-    } else if (mode == GroupMode) {
-        currentKeyQuery.prepare("SELECT key FROM currentcue");
-    }
-    if (currentKeyQuery.exec()) {
-        if (currentKeyQuery.next()) {
-            currentKey = currentKeyQuery.value(0).toInt();
+    int currentCueKey = -1;
+    QSqlQuery currentCueQuery;
+    if (currentCueQuery.exec("SELECT key FROM currentcue")) {
+        if (currentCueQuery.next()) {
+            currentCueKey = currentCueQuery.value(0).toInt();
         }
     } else {
-        qWarning() << Q_FUNC_INFO << currentKeyQuery.executedQuery() << currentKeyQuery.lastError().text();
+        qWarning() << Q_FUNC_INFO << currentCueQuery.executedQuery() << currentCueQuery.lastError().text();
+    }
+    int currentGroupKey = -1;
+    QSqlQuery currentGroupQuery;
+    if (currentGroupQuery.exec("SELECT group_key FROM currentitems")) {
+        if (currentGroupQuery.next()) {
+            currentGroupKey = currentGroupQuery.value(0).toInt();
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << currentGroupQuery.executedQuery() << currentGroupQuery.lastError().text();
+    }
+    currentKey = -1;
+    if (mode == CueMode) {
+        currentKey = currentGroupKey;
+    } else if (mode == GroupMode) {
+        currentKey = currentCueKey;
     }
     rows.clear();
     QSqlQuery rowQuery;
@@ -38,12 +48,12 @@ void CuelistTableModel::refresh() {
             RowData row;
             row.key = rowQuery.value(0).toInt();
             row.name = rowQuery.value(1).toString();
-            int cueKey = currentKey;
-            int groupKey = currentKey;
+            int cueKey = currentCueKey;
+            int groupKey = currentGroupKey;
             if (mode == CueMode) {
-                cueKey = row.key;
-            } else if (mode == GroupMode) {
                 groupKey = row.key;
+            } else if (mode == GroupMode) {
+                cueKey = row.key;
             }
             auto getValue = [cueKey, groupKey] (const QString table)->QString {
                 QSqlQuery query;
@@ -65,7 +75,13 @@ void CuelistTableModel::refresh() {
             row.position = getValue("positions");
             row.raws = getValue("raws");
             row.effects = getValue("effects");
-            rows.append(row);
+            if (filter == AllRows) {
+                rows.append(row);
+            } else if (filter == ActiveRows) {
+                if (!row.intensity.isEmpty() || !row.color.isEmpty() || !row.position.isEmpty() || !row.raws.isEmpty() || !row.effects.isEmpty()) {
+                    rows.append(row);
+                }
+            }
         }
     } else {
         qWarning() << Q_FUNC_INFO << rowQuery.executedQuery() << rowQuery.lastError().text();
