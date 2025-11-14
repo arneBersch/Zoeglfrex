@@ -35,8 +35,11 @@ private:
     QHash<int, float> fixturePan;
     QHash<int, QHash<int, int>> groupEffectFrames;
     QHash<int, int> cuelistCurrentCueKeys;
-    QHash<int, int> cuelistTotalFadeFrames;
-    QHash<int, int> cuelistTotalDelayFrames;
+    QHash<int, int> cuelistFadeFrames;
+    QHash<int, QHash<int, int>> cuelistFixtureFadeFrames;
+    QHash<int, int> cuelistDelayFrames;
+    QHash<int, QHash<int, int>> cuelistFixtureDelayFrames;
+    QHash<int, int> cuelistTransitionFrames;
     QHash<int, int> cuelistRemainingTransitionFrames;
     QHash<int, bool> cuelistSineFade;
     const int FRAMEDURATION = 25;

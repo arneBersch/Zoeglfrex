@@ -108,40 +108,66 @@ void DmxEngine::generateDmx() {
         const int priority = cuelistQuery.value(3).toInt();
         if (!skipFadeButton->isChecked()) {
             if (oldCuelistCurrentCueKeys.value(cuelistKey, -1) != currentCueKey) {
-                QSqlQuery fadeQuery;
-                fadeQuery.prepare("SELECT fade, delay, sinefade FROM cues WHERE key = :key");
-                fadeQuery.bindValue(":key", currentCueKey);
-                if (fadeQuery.exec()) {
-                    if (fadeQuery.next()) {
-                        const int fadeFrames = (fadeQuery.value(0).toFloat() * 1000 / FRAMEDURATION);
-                        const int delayFrames = (fadeQuery.value(1).toFloat() * 1000 / FRAMEDURATION);
-                        const bool sineFade = (fadeQuery.value(2).toInt() == 1);
-                        if ((fadeFrames + delayFrames) > 0) {
-                            cuelistTotalFadeFrames[cuelistKey] = fadeFrames;
-                            cuelistTotalDelayFrames[cuelistKey] = delayFrames;
-                            cuelistRemainingTransitionFrames[cuelistKey] = fadeFrames + delayFrames;
+                QSqlQuery transitionQuery;
+                transitionQuery.prepare("SELECT fade, delay, sinefade FROM cues WHERE key = :key");
+                transitionQuery.bindValue(":key", currentCueKey);
+                if (transitionQuery.exec()) {
+                    if (transitionQuery.next()) {
+                        const int standardFadeFrames = (transitionQuery.value(0).toFloat() * 1000 / FRAMEDURATION);
+                        const int standardDelayFrames = (transitionQuery.value(1).toFloat() * 1000 / FRAMEDURATION);
+                        const bool sineFade = (transitionQuery.value(2).toInt() == 1);
+                        QHash<int, int> fixtureFadeFrames;
+                        int maxFadeFrames = standardFadeFrames;
+                        QSqlQuery fixtureFadeQuery;
+                        fixtureFadeQuery.prepare("SELECT foreignitem_key, value FROM cue_fixture_fade WHERE item_key = :cue");
+                        fixtureFadeQuery.bindValue(":cue", currentCueKey);
+                        if (fixtureFadeQuery.exec()) {
+                            while (fixtureFadeQuery.next()) {
+                                const int fixtureKey = fixtureFadeQuery.value(0).toInt();
+                                const int fadeFrames = (fixtureFadeQuery.value(1).toFloat() * 1000 / FRAMEDURATION);
+                                fixtureFadeFrames[fixtureKey] = fadeFrames;
+                                maxFadeFrames = std::max(fadeFrames, maxFadeFrames);
+                            }
+                        } else {
+                            qWarning() << Q_FUNC_INFO << fixtureFadeQuery.executedQuery() << fixtureFadeQuery.lastError().text();
+                        }
+                        QHash<int, int> fixtureDelayFrames;
+                        int maxDelayFrames = standardDelayFrames;
+                        QSqlQuery fixtureDelayQuery;
+                        fixtureDelayQuery.prepare("SELECT foreignitem_key, value FROM cue_fixture_delay WHERE item_key = :cue");
+                        fixtureDelayQuery.bindValue(":cue", currentCueKey);
+                        if (fixtureDelayQuery.exec()) {
+                            while (fixtureDelayQuery.next()) {
+                                const int fixtureKey = fixtureDelayQuery.value(0).toInt();
+                                const int delayFrames = (fixtureDelayQuery.value(1).toFloat() * 1000 / FRAMEDURATION);
+                                fixtureDelayFrames[fixtureKey] = delayFrames;
+                                maxDelayFrames = std::max(delayFrames, maxDelayFrames);
+                            }
+                        } else {
+                            qWarning() << Q_FUNC_INFO << fixtureDelayQuery.executedQuery() << fixtureDelayQuery.lastError().text();
+                        }
+                        if ((maxFadeFrames + maxDelayFrames) > 0) {
+                            cuelistFadeFrames[cuelistKey] = standardFadeFrames;
+                            cuelistFixtureFadeFrames[cuelistKey] = fixtureFadeFrames;
+                            cuelistDelayFrames[cuelistKey] = standardDelayFrames;
+                            cuelistFixtureDelayFrames[cuelistKey] = fixtureDelayFrames;
+                            cuelistRemainingTransitionFrames[cuelistKey] = maxFadeFrames + maxDelayFrames;
+                            cuelistTransitionFrames[cuelistKey] = maxFadeFrames + maxDelayFrames;
                             cuelistSineFade[cuelistKey] = sineFade;
                         }
                     }
                 } else {
-                    qWarning() << Q_FUNC_INFO << fadeQuery.executedQuery() << fadeQuery.lastError().text();
+                    qWarning() << Q_FUNC_INFO << transitionQuery.executedQuery() << transitionQuery.lastError().text();
                 }
             } else if (oldCuelistRemainingTransitionFrames.value(cuelistKey, 0) > 0) {
                 cuelistRemainingTransitionFrames[cuelistKey] = (oldCuelistRemainingTransitionFrames.value(cuelistKey) - 1);
             }
         }
         cuelistCurrentCueKeys[cuelistKey] = currentCueKey;
-        float fade = 0;
-        if (cuelistRemainingTransitionFrames.value(cuelistKey, 0) > 0) {
-            if (cuelistRemainingTransitionFrames.value(cuelistKey) > cuelistTotalFadeFrames.value(cuelistKey, 0)) {
-                fade = 1;
-            } else if (cuelistTotalFadeFrames.value(cuelistKey, 0) > 0) {
-                fade = (float)cuelistRemainingTransitionFrames.value(cuelistKey) / (float)cuelistTotalFadeFrames.value(cuelistKey);
-            }
-            if (cuelistSineFade.value(cuelistKey, false)) {
-                fade = std::cos(M_PI * (1 - fade)) / 2 + 0.5;
-            }
-        }
+
+        const int remainingTransitionFrames = cuelistRemainingTransitionFrames.value(cuelistKey, 0);
+        const int transitionFrames = cuelistTransitionFrames.value(cuelistKey, 0);
+
         QHash<int, float> currentCueFixtureIntensities;
         QHash<int, float> lastCueFixtureIntensities;
         QHash<int, ColorData> currentCueFixtureColors;
@@ -150,13 +176,26 @@ void DmxEngine::generateDmx() {
         QHash<int, PositionData> lastCueFixturePositions;
         QHash<int, QHash<int, RawChannelData>> currentCueFixtureRaws;
         QHash<int, QHash<int, RawChannelData>> lastCueFixtureRaws;
-        if (fade < 1) {
-            renderCue(currentCueKey, oldGroupEffectFrames, &currentCueFixtureIntensities, &currentCueFixtureColors, &currentCueFixturePositions, &currentCueFixtureRaws);
-        }
-        if (fade > 0) {
+
+        renderCue(currentCueKey, oldGroupEffectFrames, &currentCueFixtureIntensities, &currentCueFixtureColors, &currentCueFixturePositions, &currentCueFixtureRaws);
+        if (remainingTransitionFrames > 0) {
             renderCue(lastCueKey, oldGroupEffectFrames, &lastCueFixtureIntensities, &lastCueFixtureColors, &lastCueFixturePositions, &lastCueFixtureRaws);
         }
+
         for (const int fixtureKey : fixtureKeys) {
+            float fade = 0;
+            if (remainingTransitionFrames > 0) {
+                const int delayFrames = cuelistFixtureDelayFrames.value(cuelistKey).value(fixtureKey, cuelistDelayFrames.value(cuelistKey, 0));
+                const int fadeFrames = cuelistFixtureFadeFrames.value(cuelistKey).value(fixtureKey, cuelistFadeFrames.value(cuelistKey, 0));
+                if ((transitionFrames - remainingTransitionFrames) <= delayFrames) {
+                    fade = 1;
+                } else if ((transitionFrames - remainingTransitionFrames - delayFrames) <= fadeFrames) {
+                    fade = (transitionFrames - remainingTransitionFrames - delayFrames) / fadeFrames;
+                }
+                if (cuelistSineFade.value(cuelistKey, false)) {
+                    fade = std::cos(M_PI * (1 - fade)) / 2 + 0.5;
+                }
+            }
             float currentIntensity = currentCueFixtureIntensities.value(fixtureKey, 0);
             float lastIntensity = lastCueFixtureIntensities.value(fixtureKey, 0);
             currentIntensity += (lastIntensity - currentIntensity) * fade;
@@ -164,7 +203,7 @@ void DmxEngine::generateDmx() {
                 fixtureIntensities[fixtureKey] = currentIntensity;
             }
             if (priority >= fixtureColorPriorities.value(fixtureKey, 0)) {
-                if (lastCueFixtureColors.contains(fixtureKey)) {
+                if (lastCueFixtureColors.contains(fixtureKey) && (fade > 0)) {
                     ColorData lastColor = lastCueFixtureColors.value(fixtureKey);
                     if (currentCueFixtureColors.contains(fixtureKey)) {
                         ColorData currentColor = currentCueFixtureColors.value(fixtureKey);
@@ -181,7 +220,7 @@ void DmxEngine::generateDmx() {
                 }
             }
             if (priority >= fixturePositionPriorities.value(fixtureKey, 0)) {
-                if (lastCueFixturePositions.contains(fixtureKey)) {
+                if (lastCueFixturePositions.contains(fixtureKey) && (fade > 0)) {
                     PositionData lastPosition = lastCueFixturePositions.value(fixtureKey);
                     if (currentCueFixturePositions.contains(fixtureKey)) {
                         PositionData currentPosition = currentCueFixturePositions.value(fixtureKey);
@@ -223,7 +262,7 @@ void DmxEngine::generateDmx() {
                 }
                 if (priority >= fixtureChannelRawPriorities.value(fixtureKey).value(channel, 0)) {
                     fixtureChannelRawPriorities[fixtureKey][channel] = priority;
-                    if (lastRaws.contains(channel)) {
+                    if (lastRaws.contains(channel) && (fade > 0)) {
                         uint8_t lastValue = lastRaws.value(channel).value;
                         if (currentRaws.contains(channel)) {
                             uint8_t currentValue = currentRaws.value(channel).value;
@@ -242,8 +281,8 @@ void DmxEngine::generateDmx() {
         }
     }
     if (cuelistRemainingTransitionFrames.value(currentCuelistKey, 0) > 0) {
-        fadeProgressBar->setRange(0, cuelistTotalFadeFrames.value(currentCuelistKey, 0) + cuelistTotalDelayFrames.value(currentCuelistKey, 0));
-        fadeProgressBar->setValue(cuelistTotalFadeFrames.value(currentCuelistKey, 0) + cuelistTotalDelayFrames.value(currentCuelistKey, 0) - cuelistRemainingTransitionFrames.value(currentCuelistKey, 0));
+        fadeProgressBar->setRange(0, cuelistTransitionFrames.value(currentCuelistKey, 0));
+        fadeProgressBar->setValue(cuelistTransitionFrames.value(currentCuelistKey, 0) - cuelistRemainingTransitionFrames.value(currentCuelistKey, 0));
     } else {
         fadeProgressBar->setRange(0, 1);
         fadeProgressBar->setValue(1);
