@@ -10,17 +10,16 @@
 
 ControlPanel::ControlPanel(QWidget *parent) : QWidget(parent, Qt::Window) {
     setWindowTitle("Zöglfrex Control Panel");
-    resize(500, 300);
     QHBoxLayout* layout = new QHBoxLayout();
     setLayout(layout);
 
-    attributePanels.append(new AttributePanel("intensities", "dimmer", "cue_group_intensities", "Dimmer", "%"));
-    attributePanels.append(new AttributePanel("colors", "hue", "cue_group_colors", "Hue", "°"));
-    attributePanels.append(new AttributePanel("colors", "saturation", "cue_group_colors", "Saturation", "%"));
-    attributePanels.append(new AttributePanel("positions", "pan", "cue_group_positions", "Pan", "°"));
-    attributePanels.append(new AttributePanel("positions", "tilt", "cue_group_positions", "Tilt", "°"));
-    attributePanels.append(new AttributePanel("positions", "zoom", "cue_group_positions", "Zoom", "°"));
-    attributePanels.append(new AttributePanel("positions", "focus", "cue_group_positions", "Focus", "%"));
+    attributePanels.append(new AttributePanel("intensities", "dimmer", "cue_group_intensities", "Dimmer", "%", 0, 100, false));
+    attributePanels.append(new AttributePanel("colors", "hue", "cue_group_colors", "Hue", "°", 0, 360, true));
+    attributePanels.append(new AttributePanel("colors", "saturation", "cue_group_colors", "Saturation", "%", 0, 100, false));
+    attributePanels.append(new AttributePanel("positions", "pan", "cue_group_positions", "Pan", "°", 0, 360, true));
+    attributePanels.append(new AttributePanel("positions", "tilt", "cue_group_positions", "Tilt", "°", -180, 180, false));
+    attributePanels.append(new AttributePanel("positions", "zoom", "cue_group_positions", "Zoom", "°", 0, 180, false));
+    attributePanels.append(new AttributePanel("positions", "focus", "cue_group_positions", "Focus", "%", 0, 100, false));
 
     for (AttributePanel* panel : attributePanels) {
         layout->addWidget(panel);

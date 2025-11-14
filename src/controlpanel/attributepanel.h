@@ -15,17 +15,27 @@
 class AttributePanel : public QWidget {
     Q_OBJECT
 public:
-    AttributePanel(QString table, QString attribute, QString valueTable, QString title, QString unit, QWidget *parent = nullptr);
+    AttributePanel(QString table, QString attribute, QString valueTable, QString title, QString unit, float minValue, float maxValue, bool cyclic, QWidget *parent = nullptr);
 public slots:
     void reload();
 signals:
     void dbChanged();
 private:
+    void changeValue(float difference);
     QLabel* valueLabel;
+    QPushButton* plus10Button;
+    QPushButton* plus1Button;
+    QPushButton* minus1Button;
+    QPushButton* minus10Button;
     QString table;
     QString attribute;
     QString valueTable;
     QString unit;
+    float minValue;
+    float maxValue;
+    bool cyclic;
+    float value;
+    int key;
 };
 
 #endif // ATTRIBUTEPANEL_H
