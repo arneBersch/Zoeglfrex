@@ -47,11 +47,14 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     filterComboBox = new QComboBox();
     filterComboBox->addItem("All Rows");
     filterComboBox->addItem("Active Rows only");
+    filterComboBox->addItem("Changed Rows only");
     connect(filterComboBox, &QComboBox::currentIndexChanged, this, [this] (const int index) {
         if (index == 0) {
             model->setRowFilter(CuelistTableModel::AllRows);
         } else if (index == 1) {
             model->setRowFilter(CuelistTableModel::ActiveRows);
+        } else if (index == 2) {
+            model->setRowFilter(CuelistTableModel::ChangedRows);
         }
         settings->setValue("cuelistview/filter", index);
     });
@@ -98,15 +101,19 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     }, Qt::ApplicationShortcut);
 
     new QShortcut(Qt::SHIFT | Qt::Key_M, this, [this] {
-        if (modeComboBox->currentIndex() == 0) {
+        const int index = modeComboBox->currentIndex();
+        if (index == 0) {
             modeComboBox->setCurrentIndex(1);
         } else {
             modeComboBox->setCurrentIndex(0);
         }
     }, Qt::ApplicationShortcut);
     new QShortcut(Qt::SHIFT | Qt::Key_R, this, [this] {
-        if (filterComboBox->currentIndex() == 0) {
+        const int index = filterComboBox->currentIndex();
+        if (index == 0) {
             filterComboBox->setCurrentIndex(1);
+        } else if (index == 1) {
+            filterComboBox->setCurrentIndex(2);
         } else {
             filterComboBox->setCurrentIndex(0);
         }

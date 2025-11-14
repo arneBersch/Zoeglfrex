@@ -21,6 +21,7 @@ public:
     enum RowFilter {
         AllRows,
         ActiveRows,
+        ChangedRows,
     };
     CuelistTableModel();
     int rowCount(const QModelIndex &parent) const override;
@@ -32,16 +33,22 @@ public:
     void setRowFilter(RowFilter filter);
     QModelIndex getCurrentRowIndex();
 private:
+    QStringList getCueValue(QString table, QString valueTable, int cueKey, int groupKey);
     Mode mode = CueMode;
     RowFilter filter = AllRows;
     struct RowData {
         int key;
         QString name;
         QString intensity;
+        bool intensityChanged = false;
         QString color;
+        bool colorChanged = false;
         QString position;
+        bool positionChanged = false;
         QString raws;
+        bool rawsChanged = false;
         QString effects;
+        bool effectsChanged = false;
     };
     QList<RowData> rows;
     int currentKey = -1;

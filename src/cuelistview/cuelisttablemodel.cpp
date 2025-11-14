@@ -55,30 +55,40 @@ void CuelistTableModel::refresh() {
             } else if (mode == GroupMode) {
                 cueKey = row.key;
             }
-            auto getValue = [cueKey, groupKey] (const QString table)->QString {
-                QSqlQuery query;
-                query.prepare("SELECT CONCAT(" + table + ".id, ' ', " + table + ".label) FROM cue_group_" + table + ", " + table + " WHERE cue_group_" + table + ".item_key = :cue AND cue_group_" + table + ".foreignitem_key = :group AND cue_group_" + table + ".valueitem_key = " + table + ".key");
-                query.bindValue(":cue", cueKey);
-                query.bindValue(":group", groupKey);
-                if (!query.exec()) {
-                    qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                    return QString();
+            int lastCueKey = -1;
+            QSqlQuery lastCueKeyQuery;
+            lastCueKeyQuery.prepare("SELECT key FROM cues WHERE cuelist_key = (SELECT cuelist_key FROM cues WHERE key = :cue) AND sortkey < (SELECT sortkey FROM cues WHERE key = :cue) ORDER BY sortkey DESC LIMIT 1");
+            lastCueKeyQuery.bindValue(":cue", cueKey);
+            if (lastCueKeyQuery.exec()) {
+                if (lastCueKeyQuery.next()) {
+                    lastCueKey = lastCueKeyQuery.value(0).toInt();
                 }
-                QStringList values;
-                while (query.next()) {
-                    values.append(query.value(0).toString());
-                }
-                return values.join(", ");
-            };
-            row.intensity = getValue("intensities");
-            row.color = getValue("colors");
-            row.position = getValue("positions");
-            row.raws = getValue("raws");
-            row.effects = getValue("effects");
+            } else {
+                qWarning() << Q_FUNC_INFO << lastCueKeyQuery.executedQuery() << lastCueKeyQuery.lastError().text();
+            }
+            QStringList intensities = getCueValue("intensities", "cue_group_intensities", cueKey, groupKey);
+            QStringList colors = getCueValue("colors", "cue_group_colors", cueKey, groupKey);
+            QStringList positions = getCueValue("positions", "cue_group_positions", cueKey, groupKey);
+            QStringList raws = getCueValue("raws", "cue_group_raws", cueKey, groupKey);
+            QStringList effects = getCueValue("effects", "cue_group_effects", cueKey, groupKey);
+            row.intensity = intensities.join(", ");
+            row.color = colors.join(", ");
+            row.position = positions.join(", ");
+            row.raws = raws.join(", ");
+            row.effects = effects.join(", ");
+            row.intensityChanged = (intensities != getCueValue("intensities", "cue_group_intensities", lastCueKey, groupKey));
+            row.colorChanged = (colors != getCueValue("colors", "cue_group_colors", lastCueKey, groupKey));
+            row.positionChanged = (positions != getCueValue("positions", "cue_group_positions", lastCueKey, groupKey));
+            row.rawsChanged = (raws != getCueValue("raws", "cue_group_raws", lastCueKey, groupKey));
+            row.effectsChanged = (effects != getCueValue("effects", "cue_group_effects", lastCueKey, groupKey));
             if (filter == AllRows) {
                 rows.append(row);
             } else if (filter == ActiveRows) {
                 if (!row.intensity.isEmpty() || !row.color.isEmpty() || !row.position.isEmpty() || !row.raws.isEmpty() || !row.effects.isEmpty()) {
+                    rows.append(row);
+                }
+            } else if (filter == ChangedRows) {
+                if (row.intensityChanged || row.colorChanged || row.positionChanged || row.rawsChanged || row.effectsChanged) {
                     rows.append(row);
                 }
             }
@@ -87,6 +97,22 @@ void CuelistTableModel::refresh() {
         qWarning() << Q_FUNC_INFO << rowQuery.executedQuery() << rowQuery.lastError().text();
     }
     endResetModel();
+}
+
+QStringList CuelistTableModel::getCueValue(const QString table, const QString valueTable, const int cueKey, const int groupKey) {
+    QSqlQuery query;
+    query.prepare("SELECT CONCAT(" + table + ".id, ' ', " + table + ".label) FROM " + valueTable + ", " + table + " WHERE " + valueTable + ".item_key = :cue AND " + valueTable + ".foreignitem_key = :group AND " + valueTable + ".valueitem_key = " + table + ".key");
+    query.bindValue(":cue", cueKey);
+    query.bindValue(":group", groupKey);
+    if (!query.exec()) {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        return QStringList();
+    }
+    QStringList values;
+    while (query.next()) {
+        values.append(query.value(0).toString());
+    }
+    return values;
 }
 
 void CuelistTableModel::setMode(Mode newMode) {
@@ -118,8 +144,8 @@ QVariant CuelistTableModel::data(const QModelIndex &index, int role) const {
         return QVariant();
     }
     RowData row = rows.at(index.row());
+    const int column = index.column();
     if (role == Qt::DisplayRole) {
-        const int column = index.column();
         QString queryText;
         if (column == 0) {
             return row.name;
@@ -135,7 +161,17 @@ QVariant CuelistTableModel::data(const QModelIndex &index, int role) const {
             return row.effects;
         }
     } else if (role == Qt::BackgroundRole) {
-        if (row.key == currentKey) {
+        if ((column == 1) && row.intensityChanged) {
+            return QColor(96, 96, 96);
+        } else if ((column == 2) && row.colorChanged) {
+            return QColor(96, 96, 96);
+        } else if ((column == 3) && row.positionChanged) {
+            return QColor(96, 96, 96);
+        } else if ((column == 4) && row.rawsChanged) {
+            return QColor(96, 96, 96);
+        } else if ((column == 5) && row.effectsChanged) {
+            return QColor(96, 96, 96);
+        } else if (row.key == currentKey) {
             return QColor(48, 48, 48);
         }
     }
