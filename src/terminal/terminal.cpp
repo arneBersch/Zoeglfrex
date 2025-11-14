@@ -652,9 +652,17 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::cueBlock) {
             setBoolAttribute(cueInfos, "block", "Block", ids, valueKeys);
         } else if ((attribute == AttributeIds::cueFade) || (!attributes.contains(Attribute))) {
-            setNumberAttribute<float>(cueInfos, "fade", "Fade", ids, valueKeys, {0, 600, false, "s"});
+            if (attributes.contains(Fixture)) {
+                setItemSpecificNumberAttribute<float>(cueInfos, "Fade", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "cue_fixture_fade", {0, 600, false, "s"});
+            } else {
+                setNumberAttribute<float>(cueInfos, "fade", "Fade", ids, valueKeys, {0, 600, false, "s"});
+            }
         } else if (attribute == AttributeIds::cueDelay) {
-            setNumberAttribute<float>(cueInfos, "delay", "Delay", ids, valueKeys, {0, 600, false, "s"});
+            if (attributes.contains(Fixture)) {
+                setItemSpecificNumberAttribute<float>(cueInfos, "Delay", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "cue_fixture_delay", {0, 600, false, "s"});
+            } else {
+                setNumberAttribute<float>(cueInfos, "delay", "Delay", ids, valueKeys, {0, 600, false, "s"});
+            }
         } else if (attribute == AttributeIds::cueFollow) {
             setBoolAttribute(cueInfos, "follow", "Follow", ids, valueKeys);
         } else if (attribute == AttributeIds::cueSineFade) {

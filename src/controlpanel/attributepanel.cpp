@@ -20,8 +20,9 @@ AttributePanel::AttributePanel(const QString itemTable, const QString tableAttri
     QVBoxLayout* layout = new QVBoxLayout();
     setLayout(layout);
 
-    QLabel* label = new QLabel(title);
-    layout->addWidget(label);
+    QLabel* titleLabel = new QLabel(title);
+    titleLabel->setAlignment(Qt::AlignCenter);
+    layout->addWidget(titleLabel);
 
     plus10Button = new QPushButton("+ 10" + unit);
     connect(plus10Button, &QPushButton::clicked, this, [this] { changeValue(10); });
@@ -32,6 +33,7 @@ AttributePanel::AttributePanel(const QString itemTable, const QString tableAttri
     layout->addWidget(plus1Button);
 
     valueLabel = new QLabel();
+    valueLabel->setAlignment(Qt::AlignCenter);
     layout->addWidget(valueLabel);
 
     minus1Button = new QPushButton("- 1" + unit);

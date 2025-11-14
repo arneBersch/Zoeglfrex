@@ -136,6 +136,8 @@ int main(int argc, char *argv[]) {
         queries.append(createItemSpecificItemAttributeTable("cue_group_positions", "cues", "groups", "positions"));
         queries.append(createItemSpecificItemListAttributeTable("cue_group_raws", "cues", "groups", "raws"));
         queries.append(createItemSpecificItemListAttributeTable("cue_group_effects", "cues", "groups", "effects"));
+        queries.append(createItemSpecificNumberAttributeTable("cue_fixture_fade", "cues", "fixtures", "REAL"));
+        queries.append(createItemSpecificNumberAttributeTable("cue_fixture_delay", "cues", "fixtures", "REAL"));
         queries.append("ALTER TABLE cuelists ADD COLUMN currentcue_key INTEGER REFERENCES cues (key) ON DELETE SET NULL");
         queries.append("ALTER TABLE cuelists ADD COLUMN lastcue_key INTEGER REFERENCES cues (key) ON DELETE SET NULL");
         queries.append("CREATE TRIGGER updatelastcue_trigger AFTER UPDATE OF currentcue_key ON cuelists BEGIN UPDATE cuelists SET lastcue_key = OLD.currentcue_key WHERE key = OLD.key AND OLD.currentcue_key != NEW.currentcue_key; END");
