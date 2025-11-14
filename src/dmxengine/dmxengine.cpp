@@ -271,10 +271,16 @@ void DmxEngine::generateDmx() {
                             } else {
                                 lastValue = currentValue;
                             }
+                        } else if (lastRaws.value(channel).fading) {
+                            lastValue *= fade;
                         }
                         fixtureChannelRaws[fixtureKey][channel] = lastValue;
                     } else if (currentRaws.contains(channel)) {
-                        fixtureChannelRaws[fixtureKey][channel] = currentRaws.value(channel).value;
+                        uint8_t currentValue = currentRaws.value(channel).value;
+                        if (currentRaws.value(channel).fading) {
+                            currentValue *= (1 - fade);
+                        }
+                        fixtureChannelRaws[fixtureKey][channel] = currentValue;
                     }
                 }
             }
