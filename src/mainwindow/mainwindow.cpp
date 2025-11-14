@@ -21,6 +21,7 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     connect(terminal, &Terminal::dbChanged, this, &MainWindow::reload);
     connect(terminal, &Terminal::itemChanged, inspector, &Inspector::loadItems);
     connect(playbackMonitor, &PlaybackMonitor::dbChanged, this, &MainWindow::reload);
+    connect(controlPanel, &ControlPanel::dbChanged, this, &MainWindow::reload);
     reload();
 
     new QShortcut(Qt::CTRL | Qt::Key_Q, this, [this] { close(); }, Qt::ApplicationShortcut);
@@ -31,6 +32,9 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     connect(quitAction, &QAction::triggered, this, &MainWindow::close);
 
     QMenu* outputMenu = menuBar()->addMenu("Output");
+    QAction* controlPanelAction = new QAction("Control Panel");
+    outputMenu->addAction(controlPanelAction);
+    connect(controlPanelAction, &QAction::triggered, controlPanel, &ControlPanel::show);
     QAction* preview2dAction = new QAction("2D Preview");
     outputMenu->addAction(preview2dAction);
     connect(preview2dAction, &QAction::triggered, preview2d, &Preview2d::show);
@@ -83,6 +87,7 @@ void MainWindow::reload() {
     cuelistView->reload();
     terminal->reload();
     playbackMonitor->reload();
+    controlPanel->reload();
 }
 
 void MainWindow::about() {

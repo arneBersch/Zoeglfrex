@@ -20,6 +20,7 @@
 #include "inspector/inspector.h"
 #include "playbackmonitor/playbackmonitor.h"
 #include "sacnserver/sacnserver.h"
+#include "controlpanel/controlpanel.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -39,6 +40,7 @@ private:
     Inspector* inspector = new Inspector(this);
     PlaybackMonitor* playbackMonitor = new PlaybackMonitor(this);
     SacnServer* sacnServer = new SacnServer(this);
+    ControlPanel* controlPanel = new ControlPanel(this);
 };
 
 #endif // MAINWINDOW_H

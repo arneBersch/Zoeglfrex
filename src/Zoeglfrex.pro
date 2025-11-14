@@ -13,6 +13,8 @@ CONFIG += c++17
 
 SOURCES += \
     aboutwindow/aboutwindow.cpp \
+    controlpanel/attributepanel.cpp \
+    controlpanel/controlpanel.cpp \
     cuelistview/cuelisttablemodel.cpp \
     cuelistview/cuelistview.cpp \
     dmxengine/dmxengine.cpp \
@@ -29,6 +31,8 @@ SOURCES += \
 HEADERS += \
     aboutwindow/aboutwindow.h \
     constants.h \
+    controlpanel/attributepanel.h \
+    controlpanel/controlpanel.h \
     cuelistview/cuelisttablemodel.h \
     cuelistview/cuelistview.h \
     dmxengine/dmxengine.h \
