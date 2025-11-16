@@ -1144,7 +1144,17 @@ void DmxEngine::getFixtureEffects(const int fixtureKey, const QList<int> effectK
                             if (stepPositionKeys.contains(lastStep)) {
                                 lastPosition = getFixturePosition(fixtureKey, stepPositionKeys.value(lastStep));
                             }
+                            if (std::abs(currentPosition.pan - lastPosition.pan) > 180) {
+                                if (lastPosition.pan > currentPosition.pan) {
+                                    currentPosition.pan += 360;
+                                } else {
+                                    lastPosition.pan += 360;
+                                }
+                            }
                             currentPosition.pan += (lastPosition.pan - currentPosition.pan) * fade;
+                            while (currentPosition.pan >= 360) {
+                                currentPosition.pan -= 360;
+                            }
                             currentPosition.tilt += (lastPosition.tilt - currentPosition.tilt) * fade;
                             currentPosition.zoom += (lastPosition.zoom - currentPosition.zoom) * fade;
                             currentPosition.focus += (lastPosition.focus - currentPosition.focus) * fade;
