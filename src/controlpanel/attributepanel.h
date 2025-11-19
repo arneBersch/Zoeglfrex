@@ -21,12 +21,9 @@ public slots:
 signals:
     void dbChanged();
 private:
-    void changeValue(float difference);
-    QLabel* valueLabel;
-    QPushButton* plus10Button;
-    QPushButton* plus1Button;
-    QPushButton* minus1Button;
-    QPushButton* minus10Button;
+    void setValue(float value);
+    QDoubleSpinBox* valueSpinBox;
+    QSlider* valueSlider;
     QString table;
     QString attribute;
     QString valueTable;
@@ -34,7 +31,6 @@ private:
     float minValue;
     float maxValue;
     bool cyclic;
-    float value;
     int key;
 };
 

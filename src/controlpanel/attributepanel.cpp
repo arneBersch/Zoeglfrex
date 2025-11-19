@@ -24,74 +24,55 @@ AttributePanel::AttributePanel(const QString itemTable, const QString tableAttri
     titleLabel->setAlignment(Qt::AlignCenter);
     layout->addWidget(titleLabel);
 
-    plus10Button = new QPushButton("+ 10" + unit);
-    connect(plus10Button, &QPushButton::clicked, this, [this] { changeValue(10); });
-    layout->addWidget(plus10Button);
+    valueSpinBox = new QDoubleSpinBox();
+    valueSpinBox->setRange(min, max);
+    connect(valueSpinBox, &QDoubleSpinBox::valueChanged, this, &AttributePanel::setValue);
+    layout->addWidget(valueSpinBox);
 
-    plus1Button = new QPushButton("+ 1" + unit);
-    connect(plus1Button, &QPushButton::clicked, this, [this] { changeValue(1); });
-    layout->addWidget(plus1Button);
-
-    valueLabel = new QLabel();
-    valueLabel->setAlignment(Qt::AlignCenter);
-    layout->addWidget(valueLabel);
-
-    minus1Button = new QPushButton("- 1" + unit);
-    connect(minus1Button, &QPushButton::clicked, this, [this] { changeValue(-1); });
-    layout->addWidget(minus1Button);
-
-    minus10Button = new QPushButton("- 10" + unit);
-    connect(minus10Button, &QPushButton::clicked, this, [this] { changeValue(-10); });
-    layout->addWidget(minus10Button);
+    valueSlider = new QSlider();
+    valueSlider->setRange(min, max);
+    connect(valueSlider, &QSlider::valueChanged, this, &AttributePanel::setValue);
+    layout->addWidget(valueSlider);
 
     reload();
 }
 
 void AttributePanel::reload() {
     key = -1;
-    value = 0;
-    valueLabel->setText("No value.");
-    plus10Button->setEnabled(false);
-    plus1Button->setEnabled(false);
-    minus1Button->setEnabled(false);
-    minus10Button->setEnabled(false);
     QSqlQuery query;
     if (!query.exec("SELECT " + table + ".key, ROUND(" + table + "." + attribute + ", 3) FROM " + table + ", currentcue, currentitems, " + valueTable + " WHERE " + valueTable + ".item_key = currentcue.key AND " + valueTable + ".foreignitem_key = currentitems.group_key AND " + valueTable + ".valueitem_key = " + table + ".key")) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-        valueLabel->setText(QString());
+        valueSpinBox->setValue(0);
+        valueSpinBox->setEnabled(false);
+        valueSlider->setValue(0);
+        valueSlider->setEnabled(false);
         return;
     }
     if (query.next()) {
         key = query.value(0).toInt();
-        value = query.value(1).toFloat();
-        valueLabel->setText(QString::number(value) + unit);
-        plus10Button->setEnabled(true);
-        plus1Button->setEnabled(true);
-        minus1Button->setEnabled(true);
-        minus10Button->setEnabled(true);
+        const float value = query.value(1).toFloat();
+        valueSpinBox->setEnabled(true);
+        if (value != valueSpinBox->value()) {
+            valueSpinBox->setValue(value);
+        }
+        valueSlider->setEnabled(true);
+        if (value != valueSlider->value()) {
+            valueSlider->setValue(value);
+        }
+        valueSlider->setValue(value);
+    } else {
+        valueSpinBox->setValue(0);
+        valueSpinBox->setEnabled(false);
+        valueSlider->setValue(0);
+        valueSlider->setEnabled(false);
     }
 }
 
-void AttributePanel::changeValue(const float difference) {
-    float newValue = value + difference;
-    if (cyclic) {
-        while (value >= maxValue) {
-            value -= (maxValue - minValue);
-        }
-        while (value < minValue) {
-            value += (maxValue - minValue);
-        }
-    } else {
-        if (newValue > maxValue) {
-            newValue = maxValue;
-        } else if (newValue < minValue) {
-            newValue = minValue;
-        }
-    }
+void AttributePanel::setValue(const float value) {
     QSqlQuery query;
     query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE key = :key");
     query.bindValue(":key", key);
-    query.bindValue(":value", newValue);
+    query.bindValue(":value", value);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
     }
