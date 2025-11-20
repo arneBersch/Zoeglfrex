@@ -22,7 +22,17 @@ public slots:
 signals:
     void dbChanged();
 private:
-    QList<AttributePanel*> attributePanels;
+    void updateItemLabel(QString table, QString valueTable, QString itemName, QLabel* label);
+    QLabel* intensityLabel;
+    QLabel* colorLabel;
+    QLabel* positionLabel;
+    AttributePanel* intensityDimmerPanel;
+    AttributePanel* colorHuePanel;
+    AttributePanel* colorSaturationPanel;
+    AttributePanel* positionPanPanel;
+    AttributePanel* positionTiltPanel;
+    AttributePanel* positionZoomPanel;
+    AttributePanel* positionFocusPanel;
 };
 
 #endif // CONTROLPANEL_H
