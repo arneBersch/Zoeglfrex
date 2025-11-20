@@ -48,10 +48,7 @@ void AttributePanel::reload(const int item, const int model, const int fixture) 
     itemKey = item;
     modelKey = model;
     fixtureKey = fixture;
-
     const bool itemGiven = (itemKey >= 0);
-    const bool modelGiven = (modelKey >= 0);
-    const bool fixtureGiven = (fixtureKey >= 0);
 
     valueButton->setEnabled(itemGiven);
     valueButton->setChecked(itemGiven);
@@ -94,6 +91,8 @@ void AttributePanel::reload(const int item, const int model, const int fixture) 
         }
         if (itemGiven) {
             button->setText(QString::number(*value) + unit);
+        } else {
+            button->setText("");
         }
         button->setChecked(valueGiven);
     };
@@ -102,7 +101,9 @@ void AttributePanel::reload(const int item, const int model, const int fixture) 
     setExceptionButton(itemKey, fixtureKey, fixtureValueButton, &value, fixtureValueTable, unit);
 
     if (valueDial->value() != (int) value) {
+        valueDial->blockSignals(true);
         valueDial->setValue(value);
+        valueDial->blockSignals(false);
     }
 }
 
