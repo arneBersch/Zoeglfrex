@@ -8,10 +8,12 @@
 
 #include "attributepanel.h"
 
-AttributePanel::AttributePanel(const QString itemTable, const QString tableAttribute, const QString value, const QString title, const QString attributeUnit, const float min, const float max, const bool cyclicValue, QWidget *parent) : QWidget(parent) {
+AttributePanel::AttributePanel(const QString itemTable, const QString tableAttribute, const QString value, const QString modelTable, const QString fixtureTable, const QString title, const QString attributeUnit, const float min, const float max, const bool cyclicValue, QWidget *parent) : QWidget(parent) {
     table = itemTable;
     attribute = tableAttribute;
     valueTable = value;
+    modelValueTable = modelTable;
+    fixtureValueTable = fixtureTable;
     unit = attributeUnit;
     minValue = min;
     maxValue = max;
@@ -24,47 +26,116 @@ AttributePanel::AttributePanel(const QString itemTable, const QString tableAttri
     titleLabel->setAlignment(Qt::AlignCenter);
     layout->addWidget(titleLabel);
 
-    valueSpinBox = new QDoubleSpinBox();
-    valueSpinBox->setRange(min, max);
-    connect(valueSpinBox, &QDoubleSpinBox::valueChanged, this, &AttributePanel::setValue);
-    layout->addWidget(valueSpinBox);
+    valueButton = new QPushButton();
+    valueButton->setCheckable(true);
+    layout->addWidget(valueButton);
 
-    valueSlider = new QSlider();
-    valueSlider->setRange(min, max);
-    connect(valueSlider, &QSlider::valueChanged, this, &AttributePanel::setValue);
-    layout->addWidget(valueSlider);
+    modelValueButton = new QPushButton();
+    modelValueButton->setCheckable(true);
+    layout->addWidget(modelValueButton);
+
+    fixtureValueButton = new QPushButton();
+    fixtureValueButton->setCheckable(true);
+    layout->addWidget(fixtureValueButton);
+
+    valueDial = new QDial();
+    valueDial->setRange(min, max);
+    valueDial->setWrapping(cyclic);
+    connect(valueDial, &QDial::valueChanged, this, &AttributePanel::setValue);
+    layout->addWidget(valueDial);
 
     reload();
 }
 
 void AttributePanel::reload() {
+    valueButton->setEnabled(false);
+    modelValueButton->setEnabled(false);
+    fixtureValueButton->setEnabled(false);
     key = -1;
+    modelKey = -1;
+    fixtureKey = -1;
     QSqlQuery query;
     if (!query.exec("SELECT " + table + ".key, ROUND(" + table + "." + attribute + ", 3) FROM " + table + ", currentcue, currentitems, " + valueTable + " WHERE " + valueTable + ".item_key = currentcue.key AND " + valueTable + ".foreignitem_key = currentitems.group_key AND " + valueTable + ".valueitem_key = " + table + ".key")) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-        valueSpinBox->setValue(0);
-        valueSpinBox->setEnabled(false);
-        valueSlider->setValue(0);
-        valueSlider->setEnabled(false);
+        valueButton->setText("");
+        valueButton->setChecked(false);
+        modelValueButton->setText("");
+        modelValueButton->setChecked(false);
+        fixtureValueButton->setText("");
+        fixtureValueButton->setChecked(false);
+        valueDial->setValue(0);
+        valueDial->setEnabled(false);
         return;
     }
     if (query.next()) {
         key = query.value(0).toInt();
         const float value = query.value(1).toFloat();
-        valueSpinBox->setEnabled(true);
-        if (value != valueSpinBox->value()) {
-            valueSpinBox->setValue(value);
+        valueButton->setEnabled(true);
+        valueButton->setText(QString::number(value) + unit);
+        valueDial->setEnabled(true);
+        if (value != valueDial->value()) {
+            valueDial->setValue(value);
         }
-        valueSlider->setEnabled(true);
-        if (value != valueSlider->value()) {
-            valueSlider->setValue(value);
+        QSqlQuery modelKeyQuery;
+        if (modelKeyQuery.exec("SELECT fixtures.model_key FROM fixtures, currentitems WHERE currentitems.fixture_key = fixtures.key AND fixtures.model_key IS NOT NULL")) {
+            if (modelKeyQuery.next()) {
+                modelKey = modelKeyQuery.value(0).toInt();
+                modelValueButton->setEnabled(true);
+                modelValueButton->setText("No value");
+                QSqlQuery modelValueQuery;
+                modelValueQuery.prepare("SELECT ROUND(value, 3) FROM " + modelValueTable + " WHERE item_key = :key AND foreignitem_key = :model");
+                modelValueQuery.bindValue(":key", key);
+                modelValueQuery.bindValue(":model", modelKey);
+                if (modelValueQuery.exec()) {
+                    if (modelValueQuery.next()) {
+                        modelValueButton->setChecked(true);
+                        modelValueButton->setText(QString::number(modelValueQuery.value(0).toFloat()) + unit);
+                    } else {
+                        modelValueButton->setChecked(false);
+                    }
+                } else {
+                    qWarning() << Q_FUNC_INFO << modelValueQuery.executedQuery() << modelValueQuery.lastError().text();
+                }
+            } else {
+                modelValueButton->setText("No Model");
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << modelKeyQuery.executedQuery() << modelKeyQuery.lastError().text();
+            modelValueButton->setText("");
         }
-        valueSlider->setValue(value);
+        QSqlQuery fixtureKeyQuery;
+        if (fixtureKeyQuery.exec("SELECT fixture_key FROM currentitems WHERE fixture_key IS NOT NULL")) {
+            if (fixtureKeyQuery.next()) {
+                fixtureKey = fixtureKeyQuery.value(0).toInt();
+                fixtureValueButton->setEnabled(true);
+                fixtureValueButton->setText("No value");
+                QSqlQuery fixtureValueQuery;
+                fixtureValueQuery.prepare("SELECT ROUND(value, 3) FROM " + fixtureValueTable + " WHERE item_key = :key AND foreignitem_key = :fixture");
+                fixtureValueQuery.bindValue(":key", key);
+                fixtureValueQuery.bindValue(":fixture", fixtureKey);
+                if (fixtureValueQuery.exec()) {
+                    if (fixtureValueQuery.next()) {
+                        fixtureValueButton->setChecked(true);
+                        fixtureValueButton->setText(QString::number(fixtureValueQuery.value(0).toFloat()) + unit);
+                    } else {
+                        fixtureValueButton->setChecked(false);
+                    }
+                } else {
+                    qWarning() << Q_FUNC_INFO << fixtureValueQuery.executedQuery() << fixtureValueQuery.lastError().text();
+                }
+            } else {
+                fixtureValueButton->setText("No Fixture");
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << fixtureKeyQuery.executedQuery() << fixtureKeyQuery.lastError().text();
+            fixtureValueButton->setText("");
+        }
     } else {
-        valueSpinBox->setValue(0);
-        valueSpinBox->setEnabled(false);
-        valueSlider->setValue(0);
-        valueSlider->setEnabled(false);
+        valueButton->setText("");
+        modelValueButton->setText("");
+        fixtureValueButton->setText("");
+        valueDial->setValue(0);
+        valueDial->setEnabled(false);
     }
 }
 

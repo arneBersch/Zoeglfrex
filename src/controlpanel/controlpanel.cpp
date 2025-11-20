@@ -19,7 +19,7 @@ ControlPanel::ControlPanel(QWidget *parent) : QWidget(parent, Qt::Window) {
     QHBoxLayout* intensityAttributesLayout = new QHBoxLayout();
     layout->addLayout(intensityAttributesLayout, 1, 0);
 
-    intensityDimmerPanel = new AttributePanel("intensities", "dimmer", "cue_group_intensities", "Dimmer", "%", 0, 100, false);
+    intensityDimmerPanel = new AttributePanel("intensities", "dimmer", "cue_group_intensities", "intensity_model_dimmer", "intensity_fixture_dimmer", "Dimmer", "%", 0, 100, false);
     connect(intensityDimmerPanel, &AttributePanel::dbChanged, this, &ControlPanel::dbChanged);
     intensityAttributesLayout->addWidget(intensityDimmerPanel);
 
@@ -29,11 +29,11 @@ ControlPanel::ControlPanel(QWidget *parent) : QWidget(parent, Qt::Window) {
     QHBoxLayout* colorAttributesLayout = new QHBoxLayout();
     layout->addLayout(colorAttributesLayout, 1, 1);
 
-    colorHuePanel = new AttributePanel("colors", "hue", "cue_group_colors", "Hue", "°", 0, 360, true);
+    colorHuePanel = new AttributePanel("colors", "hue", "cue_group_colors", "color_model_hue", "color_fixture_hue", "Hue", "°", 0, 360, true);
     connect(colorHuePanel, &AttributePanel::dbChanged, this, &ControlPanel::dbChanged);
     colorAttributesLayout->addWidget(colorHuePanel);
 
-    colorSaturationPanel = new AttributePanel("colors", "saturation", "cue_group_colors", "Saturation", "%", 0, 100, false);
+    colorSaturationPanel = new AttributePanel("colors", "saturation", "cue_group_colors", "color_model_saturation", "color_fixture_saturation", "Saturation", "%", 0, 100, false);
     connect(colorSaturationPanel, &AttributePanel::dbChanged, this, &ControlPanel::dbChanged);
     colorAttributesLayout->addWidget(colorSaturationPanel);
 
@@ -43,19 +43,19 @@ ControlPanel::ControlPanel(QWidget *parent) : QWidget(parent, Qt::Window) {
     QHBoxLayout* positionAttributesLayout = new QHBoxLayout();
     layout->addLayout(positionAttributesLayout, 1, 2);
 
-    positionPanPanel = new AttributePanel("positions", "pan", "cue_group_positions", "Pan", "°", 0, 360, true);
+    positionPanPanel = new AttributePanel("positions", "pan", "cue_group_positions", "position_model_pan", "position_fixture_pan", "Pan", "°", 0, 360, true);
     connect(positionPanPanel, &AttributePanel::dbChanged, this, &ControlPanel::dbChanged);
     positionAttributesLayout->addWidget(positionPanPanel);
 
-    positionTiltPanel = new AttributePanel("positions", "tilt", "cue_group_positions", "Tilt", "°", -180, 180, false);
+    positionTiltPanel = new AttributePanel("positions", "tilt", "cue_group_positions", "position_model_tilt", "position_fixture_tilt", "Tilt", "°", -180, 180, false);
     connect(positionTiltPanel, &AttributePanel::dbChanged, this, &ControlPanel::dbChanged);
     positionAttributesLayout->addWidget(positionTiltPanel);
 
-    positionZoomPanel = new AttributePanel("positions", "zoom", "cue_group_positions", "Zoom", "°", 0, 180, false);
+    positionZoomPanel = new AttributePanel("positions", "zoom", "cue_group_positions", "position_model_zoom", "position_fixture_zoom", "Zoom", "°", 0, 180, false);
     connect(positionZoomPanel, &AttributePanel::dbChanged, this, &ControlPanel::dbChanged);
     positionAttributesLayout->addWidget(positionZoomPanel);
 
-    positionFocusPanel = new AttributePanel("positions", "focus", "cue_group_positions", "Focus", "%", 0, 100, false);
+    positionFocusPanel = new AttributePanel("positions", "focus", "cue_group_positions", "position_model_focus", "position_fixture_focus", "Focus", "%", 0, 100, false);
     connect(positionFocusPanel, &AttributePanel::dbChanged, this, &ControlPanel::dbChanged);
     positionAttributesLayout->addWidget(positionFocusPanel);
 }
