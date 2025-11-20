@@ -15,13 +15,13 @@
 class AttributePanel : public QWidget {
     Q_OBJECT
 public:
-    AttributePanel(QString table, QString attribute, QString valueTable, QString modelValueTable, QString fixtureValeTable, QString title, QString unit, float minValue, float maxValue, bool cyclic, QWidget *parent = nullptr);
+    AttributePanel(QString table, QString attribute, QString valueTable, QString modelValueTable, QString fixtureValeTable, QString title, QString unit, int minValue, int maxValue, bool cyclic, QWidget *parent = nullptr);
 public slots:
     void reload();
 signals:
     void dbChanged();
 private:
-    void setValue(float value);
+    void setValue(int value);
     QPushButton* valueButton;
     QPushButton* modelValueButton;
     QPushButton* fixtureValueButton;
@@ -32,8 +32,8 @@ private:
     QString modelValueTable;
     QString fixtureValueTable;
     QString unit;
-    float minValue;
-    float maxValue;
+    int minValue;
+    int maxValue;
     bool cyclic;
     int key;
     int modelKey;

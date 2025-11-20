@@ -29,7 +29,7 @@ ControlPanel::ControlPanel(QWidget *parent) : QWidget(parent, Qt::Window) {
     QHBoxLayout* colorAttributesLayout = new QHBoxLayout();
     layout->addLayout(colorAttributesLayout, 1, 1);
 
-    colorHuePanel = new AttributePanel("colors", "hue", "cue_group_colors", "color_model_hue", "color_fixture_hue", "Hue", "°", 0, 360, true);
+    colorHuePanel = new AttributePanel("colors", "hue", "cue_group_colors", "color_model_hue", "color_fixture_hue", "Hue", "°", 0, 359, true);
     connect(colorHuePanel, &AttributePanel::dbChanged, this, &ControlPanel::dbChanged);
     colorAttributesLayout->addWidget(colorHuePanel);
 
@@ -43,7 +43,7 @@ ControlPanel::ControlPanel(QWidget *parent) : QWidget(parent, Qt::Window) {
     QHBoxLayout* positionAttributesLayout = new QHBoxLayout();
     layout->addLayout(positionAttributesLayout, 1, 2);
 
-    positionPanPanel = new AttributePanel("positions", "pan", "cue_group_positions", "position_model_pan", "position_fixture_pan", "Pan", "°", 0, 360, true);
+    positionPanPanel = new AttributePanel("positions", "pan", "cue_group_positions", "position_model_pan", "position_fixture_pan", "Pan", "°", 0, 359, true);
     connect(positionPanPanel, &AttributePanel::dbChanged, this, &ControlPanel::dbChanged);
     positionAttributesLayout->addWidget(positionPanPanel);
 

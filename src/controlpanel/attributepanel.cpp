@@ -8,7 +8,7 @@
 
 #include "attributepanel.h"
 
-AttributePanel::AttributePanel(const QString itemTable, const QString tableAttribute, const QString value, const QString modelTable, const QString fixtureTable, const QString title, const QString attributeUnit, const float min, const float max, const bool cyclicValue, QWidget *parent) : QWidget(parent) {
+AttributePanel::AttributePanel(const QString itemTable, const QString tableAttribute, const QString value, const QString modelTable, const QString fixtureTable, const QString title, const QString attributeUnit, const int min, const int max, const bool cyclicValue, QWidget *parent) : QWidget(parent) {
     table = itemTable;
     attribute = tableAttribute;
     valueTable = value;
@@ -32,15 +32,47 @@ AttributePanel::AttributePanel(const QString itemTable, const QString tableAttri
 
     modelValueButton = new QPushButton();
     modelValueButton->setCheckable(true);
+    connect(modelValueButton, &QPushButton::clicked, this, [this] {
+        Q_ASSERT(key >= 0);
+        Q_ASSERT(modelKey >= 0);
+        QSqlQuery query;
+        if (modelValueButton->isChecked()) {
+            query.prepare("INSERT OR REPLACE INTO " + modelValueTable + " (item_key, foreignitem_key, value) VALUES (:key, :model, 0)");
+        } else {
+            query.prepare("DELETE FROM " + modelValueTable + " WHERE item_key = :key AND foreignitem_key = :model");
+        }
+        query.bindValue(":key", key);
+        query.bindValue(":model", modelKey);
+        if (!query.exec()) {
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        }
+        emit dbChanged();
+    });
     layout->addWidget(modelValueButton);
 
     fixtureValueButton = new QPushButton();
     fixtureValueButton->setCheckable(true);
+    connect(fixtureValueButton, &QPushButton::clicked, this, [this] {
+        Q_ASSERT(key >= 0);
+        Q_ASSERT(fixtureKey >= 0);
+        QSqlQuery query;
+        if (fixtureValueButton->isChecked()) {
+            query.prepare("INSERT OR REPLACE INTO " + fixtureValueTable + " (item_key, foreignitem_key, value) VALUES (:key, :fixture, 0)");
+        } else {
+            query.prepare("DELETE FROM " + fixtureValueTable + " WHERE item_key = :key AND foreignitem_key = :fixture");
+        }
+        query.bindValue(":key", key);
+        query.bindValue(":fixture", fixtureKey);
+        if (!query.exec()) {
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        }
+        emit dbChanged();
+    });
     layout->addWidget(fixtureValueButton);
 
     valueDial = new QDial();
-    valueDial->setRange(min, max);
     valueDial->setWrapping(cyclic);
+    valueDial->setRange(min, max);
     connect(valueDial, &QDial::valueChanged, this, &AttributePanel::setValue);
     layout->addWidget(valueDial);
 
@@ -69,13 +101,11 @@ void AttributePanel::reload() {
     }
     if (query.next()) {
         key = query.value(0).toInt();
-        const float value = query.value(1).toFloat();
+        float value = query.value(1).toFloat();
         valueButton->setEnabled(true);
+        valueButton->setChecked(true);
         valueButton->setText(QString::number(value) + unit);
         valueDial->setEnabled(true);
-        if (value != valueDial->value()) {
-            valueDial->setValue(value);
-        }
         QSqlQuery modelKeyQuery;
         if (modelKeyQuery.exec("SELECT fixtures.model_key FROM fixtures, currentitems WHERE currentitems.fixture_key = fixtures.key AND fixtures.model_key IS NOT NULL")) {
             if (modelKeyQuery.next()) {
@@ -89,7 +119,8 @@ void AttributePanel::reload() {
                 if (modelValueQuery.exec()) {
                     if (modelValueQuery.next()) {
                         modelValueButton->setChecked(true);
-                        modelValueButton->setText(QString::number(modelValueQuery.value(0).toFloat()) + unit);
+                        value = modelValueQuery.value(0).toFloat();
+                        modelValueButton->setText(QString::number(value) + unit);
                     } else {
                         modelValueButton->setChecked(false);
                     }
@@ -116,7 +147,8 @@ void AttributePanel::reload() {
                 if (fixtureValueQuery.exec()) {
                     if (fixtureValueQuery.next()) {
                         fixtureValueButton->setChecked(true);
-                        fixtureValueButton->setText(QString::number(fixtureValueQuery.value(0).toFloat()) + unit);
+                        value = fixtureValueQuery.value(0).toFloat();
+                        fixtureValueButton->setText(QString::number(value) + unit);
                     } else {
                         fixtureValueButton->setChecked(false);
                     }
@@ -130,6 +162,9 @@ void AttributePanel::reload() {
             qWarning() << Q_FUNC_INFO << fixtureKeyQuery.executedQuery() << fixtureKeyQuery.lastError().text();
             fixtureValueButton->setText("");
         }
+        if (valueDial->value() != (int) value) {
+            valueDial->setValue(value);
+        }
     } else {
         valueButton->setText("");
         modelValueButton->setText("");
@@ -139,9 +174,17 @@ void AttributePanel::reload() {
     }
 }
 
-void AttributePanel::setValue(const float value) {
+void AttributePanel::setValue(const int value) {
     QSqlQuery query;
-    query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE key = :key");
+    if ((fixtureKey >= 0) && fixtureValueButton->isChecked()) {
+        query.prepare("UPDATE " + fixtureValueTable + " SET value = :value WHERE item_key = :key AND foreignitem_key = :fixture");
+        query.bindValue(":fixture", fixtureKey);
+    } else if ((modelKey >= 0) && modelValueButton->isChecked()) {
+        query.prepare("UPDATE " + modelValueTable + " SET value = :value WHERE item_key = :key AND foreignitem_key = :model");
+        query.bindValue(":model", modelKey);
+    } else {
+        query.prepare("UPDATE " + table + " SET " + attribute + " = :value WHERE key = :key");
+    }
     query.bindValue(":key", key);
     query.bindValue(":value", value);
     if (!query.exec()) {
