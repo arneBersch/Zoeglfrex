@@ -22,7 +22,7 @@ public slots:
 signals:
     void dbChanged();
 private:
-    void updateItemLabel(QString table, QString valueTable, QString itemName, QLabel* label);
+    int updateItemLabel(QString table, QString valueTable, QString itemName, QLabel* label);
     QLabel* intensityLabel;
     QLabel* colorLabel;
     QLabel* positionLabel;

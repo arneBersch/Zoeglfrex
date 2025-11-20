@@ -17,10 +17,11 @@ class AttributePanel : public QWidget {
 public:
     AttributePanel(QString table, QString attribute, QString valueTable, QString modelValueTable, QString fixtureValeTable, QString title, QString unit, int minValue, int maxValue, bool cyclic, QWidget *parent = nullptr);
 public slots:
-    void reload();
+    void reload(int key, int modelKey, int fixtureKey);
 signals:
     void dbChanged();
 private:
+    void setException(int foreignItemKey, bool exception, QString table);
     void setValue(int value);
     QPushButton* valueButton;
     QPushButton* modelValueButton;
@@ -32,10 +33,7 @@ private:
     QString modelValueTable;
     QString fixtureValueTable;
     QString unit;
-    int minValue;
-    int maxValue;
-    bool cyclic;
-    int key;
+    int itemKey;
     int modelKey;
     int fixtureKey;
 };
