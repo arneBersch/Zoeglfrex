@@ -303,7 +303,7 @@ void DmxEngine::generateDmx() {
         qWarning() << Q_FUNC_INFO << currentFixtureQuery.executedQuery() << currentFixtureQuery.lastError().text();
     }
     QSqlQuery fixtureQuery;
-    if (!fixtureQuery.exec("SELECT key, universe, address, xposition, yposition FROM fixtures")) {
+    if (!fixtureQuery.exec("SELECT key, universe, address, xposition, yposition, CONCAT(id, ' ', label) FROM fixtures")) {
         qWarning() << Q_FUNC_INFO << fixtureQuery.executedQuery() << fixtureQuery.lastError().text();
         return;
     }
@@ -496,6 +496,7 @@ void DmxEngine::generateDmx() {
         Preview2d::PreviewData previewFixture;
         previewFixture.xPosition = fixtureQuery.value(3).toFloat();
         previewFixture.yPosition = fixtureQuery.value(4).toFloat();
+        previewFixture.label = fixtureQuery.value(5).toString();
         previewFixture.color = QColor((red / 100) * (dimmer / 100) * 255, (green / 100) * (dimmer / 100) * 255, (blue / 100) * (dimmer / 100) * 255);
         previewFixture.pan = pan;
         previewFixture.tilt = tilt;

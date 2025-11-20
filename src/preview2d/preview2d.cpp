@@ -45,6 +45,7 @@ void Preview2d::setFixtures(QHash<int, PreviewData> previewData) {
         PreviewData data = previewData.value(fixtureKey);
         QPointF position(100 * data.xPosition, -100 * data.yPosition);
         fixture->setPos(position);
+        fixture->label = data.label;
         fixture->color = data.color;
         fixture->pan = data.pan;
         fixture->tilt = data.tilt;

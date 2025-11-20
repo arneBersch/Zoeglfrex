@@ -18,6 +18,7 @@ class Preview2d : public QWidget {
 public:
     Preview2d(QWidget* parent = nullptr);
     struct PreviewData {
+        QString label;
         float xPosition;
         float yPosition;
         QColor color;

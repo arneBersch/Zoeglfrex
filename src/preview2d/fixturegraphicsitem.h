@@ -16,6 +16,7 @@ public:
     FixtureGraphicsItem();
     QRectF boundingRect() const override;
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+    QString label;
     QColor color;
     int pan = 0;
     int tilt = 0;
@@ -23,6 +24,9 @@ public:
 private:
     const int ellipseWidth = 50;
     const int maxBeamLength = 150;
+    const int textWidth = 100;
+    const int textHeight = 50;
+    const int textOffset = ellipseWidth / 2 + 5;
 };
 
 #endif // FIXTUREGRAPHICSITEM_H

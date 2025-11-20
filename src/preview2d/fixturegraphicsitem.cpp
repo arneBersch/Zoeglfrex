@@ -24,4 +24,7 @@ void FixtureGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsIte
     painter->drawPath(path);
 
     painter->drawEllipse(-ellipseWidth / 2, -ellipseWidth / 2, ellipseWidth, ellipseWidth);
+
+    painter->setPen(Qt::white);
+    painter->drawText(QRectF(-textWidth / 2, textOffset, textWidth, textHeight), label, QTextOption(Qt::AlignCenter));
 }
