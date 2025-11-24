@@ -7,6 +7,7 @@
 */
 
 #include <QtWidgets>
+#include <QtSql>
 
 #include "mainwindow/mainwindow.h"
 

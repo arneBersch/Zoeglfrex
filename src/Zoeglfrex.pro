@@ -15,6 +15,8 @@ SOURCES += \
     aboutwindow/aboutwindow.cpp \
     controlpanel/attributepanel.cpp \
     controlpanel/controlpanel.cpp \
+    controlpanel/intensitycolorpositiontab.cpp \
+    controlpanel/rawtab.cpp \
     cuelistview/cuelisttablemodel.cpp \
     cuelistview/cuelistview.cpp \
     dmxengine/dmxengine.cpp \
@@ -33,6 +35,8 @@ HEADERS += \
     constants.h \
     controlpanel/attributepanel.h \
     controlpanel/controlpanel.h \
+    controlpanel/intensitycolorpositiontab.h \
+    controlpanel/rawtab.h \
     cuelistview/cuelisttablemodel.h \
     cuelistview/cuelistview.h \
     dmxengine/dmxengine.h \

@@ -6,25 +6,23 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef CONTROLPANEL_H
-#define CONTROLPANEL_H
+#ifndef RAWTAB_H
+#define RAWTAB_H
 
 #include <QtWidgets>
+#include <QtSql>
 
-#include "intensitycolorpositiontab.h"
-#include "rawtab.h"
-
-class ControlPanel : public QWidget {
+class RawTab : public QWidget {
     Q_OBJECT
 public:
-    ControlPanel(QWidget *parent = nullptr);
+    RawTab(QWidget* parent = nullptr);
 public slots:
     void reload();
 signals:
     void dbChanged();
 private:
-    IntensityColorPositionTab* intensityColorPositionTab;
-    RawTab* rawTab;
+    QComboBox* rawComboBox;
+    QList<int> rawKeys;
 };
 
-#endif // CONTROLPANEL_H
+#endif // RAWTAB_H
