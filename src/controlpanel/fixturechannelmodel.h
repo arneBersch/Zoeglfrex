@@ -20,10 +20,9 @@ public:
     int columnCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-    void refresh();
+    void setRawKey(int key);
 private:
     struct ChannelData {
-        int channel = 1;
         QString title = QString();
         uint8_t value = 0;
         uint8_t modelValue = 0;

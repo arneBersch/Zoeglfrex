@@ -13,6 +13,13 @@ RawTab::RawTab(QWidget* parent) : QWidget(parent) {
     setLayout(layout);
 
     rawComboBox = new QComboBox();
+    connect(rawComboBox, &QComboBox::currentIndexChanged, this, [this] (const int index) {
+        if (index >= 0) {
+            model->setRawKey(rawKeys.at(index));
+        } else {
+            model->setRawKey(-1);
+        }
+    });
     layout->addWidget(rawComboBox);
 
     table = new QTableView();
@@ -54,5 +61,5 @@ void RawTab::reload() {
         rawComboBox->setCurrentIndex(currentRawIndex);
     }
 
-    model->refresh();
+    model->setRawKey(currentRawKey);
 }
