@@ -190,7 +190,7 @@ void DmxEngine::generateDmx() {
                 if ((transitionFrames - remainingTransitionFrames) <= delayFrames) {
                     fade = 1;
                 } else if ((transitionFrames - remainingTransitionFrames - delayFrames) <= fadeFrames) {
-                    fade = (transitionFrames - remainingTransitionFrames - delayFrames) / fadeFrames;
+                    fade = 1 - (float)(transitionFrames - remainingTransitionFrames - delayFrames) / (float)fadeFrames;
                 }
                 if (cuelistSineFade.value(cuelistKey, false)) {
                     fade = std::cos(M_PI * (1 - fade)) / 2 + 0.5;
