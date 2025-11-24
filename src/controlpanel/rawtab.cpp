@@ -14,6 +14,16 @@ RawTab::RawTab(QWidget* parent) : QWidget(parent) {
 
     rawComboBox = new QComboBox();
     layout->addWidget(rawComboBox);
+
+    table = new QTableView();
+    model = new FixtureChannelModel();
+    table->setModel(model);
+    table->verticalHeader()->hide();
+    table->horizontalHeader()->setStretchLastSection(true);
+    table->setSelectionMode(QAbstractItemView::NoSelection);
+    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    table->setFocusPolicy(Qt::NoFocus);
+    layout->addWidget(table);
 }
 
 void RawTab::reload() {
@@ -43,4 +53,6 @@ void RawTab::reload() {
     if (currentRawIndex >= 0) {
         rawComboBox->setCurrentIndex(currentRawIndex);
     }
+
+    model->refresh();
 }

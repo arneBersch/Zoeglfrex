@@ -6,53 +6,30 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef CUELISTTABLEMODEL_H
-#define CUELISTTABLEMODEL_H
+#ifndef FIXTURECHANNELMODEL_H
+#define FIXTURECHANNELMODEL_H
 
 #include <QtWidgets>
 #include <QtSql>
 
-class CuelistTableModel : public QAbstractTableModel {
+class FixtureChannelModel : public QAbstractTableModel {
     Q_OBJECT
 public:
-    enum Mode {
-        CueMode,
-        GroupMode,
-    };
-    enum RowFilter {
-        AllRows,
-        ActiveRows,
-        ChangedRows,
-    };
-    CuelistTableModel();
+    FixtureChannelModel();
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     void refresh();
-    void setMode(Mode mode);
-    void setRowFilter(RowFilter filter);
-    QModelIndex getCurrentRowIndex();
 private:
-    QStringList getCueValue(QString table, QString valueTable, int cueKey, int groupKey);
-    Mode mode = CueMode;
-    RowFilter filter = AllRows;
-    struct RowData {
-        int key;
-        QString name;
-        QString intensity;
-        bool intensityChanged = false;
-        QString color;
-        bool colorChanged = false;
-        QString position;
-        bool positionChanged = false;
-        QString raws;
-        bool rawsChanged = false;
-        QString effects;
-        bool effectsChanged = false;
+    struct ChannelData {
+        int channel = 1;
+        QString title = QString();
+        uint8_t value = 0;
+        uint8_t modelValue = 0;
+        uint8_t fixtureValue = 0;
     };
-    QList<RowData> rows;
-    int currentKey = -1;
+    QList<ChannelData> channels;
 };
 
-#endif // CUELISTTABLEMODEL_H
+#endif // FIXTURECHANNELMODEL_H

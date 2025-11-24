@@ -12,6 +12,8 @@
 #include <QtWidgets>
 #include <QtSql>
 
+#include "fixturechannelmodel.h"
+
 class RawTab : public QWidget {
     Q_OBJECT
 public:
@@ -23,6 +25,8 @@ signals:
 private:
     QComboBox* rawComboBox;
     QList<int> rawKeys;
+    FixtureChannelModel* model;
+    QTableView* table;
 };
 
 #endif // RAWTAB_H
