@@ -39,9 +39,9 @@ void CuelistTableModel::refresh() {
     rows.clear();
     QSqlQuery rowQuery;
     if (mode == CueMode) {
-        rowQuery.prepare("SELECT key, CONCAT(id, ' ', label) FROM groups");
+        rowQuery.prepare("SELECT key, CONCAT(id, ' ', label) FROM groups ORDER BY sortkey");
     } else if (mode == GroupMode) {
-        rowQuery.prepare("SELECT key, CONCAT(id, ' ', label) FROM currentcuelist_cues");
+        rowQuery.prepare("SELECT key, CONCAT(id, ' ', label) FROM currentcuelist_cues ORDER BY sortkey");
     }
     if (rowQuery.exec()) {
         while (rowQuery.next()) {
