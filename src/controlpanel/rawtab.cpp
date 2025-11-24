@@ -22,15 +22,15 @@ RawTab::RawTab(QWidget* parent) : QWidget(parent) {
     });
     layout->addWidget(rawComboBox);
 
-    table = new QTableView();
+    tableView = new QTableView();
     model = new FixtureChannelModel();
-    table->setModel(model);
-    table->verticalHeader()->hide();
-    table->horizontalHeader()->setStretchLastSection(true);
-    table->setSelectionMode(QAbstractItemView::NoSelection);
-    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    table->setFocusPolicy(Qt::NoFocus);
-    layout->addWidget(table);
+    tableView->setModel(model);
+    tableView->verticalHeader()->hide();
+    tableView->horizontalHeader()->setStretchLastSection(true);
+    tableView->setSelectionMode(QAbstractItemView::NoSelection);
+    tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tableView->setFocusPolicy(Qt::NoFocus);
+    layout->addWidget(tableView);
 
     reload();
 }
@@ -64,4 +64,31 @@ void RawTab::reload() {
     }
 
     model->setRawKey(currentRawKey);
+
+    for (int channel = 1; channel <= model->rowCount(QModelIndex()); channel++) {
+        QPushButton* minus10Button = new QPushButton("- 10");
+        connect(minus10Button, &QPushButton::clicked, this, [this, channel] {
+            model->setChannelDifference(channel, -10);
+            emit dbChanged();
+        });
+        tableView->setIndexWidget(model->index(channel - 1, 4), minus10Button);
+        QPushButton* minus1Button = new QPushButton("- 1");
+        connect(minus1Button, &QPushButton::clicked, this, [this, channel] {
+            model->setChannelDifference(channel, -1);
+            emit dbChanged();
+        });
+        tableView->setIndexWidget(model->index(channel - 1, 5), minus1Button);
+        QPushButton* plus1Button = new QPushButton("+ 1");
+        connect(plus1Button, &QPushButton::clicked, this, [this, channel] {
+            model->setChannelDifference(channel, 1);
+            emit dbChanged();
+        });
+        tableView->setIndexWidget(model->index(channel - 1, 6), plus1Button);
+        QPushButton* plus10Button = new QPushButton("+ 10");
+        connect(plus10Button, &QPushButton::clicked, this, [this, channel] {
+            model->setChannelDifference(channel, 10);
+            emit dbChanged();
+        });
+        tableView->setIndexWidget(model->index(channel - 1, 7), plus10Button);
+    }
 }

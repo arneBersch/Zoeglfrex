@@ -21,14 +21,21 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     void setRawKey(int key);
+    void setChannelDifference(int channel, int difference);
 private:
     struct ChannelData {
         QString title = QString();
+        bool valueGiven = false;
         uint8_t value = 0;
+        bool modelValueGiven = false;
         uint8_t modelValue = 0;
+        bool fixtureValueGiven = false;
         uint8_t fixtureValue = 0;
     };
     QList<ChannelData> channels;
+    int rawKey = -1;
+    int modelKey = -1;
+    int fixtureKey = -1;
 };
 
 #endif // FIXTURECHANNELMODEL_H

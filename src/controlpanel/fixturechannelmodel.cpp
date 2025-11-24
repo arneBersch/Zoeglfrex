@@ -17,7 +17,7 @@ int FixtureChannelModel::rowCount(const QModelIndex &parent) const {
 
 int FixtureChannelModel::columnCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
-    return 4;
+    return 8;
 }
 
 QVariant FixtureChannelModel::data(const QModelIndex &index, int role) const {
@@ -44,7 +44,7 @@ QVariant FixtureChannelModel::data(const QModelIndex &index, int role) const {
     return QVariant();
 }
 
-QVariant FixtureChannelModel::headerData(int section, Qt::Orientation orientation, int role) const {
+QVariant FixtureChannelModel::headerData(const int section, const Qt::Orientation orientation, const int role) const {
     if (role != Qt::DisplayRole) {
         return QVariant();
     }
@@ -62,11 +62,12 @@ QVariant FixtureChannelModel::headerData(int section, Qt::Orientation orientatio
     return QVariant();
 }
 
-void FixtureChannelModel::setRawKey(const int rawKey) {
+void FixtureChannelModel::setRawKey(const int raw) {
     beginResetModel();
 
-    int modelKey = -1;
-    int fixtureKey = -1;
+    modelKey = -1;
+    fixtureKey = -1;
+    rawKey = raw;
     QString channelsString = QString();
     QSqlQuery query;
     if (query.exec("SELECT models.key, fixtures.key, models.channels FROM models, fixtures, currentitems WHERE currentitems.fixture_key = fixtures.key AND fixtures.model_key = models.key")) {
@@ -132,6 +133,7 @@ void FixtureChannelModel::setRawKey(const int rawKey) {
                 const int channel = valueQuery.value(0).toInt();
                 const uint8_t value = valueQuery.value(1).toInt();
                 if (channel <= channels.length()) {
+                    channels[channel - 1].valueGiven = true;
                     channels[channel - 1].value = value;
                     channels[channel - 1].modelValue = value;
                     channels[channel - 1].fixtureValue = value;
@@ -150,6 +152,7 @@ void FixtureChannelModel::setRawKey(const int rawKey) {
                 const int channel = modelQuery.value(0).toInt();
                 const uint8_t value = modelQuery.value(1).toInt();
                 if (channel <= channels.length()) {
+                    channels[channel - 1].modelValueGiven = true;
                     channels[channel - 1].modelValue = value;
                     channels[channel - 1].fixtureValue = value;
                 }
@@ -167,6 +170,7 @@ void FixtureChannelModel::setRawKey(const int rawKey) {
                 const int channel = fixtureQuery.value(0).toInt();
                 const uint8_t value = fixtureQuery.value(1).toInt();
                 if (channel <= channels.length()) {
+                    channels[channel - 1].fixtureValueGiven = true;
                     channels[channel - 1].fixtureValue = value;
                 }
             }
@@ -176,4 +180,33 @@ void FixtureChannelModel::setRawKey(const int rawKey) {
     }
 
     endResetModel();
+}
+
+void FixtureChannelModel::setChannelDifference(const int channel, int difference) {
+    const ChannelData channelData = channels.at(channel - 1);
+    QSqlQuery query;
+    if (channelData.fixtureValueGiven) {
+        Q_ASSERT(fixtureKey >= 0);
+        query.prepare("INSERT OR REPLACE INTO raw_fixture_channel_values (item_key, key, foreignitem_key, value) VALUES (:raw, :channel, :fixture, :value)");
+        query.bindValue(":fixture", fixtureKey);
+        difference += channelData.fixtureValue;
+    } else if (channelData.modelValueGiven) {
+        Q_ASSERT(modelKey >= 0);
+        query.prepare("INSERT OR REPLACE INTO raw_model_channel_values (item_key, key, foreignitem_key, value) VALUES (:raw, :channel, :model, :value)");
+        query.bindValue(":model", modelKey);
+        difference += channelData.modelValue;
+    } else if (channelData.valueGiven) {
+        query.prepare("INSERT OR REPLACE INTO raw_channel_values (item_key, key, value) VALUES (:raw, :channel, :value)");
+        difference += channelData.value;
+    } else {
+        return;
+    }
+    difference = std::min(difference, 255);
+    difference = std::max(difference, 0);
+    query.bindValue(":value", difference);
+    query.bindValue(":raw", rawKey);
+    query.bindValue(":channel", channel);
+    if (!query.exec()) {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+    }
 }

@@ -26,7 +26,7 @@ private:
     QComboBox* rawComboBox;
     QList<int> rawKeys;
     FixtureChannelModel* model;
-    QTableView* table;
+    QTableView* tableView;
 };
 
 #endif // RAWTAB_H
