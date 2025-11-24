@@ -40,8 +40,7 @@
 - Select next Fixture in current Group: Arrow right
 - Select previous Fixture in current Group: Arrow left
 - Deselect the currently selected Fixture: Escape
-- Execute command and clear the Terminal: Return/Enter
-- Execute command without clearing the Terminal: Shift + Return/Enter
+- Execute command: Return/Enter
 - Undo the last keypress in the command input: Backspace
 - Clear command input: Shift + Backspace
 
@@ -53,10 +52,6 @@
 - Scroll through the Modes of the Cuelist View: Shift + M
 - Scroll through the Row filters of the Cuelist View: Shift + R
 
-- New File: Ctrl + N
-- Open File: Ctrl + O
-- Save File: Ctrl + S
-- Save File as: Ctrl + Shift + S
 - Quit Zöglfrex: Ctrl + Q
 
 ## Item commands
@@ -79,11 +74,6 @@ Model 1 + 2 Attribute 1 Set
 ```
 The command will open a popup window where you can insert the Label text for those Models.
 
-### Item Set Item (Copy)
-This command can be used for copying Items, for example:
-```
-Model 2 + 3 Set Model 1
-```
 This command will copy all the Attributes of Model 1 to Model 2 and 3.
 
 ### Item Set - (Delete)
@@ -137,6 +127,8 @@ This command doesn't take a value. Instead, it will open a popup where you can i
 - t (Tilt fine)
 - Z (Zoom)
 - z (Zoom fine)
+- F (Focus)
+- f (Focus fine)
 - 0 (DMX value 0)
 - 1 (DMX value 255)
 
@@ -181,19 +173,15 @@ You can also remove the Model from a Fixture, setting the Model Attribute to Non
 Fixture 1 Attribute 2 Set -
 ```
 
-### Fixture Attribute 3.1 Set (Address)
+### Fixture Attribute 3.1 Set (Universe)
+This command sets the sACN universe of the selected Fixtures.
+
+### Fixture Attribute 3.2 Set (Universe)
 This command sets the DMX address of the selected Fixtures.
 
 Every new Fixture is patched to address 0.
 This means that it won't output any DMX signal but can still be used for programming.
 This is great if you know your Fixture rig but not how it's patched.
-
-After every (successful) command, Zöglfrex will check your rig for DMX patch conflicts.
-
-### Fixture Attribute 3.2 Set (Universe)
-This command sets the sACN universe of the selected Fixtures.
-
-After every (successful) command, Zöglfrex will check your rig for DMX patch conflicts.
 
 ### Fixture Attribute 4.1 Set (X Position)
 This command sets the X Position of the Fixture in the 2D View.
@@ -228,11 +216,7 @@ Group 1 Attribute 2 Set Fixture 1.1 + 1.2 + 1.3
 ```
 You can also give no Fixture IDs which results in an empty Group:
 ```
-Group 1 Attribute 2 Set
-```
-You can also add Fixtures to Groups without overwriting all the Fixtures like this:
-```
-Group 1 Attribute 2 Set + Fixture 1.4 + 1.5
+Group 1 Attribute 2 Set -
 ```
 
 ## Intensities
@@ -282,7 +266,7 @@ For example, you could use this Attribute to call a Raw which controls the shutt
 
 You can remove all Raws again like this:
 ```
-Intensity 1 Attribute 3 Set
+Intensity 1 Attribute 3 Set -
 ```
 
 You can also add Raws to the Intensity without overwriting all the Raws like this:
@@ -317,6 +301,8 @@ Color 1 Attribute 4 Set 75
 This is important in combination with RGBW color mixing:
 The color white can be producted with only the white LEDs turned on (Quality = 100%) or with all LEDs turned on (Quality = 0%).
 
+For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2.
+
 ### Color Attribute 5 Set (Raws)
 This command allows you to set Raws which will be called together with the Color:
 ```
@@ -326,7 +312,7 @@ For example, you could use this Attribute to call a Raw which controls the color
 
 You can remove all Raws again like this:
 ```
-Color 1 Attribute 5 Set
+Color 1 Attribute 5 Set -
 ```
 
 You can also add Raws to the Color without overwriting all the Raws like this:
@@ -357,16 +343,22 @@ The value is given in degree.
 
 For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2.
 
-### Position Attribute 5 Set (Raws)
+### Position Attribute 5 Set (Focus)
+This command sets the Focus of the selected Positions.
+The value is given in percent.
+
+For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2.
+
+### Position Attribute 6 Set (Raws)
 This command allows you to set Raws which will be called together with the Position:
 ```
 Position 1 Attribute 5 Set Raw 1 + 2 + 3
 ```
-For example, you could use this Attribute to call a Raw which controls the focus of a Moving Head.
+For example, you could use this Attribute to call a Raw which controls the iris of a Moving Head.
 
 You can remove all Raws again like this:
 ```
-Position 1 Attribute 5 Set
+Position 1 Attribute 5 Set -
 ```
 
 You can also add Raws to the Position without overwriting all the Raws like this:
@@ -502,6 +494,11 @@ You can remove the Fixture exceptions again like this:
 Effect 1 Attribute 9 Fixture 4 Set -
 ```
 
+### Raw Attribute 10 Set (Sine Fade)
+This command sets if the Fades are rendered as linear transitions or if the are shaped like a sine wave.
+
+The accepted values are 0 (False / Linear Fade) and 1 (True / Sine-Shaped Fade).
+
 ## Cuelists
 If no Cuelist Attribute is given, the standard Attribute 2 will be used.
 
@@ -511,19 +508,13 @@ You can select the current Cuelist like this:
 Cuelist 1
 ```
 
-### Cuelist Attribute 2 Set (Current Cue)
-This command sets the Cue of the selected Cuelists:
-```
-Cuelist 1 Attribute 2 Set Cue 3
-```
-
-### Cuelist Attribute 3 Set (Priority)
+### Cuelist Attribute 2 Set (Priority)
 This command sets the Priority of a Cuelist.
 This is a number between 0 and 200.
 
 If multiple Cuelists try to control the same Fixture, the Cuelist with the highest ID will win.
 
-### Cuelist Attribute 4 Set (Move while Dark)
+### Cuelist Attribute 3 Set (Move while Dark)
 This command sets if the Fixtures which are not set are allowed to be set before the actual Cue where they are requested takes place.
 
 The accepted values are 0 (False / Move while Dark deactivated) and 1 (True / Move while Dark activated).
@@ -533,7 +524,7 @@ The accepted values are 0 (False / Move while Dark deactivated) and 1 (True / Mo
 You can only edit Cues of the currently selected Cuelist.
 All Cues must be member of one Cuelist.
 
-If no Cue Attribute is given, the standard Attribute 7 will be used.
+If no Cue Attribute is given, the standard Attribute 8 will be used.
 
 If no Cue ID is given, the ID of the selected Cue of the selected Cuelist will be used.
 You can select a Cue like this:
@@ -645,20 +636,44 @@ Cue 1 + 2 Attribute 6 Group 3 Set -
 > ```
 > If you use this syntax while Tracking is enabled, the Effects will be tracked in the next Cues until a Blocked Cue or a Cue where the Group holds different Effects.
 
-### Cue Attribute 7 Set (Fade)
-This command sets the Fade time of the selected Cues:
-```
-Cue 1 Attribute 7 Set 17.4
-```
-The value is given in seconds.
-
-### Cue Attribute 8 Set (Block)
+### Cue Attribute 7 Set (Block)
 This command sets if the selected Cues will be blocked Cues.
 This means that tracked values will not pass on to those Cues.
 ```
-Cue 1 + 2 Attribute 8 Set 1
+Cue 1 + 2 Attribute 7 Set 1
 ```
 The accepted values are 0 (False / Block deactivated) and 1 (True / Block activated).
+
+### Cue Attribute 8 Set (Fade)
+This command sets the Fade time of the selected Cues:
+```
+Cue 1 Attribute 8 Set 17.4
+```
+The value is given in seconds.
+
+For this Attribute, you can also give Fixture exceptions or set a difference, just like with Intensity Attribute 2.
+
+### Cue Attribute 9 Set (Delay)
+This command sets the Delay time of the selected Cues:
+```
+Cue 1 Attribute 9 Set 17.4
+```
+The value is given in seconds.
+
+For this Attribute, you can also give Fixture exceptions or set a difference, just like with Intensity Attribute 2.
+
+### Cue Attribute 10 Set (Follow)
+This command sets if this Cue will directly follow after the Fade of the previous Cue has ended:
+```
+Cue 1 Attribute 10 Set 1
+```
+
+The accepted values are 0 (False / Follow deactivated) and 1 (True / Follow activated).
+
+### Cue Attribute 11 Set (Sine Fade)
+This command sets if the Fades are rendered as linear transitions or if the are shaped like a sine wave.
+
+The accepted values are 0 (False / Linear Fade) and 1 (True / Sine-Shaped Fade).
 
 ## Selecting Items
 There are some useful tricks for selecting Items using IDs.
@@ -713,10 +728,13 @@ This command deletes all Intensities starting with Intensity 1.1 and ending with
 ## Control Panel
 The Control panel can be used to control the values of the current Group or Fixture:
 
-When selecting a Cue and a Group, you can see and change the Dimmer of the current Intensity, the Hue and Saturation of the current Color and the Pan, Tilt and Zoom of the current Position.
+When selecting a Cue and a Group, you can see and change the Dimmer of the current Intensity, the Hue and Saturation of the current Color and the Pan, Tilt, Zoom and Focus of the current Position.
 When you now also select a Fixture which has defined an exception for the Attribute, not the standard value but instead the value for this Fixture will be changed.
 So, for example, if your current Intensity holds a Dimmer exception for the current Fixture, rotating the Dial will change this exception.
 You can also add and remove exceptions by clicking the exception buttons.
+
+In the Raws tab, you can select a Raw and set Channel values.
+Here, you can also add and remove values and exceptions by clicking the exception buttons.
 
 > [!CAUTION]
 > Please note that the precision of the dials cannot be smaller than 1.

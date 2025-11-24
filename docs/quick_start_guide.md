@@ -144,12 +144,11 @@ For our first Group, we will select all dimmers:
 ```
 Group 1 Set Fixture 1.
 ```
-You can see that the automatically genrated name for our Group is quite complex.
-However, we can also give it a custom name:
+We can also give it a custom name:
 ```
 Group 1 Attribute 1 Set
 ```
-This command will open a text input box where you can insert the new Label of these fixtures.
+This command will open a text input box where you can insert the new Label of this Group.
 You could call this group "all Dimmers".
 We now create some more groups for our dimmers:
 ```
@@ -229,6 +228,10 @@ Cuelist 1 Attribute 1 Set
 ```
 We will call this Cuelist "Main Playback".
 
+In order to edit the Cues of Cuelist 1, we have to select it:
+```
+Cuelist 1
+```
 Now, we can add **Cues** to the Cuelist.
 `Cue Set` takes the Fade time of the Cue (in seconds) as an parameter:
 ```
