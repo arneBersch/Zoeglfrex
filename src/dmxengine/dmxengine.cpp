@@ -916,7 +916,7 @@ QHash<int, DmxEngine::RawChannelData> DmxEngine::getFixtureRaws(const int fixtur
                 if (!channels.contains(channel)) {
                     channels[channel] = RawChannelData();
                 }
-                channels[channel].value = (uint8_t)itemQuery.value(1).toUInt();
+                channels[channel].value = itemQuery.value(1).toUInt();
                 channels[channel].fading = fading;
                 channels[channel].moveWhileDark = moveWhileDark;
             }
@@ -929,7 +929,7 @@ QHash<int, DmxEngine::RawChannelData> DmxEngine::getFixtureRaws(const int fixtur
         modelExceptionQuery.bindValue(":fixture", fixtureKey);
         if (modelExceptionQuery.exec()) {
             while (modelExceptionQuery.next()) {
-                const int channel = itemQuery.value(0).toInt();
+                const int channel = modelExceptionQuery.value(0).toInt();
                 if (!channels.contains(channel)) {
                     channels[channel] = RawChannelData();
                 }
@@ -946,7 +946,7 @@ QHash<int, DmxEngine::RawChannelData> DmxEngine::getFixtureRaws(const int fixtur
         fixtureExceptionQuery.bindValue(":fixture", fixtureKey);
         if (fixtureExceptionQuery.exec()) {
             while (fixtureExceptionQuery.next()) {
-                const int channel = itemQuery.value(0).toInt();
+                const int channel = fixtureExceptionQuery.value(0).toInt();
                 if (!channels.contains(channel)) {
                     channels[channel] = RawChannelData();
                 }

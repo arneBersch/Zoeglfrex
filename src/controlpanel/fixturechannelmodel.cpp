@@ -149,7 +149,7 @@ void FixtureChannelModel::setRawKey(const int rawKey) {
             while (modelQuery.next()) {
                 const int channel = modelQuery.value(0).toInt();
                 const uint8_t value = modelQuery.value(1).toInt();
-                if (channels.length() <= channel) {
+                if (channel <= channels.length()) {
                     channels[channel - 1].modelValue = value;
                     channels[channel - 1].fixtureValue = value;
                 }
@@ -166,7 +166,7 @@ void FixtureChannelModel::setRawKey(const int rawKey) {
             while (fixtureQuery.next()) {
                 const int channel = fixtureQuery.value(0).toInt();
                 const uint8_t value = fixtureQuery.value(1).toInt();
-                if (channels.length() <= channel) {
+                if (channel <= channels.length()) {
                     channels[channel - 1].fixtureValue = value;
                 }
             }

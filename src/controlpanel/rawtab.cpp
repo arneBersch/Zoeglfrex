@@ -31,6 +31,8 @@ RawTab::RawTab(QWidget* parent) : QWidget(parent) {
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->setFocusPolicy(Qt::NoFocus);
     layout->addWidget(table);
+
+    reload();
 }
 
 void RawTab::reload() {
