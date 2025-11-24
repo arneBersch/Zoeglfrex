@@ -22,6 +22,9 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     void setRawKey(int key);
     void setChannelDifference(int channel, int difference);
+    void updateButtons(int channel, QPushButton* valueButton, QPushButton* modelButton, QPushButton* fixtureButton);
+signals:
+    void dbChanged();
 private:
     struct ChannelData {
         QString title = QString();

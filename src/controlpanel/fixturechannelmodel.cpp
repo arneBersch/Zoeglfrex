@@ -209,4 +209,65 @@ void FixtureChannelModel::setChannelDifference(const int channel, int difference
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
     }
+    emit dbChanged();
+}
+
+void FixtureChannelModel::updateButtons(const int channel, QPushButton* valueButton, QPushButton* modelButton, QPushButton* fixtureButton) {
+    Q_ASSERT(channel <= channels.length());
+    const ChannelData channelData = channels.at(channel - 1);
+    valueButton->setText(QString::number(channelData.value));
+    valueButton->setCheckable(true);
+    valueButton->setChecked(channelData.valueGiven);
+    connect(valueButton, &QPushButton::clicked, this, [this, channel, valueButton] {
+        QSqlQuery query;
+        if (valueButton->isChecked()) {
+            query.prepare("INSERT OR REPLACE INTO raw_channel_values (item_key, key) VALUES (:raw, :channel)");
+        } else {
+            query.prepare("DELETE FROM raw_channel_values WHERE item_key = :raw AND key = :channel");
+        }
+        query.bindValue(":raw", rawKey);
+        query.bindValue(":channel", channel);
+        if (!query.exec()) {
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        }
+        emit dbChanged();
+    });
+    modelButton->setText(QString::number(channelData.modelValue));
+    modelButton->setCheckable(true);
+    modelButton->setChecked(channelData.modelValueGiven);
+    connect(modelButton, &QPushButton::clicked, this, [this, channel, modelButton] {
+        Q_ASSERT(modelKey >= 0);
+        QSqlQuery query;
+        if (modelButton->isChecked()) {
+            query.prepare("INSERT OR REPLACE INTO raw_model_channel_values (item_key, key, foreignitem_key) VALUES (:raw, :channel, :model)");
+        } else {
+            query.prepare("DELETE FROM raw_model_channel_values WHERE item_key = :raw AND foreignitem_key = :model AND key = :channel");
+        }
+        query.bindValue(":model", modelKey);
+        query.bindValue(":raw", rawKey);
+        query.bindValue(":channel", channel);
+        if (!query.exec()) {
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        }
+        emit dbChanged();
+    });
+    fixtureButton->setText(QString::number(channelData.fixtureValue));
+    fixtureButton->setCheckable(true);
+    fixtureButton->setChecked(channelData.fixtureValueGiven);
+    connect(fixtureButton, &QPushButton::clicked, this, [this, channel, fixtureButton] {
+        Q_ASSERT(fixtureKey >= 0);
+        QSqlQuery query;
+        if (fixtureButton->isChecked()) {
+            query.prepare("INSERT OR REPLACE INTO raw_fixture_channel_values (item_key, key, foreignitem_key) VALUES (:raw, :channel, :fixture)");
+        } else {
+            query.prepare("DELETE FROM raw_fixture_channel_values WHERE item_key = :raw AND foreignitem_key = :fixture AND key = :channel");
+        }
+        query.bindValue(":fixture", fixtureKey);
+        query.bindValue(":raw", rawKey);
+        query.bindValue(":channel", channel);
+        if (!query.exec()) {
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        }
+        emit dbChanged();
+    });
 }
