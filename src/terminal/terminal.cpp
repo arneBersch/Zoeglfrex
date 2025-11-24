@@ -2061,10 +2061,14 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                         for (int ending = thruParts.last().toInt(); ending <= idParts.last().toInt(); ending++) {
                             QStringList currentIdParts = thruParts.first(thruParts.length() - 1);
                             currentIdParts.append(QString::number(ending));
+                            QString currentId = currentIdParts.join(".");
+                            while (currentId.endsWith(".0")) {
+                                currentId.chop(2);
+                            }
                             if (idAdding) {
-                                ids.append(currentIdParts.join("."));
+                                ids.append(currentId);
                             } else {
-                                ids.removeAll(currentIdParts.join("."));
+                                ids.removeAll(currentId);
                             }
                         }
                         thruParts.clear();
@@ -2086,7 +2090,10 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                         }
                         std::sort(allIdsExtended.begin(), allIdsExtended.end(), Terminal::compareIds);
                         for (int index = allIdsExtended.indexOf(thruId); index <= allIdsExtended.indexOf(id); index++) {
-                            const QString currentId = allIdsExtended.at(index);
+                            QString currentId = allIdsExtended.at(index);
+                            while (currentId.endsWith(".0")) {
+                                currentId.chop(2);
+                            }
                             if (allIds.contains(currentId)) {
                                 if (idAdding) {
                                     ids.append(currentId);

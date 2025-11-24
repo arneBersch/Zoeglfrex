@@ -27,6 +27,7 @@ RawTab::RawTab(QWidget* parent) : QWidget(parent) {
     connect(model, &FixtureChannelModel::dbChanged, this, &RawTab::dbChanged);
     tableView->setModel(model);
     tableView->verticalHeader()->hide();
+    tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setStretchLastSection(true);
     tableView->setSelectionMode(QAbstractItemView::NoSelection);
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);

@@ -25,6 +25,7 @@ PlaybackMonitor::PlaybackMonitor(QWidget *parent) : QWidget(parent, Qt::Window) 
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     tableView->setFocusPolicy(Qt::NoFocus);
     tableView->verticalHeader()->hide();
+    tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setStretchLastSection(true);
 
     QVBoxLayout* layout = new QVBoxLayout();
