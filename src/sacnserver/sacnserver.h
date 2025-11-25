@@ -17,16 +17,16 @@ class SacnServer : public QWidget {
 public:
     SacnServer(QWidget* parent = nullptr);
 public slots:
-    void sendUniverse(int universe, QByteArray channels);
+    void sendUniverses(QHash<int, QByteArray> universes);
 private:
     void reloadNetworkInterfaces();
     QSettings* settings;
-    QByteArray packetHeader;
     QUdpSocket *socket = nullptr;
     QComboBox* networkInterfaceComboBox;
     QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();
     QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
-    uchar sequence = 0;
+    uint8_t sequence = 0;
+    const QByteArray cid = QUuid::createUuid().toRfc4122();
 };
 
 #endif // SACNSERVER_H

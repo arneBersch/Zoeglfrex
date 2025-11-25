@@ -19,7 +19,7 @@ class DmxEngine : public QWidget {
 public:
     DmxEngine(QWidget* parent = nullptr);
 signals:
-    void sendUniverse(int universe, QByteArray data);
+    void sendUniverses(QHash<int, QByteArray> universes);
     void updatePreviewFixtures(QHash<int, Preview2d::PreviewData> fixtures);
     void dbChanged();
 private:

@@ -614,9 +614,7 @@ void DmxEngine::generateDmx() {
             }
         }
     }
-    for (const int universe : dmxUniverses.keys()) {
-        emit sendUniverse(universe, dmxUniverses.value(universe));
-    }
+    emit sendUniverses(dmxUniverses);
     emit updatePreviewFixtures(previewFixtures);
     if (!skipFadeButton->isChecked()) {
         QSqlQuery cuelistQuery;

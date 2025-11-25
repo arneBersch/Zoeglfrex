@@ -14,7 +14,7 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
 
     resize(1200, 800);
 
-    connect(dmxEngine, &DmxEngine::sendUniverse, sacnServer, &SacnServer::sendUniverse);
+    connect(dmxEngine, &DmxEngine::sendUniverses, sacnServer, &SacnServer::sendUniverses);
     connect(dmxEngine, &DmxEngine::updatePreviewFixtures, preview2d, &Preview2d::setFixtures);
     connect(dmxEngine, &DmxEngine::dbChanged, this, &MainWindow::reload);
     connect(cuelistView, &CuelistView::dbChanged, this, &MainWindow::reload);

@@ -24,7 +24,6 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
         socket = nullptr;
         if (index >= 0) {
             socket = new QUdpSocket();
-            socket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, false); // Disable Multicast Loopback
             socket->bind(networkAddresses.at(index).ip());
             socket->setMulticastInterface(networkInterfaces.at(index));
             settings->setValue("sacn/interface", networkInterfaces.at(index).name());
@@ -52,106 +51,6 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
         settings->setValue("sacn/priority", port);
     });
     layout->addWidget(prioritySpinBox, 2, 1);
-
-    // Root Layer
-    // Preamble Size (Octet 0-1)
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x10);
-
-    //Post-amble Size (Octet 2-3)
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x00);
-
-    // ACN Packet Identifier (Octet 4-15)
-    packetHeader.append((char)0x41);
-    packetHeader.append((char)0x53);
-    packetHeader.append((char)0x43);
-    packetHeader.append((char)0x2d);
-    packetHeader.append((char)0x45);
-    packetHeader.append((char)0x31);
-    packetHeader.append((char)0x2e);
-    packetHeader.append((char)0x31);
-    packetHeader.append((char)0x37);
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x00);
-
-    // Flags and Length (Octet 16-17)
-    packetHeader.append((char)0x72);
-    packetHeader.append((char)0x6e);
-
-    // Vector (Octet 18-21)
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x04);
-
-    // CID (Octet 22-37)
-    const QByteArray cid = QUuid::createUuid().toRfc4122();
-    packetHeader.append(cid);
-
-    // Framing Layer
-    // Flags and Length (Octet 38-39)
-    packetHeader.append((char)0x72);
-    packetHeader.append((char)0x58);
-
-    // Vector (Octet 40-43)
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x02);
-
-    // Source Name (Octet 44-107)
-    QByteArray source = QString("ZÖGLFREX").toUtf8();
-    packetHeader.append(source);
-    for (int i=0; i < 64-source.length(); i++) {
-        packetHeader.append((char)0x00);
-    }
-
-    // Priority (Octet 108)
-    packetHeader.append((char)100); // 0-200, Default: 100
-
-    // Synchronization Address (Octet 109-110)
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x00);
-
-    // Sequence Number (Octet 111)
-    packetHeader.append((char)0x00);
-
-    // Options (Octet 112)
-    packetHeader.append((char)0x00); // Select no options
-
-    // Universe (Octet 113-114)
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x01);
-
-    // DMP Layer
-    // Flags and Length (Octet 115-116)
-    packetHeader.append((char)0x72);
-    packetHeader.append((char)0x0b);
-
-    // Vector (Octet 117)
-    packetHeader.append((char)0x02);
-
-    // Address Type & Data Type (Octet 118)
-    packetHeader.append((char)0xa1);
-
-    // First Property Address (Octet 119-120)
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x00);
-
-    // Address Increment (Octet 121-122)
-    packetHeader.append((char)0x00);
-    packetHeader.append((char)0x01);
-
-    // Property Value Count (Octet 123-124)
-    packetHeader.append((char)0x02);
-    packetHeader.append((char)0x01);
-
-    // Start Code (Octet 125)
-    packetHeader.append((char)0x00);
-
-    // Property Values (Octet 126-637)
 }
 
 void SacnServer::reloadNetworkInterfaces() {
@@ -175,23 +74,122 @@ void SacnServer::reloadNetworkInterfaces() {
     networkInterfaceComboBox->setCurrentIndex(interfaceIndex);
 }
 
-void SacnServer::sendUniverse(const int universe, QByteArray data) {
+void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
     if (socket == nullptr) {
         return;
     }
-    Q_ASSERT(data.size() == 512);
-    Q_ASSERT(universe <= 63999);
-    Q_ASSERT(universe >= 1);
-    QByteArray sacnPacket = packetHeader;
-    sacnPacket.append(data);
-    sacnPacket[108] = (char)settings->value("sacn/priority", 100).toInt();
-    sacnPacket[111] = sequence;
-    sacnPacket[113] = (char)(universe / 256);
-    sacnPacket[114] = (char)(universe % 256);
-    const QString address = "239.255." + QString::number(universe / 256) + "." + QString::number(universe % 256);
-    qint64 result = socket->writeDatagram(sacnPacket.data(), sacnPacket.size(), QHostAddress(address), 5568);
-    if (result < 0) {
-        qWarning() << Q_FUNC_INFO << socket->error() << socket->errorString();
+    for (const int universe : universeData.keys()) {
+        const QByteArray data = universeData.value(universe);
+        Q_ASSERT(data.size() == 512);
+        Q_ASSERT(universe <= 63999);
+        Q_ASSERT(universe >= 1);
+        QByteArray packet;
+
+        // Root Layer
+        // Preamble Size (Octet 0-1)
+        packet.append((char)0x00);
+        packet.append((char)0x10);
+
+        //Post-amble Size (Octet 2-3)
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+
+        // ACN Packet Identifier (Octet 4-15)
+        packet.append((char)0x41);
+        packet.append((char)0x53);
+        packet.append((char)0x43);
+        packet.append((char)0x2d);
+        packet.append((char)0x45);
+        packet.append((char)0x31);
+        packet.append((char)0x2e);
+        packet.append((char)0x31);
+        packet.append((char)0x37);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+
+        // Flags and Length (Octet 16-17)
+        packet.append((char)0x72);
+        packet.append((char)0x6e);
+
+        // Vector (Octet 18-21)
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x04);
+
+        // CID (Octet 22-37)
+        packet.append(cid);
+
+        // Framing Layer
+        // Flags and Length (Octet 38-39)
+        packet.append((char)0x72);
+        packet.append((char)0x58);
+
+        // Vector (Octet 40-43)
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x02);
+
+        // Source Name (Octet 44-107)
+        QByteArray source = QString("Zöglfrex").toUtf8();
+        packet.append(source);
+        for (int i=0; i < 64-source.length(); i++) {
+            packet.append((char)0x00);
+        }
+
+        // Priority (Octet 108)
+        packet.append((char)settings->value("sacn/priority", 100).toInt());
+
+        // Synchronization Address (Octet 109-110)
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+
+        // Sequence Number (Octet 111)
+        packet.append(sequence);
+
+        // Options (Octet 112)
+        packet.append((char)0x00); // Select no options
+
+        // Universe (Octet 113-114)
+        packet.append((char)(universe / 256));
+        packet.append((char)(universe % 256));
+
+        // DMP Layer
+        // Flags and Length (Octet 115-116)
+        packet.append((char)0x72);
+        packet.append((char)0x0b);
+
+        // Vector (Octet 117)
+        packet.append((char)0x02);
+
+        // Address Type & Data Type (Octet 118)
+        packet.append((char)0xa1);
+
+        // First Property Address (Octet 119-120)
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+
+        // Address Increment (Octet 121-122)
+        packet.append((char)0x00);
+        packet.append((char)0x01);
+
+        // Property Value Count (Octet 123-124)
+        packet.append((char)0x02);
+        packet.append((char)0x01);
+
+        // Start Code (Octet 125)
+        packet.append((char)0x00);
+
+        // Property Values (Octet 126-637)
+        packet.append(data);
+
+        const QString address = "239.255." + QString::number(universe / 256) + "." + QString::number(universe % 256);
+        const qint64 result = socket->writeDatagram(packet, QHostAddress(address), 5568);
+        if (result < 0) {
+            qWarning() << Q_FUNC_INFO << socket->error() << socket->errorString();
+        }
     }
     sequence++;
 }
