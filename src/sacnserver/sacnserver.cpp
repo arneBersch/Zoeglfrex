@@ -51,6 +51,10 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
         settings->setValue("sacn/priority", port);
     });
     layout->addWidget(prioritySpinBox, 2, 1);
+
+    QTimer* universeListTimer = new QTimer();
+    connect(universeListTimer, &QTimer::timeout, this, &SacnServer::sendUniverseList);
+    universeListTimer->start(10000);
 }
 
 void SacnServer::reloadNetworkInterfaces() {
@@ -75,6 +79,7 @@ void SacnServer::reloadNetworkInterfaces() {
 }
 
 void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
+    universes = universeData.keys();
     if (socket == nullptr) {
         return;
     }
@@ -83,14 +88,14 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         Q_ASSERT(data.size() <= 512);
         Q_ASSERT(universe <= 63999);
         Q_ASSERT(universe >= 1);
-        QByteArray packet;
 
+        QByteArray packet;
         // Root Layer
         // Preamble Size (Octet 0-1)
         packet.append((char)0x00);
         packet.append((char)0x10);
 
-        //Post-amble Size (Octet 2-3)
+        // Postamble Size (Octet 2-3)
         packet.append((char)0x00);
         packet.append((char)0x00);
 
@@ -196,6 +201,120 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         }
     }
     sequence++;
+}
+
+void SacnServer::sendUniverseList() {
+    if (socket == nullptr) {
+        return;
+    }
+    std::sort(universes.begin(), universes.end());
+
+    QList<QList<int>> universePages;
+    QList<int> pageUniverses;
+    for (const int universe : universes) {
+        if (pageUniverses.length() >= 512) {
+            universePages.append(pageUniverses);
+            pageUniverses.clear();
+        }
+        pageUniverses.append(universe);
+    }
+    universePages.append(pageUniverses);
+
+    for (int page = 0; page < universePages.length(); page++) {
+        QByteArray packet;
+        // Root Layer
+        // Preamble Size (Octet 0-1)
+        packet.append((char)0x00);
+        packet.append((char)0x10);
+
+        // Postamble Size (Octet 2-3)
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+
+        // ACN Packet Identifier (Octet 4-15)
+        packet.append((char)0x41);
+        packet.append((char)0x53);
+        packet.append((char)0x43);
+        packet.append((char)0x2d);
+        packet.append((char)0x45);
+        packet.append((char)0x31);
+        packet.append((char)0x2e);
+        packet.append((char)0x31);
+        packet.append((char)0x37);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+
+        // Flags and Length (Octet 16-17)
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+
+        // Vector (Octet 18-21)
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x08);
+
+        // CID (Octet 22-37)
+        Q_ASSERT(cid.length() == 16);
+        packet.append(cid);
+
+        // Framing Layer
+        // Flags and Length (Octet 38-39)
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+
+        // Vector (Octet 40-43)
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x02);
+
+        // Source Name (Octet 44-107)
+        QByteArray source = QString("Zöglfrex - " + QHostInfo::localHostName()).toUtf8();
+        source.truncate(63);
+        source.resize(64, (char)0x00);
+        packet.append(source);
+
+        // Reserved (Octet 108-111)
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+
+        // Universe Discovery Layer
+        // Flags and Length (Octet 112-113)
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+
+        // Vector (Octet 114-117)
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
+        packet.append((char)0x01);
+
+        // Page (Octet 118)
+        packet.append((char)page);
+
+        // Last Page (Octet 119)
+        packet.append((char)(pageUniverses.length() - 1));
+
+        // List of Universes (Octet 120-1143)
+        Q_ASSERT(universePages.at(page).length() <= 512);
+        for (const int universe : universePages.at(page)) {
+            packet.append((char)(universe / 256));
+            packet.append((char)(universe % 256));
+        }
+
+        updateFlagsAndLength(&packet, 16);
+        updateFlagsAndLength(&packet, 38);
+        updateFlagsAndLength(&packet, 112);
+
+        const qint64 result = socket->writeDatagram(packet, QHostAddress("239.255.250.214"), 5568);
+        if (result < 0) {
+            qWarning() << Q_FUNC_INFO << socket->error() << socket->errorString();
+        }
+    }
 }
 
 void SacnServer::updateFlagsAndLength(QByteArray* data, const int index) {
