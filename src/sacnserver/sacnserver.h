@@ -20,6 +20,7 @@ public slots:
     void sendUniverses(QHash<int, QByteArray> universes);
 private:
     void reloadNetworkInterfaces();
+    void updateFlagsAndLength(QByteArray* data, int index);
     QSettings* settings;
     QUdpSocket *socket = nullptr;
     QComboBox* networkInterfaceComboBox;

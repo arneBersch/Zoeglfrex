@@ -80,7 +80,7 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
     }
     for (const int universe : universeData.keys()) {
         const QByteArray data = universeData.value(universe);
-        Q_ASSERT(data.size() == 512);
+        Q_ASSERT(data.size() <= 512);
         Q_ASSERT(universe <= 63999);
         Q_ASSERT(universe >= 1);
         QByteArray packet;
@@ -109,8 +109,8 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         packet.append((char)0x00);
 
         // Flags and Length (Octet 16-17)
-        packet.append((char)0x72);
-        packet.append((char)0x6e);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
 
         // Vector (Octet 18-21)
         packet.append((char)0x00);
@@ -119,12 +119,13 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         packet.append((char)0x04);
 
         // CID (Octet 22-37)
+        Q_ASSERT(cid.length() == 16);
         packet.append(cid);
 
         // Framing Layer
         // Flags and Length (Octet 38-39)
-        packet.append((char)0x72);
-        packet.append((char)0x58);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
 
         // Vector (Octet 40-43)
         packet.append((char)0x00);
@@ -133,11 +134,10 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         packet.append((char)0x02);
 
         // Source Name (Octet 44-107)
-        QByteArray source = QString("Zöglfrex").toUtf8();
+        QByteArray source = QString("Zöglfrex - " + QHostInfo::localHostName()).toUtf8();
+        source.truncate(63);
+        source.resize(64, (char)0x00);
         packet.append(source);
-        for (int i=0; i < 64-source.length(); i++) {
-            packet.append((char)0x00);
-        }
 
         // Priority (Octet 108)
         packet.append((char)settings->value("sacn/priority", 100).toInt());
@@ -150,7 +150,7 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         packet.append(sequence);
 
         // Options (Octet 112)
-        packet.append((char)0x00); // Select no options
+        packet.append((char)0x00); // deselect all options
 
         // Universe (Octet 113-114)
         packet.append((char)(universe / 256));
@@ -158,8 +158,8 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
 
         // DMP Layer
         // Flags and Length (Octet 115-116)
-        packet.append((char)0x72);
-        packet.append((char)0x0b);
+        packet.append((char)0x00);
+        packet.append((char)0x00);
 
         // Vector (Octet 117)
         packet.append((char)0x02);
@@ -176,14 +176,18 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         packet.append((char)0x01);
 
         // Property Value Count (Octet 123-124)
-        packet.append((char)0x02);
-        packet.append((char)0x01);
+        packet.append((char)((data.length() + 1) / 256));
+        packet.append((char)((data.length() + 1) % 256));
 
         // Start Code (Octet 125)
         packet.append((char)0x00);
 
         // Property Values (Octet 126-637)
         packet.append(data);
+
+        updateFlagsAndLength(&packet, 16);
+        updateFlagsAndLength(&packet, 38);
+        updateFlagsAndLength(&packet, 115);
 
         const QString address = "239.255." + QString::number(universe / 256) + "." + QString::number(universe % 256);
         const qint64 result = socket->writeDatagram(packet, QHostAddress(address), 5568);
@@ -192,4 +196,11 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         }
     }
     sequence++;
+}
+
+void SacnServer::updateFlagsAndLength(QByteArray* data, const int index) {
+    int length = 0x7000;
+    length += data->length() - index;
+    (*data)[index] = (char)(length / 256);
+    (*data)[index + 1] = (char)(length % 256);
 }
