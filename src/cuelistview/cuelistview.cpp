@@ -152,13 +152,13 @@ void CuelistView::selectItem(const QString table, const QString currentSortkeyQu
     QSqlQuery keyQuery;
     if (currentSortkeyQuery.next()) {
         if (next) {
-            keyQuery.prepare("SELECT key, MIN(sortkey) FROM " + table + " WHERE sortkey > :sortkey");
+            keyQuery.prepare("SELECT key FROM " + table + " WHERE sortkey = (SELECT MIN(sortkey) FROM " + table + " WHERE sortkey > :sortkey)");
         } else {
-            keyQuery.prepare("SELECT key, MAX(sortkey) FROM " + table + " WHERE sortkey < :sortkey");
+            keyQuery.prepare("SELECT key FROM " + table + " WHERE sortkey = (SELECT MAX(sortkey) FROM " + table + " WHERE sortkey < :sortkey)");
         }
         keyQuery.bindValue(":sortkey", currentSortkeyQuery.value(0).toInt());
     } else {
-        keyQuery.prepare("SELECT key, MIN(sortkey) FROM " + table);
+        keyQuery.prepare("SELECT key FROM " + table + " WHERE sortkey = (SELECT MIN(sortkey) FROM " + table + ")");
     }
     if (!keyQuery.exec()) {
         qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
@@ -168,9 +168,6 @@ void CuelistView::selectItem(const QString table, const QString currentSortkeyQu
         return;
     }
     const int key = keyQuery.value(0).toInt();
-    if (key <= 0) {
-        return;
-    }
     QSqlQuery updateQuery;
     updateQuery.prepare(updateQueryText);
     updateQuery.bindValue(":key", key);

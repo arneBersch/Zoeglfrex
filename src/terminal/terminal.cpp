@@ -750,6 +750,61 @@ void Terminal::createItems(const ItemInfos item, QStringList ids) {
         success("Created " + item.plural + " " + successfulIds.join(", ") + ".");
     }
     updateSortingKeys(item);
+    if (item.selectTable == cueInfos.selectTable) {
+        for (QString id : successfulIds) {
+            QSqlQuery keyQuery;
+            keyQuery.prepare("SELECT key FROM " + item.selectTable + " WHERE id = :id");
+            keyQuery.bindValue(":id", id);
+            if (keyQuery.exec()) {
+                if (keyQuery.next()) {
+                    const int key = keyQuery.value(0).toInt();
+                    QSqlQuery previousCueQuery;
+                    previousCueQuery.prepare("SELECT key FROM " + item.selectTable + " WHERE sortkey = (SELECT MAX(sortkey) FROM " + item.selectTable + " WHERE sortkey < (SELECT sortkey FROM " + item.selectTable + " WHERE key = :key))");
+                    previousCueQuery.bindValue(":key", key);
+                    if (previousCueQuery.exec()) {
+                        if (previousCueQuery.next()) {
+                            const int previousCueKey = previousCueQuery.value(0).toInt();
+                            QStringList tables;
+                            tables.append("cue_group_intensities");
+                            tables.append("cue_group_colors");
+                            tables.append("cue_group_positions");
+                            tables.append("cue_group_raws");
+                            tables.append("cue_group_effects");
+                            for (QString table : tables) {
+                                QSqlQuery valueQuery;
+                                valueQuery.prepare("SELECT foreignitem_key, valueitem_key FROM " + table + " WHERE item_key = :key");
+                                valueQuery.bindValue(":key", previousCueKey);
+                                if (valueQuery.exec()) {
+                                    while (valueQuery.next()) {
+                                        QSqlQuery updateQuery;
+                                        updateQuery.prepare("INSERT INTO " + table + " (item_key, foreignitem_key, valueitem_key) VALUES (:key, :foreignitem, :valueitem)");
+                                        updateQuery.bindValue(":key", key);
+                                        updateQuery.bindValue(":foreignitem", valueQuery.value(0).toInt());
+                                        updateQuery.bindValue(":valueitem", valueQuery.value(1).toInt());
+                                        if (!updateQuery.exec()) {
+                                            qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
+                                            error("Failed to copy data of the previous " + item.singular + " to " + item.singular + " " + id + ".");
+                                        }
+                                    }
+                                } else {
+                                    qWarning() << Q_FUNC_INFO << valueQuery.executedQuery() << valueQuery.lastError().text();
+                                    error("Failed to copy the data of the previous " + item.singular + " to " + item.singular + " " + id + ".");
+                                }
+                            }
+                        }
+                    } else {
+                        qWarning() << Q_FUNC_INFO << previousCueQuery.executedQuery() << previousCueQuery.lastError().text();
+                        error("Failed to get the " + item.singular + " before " + item.singular + " " + id + ".");
+                    }
+                } else {
+                    error(item.singular + " " + id + " wasn't found.");
+                }
+            } else {
+                qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
+                error("Failed to get " + item.singular + " " + id + ".");
+            }
+        }
+    }
 }
 
 void Terminal::deleteItems(const ItemInfos item, QStringList ids) {
