@@ -21,7 +21,7 @@ public slots:
 signals:
     void dbChanged();
 private:
-    void updateCue(const int cuelistKey, const int newCueIndex);
+    void setCue(const int cuelistKey, const int cueKey);
     QSqlQueryModel* model;
     QTableView* tableView;
 };

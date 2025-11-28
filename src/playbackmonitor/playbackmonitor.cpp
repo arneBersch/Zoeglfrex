@@ -43,57 +43,56 @@ void PlaybackMonitor::reload() {
         tableView->setIndexWidget(model->index(row, 2), goButton);
         QPushButton* goBackButton = new QPushButton("GO BACK");
         tableView->setIndexWidget(model->index(row, 3), goBackButton);
-        QSqlQuery currentSortkeyQuery;
-        currentSortkeyQuery.prepare("SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key");
-        currentSortkeyQuery.bindValue(":cuelist", cuelistKey);
-        if (currentSortkeyQuery.exec()) {
-            int sortkey = -1;
-            if (currentSortkeyQuery.next()) {
-                sortkey = currentSortkeyQuery.value(0).toInt();
+        QSqlQuery currentCueQuery;
+        currentCueQuery.prepare("SELECT currentcue_key FROM cuelists WHERE key = :cuelist");
+        currentCueQuery.bindValue(":cuelist", cuelistKey);
+        if (currentCueQuery.exec()) {
+            int currentCueKey = -1;
+            if (currentCueQuery.next()) {
+                currentCueKey = currentCueQuery.value(0).toInt();
             }
             QSqlQuery cueQuery;
-            cueQuery.prepare("SELECT CONCAT(id, ' ', label) FROM cues WHERE cuelist_key = :key ORDER BY sortkey");
+            cueQuery.prepare("SELECT key, CONCAT(id, ' ', label) FROM cues WHERE cuelist_key = :key ORDER BY sortkey");
             cueQuery.bindValue(":key", cuelistKey);
             if (cueQuery.exec()) {
+                QList<int> cueKeys;
+                int index = -1;
                 while (cueQuery.next()) {
-                    cueComboBox->addItem(cueQuery.value(0).toString());
+                    const int cueKey = cueQuery.value(0).toInt();
+                    if (cueKey == currentCueKey) {
+                        index = cueQuery.at();
+                    }
+                    cueKeys.append(cueKey);
+                    cueComboBox->addItem(cueQuery.value(1).toString());
                 }
-                if (sortkey >= 0) {
-                    cueComboBox->setCurrentIndex(sortkey - 1);
-                    connect(goButton, &QPushButton::clicked, this, [this, cuelistKey, sortkey] { updateCue(cuelistKey, sortkey + 1); });
-                    connect(goBackButton, &QPushButton::clicked, this, [this, cuelistKey, sortkey] { updateCue(cuelistKey, sortkey - 1); });
-                } else {
-                    updateCue(cuelistKey, 1);
+                if (index >= 0) {
+                    cueComboBox->setCurrentIndex(index);
+                    if (cueKeys.length() >= index + 1) {
+                        connect(goButton, &QPushButton::clicked, this, [this, cuelistKey, cueKeys, index] { setCue(cuelistKey, cueKeys.at(index + 1)); });
+                    }
+                    if (index > 0) {
+                        connect(goBackButton, &QPushButton::clicked, this, [this, cuelistKey, cueKeys, index] { setCue(cuelistKey, cueKeys.at(index - 1)); });
+                    }
+                } else if (!cueKeys.isEmpty()) {
+                    setCue(cuelistKey, cueKeys.first());
                 }
-                connect(cueComboBox, &QComboBox::currentIndexChanged, this, [this, cuelistKey] (const int newIndex) { updateCue(cuelistKey, newIndex + 1); });
+                connect(cueComboBox, &QComboBox::currentIndexChanged, this, [this, cuelistKey, cueKeys] (const int newIndex) { setCue(cuelistKey, cueKeys.at(newIndex)); });
             } else {
                 qWarning() << Q_FUNC_INFO << cueQuery.executedQuery() << cueQuery.lastError().text();
             }
         } else {
-            qWarning() << Q_FUNC_INFO << currentSortkeyQuery.executedQuery() << currentSortkeyQuery.lastError().text();
+            qWarning() << Q_FUNC_INFO << currentCueQuery.executedQuery() << currentCueQuery.lastError().text();
         }
     }
 }
 
-void PlaybackMonitor::updateCue(const int cuelistKey, const int newCueIndex) {
-    QSqlQuery cueKeyQuery;
-    cueKeyQuery.prepare("SELECT key FROM cues WHERE cuelist_key = :cuelist AND sortkey = :sortkey");
-    cueKeyQuery.bindValue(":cuelist", cuelistKey);
-    cueKeyQuery.bindValue(":sortkey", newCueIndex);
-    if (!cueKeyQuery.exec()) {
-        qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
-        return;
-    }
-    if (!cueKeyQuery.next()) {
-        return;
-    }
-    const int cueKey = cueKeyQuery.value(0).toInt();
-    QSqlQuery updateQuery;
-    updateQuery.prepare("UPDATE cuelists SET currentcue_key = :cue WHERE key = :cuelist");
-    updateQuery.bindValue(":cuelist", cuelistKey);
-    updateQuery.bindValue(":cue", cueKey);
-    if (!updateQuery.exec()) {
-        qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
+void PlaybackMonitor::setCue(const int cuelistKey, const int cueKey) {
+    QSqlQuery query;
+    query.prepare("UPDATE cuelists SET currentcue_key = :cue WHERE key = :cuelist");
+    query.bindValue(":cuelist", cuelistKey);
+    query.bindValue(":cue", cueKey);
+    if (!query.exec()) {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
     }
     emit dbChanged();
 }
