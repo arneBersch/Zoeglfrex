@@ -2113,7 +2113,10 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                     if (idParts.isEmpty() && !idStartsWithPeriod) {
                         return QStringList();
                     }
-                    const QString id = idParts.join(".");
+                    QString id = idParts.join(".");
+                    while (id.endsWith(".0")) {
+                        id.chop(2);
+                    }
                     if (idStartsWithPeriod) {
                         if (thruParts.isEmpty() || (idParts.size() != 1)) {
                             return QStringList();
@@ -2151,9 +2154,6 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                         std::sort(allIdsExtended.begin(), allIdsExtended.end(), Terminal::compareIds);
                         for (int index = allIdsExtended.indexOf(thruId); index <= allIdsExtended.indexOf(id); index++) {
                             QString currentId = allIdsExtended.at(index);
-                            while (currentId.endsWith(".0")) {
-                                currentId.chop(2);
-                            }
                             if (allIds.contains(currentId)) {
                                 if (idAdding) {
                                     ids.append(currentId);
