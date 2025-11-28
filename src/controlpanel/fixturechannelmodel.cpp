@@ -27,10 +27,9 @@ QVariant FixtureChannelModel::data(const QModelIndex &index, int role) const {
     if (index.row() > channels.length()) {
         return QVariant();
     }
-    ChannelData channel = channels.at(index.row());
+    const ChannelData channel = channels.at(index.row());
     const int column = index.column();
     if (role == Qt::DisplayRole) {
-        QString queryText;
         if (column == 0) {
             return channel.title;
         } else if (column == 1) {
@@ -88,33 +87,33 @@ void FixtureChannelModel::setRawKey(const int raw) {
         const bool fine = (channelChar != channelChar.toUpper());
         channelChar = channelChar.toUpper();
         if (channelChar == QChar('D')) {
-            channel.title = "Dimmer";
+            channel.title.append("Dimmer");
         } else if (channelChar == QChar('R')) {
-            channel.title = "Red";
+            channel.title.append("Red");
         } else if (channelChar == QChar('G')) {
-            channel.title = "Green";
+            channel.title.append("Green");
         } else if (channelChar == QChar('B')) {
-            channel.title = "Blue";
+            channel.title.append("Blue");
         } else if (channelChar == QChar('W')) {
-            channel.title = "White";
+            channel.title.append("White");
         } else if (channelChar == QChar('C')) {
-            channel.title = "Cyan";
+            channel.title.append("Cyan");
         } else if (channelChar == QChar('M')) {
-            channel.title = "Magenta";
+            channel.title.append("Magenta");
         } else if (channelChar == QChar('Y')) {
-            channel.title = "Yellow";
+            channel.title.append("Yellow");
         } else if (channelChar == QChar('P')) {
-            channel.title = "Pan";
+            channel.title.append("Pan");
         } else if (channelChar == QChar('T')) {
-            channel.title = "Tilt";
+            channel.title.append("Tilt");
         } else if (channelChar == QChar('Z')) {
-            channel.title = "Zoom";
+            channel.title.append("Zoom");
         } else if (channelChar == QChar('F')) {
-            channel.title = "Focus";
+            channel.title.append("Focus");
         } else if (channelChar == QChar('0')) {
-            channel.title = "DMX 0";
+            channel.title.append("DMX 0");
         } else if (channelChar == QChar('1')) {
-            channel.title = "DMX 255";
+            channel.title.append("DMX 255");
         } else {
             Q_ASSERT(false);
         }
@@ -183,6 +182,7 @@ void FixtureChannelModel::setRawKey(const int raw) {
 }
 
 void FixtureChannelModel::setChannelDifference(const int channel, int difference) {
+    Q_ASSERT(channel <= channels.length());
     const ChannelData channelData = channels.at(channel - 1);
     QSqlQuery query;
     if (channelData.fixtureValueGiven) {
@@ -219,6 +219,7 @@ void FixtureChannelModel::updateButtons(const int channel, QPushButton* valueBut
     valueButton->setCheckable(true);
     valueButton->setChecked(channelData.valueGiven);
     connect(valueButton, &QPushButton::clicked, this, [this, channel, valueButton] {
+        Q_ASSERT(rawKey >= 0);
         QSqlQuery query;
         if (valueButton->isChecked()) {
             query.prepare("INSERT OR REPLACE INTO raw_channel_values (item_key, key) VALUES (:raw, :channel)");
@@ -236,6 +237,7 @@ void FixtureChannelModel::updateButtons(const int channel, QPushButton* valueBut
     modelButton->setCheckable(true);
     modelButton->setChecked(channelData.modelValueGiven);
     connect(modelButton, &QPushButton::clicked, this, [this, channel, modelButton] {
+        Q_ASSERT(rawKey >= 0);
         Q_ASSERT(modelKey >= 0);
         QSqlQuery query;
         if (modelButton->isChecked()) {
@@ -255,6 +257,7 @@ void FixtureChannelModel::updateButtons(const int channel, QPushButton* valueBut
     fixtureButton->setCheckable(true);
     fixtureButton->setChecked(channelData.fixtureValueGiven);
     connect(fixtureButton, &QPushButton::clicked, this, [this, channel, fixtureButton] {
+        Q_ASSERT(rawKey >= 0);
         Q_ASSERT(fixtureKey >= 0);
         QSqlQuery query;
         if (fixtureButton->isChecked()) {

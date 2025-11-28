@@ -98,6 +98,7 @@ int IntensityColorPositionTab::updateItemLabel(const QString table, const QStrin
     if (!query.exec("SELECT " + table + ".key, CONCAT(" + table + ".id, ' ', " + table + ".label) FROM " + table + ", currentcue, currentitems, " + valueTable + " WHERE " + table + ".key = " + valueTable + ".valueitem_key AND " + valueTable + ".item_key = currentcue.key AND " + valueTable + ".foreignitem_key = currentitems.group_key")) {
         label->setText("");
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        return -1;
     }
     if (!query.next()) {
         label->setText("No " + itemName);

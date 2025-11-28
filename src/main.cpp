@@ -31,8 +31,12 @@ int main(int argc, char *argv[]) {
     parser.addVersionOption();
     parser.addPositionalArgument("file", "The .zfr file to create or open");
     parser.process(app);
-    if (parser.positionalArguments().length() != 1) {
+    if (parser.positionalArguments().length() < 1) {
         qFatal("Can't open Zöglfrex because no file name was provided.");
+        return 1;
+    }
+    if (parser.positionalArguments().length() > 1) {
+        qFatal("Can't open Zöglfrex because too many arguments were given.");
         return 1;
     }
     QString fileName = QFileInfo(parser.positionalArguments().first()).absoluteFilePath();
@@ -163,10 +167,13 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    QFile file(":/resources/style.qss");
-    file.open(QFile::ReadOnly);
-    const QString styleSheet = QString::fromLatin1(file.readAll());
-    app.setStyleSheet(styleSheet);
+    QFile styleSheet = QFile(":/resources/style.qss");
+    if (!styleSheet.open(QFile::ReadOnly | QFile::Text)) {
+        qFatal() << "Failed to open stylesheet.";
+        return 1;
+    }
+    QTextStream styleSheetStream = QTextStream(&styleSheet);
+    app.setStyleSheet(styleSheetStream.readAll());
 
     MainWindow window(VERSION, COPYRIGHT);
     window.setWindowTitle("Zöglfrex - " + fileName);
