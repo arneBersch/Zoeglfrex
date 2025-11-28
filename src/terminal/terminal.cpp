@@ -758,8 +758,17 @@ void Terminal::createItems(const ItemInfos item, QStringList ids) {
 
 void Terminal::deleteItems(const ItemInfos item, QStringList ids) {
     Q_ASSERT(!ids.isEmpty());
+    QMessageBox msgBox;
+    msgBox.setText("Delete " + QString::number(ids.length()) + " " + item.plural + "?");
+    msgBox.setInformativeText("Do you want to delete " + item.singular + " " + ids.join(", ") + "?");
+    msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Yes);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+    if (msgBox.exec() != QMessageBox::Yes) {
+        error("Popup canceled.");
+        return;
+    }
     QStringList successfulIds;
-     for (QString id : ids) {
+    for (QString id : ids) {
         QSqlQuery keyQuery;
         keyQuery.prepare("SELECT key FROM " + item.selectTable + " WHERE id = :id");
         keyQuery.bindValue(":id", id);
