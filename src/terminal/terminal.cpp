@@ -710,18 +710,14 @@ void Terminal::updateSortingKeys(const ItemInfos item) {
 bool Terminal::compareIds(const QString a, const QString b) {
     QStringList aParts = a.split(".");
     QStringList bParts = b.split(".");
-    const int minPartAmount = std::min(aParts.length(), bParts.length());
-    bool smallerId = true;
-    bool sameBeginning = true;
-    for (int part = 0; part < minPartAmount; part++) {
-        if ((aParts[part].toInt() > bParts[part].toInt()) && sameBeginning) {
-            smallerId = false;
-        }
-        if (aParts[part].toInt() != bParts[part].toInt()) {
-            sameBeginning = false;
+    for (int part = 0; part < std::min(aParts.length(), bParts.length()); part++) {
+        const int aPart = aParts.at(part).toInt();
+        const int bPart = bParts.at(part).toInt();
+        if (aPart != bPart) {
+            return aPart < bPart;
         }
     }
-    return (smallerId && (!sameBeginning || (aParts.length() < bParts.length())));
+    return (aParts.length() < bParts.length());
 }
 
 void Terminal::createItems(const ItemInfos item, QStringList ids) {
