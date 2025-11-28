@@ -1429,10 +1429,6 @@ void Terminal::setItemSpecificItemListAttribute(const ItemInfos item, const QStr
             error("Can't set " + item.singular + " " + attributeName + " because no valid " + valueItem.plural + " were given.");
             return;
         }
-        if (valueItemKeys.isEmpty()) {
-            error("No valid " + valueItem.plural + " were found.");
-            return;
-        }
     }
     QList<int> foreignItemKeys;
     QStringList foreignItemIdStrings;
