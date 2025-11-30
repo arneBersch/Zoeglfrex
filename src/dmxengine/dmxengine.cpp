@@ -318,13 +318,12 @@ void DmxEngine::generateDmx() {
             }
             if (!fixtureGroupKeys.isEmpty()) {
                 QSqlQuery cuelistQuery;
-                cuelistQuery.prepare("SELECT key, priority FROM cuelists WHERE movewhiledark = 1 ORDER BY sortkey");
-                if (cuelistQuery.exec()) {
+                if (cuelistQuery.exec("SELECT key, priority FROM cuelists WHERE movewhiledark = 1 ORDER BY sortkey")) {
                     int minCueRow = -1;
                     int priority = 0;
                     while (cuelistQuery.next()) {
                         const int cuelistKey = cuelistQuery.value(0).toInt();
-                        const int cuelistPriority = cuelistQuery.value(0).toInt();
+                        const int cuelistPriority = cuelistQuery.value(1).toInt();
                         QSqlQuery cueQuery;
                         cueQuery.prepare("SELECT key FROM cues WHERE cuelist_key = :cuelist AND sortkey > (SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key) ORDER BY sortkey");
                         cueQuery.bindValue(":cuelist", cuelistKey);
