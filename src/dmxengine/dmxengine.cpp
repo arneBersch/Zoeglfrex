@@ -806,33 +806,35 @@ float DmxEngine::getFixtureValue(const int fixtureKey, const int itemKey, const 
     fixtureExceptionQuery.prepare("SELECT value FROM " + fixtureExceptionTable + " WHERE item_key = :item AND foreignitem_key = :fixture");
     fixtureExceptionQuery.bindValue(":item", itemKey);
     fixtureExceptionQuery.bindValue(":fixture", fixtureKey);
-    if (!fixtureExceptionQuery.exec()) {
+    if (fixtureExceptionQuery.exec()) {
+        if (fixtureExceptionQuery.next()) {
+            return fixtureExceptionQuery.value(0).toFloat();
+        }
+    } else {
         qWarning() << Q_FUNC_INFO << fixtureExceptionQuery.executedQuery() << fixtureExceptionQuery.lastError().text();
-        return 0;
-    }
-    if (fixtureExceptionQuery.next()) {
-        return fixtureExceptionQuery.value(0).toFloat();
     }
     QSqlQuery modelExceptionQuery;
     modelExceptionQuery.prepare("SELECT " + modelExceptionTable + ".value FROM " + modelExceptionTable + ", fixtures WHERE " + modelExceptionTable + ".item_key = :item AND " + modelExceptionTable + ".foreignitem_key = fixtures.model_key AND fixtures.key = :fixture");
     modelExceptionQuery.bindValue(":item", itemKey);
     modelExceptionQuery.bindValue(":fixture", fixtureKey);
-    if (!modelExceptionQuery.exec()) {
+    if (modelExceptionQuery.exec()) {
+        if (modelExceptionQuery.next()) {
+            return modelExceptionQuery.value(0).toFloat();
+        }
+    } else {
         qWarning() << Q_FUNC_INFO << modelExceptionQuery.executedQuery() << modelExceptionQuery.lastError().text();
-        return 0;
-    }
-    if (modelExceptionQuery.next()) {
-        return modelExceptionQuery.value(0).toFloat();
     }
     QSqlQuery itemQuery;
     itemQuery.prepare("SELECT " + itemTableAttribute + " FROM " + itemTable + " WHERE key = :item");
     itemQuery.bindValue(":item", itemKey);
-    if (!itemQuery.exec()) {
+    if (itemQuery.exec()) {
+        if (itemQuery.next()) {
+            return itemQuery.value(0).toFloat();
+        } else {
+            qWarning() << Q_FUNC_INFO << itemQuery.executedQuery() << itemTable + " Item with key " + QString::number(itemKey) + " should exist but wasn't found!";
+        }
+    } else {
         qWarning() << Q_FUNC_INFO << itemQuery.executedQuery() << itemQuery.lastError().text();
-        return 0;
-    }
-    if (itemQuery.next()) {
-        return itemQuery.value(0).toFloat();
     }
     return 0;
 }
@@ -901,6 +903,8 @@ QHash<int, DmxEngine::RawChannelData> DmxEngine::getFixtureRaws(const int fixtur
             if (rawAttributesQuery.next()) {
                 fading = (rawAttributesQuery.value(0).toInt() == 1);
                 moveWhileDark = (rawAttributesQuery.value(1).toInt() == 1);
+            } else {
+                qWarning() << Q_FUNC_INFO << rawAttributesQuery.executedQuery() << "Raw with key " + QString::number(rawKey) + " should exist but wasn't found!";
             }
         } else {
             qWarning() << Q_FUNC_INFO << rawAttributesQuery.executedQuery() << rawAttributesQuery.lastError().text();
@@ -1184,8 +1188,6 @@ void DmxEngine::getFixtureEffects(const int fixtureKey, const QList<int> effectK
                                     RawChannelData channelData = currentRaws.value(channel);
                                     channelData.value += (lastRaws.value(channel, RawChannelData()).value - currentRaws.value(channel, RawChannelData()).value) * fade;
                                     currentRaws[channel] = channelData;
-                                } else {
-                                    currentRaws[channel] = lastRaws.value(channel, RawChannelData());
                                 }
                             }
                         }
@@ -1194,7 +1196,11 @@ void DmxEngine::getFixtureEffects(const int fixtureKey, const QList<int> effectK
                         }
                     }
                 }
+            } else {
+                qWarning() << Q_FUNC_INFO << effectAttributesQuery.executedQuery() << "Effect with key " + QString::number(effectKey) + " should exist but wasn't found!";
             }
+        } else {
+            qWarning() << Q_FUNC_INFO << effectAttributesQuery.executedQuery() << effectAttributesQuery.lastError().text();
         }
     }
 }
