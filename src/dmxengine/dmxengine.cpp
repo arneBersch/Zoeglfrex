@@ -310,9 +310,9 @@ void DmxEngine::generateDmx() {
         const int universe = fixtureQuery.value(1).toInt();
         const int address = fixtureQuery.value(2).toInt();
         if (!fixtureIntensities.contains(fixtureKey) && !fixtureColors.contains(fixtureKey) && !fixturePositions.contains(fixtureKey) && !fixtureChannelRaws.contains(fixtureKey)) {
+            int cueKey = -1;
             QSqlQuery cuelistQuery;
             if (cuelistQuery.exec("SELECT cuelists.key, cuelists.priority, cues.sortkey FROM cuelists, cues WHERE cuelists.movewhiledark = 1 AND cues.key = cuelists.currentcue_key ORDER BY cuelists.sortkey")) {
-                int cueKey = -1;
                 int minSortkeyDifference = -1;
                 int priority = 0;
                 while (cuelistQuery.next()) {
@@ -382,35 +382,35 @@ void DmxEngine::generateDmx() {
                         }
                     }
                 }
-                if (cueKey >= 0) {
-                    QList<int> fixtureGroupKeys;
-                    QHash<int, QSet<int>> fixtureGroupFixtureKeys;
-                    for (const int groupKey : groupKeys) {
-                        if (groupFixtureKeys.value(groupKey).contains(fixtureKey)) {
-                            fixtureGroupKeys.append(groupKey);
-                            fixtureGroupFixtureKeys[groupKey] = QSet<int>();
-                            fixtureGroupFixtureKeys[groupKey].insert(fixtureKey);
-                        }
-                    }
-
-                    QHash<int, float> mwdFixtureIntensities;
-                    QHash<int, ColorData> mwdFixtureColors;
-                    QHash<int, PositionData> mwdFixturePositions;
-                    QHash<int, QHash<int, RawChannelData>> mwdFixtureRaws;
-
-                    renderCue(cueKey, fixtureGroupKeys, fixtureGroupFixtureKeys, QHash<int, QHash<int, int>>(), &mwdFixtureIntensities, &mwdFixtureColors, &mwdFixturePositions, &mwdFixtureRaws);
-
-                    fixtureColors[fixtureKey] = mwdFixtureColors.value(fixtureKey);
-                    fixturePositions[fixtureKey] = mwdFixturePositions.value(fixtureKey);
-                    fixtureChannelRaws[fixtureKey] = QHash<int, uint8_t>();
-                    for (const int channel : mwdFixtureRaws.value(fixtureKey).keys()) {
-                        if (mwdFixtureRaws.value(fixtureKey).value(channel).moveWhileDark) {
-                            fixtureChannelRaws[fixtureKey][channel] = mwdFixtureRaws.value(fixtureKey).value(channel).value;
-                        }
-                    }
-                }
             } else {
                 qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
+            }
+            if (cueKey >= 0) {
+                QList<int> fixtureGroupKeys;
+                QHash<int, QSet<int>> fixtureGroupFixtureKeys;
+                for (const int groupKey : groupKeys) {
+                    if (groupFixtureKeys.value(groupKey).contains(fixtureKey)) {
+                        fixtureGroupKeys.append(groupKey);
+                        fixtureGroupFixtureKeys[groupKey] = QSet<int>();
+                        fixtureGroupFixtureKeys[groupKey].insert(fixtureKey);
+                    }
+                }
+
+                QHash<int, float> mwdFixtureIntensities;
+                QHash<int, ColorData> mwdFixtureColors;
+                QHash<int, PositionData> mwdFixturePositions;
+                QHash<int, QHash<int, RawChannelData>> mwdFixtureRaws;
+
+                renderCue(cueKey, fixtureGroupKeys, fixtureGroupFixtureKeys, QHash<int, QHash<int, int>>(), &mwdFixtureIntensities, &mwdFixtureColors, &mwdFixturePositions, &mwdFixtureRaws);
+
+                fixtureColors[fixtureKey] = mwdFixtureColors.value(fixtureKey);
+                fixturePositions[fixtureKey] = mwdFixturePositions.value(fixtureKey);
+                fixtureChannelRaws[fixtureKey] = QHash<int, uint8_t>();
+                for (const int channel : mwdFixtureRaws.value(fixtureKey).keys()) {
+                    if (mwdFixtureRaws.value(fixtureKey).value(channel).moveWhileDark) {
+                        fixtureChannelRaws[fixtureKey][channel] = mwdFixtureRaws.value(fixtureKey).value(channel).value;
+                    }
+                }
             }
         }
         float dimmer = fixtureIntensities.value(fixtureKey, 0);
