@@ -265,29 +265,23 @@ void DmxEngine::generateDmx() {
                     if (lastRaws.contains(channel) && (fade > 0)) {
                         uint8_t lastValue = lastRaws.value(channel).value;
                         if (currentRaws.contains(channel)) {
-                            uint8_t currentValue = currentRaws.value(channel).value;
+                            const uint8_t currentValue = currentRaws.value(channel).value;
                             if (currentRaws.value(channel).fading) {
                                 lastValue = currentValue + (lastValue - currentValue) * fade;
                             } else {
                                 lastValue = currentValue;
                             }
-                        } else if (lastRaws.value(channel).fading) {
-                            lastValue *= fade;
                         }
                         fixtureChannelRaws[fixtureKey][channel] = lastValue;
                     } else if (currentRaws.contains(channel)) {
-                        uint8_t currentValue = currentRaws.value(channel).value;
-                        if (currentRaws.value(channel).fading) {
-                            currentValue *= (1 - fade);
-                        }
-                        fixtureChannelRaws[fixtureKey][channel] = currentValue;
+                        fixtureChannelRaws[fixtureKey][channel] = currentRaws.value(channel).value;
                     }
                 }
             }
         }
     }
     if (cuelistRemainingTransitionFrames.value(currentCuelistKey, 0) > 0) {
-        fadeProgressBar->setRange(0, cuelistTransitionFrames.value(currentCuelistKey, 0));
+        fadeProgressBar->setRange(0, cuelistTransitionFrames.value(currentCuelistKey, 1));
         fadeProgressBar->setValue(cuelistTransitionFrames.value(currentCuelistKey, 0) - cuelistRemainingTransitionFrames.value(currentCuelistKey, 0));
     } else {
         fadeProgressBar->setRange(0, 1);
@@ -618,20 +612,20 @@ void DmxEngine::generateDmx() {
     emit updatePreviewFixtures(previewFixtures);
     if (!skipFadeButton->isChecked()) {
         QSqlQuery cuelistQuery;
-        cuelistQuery.prepare("SELECT key FROM cuelists WHERE currentcue_key IS NOT NULL");
-        if (cuelistQuery.exec()) {
+        if (cuelistQuery.exec("SELECT key FROM cuelists WHERE currentcue_key IS NOT NULL")) {
             while (cuelistQuery.next()) {
                 const int cuelistKey = cuelistQuery.value(0).toInt();
                 if (cuelistRemainingTransitionFrames.value(cuelistKey, 0) <= 0) {
                     QSqlQuery followQuery;
-                    followQuery.prepare("SELECT follow, key FROM cues WHERE cuelist_key = :cuelist AND sortkey > (SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key) ORDER BY sortkey LIMIT 1");
+                    followQuery.prepare("SELECT key, follow FROM cues WHERE cuelist_key = :cuelist AND sortkey = (SELECT MIN(sortkey) FROM cues WHERE cuelist_key = :cuelist AND sortkey > (SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key))");
                     followQuery.bindValue(":cuelist", cuelistKey);
                     if (followQuery.exec()) {
-                        if (followQuery.next() && (followQuery.value(0).toInt() == 1)) {
+                        if (followQuery.next() && (followQuery.value(1).toInt() == 1)) {
+                            const int followCueKey = followQuery.value(0).toInt();
                             QSqlQuery cueUpdateQuery;
                             cueUpdateQuery.prepare("UPDATE cuelists SET currentcue_key = :cue WHERE key = :cuelist");
                             cueUpdateQuery.bindValue(":cuelist", cuelistKey);
-                            cueUpdateQuery.bindValue(":cue", followQuery.value(1).toInt());
+                            cueUpdateQuery.bindValue(":cue", followCueKey);
                             if (!cueUpdateQuery.exec()) {
                                 qWarning() << Q_FUNC_INFO << cueUpdateQuery.executedQuery() << cueUpdateQuery.lastError().text();
                             }
