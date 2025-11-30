@@ -467,7 +467,7 @@ void DmxEngine::generateDmx() {
                 }
             }
         }
-        float dimmer = fixtureIntensities.value(fixtureKey);
+        float dimmer = fixtureIntensities.value(fixtureKey, 0);
         const ColorData color = fixtureColors.value(fixtureKey);
         float red = color.red;
         float green = color.green;
@@ -483,18 +483,18 @@ void DmxEngine::generateDmx() {
             dimmer = 0;
         }
         const PositionData position = fixturePositions.value(fixtureKey);
-        float pan = position.pan;
-        float tilt = position.tilt;
-        float zoom = position.zoom;
+        float panAngle = position.pan;
+        float tiltAngle = position.tilt;
+        float zoomAngle = position.zoom;
         float focus = position.focus;
         Preview2d::PreviewData previewFixture;
         previewFixture.xPosition = fixtureQuery.value(3).toFloat();
         previewFixture.yPosition = fixtureQuery.value(4).toFloat();
         previewFixture.label = fixtureQuery.value(5).toString();
         previewFixture.color = QColor((red / 100) * (dimmer / 100) * 255, (green / 100) * (dimmer / 100) * 255, (blue / 100) * (dimmer / 100) * 255);
-        previewFixture.pan = pan;
-        previewFixture.tilt = tilt;
-        previewFixture.zoom = zoom;
+        previewFixture.pan = panAngle;
+        previewFixture.tilt = tiltAngle;
+        previewFixture.zoom = zoomAngle;
         previewFixtures[fixtureKey] = previewFixture;
         if (address > 0) {
             QSqlQuery modelQuery;
@@ -508,7 +508,7 @@ void DmxEngine::generateDmx() {
                     const float minZoom = modelQuery.value(3).toFloat();
                     const float maxZoom = modelQuery.value(4).toFloat();
                     const float rotation = modelQuery.value(5).toFloat();
-                    const int invertPan = modelQuery.value(6).toInt();
+                    const bool invertPan = (modelQuery.value(6).toInt() == 1);
                     if (!dmxUniverses.contains(universe)) {
                         dmxUniverses[universe] = QByteArray(512, 0);
                     }
@@ -523,31 +523,31 @@ void DmxEngine::generateDmx() {
                         green -= white * (quality / 100);
                         blue -= white * (quality / 100);
                     }
-                    if (invertPan == 1) {
-                        pan = rotation - pan;
+                    if (invertPan) {
+                        panAngle = rotation - panAngle;
                     } else {
-                        pan = rotation + pan;
+                        panAngle = rotation + panAngle;
                     }
-                    while (pan >= 360) {
-                        pan -= 360;
+                    while (panAngle >= 360) {
+                        panAngle -= 360;
                     }
-                    while (pan < 0) {
-                        pan += 360;
+                    while (panAngle < 0) {
+                        panAngle += 360;
                     }
-                    pan = pan / panRange * 100;
-                    pan = std::min<float>(pan, 100);
+                    float pan = (panAngle / panRange) * 100;
                     const float lastFramePan = lastFrameFixturePan.value(fixtureKey, 0);
-                    for (float angle = pan; angle <= panRange; angle += 360) {
-                        const float anglePan = angle / panRange * 100;
+                    for (float angle = panAngle; angle <= panRange; angle += 360) {
+                        const float anglePan = (angle / panRange) * 100;
                         if (std::abs(lastFramePan - anglePan) < std::abs(lastFramePan - pan)) {
                             pan = anglePan;
                         }
                     }
+                    pan = std::min<float>(pan, 100);
                     fixturePan[fixtureKey] = pan;
-                    tilt = 50 + (tilt / (tiltRange / 2) * 50);
+                    float tilt = 50 + (tiltAngle / (tiltRange / 2) * 50);
                     tilt = std::min<float>(tilt, 100);
                     tilt = std::max<float>(tilt, 0);
-                    zoom = (zoom - minZoom) / (maxZoom - minZoom) * 100;
+                    float zoom = (zoomAngle - minZoom) / (maxZoom - minZoom) * 100;
                     zoom = std::min<float>(zoom, 100);
                     zoom = std::max<float>(zoom, 0);
                     for (int channel = address; channel < (address + channels.size()); channel++) {
@@ -586,7 +586,8 @@ void DmxEngine::generateDmx() {
                         } else {
                             Q_ASSERT(false);
                         }
-                        Q_ASSERT((value <= 100) && (value >= 0));
+                        Q_ASSERT(value <= 100);
+                        Q_ASSERT(value >= 0);
                         if (channel <= 512) {
                             value *= 655.35;
                             if (fine) {

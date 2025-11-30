@@ -57,7 +57,7 @@ void CuelistTableModel::refresh() {
             }
             int lastCueKey = -1;
             QSqlQuery lastCueKeyQuery;
-            lastCueKeyQuery.prepare("SELECT key FROM cues WHERE cuelist_key = (SELECT cuelist_key FROM cues WHERE key = :cue) AND sortkey < (SELECT sortkey FROM cues WHERE key = :cue) ORDER BY sortkey DESC LIMIT 1");
+            lastCueKeyQuery.prepare("SELECT key FROM cues WHERE cuelist_key = (SELECT cuelist_key FROM cues WHERE key = :cue) AND sortkey = (SELECT MIN(sortkey) FROM cues WHERE sortkey > (SELECT sortkey FROM cues WHERE key = :cue) AND cuelist_key = (SELECT cuelist_key FROM cues WHERE key = :cue))");
             lastCueKeyQuery.bindValue(":cue", cueKey);
             if (lastCueKeyQuery.exec()) {
                 if (lastCueKeyQuery.next()) {
