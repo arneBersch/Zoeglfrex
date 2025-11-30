@@ -30,8 +30,6 @@ private:
     QPushButton* soloButton;
     QProgressBar* fadeProgressBar;
     QPushButton* skipFadeButton;
-    QList<int> groupKeys;
-    QHash<int, QSet<int>> groupFixtureKeys;
     QHash<int, float> fixturePan;
     QHash<int, QHash<int, int>> groupEffectFrames;
     QHash<int, int> cuelistCurrentCueKeys;
@@ -60,7 +58,7 @@ private:
         bool fading = false;
         bool moveWhileDark = false;
     };
-    void renderCue(int cueKey, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, QHash<int, RawChannelData>>* fixtureRaws);
+    void renderCue(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, QHash<int, RawChannelData>>* fixtureRaws);
     float getFixtureIntensity(int fixtureKey, int intensityKey);
     ColorData getFixtureColor(int fixtureKey, int colorKey);
     PositionData getFixturePosition(int fixtureKey, int positionKey);

@@ -63,8 +63,8 @@ void DmxEngine::generateDmx() {
         qWarning() << Q_FUNC_INFO << currentCuelistQuery.executedQuery() << currentCuelistQuery.lastError().text();
     }
 
-    groupKeys.clear();
-    groupFixtureKeys.clear();
+    QList<int> groupKeys;
+    QHash<int, QSet<int>> groupFixtureKeys;
     QSet<int> fixtureKeys;
     QSqlQuery groupFixturesQuery;
     if (groupFixturesQuery.exec("SELECT groups.key, group_fixtures.valueitem_key FROM groups, group_fixtures WHERE groups.key = group_fixtures.item_key ORDER BY groups.sortkey")) {
@@ -177,9 +177,9 @@ void DmxEngine::generateDmx() {
         QHash<int, QHash<int, RawChannelData>> currentCueFixtureRaws;
         QHash<int, QHash<int, RawChannelData>> lastCueFixtureRaws;
 
-        renderCue(currentCueKey, oldGroupEffectFrames, &currentCueFixtureIntensities, &currentCueFixtureColors, &currentCueFixturePositions, &currentCueFixtureRaws);
+        renderCue(currentCueKey, groupKeys, groupFixtureKeys, oldGroupEffectFrames, &currentCueFixtureIntensities, &currentCueFixtureColors, &currentCueFixturePositions, &currentCueFixtureRaws);
         if (remainingTransitionFrames > 0) {
-            renderCue(lastCueKey, oldGroupEffectFrames, &lastCueFixtureIntensities, &lastCueFixtureColors, &lastCueFixturePositions, &lastCueFixtureRaws);
+            renderCue(lastCueKey, groupKeys, groupFixtureKeys, oldGroupEffectFrames, &lastCueFixtureIntensities, &lastCueFixtureColors, &lastCueFixturePositions, &lastCueFixtureRaws);
         }
 
         for (const int fixtureKey : fixtureKeys) {
@@ -648,7 +648,7 @@ void DmxEngine::generateDmx() {
     }
 }
 
-void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, QHash<int, RawChannelData>>* fixtureRaws) {
+void DmxEngine::renderCue(const int cueKey, const QList<int> groupKeys, const QHash<int, QSet<int>> groupFixtureKeys, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, QHash<int, RawChannelData>>* fixtureRaws) {
     for (const int groupKey : groupKeys) {
         QList<int> rawKeys;
         QSqlQuery intensityQuery;
@@ -660,7 +660,7 @@ void DmxEngine::renderCue(const int cueKey, QHash<int, QHash<int, int>> oldGroup
                 const int intensityKey = intensityQuery.value(0).toInt();
                 for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
                     const float dimmer = getFixtureIntensity(fixtureKey, intensityKey);
-                    if (fixtureIntensities->value(fixtureKey, 0) <= dimmer) {
+                    if (dimmer >= fixtureIntensities->value(fixtureKey, 0)) {
                         (*fixtureIntensities)[fixtureKey] = dimmer;
                     }
                 }
