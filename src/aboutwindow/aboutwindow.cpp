@@ -34,8 +34,12 @@ AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : 
     QPlainTextEdit *license = new QPlainTextEdit();
     license->setReadOnly(true);
     QFile licenseFile(":/resources/license.txt");
-    licenseFile.open(QFile::ReadOnly);
-    license->setPlainText(licenseFile.readAll());
+    if (licenseFile.open(QFile::ReadOnly)) {
+        license->setPlainText(licenseFile.readAll());
+    } else {
+        qWarning() << Q_FUNC_INFO << "Failed to load license file!";
+        license->setPlainText("License Text could not be loaded!");
+    }
     layout->addWidget(license);
 
     setWindowTitle("About Zöglfrex");

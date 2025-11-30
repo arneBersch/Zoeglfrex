@@ -312,6 +312,7 @@ void DmxEngine::generateDmx() {
         if (!fixtureIntensities.contains(fixtureKey) && !fixtureColors.contains(fixtureKey) && !fixturePositions.contains(fixtureKey) && !fixtureChannelRaws.contains(fixtureKey)) {
             QSqlQuery cuelistQuery;
             if (cuelistQuery.exec("SELECT cuelists.key, cuelists.priority, cues.sortkey FROM cuelists, cues WHERE cuelists.movewhiledark = 1 AND cues.key = cuelists.currentcue_key ORDER BY cuelists.sortkey")) {
+                int cueKey = -1;
                 int minSortkeyDifference = -1;
                 int priority = 0;
                 while (cuelistQuery.next()) {
@@ -365,43 +366,46 @@ void DmxEngine::generateDmx() {
                             minSortkeyDifference = sortkeyDifference;
                             priority = cuelistPriority;
 
-                            QList<int> fixtureGroupKeys;
-                            QHash<int, QSet<int>> fixtureGroupFixtureKeys;
-                            for (const int groupKey : groupKeys) {
-                                if (groupFixtureKeys.value(groupKey).contains(fixtureKey)) {
-                                    fixtureGroupKeys.append(groupKey);
-                                    fixtureGroupFixtureKeys[groupKey] = QSet<int>();
-                                    fixtureGroupFixtureKeys[groupKey].insert(fixtureKey);
-                                }
-                            }
                             QSqlQuery cueKeyQuery;
                             cueKeyQuery.prepare("SELECT key FROM cues WHERE sortkey = :sortkey ANDcuelist_key = :cuelist");
                             cueKeyQuery.bindValue(":sortkey", minSortkey);
                             cueKeyQuery.bindValue(":cuelist", cuelistKey);
                             if (cueKeyQuery.exec()) {
                                 if (cueKeyQuery.next()) {
-                                    const int cueKey = cueKeyQuery.value(0).toInt();
-                                    QHash<int, float> mwdFixtureIntensities;
-                                    QHash<int, ColorData> mwdFixtureColors;
-                                    QHash<int, PositionData> mwdFixturePositions;
-                                    QHash<int, QHash<int, RawChannelData>> mwdFixtureRaws;
-
-                                    renderCue(cueKey, fixtureGroupKeys, fixtureGroupFixtureKeys, QHash<int, QHash<int, int>>(), &mwdFixtureIntensities, &mwdFixtureColors, &mwdFixturePositions, &mwdFixtureRaws);
-
-                                    fixtureColors[fixtureKey] = mwdFixtureColors.value(fixtureKey);
-                                    fixturePositions[fixtureKey] = mwdFixturePositions.value(fixtureKey);
-                                    fixtureChannelRaws[fixtureKey] = QHash<int, uint8_t>();
-                                    for (const int channel : mwdFixtureRaws.value(fixtureKey).keys()) {
-                                        if (mwdFixtureRaws.value(fixtureKey).value(channel).moveWhileDark) {
-                                            fixtureChannelRaws[fixtureKey][channel] = mwdFixtureRaws.value(fixtureKey).value(channel).value;
-                                        }
-                                    }
+                                    cueKey = cueKeyQuery.value(0).toInt();
                                 } else {
                                     qWarning() << Q_FUNC_INFO << "Cuelist with sortkey " + QString::number(minSortkey) + " in Cuelist with key " + QString::number(cuelistKey) + " should exist but wasn't found.";
                                 }
                             } else {
                                 qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
                             }
+                        }
+                    }
+                }
+                if (cueKey >= 0) {
+                    QList<int> fixtureGroupKeys;
+                    QHash<int, QSet<int>> fixtureGroupFixtureKeys;
+                    for (const int groupKey : groupKeys) {
+                        if (groupFixtureKeys.value(groupKey).contains(fixtureKey)) {
+                            fixtureGroupKeys.append(groupKey);
+                            fixtureGroupFixtureKeys[groupKey] = QSet<int>();
+                            fixtureGroupFixtureKeys[groupKey].insert(fixtureKey);
+                        }
+                    }
+
+                    QHash<int, float> mwdFixtureIntensities;
+                    QHash<int, ColorData> mwdFixtureColors;
+                    QHash<int, PositionData> mwdFixturePositions;
+                    QHash<int, QHash<int, RawChannelData>> mwdFixtureRaws;
+
+                    renderCue(cueKey, fixtureGroupKeys, fixtureGroupFixtureKeys, QHash<int, QHash<int, int>>(), &mwdFixtureIntensities, &mwdFixtureColors, &mwdFixturePositions, &mwdFixtureRaws);
+
+                    fixtureColors[fixtureKey] = mwdFixtureColors.value(fixtureKey);
+                    fixturePositions[fixtureKey] = mwdFixturePositions.value(fixtureKey);
+                    fixtureChannelRaws[fixtureKey] = QHash<int, uint8_t>();
+                    for (const int channel : mwdFixtureRaws.value(fixtureKey).keys()) {
+                        if (mwdFixtureRaws.value(fixtureKey).value(channel).moveWhileDark) {
+                            fixtureChannelRaws[fixtureKey][channel] = mwdFixtureRaws.value(fixtureKey).value(channel).value;
                         }
                     }
                 }
