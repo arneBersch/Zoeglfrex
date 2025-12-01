@@ -340,23 +340,23 @@ void DmxEngine::generateDmx() {
                                 return -1;
                             };
                             const int intensityMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_intensities");
-                            if ((minSortkey < 0) || (intensityMinSortkey < minSortkey)) {
+                            if ((intensityMinSortkey >= 0) && ((minSortkey < 0) || (intensityMinSortkey < minSortkey))) {
                                 minSortkey = intensityMinSortkey;
                             }
                             const int colorMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_colors");
-                            if ((minSortkey < 0) || (colorMinSortkey < minSortkey)) {
+                            if ((colorMinSortkey >= 0) && ((minSortkey < 0) || (colorMinSortkey < minSortkey))) {
                                 minSortkey = colorMinSortkey;
                             }
                             const int positionMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_positions");
-                            if ((minSortkey < 0) || (positionMinSortkey < minSortkey)) {
+                            if ((positionMinSortkey >= 0) && ((minSortkey < 0) || (positionMinSortkey < minSortkey))) {
                                 minSortkey = positionMinSortkey;
                             }
                             const int rawsMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_raws");
-                            if ((minSortkey < 0) || (rawsMinSortkey < minSortkey)) {
+                            if ((rawsMinSortkey >= 0) && ((minSortkey < 0) || (rawsMinSortkey < minSortkey))) {
                                 minSortkey = rawsMinSortkey;
                             }
                             const int effectsMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_effects");
-                            if ((minSortkey < 0) || (effectsMinSortkey < minSortkey)) {
+                            if ((effectsMinSortkey >= 0) && ((minSortkey < 0) || (effectsMinSortkey < minSortkey))) {
                                 minSortkey = effectsMinSortkey;
                             }
                         }
