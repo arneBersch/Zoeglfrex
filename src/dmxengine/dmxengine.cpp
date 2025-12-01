@@ -1078,15 +1078,15 @@ void DmxEngine::reload() {
                 const int groupKey = groupQuery.value(0).toInt();
                 auto getMinSortkey = [] (const int cuelistKey, const int groupKey, const int sortkey, const QString table) -> int {
                     QSqlQuery query;
-                    query.prepare("SELECT MIN(cues.sortkey), MIN(cues.sortkey) IS NOT NULL FROM cues, " + table + " WHERE cues.cuelist_key = :cuelist AND cues.sortkey > :sortkey AND " + table + ".item_key = cues.key AND " + table + ".foreignitem_key = :group");
+                    query.prepare("SELECT COALESCE(MIN(cues.sortkey), -1) FROM cues, " + table + " WHERE cues.cuelist_key = :cuelist AND cues.sortkey > :sortkey AND " + table + ".item_key = cues.key AND " + table + ".foreignitem_key = :group");
                     query.bindValue(":cuelist", cuelistKey);
                     query.bindValue(":group", groupKey);
                     query.bindValue(":sortkey", sortkey);
                     if (query.exec()) {
                         if (query.next()) {
-                            if (query.value(1).toBool()) {
-                                return query.value(0).toInt();
-                            }
+                            return query.value(0).toInt();
+                        } else {
+                            qWarning() << Q_FUNC_INFO << query.executedQuery() << "Query returns no value.";
                         }
                     } else {
                         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
