@@ -1022,7 +1022,7 @@ void DmxEngine::getFixtureEffects(const int fixtureKey, const QList<int> effectK
                     } else {
                         qWarning() << Q_FUNC_INFO << rawStepQuery.executedQuery() << rawStepQuery.lastError().text();
                     }
-                    int frames = (int)(effectFrames.value(effectKey, 0) + (phase / 360)) % totalFrames;
+                    int frames = (int)(effectFrames.value(effectKey, 0) + (phase / 360) * totalFrames) % totalFrames;
                     int currentStep = 1;
                     float fade = 1;
                     for (int step = 1; step <= stepAmount; step++) {
