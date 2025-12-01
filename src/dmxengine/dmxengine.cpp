@@ -310,109 +310,14 @@ void DmxEngine::generateDmx() {
         const int universe = fixtureQuery.value(1).toInt();
         const int address = fixtureQuery.value(2).toInt();
         if (!fixtureIntensities.contains(fixtureKey) && !fixtureColors.contains(fixtureKey) && !fixturePositions.contains(fixtureKey) && !fixtureChannelRaws.contains(fixtureKey)) {
-            int cueKey = -1;
-            QSqlQuery cuelistQuery;
-            if (cuelistQuery.exec("SELECT cuelists.key, cuelists.priority, cues.sortkey FROM cuelists, cues WHERE cuelists.movewhiledark = 1 AND cues.key = cuelists.currentcue_key ORDER BY cuelists.sortkey")) {
-                int minSortkeyDifference = -1;
-                int priority = 0;
-                while (cuelistQuery.next()) {
-                    const int cuelistKey = cuelistQuery.value(0).toInt();
-                    const int cuelistPriority = cuelistQuery.value(1).toInt();
-                    const int currentCueSortkey = cuelistQuery.value(2).toInt();
-                    int minSortkey = -1;
-                    for (const int groupKey : groupKeys) {
-                        if (groupFixtureKeys.value(groupKey).contains(fixtureKey)) {
-                            auto getMinSortkey = [] (const int cuelistKey, const int groupKey, const int sortkey, const QString table) -> int {
-                                QSqlQuery query;
-                                query.prepare("SELECT MIN(cues.sortkey), MIN(cues.sortkey) IS NOT NULL FROM cues, " + table + " WHERE cues.cuelist_key = :cuelist AND cues.sortkey > :sortkey AND " + table + ".item_key = cues.key AND " + table + ".foreignitem_key = :group");
-                                query.bindValue(":cuelist", cuelistKey);
-                                query.bindValue(":group", groupKey);
-                                query.bindValue(":sortkey", sortkey);
-                                if (query.exec()) {
-                                    if (query.next()) {
-                                        if (query.value(1).toBool()) {
-                                            return query.value(0).toInt();
-                                        }
-                                    }
-                                } else {
-                                    qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                                }
-                                return -1;
-                            };
-                            const int intensityMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_intensities");
-                            if ((intensityMinSortkey >= 0) && ((minSortkey < 0) || (intensityMinSortkey < minSortkey))) {
-                                minSortkey = intensityMinSortkey;
-                            }
-                            const int colorMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_colors");
-                            if ((colorMinSortkey >= 0) && ((minSortkey < 0) || (colorMinSortkey < minSortkey))) {
-                                minSortkey = colorMinSortkey;
-                            }
-                            const int positionMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_positions");
-                            if ((positionMinSortkey >= 0) && ((minSortkey < 0) || (positionMinSortkey < minSortkey))) {
-                                minSortkey = positionMinSortkey;
-                            }
-                            const int rawsMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_raws");
-                            if ((rawsMinSortkey >= 0) && ((minSortkey < 0) || (rawsMinSortkey < minSortkey))) {
-                                minSortkey = rawsMinSortkey;
-                            }
-                            const int effectsMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_effects");
-                            if ((effectsMinSortkey >= 0) && ((minSortkey < 0) || (effectsMinSortkey < minSortkey))) {
-                                minSortkey = effectsMinSortkey;
-                            }
-                        }
-                    }
-                    if (minSortkey >= 0) {
-                        Q_ASSERT(minSortkey > currentCueSortkey);
-                        const int sortkeyDifference = minSortkey - currentCueSortkey;
-                        if ((minSortkeyDifference < 0) || (sortkeyDifference < minSortkeyDifference) || ((sortkeyDifference <= minSortkeyDifference) && (cuelistPriority >= priority))) {
-                            minSortkeyDifference = sortkeyDifference;
-                            priority = cuelistPriority;
-
-                            QSqlQuery cueKeyQuery;
-                            cueKeyQuery.prepare("SELECT key FROM cues WHERE sortkey = :sortkey AND cuelist_key = :cuelist");
-                            cueKeyQuery.bindValue(":sortkey", minSortkey);
-                            cueKeyQuery.bindValue(":cuelist", cuelistKey);
-                            if (cueKeyQuery.exec()) {
-                                if (cueKeyQuery.next()) {
-                                    cueKey = cueKeyQuery.value(0).toInt();
-                                } else {
-                                    qWarning() << Q_FUNC_INFO << "Cuelist with sortkey " + QString::number(minSortkey) + " in Cuelist with key " + QString::number(cuelistKey) + " should exist but wasn't found.";
-                                }
-                            } else {
-                                qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
-                            }
-                        }
-                    }
-                }
-            } else {
-                qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
-            }
-            if (cueKey >= 0) {
-                QList<int> fixtureGroupKeys;
-                QHash<int, QSet<int>> fixtureGroupFixtureKeys;
-                for (const int groupKey : groupKeys) {
-                    if (groupFixtureKeys.value(groupKey).contains(fixtureKey)) {
-                        fixtureGroupKeys.append(groupKey);
-                        fixtureGroupFixtureKeys[groupKey] = QSet<int>();
-                        fixtureGroupFixtureKeys[groupKey].insert(fixtureKey);
-                    }
-                }
-
-                QHash<int, float> mwdFixtureIntensities;
-                QHash<int, ColorData> mwdFixtureColors;
-                QHash<int, PositionData> mwdFixturePositions;
-                QHash<int, QHash<int, RawChannelData>> mwdFixtureRaws;
-
-                renderCue(cueKey, fixtureGroupKeys, fixtureGroupFixtureKeys, QHash<int, QHash<int, int>>(), &mwdFixtureIntensities, &mwdFixtureColors, &mwdFixturePositions, &mwdFixtureRaws);
-
+            if (mwdFixtureColors.contains(fixtureKey)) {
                 fixtureColors[fixtureKey] = mwdFixtureColors.value(fixtureKey);
+            }
+            if (mwdFixturePositions.contains(fixtureKey)) {
                 fixturePositions[fixtureKey] = mwdFixturePositions.value(fixtureKey);
-                fixtureChannelRaws[fixtureKey] = QHash<int, uint8_t>();
-                for (const int channel : mwdFixtureRaws.value(fixtureKey).keys()) {
-                    if (mwdFixtureRaws.value(fixtureKey).value(channel).moveWhileDark) {
-                        fixtureChannelRaws[fixtureKey][channel] = mwdFixtureRaws.value(fixtureKey).value(channel).value;
-                    }
-                }
+            }
+            if (mwdFixtureRaws.contains(fixtureKey)) {
+                fixtureChannelRaws[fixtureKey] = mwdFixtureRaws.value(fixtureKey);
             }
         }
         float dimmer = fixtureIntensities.value(fixtureKey, 0);
@@ -1145,5 +1050,151 @@ void DmxEngine::getFixtureEffects(const int fixtureKey, const QList<int> effectK
         } else {
             qWarning() << Q_FUNC_INFO << effectAttributesQuery.executedQuery() << effectAttributesQuery.lastError().text();
         }
+    }
+}
+
+void DmxEngine::reload() {
+    mwdFixtureColors.clear();
+    mwdFixturePositions.clear();
+    mwdFixtureRaws.clear();
+
+
+    QSqlQuery cuelistQuery;
+    if (!cuelistQuery.exec("SELECT cuelists.key, cuelists.priority, cues.sortkey FROM cuelists, cues WHERE cuelists.movewhiledark = 1 AND cues.key = cuelists.currentcue_key ORDER BY cuelists.sortkey")) {
+        qWarning() << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
+        return;
+    }
+    QHash<int, int> groupCueKeys;
+    QHash<int, int> groupSortkeyDifference;
+    QHash<int, int> groupPriorities;
+    while (cuelistQuery.next()) {
+        const int cuelistKey = cuelistQuery.value(0).toInt();
+        const int cuelistPriority = cuelistQuery.value(1).toInt();
+        const int currentCueSortkey = cuelistQuery.value(2).toInt();
+
+        QSqlQuery groupQuery;
+        if (groupQuery.exec("SELECT key FROM groups")) {
+            while (groupQuery.next()) {
+                const int groupKey = groupQuery.value(0).toInt();
+                auto getMinSortkey = [] (const int cuelistKey, const int groupKey, const int sortkey, const QString table) -> int {
+                    QSqlQuery query;
+                    query.prepare("SELECT MIN(cues.sortkey), MIN(cues.sortkey) IS NOT NULL FROM cues, " + table + " WHERE cues.cuelist_key = :cuelist AND cues.sortkey > :sortkey AND " + table + ".item_key = cues.key AND " + table + ".foreignitem_key = :group");
+                    query.bindValue(":cuelist", cuelistKey);
+                    query.bindValue(":group", groupKey);
+                    query.bindValue(":sortkey", sortkey);
+                    if (query.exec()) {
+                        if (query.next()) {
+                            if (query.value(1).toBool()) {
+                                return query.value(0).toInt();
+                            }
+                        }
+                    } else {
+                        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                    }
+                    return -1;
+                };
+
+                int minSortkey = -1;
+                const int intensityMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_intensities");
+                if ((intensityMinSortkey >= 0) && ((minSortkey < 0) || (intensityMinSortkey < minSortkey))) {
+                    minSortkey = intensityMinSortkey;
+                }
+                const int colorMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_colors");
+                if ((colorMinSortkey >= 0) && ((minSortkey < 0) || (colorMinSortkey < minSortkey))) {
+                    minSortkey = colorMinSortkey;
+                }
+                const int positionMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_positions");
+                if ((positionMinSortkey >= 0) && ((minSortkey < 0) || (positionMinSortkey < minSortkey))) {
+                    minSortkey = positionMinSortkey;
+                }
+                const int rawsMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_raws");
+                if ((rawsMinSortkey >= 0) && ((minSortkey < 0) || (rawsMinSortkey < minSortkey))) {
+                    minSortkey = rawsMinSortkey;
+                }
+                const int effectsMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_effects");
+                if ((effectsMinSortkey >= 0) && ((minSortkey < 0) || (effectsMinSortkey < minSortkey))) {
+                    minSortkey = effectsMinSortkey;
+                }
+                if (minSortkey >= 0) {
+                    const int sortkeyDifference = minSortkey - currentCueSortkey;
+                    if (!groupSortkeyDifference.contains(groupKey) || (sortkeyDifference < groupSortkeyDifference.value(groupKey)) || ((sortkeyDifference <= groupSortkeyDifference.value(groupKey)) && (cuelistPriority >= groupPriorities.value(groupKey)))) {
+                        groupSortkeyDifference[groupKey] = sortkeyDifference;
+                        groupPriorities[groupKey] = cuelistPriority;
+
+                        QSqlQuery cueKeyQuery;
+                        cueKeyQuery.prepare("SELECT key FROM cues WHERE sortkey = :sortkey AND cuelist_key = :cuelist");
+                        cueKeyQuery.bindValue(":sortkey", minSortkey);
+                        cueKeyQuery.bindValue(":cuelist", cuelistKey);
+                        if (cueKeyQuery.exec()) {
+                            if (cueKeyQuery.next()) {
+                                groupCueKeys[groupKey] = cueKeyQuery.value(0).toInt();
+                            } else {
+                                qWarning() << Q_FUNC_INFO << "Cuelist with sortkey " + QString::number(minSortkey) + " in Cuelist with key " + QString::number(cuelistKey) + " should exist but wasn't found.";
+                            }
+                        } else {
+                            qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
+                        }
+                    }
+                }
+            }
+        } else {
+            qWarning() << groupQuery.executedQuery() << groupQuery.lastError().text();
+        }
+    }
+
+    QSqlQuery fixtureQuery;
+    if (fixtureQuery.exec("SELECT key FROM fixtures")) {
+        while (fixtureQuery.next()) {
+            const int fixtureKey = fixtureQuery.value(0).toInt();
+            int fixtureCue = -1;
+            QList<int> fixtureGroups;
+
+            QSqlQuery groupQuery;
+            groupQuery.prepare("SELECT item_key FROM group_fixtures, groups WHERE valueitem_key = :fixture AND item_key = groups.key ORDER BY groups.sortkey");
+            groupQuery.bindValue(":fixture", fixtureKey);
+            if (groupQuery.exec()) {
+                int sortkeyDifference = -1;
+                while (groupQuery.next()) {
+                    const int groupKey = groupQuery.value(0).toInt();
+                    fixtureGroups.append(groupKey);
+                    if (groupSortkeyDifference.contains(groupKey) && ((sortkeyDifference < 0) || (groupSortkeyDifference.value(groupKey) < sortkeyDifference))) {
+                        sortkeyDifference = groupSortkeyDifference.value(groupKey, -1);
+                        fixtureCue = groupCueKeys.value(groupKey);
+                    }
+                }
+            } else {
+                qWarning() << groupQuery.executedQuery() << groupQuery.lastError().text();
+            }
+
+            if (fixtureCue > 0) {
+                QHash<int, QSet<int>> fixtureGroupFixture;
+                for (const int groupKey : fixtureGroups) {
+                    fixtureGroupFixture[groupKey] = QSet<int>();
+                    fixtureGroupFixture[groupKey].insert(fixtureKey);
+                }
+
+                QHash<int, float> cueFixtureIntensities;
+                QHash<int, ColorData> cueFixtureColors;
+                QHash<int, PositionData> cueFixturePositions;
+                QHash<int, QHash<int, RawChannelData>> cueFixtureRaws;
+                renderCue(fixtureCue, fixtureGroups, fixtureGroupFixture, QHash<int, QHash<int, int>>(), &cueFixtureIntensities, &cueFixtureColors, &cueFixturePositions, &cueFixtureRaws);
+
+                if (cueFixtureColors.contains(fixtureKey)) {
+                    mwdFixtureColors[fixtureKey] = cueFixtureColors.value(fixtureKey);
+                }
+                if (cueFixturePositions.contains(fixtureKey)) {
+                    mwdFixturePositions[fixtureKey] = cueFixturePositions.value(fixtureKey);
+                }
+                if (cueFixtureRaws.contains(fixtureKey)) {
+                    for (const int channel : cueFixtureRaws.value(fixtureKey).keys()) {
+                        if (cueFixtureRaws.value(fixtureKey).value(channel).moveWhileDark) {
+                            mwdFixtureRaws[fixtureKey][channel] = cueFixtureRaws.value(fixtureKey).value(channel).value;
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        qWarning() << fixtureQuery.executedQuery() << fixtureQuery.lastError().text();
     }
 }

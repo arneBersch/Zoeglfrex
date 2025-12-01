@@ -88,6 +88,7 @@ void MainWindow::reload() {
     terminal->reload();
     playbackMonitor->reload();
     controlPanel->reload();
+    dmxEngine->reload();
 }
 
 void MainWindow::about() {

@@ -18,29 +18,7 @@ class DmxEngine : public QWidget {
     Q_OBJECT
 public:
     DmxEngine(QWidget* parent = nullptr);
-signals:
-    void sendUniverses(QHash<int, QByteArray> universes);
-    void updatePreviewFixtures(QHash<int, Preview2d::PreviewData> fixtures);
-    void dbChanged();
 private:
-    void generateDmx();
-    float getFixtureValue(int fixtureKey, int itemKey, QString itemTable, QString itemTableAttribute, QString modelExceptionTable, QString fixtureExceptionTable);
-    QSettings* settings;
-    QPushButton* highlightButton;
-    QPushButton* soloButton;
-    QProgressBar* fadeProgressBar;
-    QPushButton* skipFadeButton;
-    QHash<int, float> fixturePan;
-    QHash<int, QHash<int, int>> groupEffectFrames;
-    QHash<int, int> cuelistCurrentCueKeys;
-    QHash<int, int> cuelistFadeFrames;
-    QHash<int, QHash<int, int>> cuelistFixtureFadeFrames;
-    QHash<int, int> cuelistDelayFrames;
-    QHash<int, QHash<int, int>> cuelistFixtureDelayFrames;
-    QHash<int, int> cuelistTransitionFrames;
-    QHash<int, int> cuelistRemainingTransitionFrames;
-    QHash<int, bool> cuelistSineFade;
-    const int FRAMEDURATION = 25;
     struct ColorData {
         float red = 100;
         float green = 100;
@@ -58,12 +36,45 @@ private:
         bool fading = false;
         bool moveWhileDark = false;
     };
+signals:
+    void sendUniverses(QHash<int, QByteArray> universes);
+    void updatePreviewFixtures(QHash<int, Preview2d::PreviewData> fixtures);
+    void dbChanged();
+public slots:
+    void reload();
+private:
+    void generateDmx();
     void renderCue(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, QHash<int, RawChannelData>>* fixtureRaws);
     float getFixtureIntensity(int fixtureKey, int intensityKey);
     ColorData getFixtureColor(int fixtureKey, int colorKey);
     PositionData getFixturePosition(int fixtureKey, int positionKey);
     QHash<int, RawChannelData> getFixtureRaws(int fixtureKey, QList<int> rawKeys);
     void getFixtureEffects(int fixtureKey, QList<int> effectKeys, QHash<int, int> effectFrames, bool* intensityInformation, float* intensity, bool* colorInformation, ColorData* color, bool* PositionInformation, PositionData* position, QHash<int, RawChannelData>* raws);
+    float getFixtureValue(int fixtureKey, int itemKey, QString itemTable, QString itemTableAttribute, QString modelExceptionTable, QString fixtureExceptionTable);
+    QSettings* settings;
+    QPushButton* highlightButton;
+    QPushButton* soloButton;
+    QProgressBar* fadeProgressBar;
+    QPushButton* skipFadeButton;
+
+    QHash<int, float> fixturePan;
+
+    QHash<int, QHash<int, int>> groupEffectFrames;
+
+    QHash<int, int> cuelistCurrentCueKeys;
+    QHash<int, int> cuelistFadeFrames;
+    QHash<int, QHash<int, int>> cuelistFixtureFadeFrames;
+    QHash<int, int> cuelistDelayFrames;
+    QHash<int, QHash<int, int>> cuelistFixtureDelayFrames;
+    QHash<int, int> cuelistTransitionFrames;
+    QHash<int, int> cuelistRemainingTransitionFrames;
+    QHash<int, bool> cuelistSineFade;
+
+    const int FRAMEDURATION = 25;
+
+    QHash<int, ColorData> mwdFixtureColors;
+    QHash<int, PositionData> mwdFixturePositions;
+    QHash<int, QHash<int, uint8_t>> mwdFixtureRaws;
 };
 
 #endif // DMXENGINE_H
