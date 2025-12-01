@@ -1150,16 +1150,18 @@ void DmxEngine::reload() {
             QList<int> fixtureGroups;
 
             QSqlQuery groupQuery;
-            groupQuery.prepare("SELECT item_key FROM group_fixtures, groups WHERE valueitem_key = :fixture AND item_key = groups.key ORDER BY groups.sortkey");
+            groupQuery.prepare("SELECT group_fixtures.item_key FROM group_fixtures, groups WHERE group_fixtures.valueitem_key = :fixture AND group_fixtures.item_key = groups.key ORDER BY groups.sortkey");
             groupQuery.bindValue(":fixture", fixtureKey);
             if (groupQuery.exec()) {
                 int sortkeyDifference = -1;
+                int priority = 0;
                 while (groupQuery.next()) {
                     const int groupKey = groupQuery.value(0).toInt();
                     fixtureGroups.append(groupKey);
-                    if (groupSortkeyDifference.contains(groupKey) && ((sortkeyDifference < 0) || (groupSortkeyDifference.value(groupKey) < sortkeyDifference))) {
-                        sortkeyDifference = groupSortkeyDifference.value(groupKey, -1);
+                    if (groupSortkeyDifference.contains(groupKey) && ((sortkeyDifference < 0) || (groupSortkeyDifference.value(groupKey) < sortkeyDifference) || ((groupSortkeyDifference.value(groupKey) <= sortkeyDifference) && (groupPriorities.value(groupKey) >= priority)))) {
+                        sortkeyDifference = groupSortkeyDifference.value(groupKey);
                         fixtureCue = groupCueKeys.value(groupKey);
+                        priority = groupPriorities.value(groupKey);
                     }
                 }
             } else {
@@ -1186,6 +1188,7 @@ void DmxEngine::reload() {
                     mwdFixturePositions[fixtureKey] = cueFixturePositions.value(fixtureKey);
                 }
                 if (cueFixtureRaws.contains(fixtureKey)) {
+                    mwdFixtureRaws[fixtureKey] = QHash<int, uint8_t>();
                     for (const int channel : cueFixtureRaws.value(fixtureKey).keys()) {
                         if (cueFixtureRaws.value(fixtureKey).value(channel).moveWhileDark) {
                             mwdFixtureRaws[fixtureKey][channel] = cueFixtureRaws.value(fixtureKey).value(channel).value;
