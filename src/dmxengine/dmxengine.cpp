@@ -323,17 +323,17 @@ void DmxEngine::generateDmx() {
                     for (const int groupKey : groupKeys) {
                         if (groupFixtureKeys.value(groupKey).contains(fixtureKey)) {
                             auto getMinSortkey = [] (const int cuelistKey, const int groupKey, const int sortkey, const QString table) -> int {
-                                QSqlQuery intensityQuery;
-                                intensityQuery.prepare("SELECT MIN(cues.sortkey) FROM cues, " + table + " WHERE cues.cuelist_key = :cuelist AND cues.sortkey > :sortkey AND " + table + ".item_key = cues.key AND " + table + ".foreignitem_key");
-                                intensityQuery.bindValue(":cuelist", cuelistKey);
-                                intensityQuery.bindValue(":group", groupKey);
-                                intensityQuery.bindValue(":sortkey", sortkey);
-                                if (intensityQuery.exec()) {
-                                    if (intensityQuery.next()) {
-                                        return intensityQuery.value(0).toInt();
+                                QSqlQuery query;
+                                query.prepare("SELECT MIN(cues.sortkey) FROM cues, " + table + " WHERE cues.cuelist_key = :cuelist AND cues.sortkey > :sortkey AND " + table + ".item_key = cues.key AND " + table + ".foreignitem_key = :group");
+                                query.bindValue(":cuelist", cuelistKey);
+                                query.bindValue(":group", groupKey);
+                                query.bindValue(":sortkey", sortkey);
+                                if (query.exec()) {
+                                    if (query.next()) {
+                                        return query.value(0).toInt();
                                     }
                                 } else {
-                                    qWarning() << Q_FUNC_INFO << intensityQuery.executedQuery() << intensityQuery.lastError().text();
+                                    qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
                                 }
                                 return -1;
                             };
@@ -341,19 +341,19 @@ void DmxEngine::generateDmx() {
                             if ((minSortkey < 0) || (intensityMinSortkey < minSortkey)) {
                                 minSortkey = intensityMinSortkey;
                             }
-                            const int colorMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_intensities");
+                            const int colorMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_colors");
                             if ((minSortkey < 0) || (colorMinSortkey < minSortkey)) {
                                 minSortkey = colorMinSortkey;
                             }
-                            const int positionMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_intensities");
+                            const int positionMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_positions");
                             if ((minSortkey < 0) || (positionMinSortkey < minSortkey)) {
                                 minSortkey = positionMinSortkey;
                             }
-                            const int rawsMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_intensities");
+                            const int rawsMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_raws");
                             if ((minSortkey < 0) || (rawsMinSortkey < minSortkey)) {
                                 minSortkey = rawsMinSortkey;
                             }
-                            const int effectsMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_intensities");
+                            const int effectsMinSortkey = getMinSortkey(cuelistKey, groupKey, currentCueSortkey, "cue_group_effects");
                             if ((minSortkey < 0) || (effectsMinSortkey < minSortkey)) {
                                 minSortkey = effectsMinSortkey;
                             }
@@ -367,7 +367,7 @@ void DmxEngine::generateDmx() {
                             priority = cuelistPriority;
 
                             QSqlQuery cueKeyQuery;
-                            cueKeyQuery.prepare("SELECT key FROM cues WHERE sortkey = :sortkey ANDcuelist_key = :cuelist");
+                            cueKeyQuery.prepare("SELECT key FROM cues WHERE sortkey = :sortkey AND cuelist_key = :cuelist");
                             cueKeyQuery.bindValue(":sortkey", minSortkey);
                             cueKeyQuery.bindValue(":cuelist", cuelistKey);
                             if (cueKeyQuery.exec()) {
