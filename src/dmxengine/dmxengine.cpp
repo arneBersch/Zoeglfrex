@@ -1011,12 +1011,12 @@ void DmxEngine::getFixtureEffects(const int fixtureKey, const QList<int> effectK
                     rawStepQuery.bindValue(":effect", effectKey);
                     if (rawStepQuery.exec()) {
                         while (rawStepQuery.next()) {
-                            const int step = positionStepQuery.value(0).toInt();
+                            const int step = rawStepQuery.value(0).toInt();
                             if (step <= stepAmount) {
                                 if (!stepRawKeys.contains(step)) {
                                     stepRawKeys[step] = QList<int>();
                                 }
-                                stepRawKeys[step].append(positionStepQuery.value(1).toInt());
+                                stepRawKeys[step].append(rawStepQuery.value(1).toInt());
                             }
                         }
                     } else {
