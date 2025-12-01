@@ -6,24 +6,34 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef PLAYBACKMONITOR_H
-#define PLAYBACKMONITOR_H
+#ifndef INTENSITYCOLORPOSITIONTAB_H
+#define INTENSITYCOLORPOSITIONTAB_H
 
 #include <QtWidgets>
 #include <QtSql>
 
-class PlaybackMonitor : public QWidget {
+#include "attributepanel.h"
+
+class IntensityColorPositionTab : public QWidget {
     Q_OBJECT
 public:
-    PlaybackMonitor(QWidget *parent = nullptr);
+    IntensityColorPositionTab(QWidget* parent = nullptr);
 public slots:
     void reload();
 signals:
     void dbChanged();
 private:
-    void setCue(const int cuelistKey, const int cueKey);
-    QSqlQueryModel* model;
-    QTableView* tableView;
+    int updateItemLabel(QString table, QString valueTable, QString itemName, QLabel* label);
+    QLabel* intensityLabel;
+    QLabel* colorLabel;
+    QLabel* positionLabel;
+    AttributePanel* intensityDimmerPanel;
+    AttributePanel* colorHuePanel;
+    AttributePanel* colorSaturationPanel;
+    AttributePanel* positionPanPanel;
+    AttributePanel* positionTiltPanel;
+    AttributePanel* positionZoomPanel;
+    AttributePanel* positionFocusPanel;
 };
 
-#endif // PLAYBACKMONITOR_H
+#endif // INTENSITYCOLORPOSITIONTAB_H

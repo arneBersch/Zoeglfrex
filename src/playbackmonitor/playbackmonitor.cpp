@@ -7,51 +7,92 @@
 */
 
 #include "playbackmonitor.h"
-#include "kernel/kernel.h"
 
-PlaybackMonitor::PlaybackMonitor(Kernel* core) {
-    kernel = core;
-
-    kernel->mainWindow->setupShortcuts(this);
+PlaybackMonitor::PlaybackMonitor(QWidget *parent) : QWidget(parent, Qt::Window) {
     setWindowTitle("Zöglfrex Playback Monitor");
     resize(500, 300);
 
-    QVBoxLayout *layout = new QVBoxLayout();
-    setLayout(layout);
+    model = new QSqlQueryModel();
+    model->setQuery("SELECT CONCAT(id, ' ', label), key, key, key FROM cuelists ORDER BY sortkey");
+    model->setHeaderData(0, Qt::Horizontal, "Cuelist");
+    model->setHeaderData(1, Qt::Horizontal, "Cue");
+    model->setHeaderData(2, Qt::Horizontal, "");
+    model->setHeaderData(3, Qt::Horizontal, "");
 
     tableView = new QTableView();
-    layout->addWidget(tableView);
+    tableView->setModel(model);
     tableView->setSelectionMode(QAbstractItemView::NoSelection);
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     tableView->setFocusPolicy(Qt::NoFocus);
-    tableView->horizontalHeader()->setStretchLastSection(true);
     tableView->verticalHeader()->hide();
+    tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    tableView->horizontalHeader()->setStretchLastSection(true);
 
-    cuelistModel = new CuelistModel(kernel);
-    tableView->setModel(cuelistModel);
+    QVBoxLayout* layout = new QVBoxLayout();
+    layout->addWidget(tableView);
+    setLayout(layout);
 }
 
-void PlaybackMonitor::reset() {
-    cuelistModel->reset();
-    for (Cuelist* cuelist : kernel->cuelists->items) {
-        int cuelistRow = kernel->cuelists->items.indexOf(cuelist);
-
-        if (cuelist->currentCue != nullptr) {
-            QComboBox* cueComboBox = new QComboBox();
-            for (Cue* cue : cuelist->cues->items) {
-                cueComboBox->addItem(cue->name());
-            }
-            cueComboBox->setCurrentIndex(cuelist->cues->getItemRow(cuelist->currentCue->id));
-            connect(cueComboBox, &QComboBox::currentIndexChanged, this, [cuelist, cueComboBox] { cuelist->goToCue(cuelist->cues->items[cueComboBox->currentIndex()]->id); });
-            tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::currentCue), cueComboBox);
-        }
-
-        QPushButton* goBackButton = new QPushButton("GO BACK");
-        connect(goBackButton, &QPushButton::clicked, this, [cuelist] { cuelist->goBack(); });
-        tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::goBackButton), goBackButton);
-
+void PlaybackMonitor::reload() {
+    model->refresh();
+    for (int row = 0; row < model->rowCount(); row++) {
+        const int cuelistKey = model->data(model->index(row, 1), Qt::DisplayRole).toInt();
+        QComboBox* cueComboBox = new QComboBox();
+        tableView->setIndexWidget(model->index(row, 1), cueComboBox);
         QPushButton* goButton = new QPushButton("GO");
-        connect(goButton, &QPushButton::clicked, this, [cuelist] { cuelist->go(); });
-        tableView->setIndexWidget(cuelistModel->index(cuelistRow, CuelistModelColumns::goButton), goButton);
+        tableView->setIndexWidget(model->index(row, 2), goButton);
+        QPushButton* goBackButton = new QPushButton("GO BACK");
+        tableView->setIndexWidget(model->index(row, 3), goBackButton);
+        QSqlQuery currentCueQuery;
+        currentCueQuery.prepare("SELECT currentcue_key FROM cuelists WHERE key = :cuelist");
+        currentCueQuery.bindValue(":cuelist", cuelistKey);
+        if (currentCueQuery.exec()) {
+            int currentCueKey = -1;
+            if (currentCueQuery.next()) {
+                currentCueKey = currentCueQuery.value(0).toInt();
+            }
+            QSqlQuery cueQuery;
+            cueQuery.prepare("SELECT key, CONCAT(id, ' ', label) FROM cues WHERE cuelist_key = :cuelist ORDER BY sortkey");
+            cueQuery.bindValue(":cuelist", cuelistKey);
+            if (cueQuery.exec()) {
+                QList<int> cueKeys;
+                int index = -1;
+                while (cueQuery.next()) {
+                    const int cueKey = cueQuery.value(0).toInt();
+                    if (cueKey == currentCueKey) {
+                        index = cueQuery.at();
+                    }
+                    cueKeys.append(cueKey);
+                    cueComboBox->addItem(cueQuery.value(1).toString());
+                }
+                if (index >= 0) {
+                    cueComboBox->setCurrentIndex(index);
+                    if (cueKeys.length() >= index + 1) {
+                        connect(goButton, &QPushButton::clicked, this, [this, cuelistKey, cueKeys, index] { setCue(cuelistKey, cueKeys.at(index + 1)); });
+                    }
+                    if (index > 0) {
+                        connect(goBackButton, &QPushButton::clicked, this, [this, cuelistKey, cueKeys, index] { setCue(cuelistKey, cueKeys.at(index - 1)); });
+                    }
+                } else if (!cueKeys.isEmpty()) {
+                    setCue(cuelistKey, cueKeys.first());
+                }
+                connect(cueComboBox, &QComboBox::currentIndexChanged, this, [this, cuelistKey, cueKeys] (const int newIndex) { setCue(cuelistKey, cueKeys.at(newIndex)); });
+            } else {
+                qWarning() << Q_FUNC_INFO << cueQuery.executedQuery() << cueQuery.lastError().text();
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << currentCueQuery.executedQuery() << currentCueQuery.lastError().text();
+        }
     }
+}
+
+void PlaybackMonitor::setCue(const int cuelistKey, const int cueKey) {
+    QSqlQuery query;
+    query.prepare("UPDATE cuelists SET currentcue_key = :cue WHERE key = :cuelist");
+    query.bindValue(":cuelist", cuelistKey);
+    query.bindValue(":cue", cueKey);
+    if (!query.exec()) {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+    }
+    emit dbChanged();
 }

@@ -10,22 +10,32 @@
 #define INSPECTOR_H
 
 #include <QtWidgets>
+#include <QtSql>
 
-class Kernel;
+#include "constants.h"
+#include "itemtablemodel.h"
 
 class Inspector : public QWidget {
     Q_OBJECT
 public:
-    Inspector(Kernel *core, QWidget *parent = nullptr);
-    void load(QList<int> keys);
-    QStringList ids;
+    Inspector(QWidget *parent = nullptr);
+public slots:
+    void loadItems(QString itemName, QStringList ids);
 private:
-    Kernel *kernel;
-    QListView *table;
-    QLabel *title;
-    QLabel *infos;
+    QString getBoolAttribute(QString table, QString attribute, QString id) const;
+    QString getTextAttribute(QString table, QString attribute, QString id) const;
+    QString getNumberAttribute(QString table, QString attribute, QString id, QString unit) const;
+    QString getItemAttribute(QString table, QString attribute, QString id, QString valueItemTable) const;
+    QString getItemListAttribute(QString table, QString valueItemTable, QString valueTable, QString id) const;
+    QString getItemSpecificNumberAttribute(QString table, QString foreignItemsTable, QString valueTable, QString unit, QString id) const;
+    QString getItemSpecificItemListAttribute(QString table, QString foreignItemTable, QString valueItemTable, QString valueTable, QString id) const;
+    QString getIntegerSpecificNumberAttribute(QString table, QString valueTable, QString id, QString unit) const;
+    QString getIntegerSpecificItemListAttribute(QString table, QString foreignItemTable, QString valueTable, QString id) const;
+    QString getItemAndIntegerSpecificNumberAttribute(QString table, QString foreignItemTable, QString valueTable, QString id, QString unit) const;
+    ItemTableModel* model;
+    QTableView* tableView;
+    QLabel* titleLabel;
+    QLabel* infosLabel;
 };
-
-#include "kernel/kernel.h"
 
 #endif // INSPECTOR_H

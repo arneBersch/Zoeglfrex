@@ -10,26 +10,37 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets>
+#include <QtSql>
 
 #include "aboutwindow/aboutwindow.h"
-class Kernel;
+#include "dmxengine/dmxengine.h"
+#include "preview2d/preview2d.h"
+#include "cuelistview/cuelistview.h"
+#include "terminal/terminal.h"
+#include "inspector/inspector.h"
+#include "playbackmonitor/playbackmonitor.h"
+#include "sacnserver/sacnserver.h"
+#include "controlpanel/controlpanel.h"
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
-    void setupShortcuts(QWidget* widget);
+    MainWindow(QString version, QString copyright, QWidget *parent = nullptr);
+public slots:
+    void reload();
 private:
-    Kernel *kernel;
-    void closeEvent(QCloseEvent *event) override;
-    void openFile();
-    void newFile();
-    void saveFile();
-    void saveFileAs();
+    QString VERSION;
+    QString COPYRIGHT;
     void about();
-    QString fileName;
-    const QString COPYRIGHT = "Copyright (c) 2025 Arne Bersch (zoeglfrex-dmx@web.de)";
+    void closeEvent(QCloseEvent *event) override;
+    DmxEngine* dmxEngine = new DmxEngine(this);
+    Preview2d* preview2d = new Preview2d(this);
+    CuelistView* cuelistView = new CuelistView(this);
+    Terminal* terminal = new Terminal(this);
+    Inspector* inspector = new Inspector(this);
+    PlaybackMonitor* playbackMonitor = new PlaybackMonitor(this);
+    SacnServer* sacnServer = new SacnServer(this);
+    ControlPanel* controlPanel = new ControlPanel(this);
 };
+
 #endif // MAINWINDOW_H

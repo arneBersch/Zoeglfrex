@@ -8,299 +8,180 @@
 
 #include "cuelistview.h"
 
-CuelistView::CuelistView(Kernel *core, QWidget *parent) : QWidget {parent} {
-    kernel = core;
+CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
+    settings = new QSettings("Zoeglfrex");
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    model = new CuelistTableModel();
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    setLayout(layout);
 
     QGridLayout* labelHeader = new QGridLayout();
     layout->addLayout(labelHeader);
-    cuelistLabel = new QLabel();
-    labelHeader->addWidget(cuelistLabel, 0, 0);
-    cueLabel = new QLabel();
-    labelHeader->addWidget(cueLabel, 0, 1);
-    groupLabel = new QLabel();
-    labelHeader->addWidget(groupLabel, 1, 0);
     fixtureLabel = new QLabel();
-    labelHeader->addWidget(fixtureLabel, 1, 1);
+    labelHeader->addWidget(fixtureLabel, 0, 0);
+    groupLabel = new QLabel();
+    labelHeader->addWidget(groupLabel, 0, 1);
+    cuelistLabel = new QLabel();
+    labelHeader->addWidget(cuelistLabel, 1, 0);
+    cueLabel = new QLabel();
+    labelHeader->addWidget(cueLabel, 1, 1);
 
     QHBoxLayout *buttonHeader = new QHBoxLayout();
     layout->addLayout(buttonHeader);
 
-    cueViewModeComboBox = new QComboBox();
-    cueViewModeComboBox->insertItem(CuelistViewModes::cueMode, "Cue Mode");
-    cueViewModeComboBox->insertItem(CuelistViewModes::groupMode, "Group Mode");
-    connect(cueViewModeComboBox, &QComboBox::currentIndexChanged, this, &CuelistView::updateCuelistView);
-    buttonHeader->addWidget(cueViewModeComboBox);
+    modeComboBox = new QComboBox();
+    modeComboBox->addItem("Cue Mode");
+    modeComboBox->addItem("Group Mode");
+    connect(modeComboBox, &QComboBox::currentIndexChanged, this, [this] (const int index) {
+        if (index == 0) {
+            model->setMode(CuelistTableModel::CueMode);
+        } else if (index == 1) {
+            model->setMode(CuelistTableModel::GroupMode);
+        }
+        settings->setValue("cuelistview/mode", index);
+    });
+    modeComboBox->setCurrentIndex(settings->value("cuelistview/mode", 0).toInt());
+    buttonHeader->addWidget(modeComboBox);
 
-    trackingButton = new QPushButton("Tracking");
-    trackingButton->setCheckable(true);
-    trackingButton->setChecked(true);
-    buttonHeader->addWidget(trackingButton);
-
-    cueViewRowFilterComboBox = new QComboBox();
-    cueViewRowFilterComboBox->insertItem(CuelistViewRowFilters::noFilter, "All Rows");
-    cueViewRowFilterComboBox->insertItem(CuelistViewRowFilters::activeRowsFilter, "Active Rows only");
-    cueViewRowFilterComboBox->insertItem(CuelistViewRowFilters::changedRowsFilter, "Changed Rows only");
-    connect(cueViewRowFilterComboBox, &QComboBox::currentIndexChanged, this, &CuelistView::updateCuelistView);
-    buttonHeader->addWidget(cueViewRowFilterComboBox);
-
-    cueModel = new CueModel(kernel);
-    groupModel = new GroupModel(kernel);
+    filterComboBox = new QComboBox();
+    filterComboBox->addItem("All Rows");
+    filterComboBox->addItem("Active Rows only");
+    filterComboBox->addItem("Changed Rows only");
+    connect(filterComboBox, &QComboBox::currentIndexChanged, this, [this] (const int index) {
+        if (index == 0) {
+            model->setRowFilter(CuelistTableModel::AllRows);
+        } else if (index == 1) {
+            model->setRowFilter(CuelistTableModel::ActiveRows);
+        } else if (index == 2) {
+            model->setRowFilter(CuelistTableModel::ChangedRows);
+        }
+        settings->setValue("cuelistview/filter", index);
+    });
+    filterComboBox->setCurrentIndex(settings->value("cuelistview/filter", 0).toInt());
+    buttonHeader->addWidget(filterComboBox);
 
     cuelistTableView = new QTableView();
+    cuelistTableView->setModel(model);
+    cuelistTableView->verticalHeader()->hide();
+    cuelistTableView->horizontalHeader()->setStretchLastSection(true);
     cuelistTableView->setSelectionMode(QAbstractItemView::NoSelection);
     cuelistTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     cuelistTableView->setFocusPolicy(Qt::NoFocus);
-    cuelistTableView->verticalHeader()->hide();
-    cuelistTableView->horizontalHeader()->setStretchLastSection(true);
     layout->addWidget(cuelistTableView);
 
-    layout->addWidget(kernel->dmxEngine);
+    new QShortcut(Qt::Key_Left, this, [this] { selectItem("currentgroup_fixtures", "SELECT currentgroup_fixtures.sortkey FROM currentitems, currentgroup_fixtures WHERE currentitems.fixture_key = currentgroup_fixtures.key", "UPDATE currentitems SET fixture_key = :key", false); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Right, this, [this] { selectItem("currentgroup_fixtures", "SELECT currentgroup_fixtures.sortkey FROM currentitems, currentgroup_fixtures WHERE currentitems.fixture_key = currentgroup_fixtures.key", "UPDATE currentitems SET fixture_key = :key", true); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Escape, this, [this] { deselectItem("fixture_key"); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Up, this, [this] { selectItem("groups", "SELECT groups.sortkey FROM currentitems, groups WHERE currentitems.group_key = groups.key", "UPDATE currentitems SET group_key = :key", false); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Down, this, [this] { selectItem("groups", "SELECT groups.sortkey FROM currentitems, groups WHERE currentitems.group_key = groups.key", "UPDATE currentitems SET group_key = :key", true); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::SHIFT | Qt::Key_Space, this, [this] {
+        QSqlQuery currentCueQuery;
+        if (currentCueQuery.exec("SELECT cue_key FROM currentitems WHERE cue_key IS NOT NULL")) {
+            if (currentCueQuery.next()) {
+                selectItem("currentcuelist_cues", "SELECT sortkey FROM currentcue", "UPDATE currentitems SET cue_key = :key", false);
+            } else {
+                selectItem("currentcuelist_cues", "SELECT sortkey FROM currentcue", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", false);
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << currentCueQuery.executedQuery() << currentCueQuery.lastError().text();
+        }
+    }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Space, this, [this] {
+        QSqlQuery currentCueQuery;
+        if (currentCueQuery.exec("SELECT cue_key FROM currentitems WHERE cue_key IS NOT NULL")) {
+            if (currentCueQuery.next()) {
+                selectItem("currentcuelist_cues", "SELECT sortkey FROM currentcue", "UPDATE currentitems SET cue_key = :key", true);
+            } else {
+                selectItem("currentcuelist_cues", "SELECT sortkey FROM currentcue", "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)", true);
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << currentCueQuery.executedQuery() << currentCueQuery.lastError().text();
+        }
+    }, Qt::ApplicationShortcut);
+
+    new QShortcut(Qt::SHIFT | Qt::Key_M, this, [this] {
+        const int index = modeComboBox->currentIndex();
+        if (index == 0) {
+            modeComboBox->setCurrentIndex(1);
+        } else {
+            modeComboBox->setCurrentIndex(0);
+        }
+    }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::SHIFT | Qt::Key_R, this, [this] {
+        const int index = filterComboBox->currentIndex();
+        if (index == 0) {
+            filterComboBox->setCurrentIndex(1);
+        } else if (index == 1) {
+            filterComboBox->setCurrentIndex(2);
+        } else {
+            filterComboBox->setCurrentIndex(0);
+        }
+    }, Qt::ApplicationShortcut);
 }
 
 void CuelistView::reload() {
-    cueModel->loadCue();
-    groupModel->loadGroup();
-    kernel->inspector->load(kernel->terminal->command);
-    kernel->controlPanel->reload();
-    kernel->playbackMonitor->reset();
-    cueLabel->setText(QString());
-    cuelistLabel->setText("No Cuelist selected.");
-    if (currentCuelist != nullptr) {
-        cuelistLabel->setText("Cuelist " + currentCuelist->name());
+    auto setCurrentItemLabel = [](const QString queryText, const QString itemName, QLabel* label) {
+        QSqlQuery query;
+        if (query.exec(queryText)) {
+            if (query.next()) {
+                label->setText(query.value(0).toString());
+            } else {
+                label->setText("No " + itemName + " selected.");
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+            label->setText(QString());
+        }
+    };
+    setCurrentItemLabel("SELECT CONCAT('Fixture ', fixtures.id, ' ', fixtures.label) FROM fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key", "Fixture", fixtureLabel);
+    setCurrentItemLabel("SELECT CONCAT('Group ', groups.id, ' ', groups.label) FROM groups, currentitems WHERE groups.key = currentitems.group_key", "Group", groupLabel);
+    setCurrentItemLabel("SELECT CONCAT('Cuelist ', cuelists.id, ' ', cuelists.label) FROM cuelists, currentitems WHERE cuelists.key = currentitems.cuelist_key", "Cuelist", cuelistLabel);
+    setCurrentItemLabel("SELECT CONCAT('Cue ', id, ' ', label) FROM currentcue", "Cue", cueLabel);
+    model->refresh();
+    cuelistTableView->scrollTo(model->getCurrentRowIndex());
+}
+
+void CuelistView::selectItem(const QString table, const QString currentSortkeyQueryText, const QString updateQueryText, const bool next) {
+    QSqlQuery currentSortkeyQuery;
+    currentSortkeyQuery.prepare(currentSortkeyQueryText);
+    if (!currentSortkeyQuery.exec()) {
+        qWarning() << Q_FUNC_INFO << currentSortkeyQuery.executedQuery() << currentSortkeyQuery.lastError().text();
+        return;
     }
-    cueLabel->setText("No Cue selected.");
-    if (kernel->dmxEngine->blindButton->isChecked()) {
-        if ((currentCue == nullptr) && (currentCuelist != nullptr)) {
-            currentCue = currentCuelist->currentCue;
+    QSqlQuery keyQuery;
+    if (currentSortkeyQuery.next()) {
+        if (next) {
+            keyQuery.prepare("SELECT key FROM " + table + " WHERE sortkey = (SELECT MIN(sortkey) FROM " + table + " WHERE sortkey > :sortkey)");
+        } else {
+            keyQuery.prepare("SELECT key FROM " + table + " WHERE sortkey = (SELECT MAX(sortkey) FROM " + table + " WHERE sortkey < :sortkey)");
         }
-        if (currentCue != nullptr) {
-            cueLabel->setText("Cue " + currentCue->name());
-        }
+        keyQuery.bindValue(":sortkey", currentSortkeyQuery.value(0).toInt());
     } else {
-        currentCue = nullptr;
-        if ((currentCuelist != nullptr) && (currentCuelist->currentCue != nullptr)) {
-            cueLabel->setText("Cue " + currentCuelist->currentCue->name());
-        }
+        keyQuery.prepare("SELECT key FROM " + table + " WHERE sortkey = (SELECT MIN(sortkey) FROM " + table + ")");
     }
-    groupLabel->setText("No Group selected.");
-    if (currentGroup != nullptr) {
-        groupLabel->setText("Group " + currentGroup->name());
-    }
-    fixtureLabel->setText("No Fixture selected.");
-    if (currentFixture != nullptr) {
-        fixtureLabel->setText("Fixture " + currentFixture->name());
-    }
-    if ((currentCuelist == nullptr) && !kernel->cuelists->items.isEmpty()) {
-        loadCuelist(kernel->cuelists->items.first()->id);
+    if (!keyQuery.exec()) {
+        qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
         return;
     }
-    if ((currentCuelist != nullptr) && (currentCuelist->currentCue == nullptr) && !currentCuelist->cues->items.isEmpty()) {
-        currentCuelist->currentCue = currentCuelist->cues->items.first();
-        currentCuelist->remainingFadeFrames = 0;
-        currentCuelist->totalFadeFrames = 0;
-        reload();
+    if (!keyQuery.next()) {
         return;
     }
-    if ((currentGroup == nullptr) && !kernel->groups->items.isEmpty()) {
-        loadGroup(kernel->groups->items.first()->id);
+    const int key = keyQuery.value(0).toInt();
+    QSqlQuery updateQuery;
+    updateQuery.prepare(updateQueryText);
+    updateQuery.bindValue(":key", key);
+    if (!updateQuery.exec()) {
+        qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
         return;
     }
+    emit dbChanged();
 }
 
-void CuelistView::loadCuelist(QString cuelistId) {
-    Cuelist* cuelist = kernel->cuelists->getItem(cuelistId);
-    if (cuelist == nullptr) {
-        kernel->terminal->error("Can't select Cuelist because Cuelist " + cuelistId + " doesn't exist.");
-        return;
+void CuelistView::deselectItem(const QString currentItemsTableKey) {
+    QSqlQuery query;
+    if (!query.exec("UPDATE currentitems SET " + currentItemsTableKey + " = NULL")) {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
     }
-    if (currentCue != nullptr) {
-        currentCue = currentCuelist->currentCue;
-    }
-    currentCuelist = cuelist;
-    reload();
-}
-
-Cue* CuelistView::selectedCue() const {
-    if (kernel->dmxEngine->blindButton->isChecked() && (currentCue != nullptr)) {
-        return currentCue;
-    } else if ((currentCuelist != nullptr) && (currentCuelist->currentCue != nullptr)) {
-        return currentCuelist->currentCue;
-    }
-    return nullptr;
-}
-
-void CuelistView::loadCue(QString cueId) {
-    if (currentCuelist == nullptr) {
-        kernel->terminal->error("Can't select Cue because no Cuelist is currently selected.");
-        return;
-    }
-    if (kernel->dmxEngine->blindButton->isChecked() && (currentCue != nullptr)) {
-        Cue* cue = currentCuelist->cues->getItem(cueId);
-        if (cue == nullptr) {
-            kernel->terminal->error("Can't select Cue because Cue " + cueId + " doesn't exist.");
-            return;
-        }
-        currentCue = cue;
-        reload();
-        if ((cueViewModeComboBox->currentIndex() == CuelistViewModes::groupMode) && groupModel->getCueRows().contains(currentCuelist->currentCue)) {
-            cuelistTableView->scrollTo(groupModel->index(groupModel->getCueRows().indexOf(currentCuelist->currentCue), GroupModelColumns::cue));
-        }
-    } else {
-        currentCuelist->goToCue(cueId);
-    }
-}
-
-void CuelistView::previousCue() {
-    if ((currentCuelist == nullptr) || (currentCuelist->currentCue == nullptr)) {
-        reload();
-        return;
-    }
-    if (kernel->dmxEngine->blindButton->isChecked() && (currentCue != nullptr)) {
-        QMutexLocker locker(kernel->mutex);
-        if (currentCuelist->cues->items.indexOf(currentCue) > 0) {
-            loadCue(currentCuelist->cues->items[currentCuelist->cues->items.indexOf(currentCue) - 1]->id);
-        }
-    } else {
-        currentCuelist->goBack();
-        reload();
-    }
-}
-
-void CuelistView::nextCue() {
-    if ((currentCuelist == nullptr) || (currentCuelist->currentCue == nullptr)) {
-        reload();
-        return;
-    }
-    if (kernel->dmxEngine->blindButton->isChecked() && (currentCue != nullptr)) {
-        QMutexLocker locker(kernel->mutex);
-        if ((currentCuelist->cues->items.indexOf(currentCue) + 1) < currentCuelist->cues->items.length()) {
-            loadCue(currentCuelist->cues->items[currentCuelist->cues->items.indexOf(currentCue) + 1]->id);
-        }
-    } else {
-        currentCuelist->go();
-        reload();
-    }
-}
-
-void CuelistView::loadGroup(QString groupId) {
-    Group* group = kernel->groups->getItem(groupId);
-    if (group == nullptr) {
-        kernel->terminal->error("Can't select Group because Group " + groupId + " doesn't exist.");
-        return;
-    }
-    currentGroup = group;
-    currentFixture = nullptr;
-    reload();
-    if ((cueViewModeComboBox->currentIndex() == CuelistViewModes::cueMode) && cueModel->getGroupRows().contains(currentGroup)) {
-        cuelistTableView->scrollTo(cueModel->index(cueModel->getGroupRows().indexOf(currentGroup), CueModelColumns::group));
-    }
-}
-
-void CuelistView::previousGroup() {
-    QMutexLocker locker(kernel->mutex);
-    if (currentGroup == nullptr) {
-        reload();
-        return;
-    }
-    if (kernel->groups->items.indexOf(currentGroup) > 0) {
-        loadGroup(kernel->groups->items[kernel->groups->items.indexOf(currentGroup) - 1]->id);
-    }
-}
-
-void CuelistView::nextGroup() {
-    QMutexLocker locker(kernel->mutex);
-    if (currentGroup == nullptr) {
-        reload();
-        return;
-    }
-    if ((kernel->groups->items.indexOf(currentGroup) + 1) < kernel->groups->items.length()) {
-        loadGroup(kernel->groups->items[kernel->groups->items.indexOf(currentGroup) + 1]->id);
-    }
-}
-
-void CuelistView::loadFixture(QString fixtureId) {
-    Fixture* fixture = kernel->fixtures->getItem(fixtureId);
-    if (fixture == nullptr) {
-        kernel->terminal->error("Can't select Fixture because Fixture " + fixtureId + " doesn't exist.");
-        return;
-    }
-    if (currentGroup == nullptr) {
-        kernel->terminal->error("Can't select Fixture because no Group is currently selected.");
-        return;
-    }
-    if (!currentGroup->fixtures.contains(fixture)) {
-        kernel->terminal->error("Can't select Fixture " + fixture->name() + " because the current Group " + kernel->cuelistView->currentGroup->name() + " doesn't contain this Fixture.");
-        return;
-    }
-    currentFixture = fixture;
-    reload();
-}
-
-void CuelistView::previousFixture() {
-    QMutexLocker locker(kernel->mutex);
-    if (currentGroup == nullptr) {
-        return;
-    }
-    if (currentFixture == nullptr) {
-        if (!currentGroup->fixtures.isEmpty()) {
-            currentFixture = currentGroup->fixtures.first();
-            reload();
-        }
-        return;
-    }
-    if (currentGroup->fixtures.indexOf(currentFixture) > 0) {
-        loadFixture(currentGroup->fixtures[currentGroup->fixtures.indexOf(currentFixture) - 1]->id);
-    }
-}
-
-void CuelistView::nextFixture() {
-    QMutexLocker locker(kernel->mutex);
-    if (currentGroup == nullptr) {
-        return;
-    }
-    if (currentFixture == nullptr) {
-        if (!currentGroup->fixtures.isEmpty()) {
-            currentFixture = currentGroup->fixtures.first();
-            reload();
-        }
-        return;
-    }
-    if ((currentGroup->fixtures.indexOf(currentFixture) + 1) < currentGroup->fixtures.length()) {
-        loadFixture(currentGroup->fixtures[currentGroup->fixtures.indexOf(currentFixture) + 1]->id);
-    }
-}
-
-void CuelistView::noFixture() {
-    QMutexLocker locker(kernel->mutex);
-    currentFixture = nullptr;
-    reload();
-}
-
-bool CuelistView::isSelected(Fixture* fixture) {
-    if (currentFixture == fixture) {
-        return true;
-    }
-    if ((currentGroup != nullptr) && (currentFixture == nullptr) && (currentGroup->fixtures.contains(fixture))) {
-        return true;
-    }
-    return false;
-}
-
-void CuelistView::updateCuelistView() {
-    if (cueViewModeComboBox->currentIndex() == CuelistViewModes::cueMode) {
-        cuelistTableView->setModel(cueModel);
-        if ((currentGroup != nullptr) && cueModel->getGroupRows().contains(currentGroup)) {
-            cuelistTableView->scrollTo(cueModel->index(cueModel->getGroupRows().indexOf(currentGroup), CueModelColumns::group));
-        }
-    } else if (cueViewModeComboBox->currentIndex() == CuelistViewModes::groupMode) {
-        cuelistTableView->setModel(groupModel);
-        if ((currentCuelist != nullptr) && (currentCuelist->currentCue != nullptr) && groupModel->getCueRows().contains(currentCuelist->currentCue)) {
-            cuelistTableView->scrollTo(groupModel->index(groupModel->getCueRows().indexOf(currentCuelist->currentCue), GroupModelColumns::cue));
-        }
-    } else {
-        Q_ASSERT(false);
-    }
-    reload();
+    emit dbChanged();
 }

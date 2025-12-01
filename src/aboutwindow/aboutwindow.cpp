@@ -8,8 +8,10 @@
 
 #include "aboutwindow.h"
 
-AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : QDialog{parent} {
+AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : QDialog(parent) {
     QVBoxLayout *layout = new QVBoxLayout();
+    setLayout(layout);
+
     QHBoxLayout *headerLayout = new QHBoxLayout();
     layout->addLayout(headerLayout);
 
@@ -29,13 +31,16 @@ AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : 
     QLabel *licenseNotice = new QLabel("This application is licensed under the terms of the GNU General Public License.");
     layout->addWidget(licenseNotice);
 
-    QTextEdit *license = new QTextEdit();
+    QPlainTextEdit *license = new QPlainTextEdit();
     license->setReadOnly(true);
     QFile licenseFile(":/resources/license.txt");
-    licenseFile.open(QFile::ReadOnly);
-    license->setText(licenseFile.readAll());
+    if (licenseFile.open(QFile::ReadOnly)) {
+        license->setPlainText(licenseFile.readAll());
+    } else {
+        qWarning() << Q_FUNC_INFO << "Failed to load license file!";
+        license->setPlainText("License Text could not be loaded!");
+    }
     layout->addWidget(license);
 
-    setLayout(layout);
     setWindowTitle("About Zöglfrex");
 }

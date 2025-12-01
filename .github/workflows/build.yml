@@ -1,11 +1,11 @@
 name: Zöglfrex GitHub Actions CI Build
 on: [ push ]
 env:
-  QT_VERSION: "6.8.0"
+  QT_VERSION: "6.9.3"
 
 jobs:
   linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     defaults:
       run:
         working-directory: src
@@ -30,18 +30,25 @@ jobs:
 
       - name: Create AppImage
         run: |
+          mkdir -p AppDir/usr/bin
+          mkdir -p AppDir/usr/lib
+          mkdir -p AppDir/usr/share/applications
+          mkdir -p AppDir/usr/share/icons/hicolor/512x512/apps
+          cp ../build/zoeglfrex.desktop AppDir/usr/share/applications/zoeglfrex.desktop
+          cp Zoeglfrex AppDir/usr/bin/Zoeglfrex
+          cp resources/icon.png AppDir/usr/share/icons/hicolor/512x512/apps/icon.png
+          cd AppDir
           sudo add-apt-repository universe
           sudo apt install libfuse2
-          wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-          wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
-          chmod +x linuxdeploy*.AppImage
-          ./linuxdeploy-x86_64.AppImage --appdir AppDir -e Zoeglfrex --plugin qt -d ../build/zoeglfrex.desktop -i ../src/resources/icon.png --output appimage
+          wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
+          chmod +x linuxdeployqt-continuous-x86_64.AppImage
+          ./linuxdeployqt-continuous-x86_64.AppImage usr/share/applications/zoeglfrex.desktop -appimage -exclude-libs=libqsqlmimer
 
       - name: Upload AppImage
         uses: actions/upload-artifact@v4
         with:
           name: Zoeglfrex.AppImage
-          path: src/Zöglfrex*.AppImage
+          path: src/AppDir/Zöglfrex*.AppImage
 
   windows:
     runs-on: windows-latest

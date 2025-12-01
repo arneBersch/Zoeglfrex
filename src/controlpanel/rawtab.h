@@ -6,27 +6,27 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef POSITION_H
-#define POSITION_H
+#ifndef RAWTAB_H
+#define RAWTAB_H
 
 #include <QtWidgets>
+#include <QtSql>
 
-#include "item.h"
+#include "fixturechannelmodel.h"
 
-struct positionAngles {
-    float pan = 0;
-    float tilt = 0;
-    float zoom = 0;
-};
-
-class Position : public Item {
+class RawTab : public QWidget {
+    Q_OBJECT
 public:
-    Position(Kernel* core);
-    Position(const Position* item);
-    ~Position();
-    QString name() override;
-    QString info() override;
-    positionAngles getAngles(Fixture* fixture);
+    RawTab(QWidget* parent = nullptr);
+public slots:
+    void reload();
+signals:
+    void dbChanged();
+private:
+    QComboBox* rawComboBox;
+    QList<int> rawKeys;
+    FixtureChannelModel* model;
+    QTableView* tableView;
 };
 
-#endif // POSITION_H
+#endif // RAWTAB_H

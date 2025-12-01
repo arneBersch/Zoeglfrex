@@ -6,30 +6,22 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef CUELIST_H
-#define CUELIST_H
+#ifndef ITEMTABLEMODEL_H
+#define ITEMTABLEMODEL_H
 
-#include <QtWidgets>
+#include <QtSql>
 
-#include "item.h"
-#include "../tables/cuetable.h"
-
-class Cuelist : public Item {
+class ItemTableModel : public QSqlQueryModel {
+    Q_OBJECT
 public:
-    Cuelist(Kernel* core);
-    Cuelist(const Cuelist* item);
-    ~Cuelist();
-    QString name() override;
-    QString info() override;
-    void writeAttributesToFile(QXmlStreamWriter* fileStream) override;
-    CueTable* cues;
-    void goToCue(QString cueId);
-    void go();
-    void goBack();
-    Cue* currentCue = nullptr;
-    Cue* previousCue = nullptr;
-    unsigned int remainingFadeFrames = 0;
-    unsigned int totalFadeFrames = 0;
+    ItemTableModel();
+    void setTable(QString table);
+    void setIds(QStringList ids);
+    QVariant data(const QModelIndex &index, int role) const override;
+    QModelIndex getLastSelectedRowIndex();
+private:
+    QString table;
+    QStringList ids;
 };
 
-#endif // CUELIST_H
+#endif // ITEMTABLEMODEL_H

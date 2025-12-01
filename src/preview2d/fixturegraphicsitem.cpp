@@ -16,7 +16,7 @@ QRectF FixtureGraphicsItem::boundingRect() const {
 
 void FixtureGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) {
     painter->setPen(Qt::NoPen);
-    painter->setBrush(QColor(red, green, blue));
+    painter->setBrush(color);
 
     QPainterPath path;
     int beamLength = maxBeamLength * std::sin(tilt * M_PI / 180);
@@ -24,4 +24,7 @@ void FixtureGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsIte
     painter->drawPath(path);
 
     painter->drawEllipse(-ellipseWidth / 2, -ellipseWidth / 2, ellipseWidth, ellipseWidth);
+
+    painter->setPen(Qt::white);
+    painter->drawText(QRectF(-textWidth / 2, textOffset, textWidth, textHeight), label, QTextOption(Qt::AlignCenter));
 }

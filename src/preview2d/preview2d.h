@@ -12,19 +12,26 @@
 #include <QtWidgets>
 
 #include "fixturegraphicsitem.h"
-class Kernel;
-class Fixture;
 
 class Preview2d : public QWidget {
+    Q_OBJECT
 public:
-    Preview2d(Kernel* core);
-    void updateImage();
-    QMap<Fixture*, FixtureGraphicsItem*> fixtureCircles;
+    Preview2d(QWidget* parent = nullptr);
+    struct PreviewData {
+        QString label;
+        float xPosition;
+        float yPosition;
+        QColor color;
+        float pan;
+        float tilt;
+        float zoom;
+    };
+public slots:
+    void setFixtures(QHash<int, PreviewData> fixtures);
 private:
-    int fixtureCirclesAmount = 0;
+    QHash<int, FixtureGraphicsItem*> fixtures;
     QGraphicsView* view;
     QGraphicsScene* scene;
-    Kernel* kernel;
 };
 
 #endif // PREVIEW2D_H

@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>resources/style.qss</file>
         <file>resources/license.txt</file>
         <file>resources/icon.png</file>
+        <file>resources/style.qss</file>
     </qresource>
 </RCC>

@@ -3,6 +3,20 @@
 Welcome to Zöglfrex, a free software for stage lighting.
 In this guide, we will build a simple project in order to show you how to use it.
 
+## Creating a Project File
+First of all, you need to create a Project File.
+Therefore, you need to execute Zöglfrex from the Command Line:
+
+```
+Zoeglfrex.AppImage path/to/directory/myTestFile.zfr
+```
+
+> [!CAUTION]
+> Please note that Zöglfrex files always have to end with .zfr
+
+If the given file already exists, Zöglfrex will open it.
+Otherwise, Zöglfrex will create an empty file with this name.
+
 ## The User Interface
 On the right side of the Zöglfrex window, you can see the **Inspector**.
 This is where we can see all our items.
@@ -144,12 +158,11 @@ For our first Group, we will select all dimmers:
 ```
 Group 1 Set Fixture 1.
 ```
-You can see that the automatically genrated name for our Group is quite complex.
-However, we can also give it a custom name:
+We can also give it a custom name:
 ```
 Group 1 Attribute 1 Set
 ```
-This command will open a text input box where you can insert the new Label of these fixtures.
+This command will open a text input box where you can insert the new Label of this Group.
 You could call this group "all Dimmers".
 We now create some more groups for our dimmers:
 ```
@@ -229,6 +242,10 @@ Cuelist 1 Attribute 1 Set
 ```
 We will call this Cuelist "Main Playback".
 
+In order to edit the Cues of Cuelist 1, we have to select it:
+```
+Cuelist 1
+```
 Now, we can add **Cues** to the Cuelist.
 `Cue Set` takes the Fade time of the Cue (in seconds) as an parameter:
 ```

@@ -11,43 +11,20 @@
 
 #include <QtWidgets>
 
-class Kernel;
-
-namespace ControlPanelColumns {
-enum {
-    dimmer,
-    hue,
-    saturation,
-    pan,
-    tilt,
-    zoom,
-};
-}
-
-namespace ControlPanelRows {
-enum {
-    label,
-    valueButton,
-    modelValueButton,
-    fixtureValueButton,
-    dial,
-};
-}
+#include "intensitycolorpositiontab.h"
+#include "rawtab.h"
 
 class ControlPanel : public QWidget {
+    Q_OBJECT
 public:
-    ControlPanel(Kernel* core);
+    ControlPanel(QWidget *parent = nullptr);
+public slots:
     void reload();
+signals:
+    void dbChanged();
 private:
-    void setExceptions(int column, int itemKey, QString attributeId);
-    void setValue(int column, int itemKey, QString attributeId);
-    void setAttribute(int itemKey, QMap<int, QString> attributes, QList<int> keys, QString text = QString());
-    bool reloading = false;
-    QList<QPushButton*> valueButtons = QList<QPushButton*>(6, nullptr);
-    QList<QPushButton*> modelValueButtons = QList<QPushButton*>(6, nullptr);
-    QList<QPushButton*> fixtureValueButtons = QList<QPushButton*>(6, nullptr);
-    QList<QDial*> dials = QList<QDial*>(6, nullptr);
-    Kernel* kernel;
+    IntensityColorPositionTab* intensityColorPositionTab;
+    RawTab* rawTab;
 };
 
 #endif // CONTROLPANEL_H

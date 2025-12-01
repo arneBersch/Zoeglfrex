@@ -7,12 +7,8 @@
 */
 
 #include "preview2d.h"
-#include "kernel/kernel.h"
 
-Preview2d::Preview2d(Kernel* core) {
-    kernel = core;
-
-    kernel->mainWindow->setupShortcuts(this);
+Preview2d::Preview2d(QWidget* parent) : QWidget(parent, Qt::Window) {
     setWindowTitle("Zöglfrex 2D Preview");
     resize(500, 300);
     QVBoxLayout *layout = new QVBoxLayout();
@@ -34,26 +30,30 @@ Preview2d::Preview2d(Kernel* core) {
     layout->addLayout(buttonLayout);
 }
 
-void Preview2d::updateImage() {
-    bool sceneRectChanged = false;
-    if (fixtureCirclesAmount != fixtureCircles.size()) {
-        fixtureCirclesAmount = fixtureCircles.size();
-        sceneRectChanged = true;
+void Preview2d::setFixtures(QHash<int, PreviewData> previewData) {
+    QHash<int, FixtureGraphicsItem*> oldFixtures = fixtures;
+    fixtures.clear();
+    for (const int fixtureKey : previewData.keys()) {
+        FixtureGraphicsItem* fixture = nullptr;
+        if (oldFixtures.contains(fixtureKey)) {
+            fixture = oldFixtures.take(fixtureKey);
+        } else {
+            fixture = new FixtureGraphicsItem();
+            scene->addItem(fixture);
+        }
+        fixtures[fixtureKey] = fixture;
+        PreviewData data = previewData.value(fixtureKey);
+        QPointF position(100 * data.xPosition, -100 * data.yPosition);
+        fixture->setPos(position);
+        fixture->label = data.label;
+        fixture->color = data.color;
+        fixture->pan = data.pan;
+        fixture->tilt = data.tilt;
+        fixture->zoom = data.zoom;
     }
-    for (Fixture* fixture : fixtureCircles.keys()) {
-        FixtureGraphicsItem *fixtureGraphicsItem = fixtureCircles.value(fixture);
-        QPointF position(100 * fixture->floatAttributes.value(kernel->FIXTUREPOSITIONXATTRIBUTEID), -100 * fixture->floatAttributes.value(kernel->FIXTUREPOSITIONYATTRIBUTEID));
-        if (position != fixtureGraphicsItem->pos()) {
-            sceneRectChanged = true;
-            fixtureGraphicsItem->setPos(position);
-        }
-        if (!scene->items().contains(fixtureGraphicsItem)) {
-            sceneRectChanged = true;
-            scene->addItem(fixtureGraphicsItem);
-        }
+    for (FixtureGraphicsItem* fixture : oldFixtures.values()) {
+        delete fixture;
     }
     scene->update();
-    if (sceneRectChanged) {
-        view->setSceneRect(scene->itemsBoundingRect());
-    }
+    view->setSceneRect(scene->itemsBoundingRect());
 }
