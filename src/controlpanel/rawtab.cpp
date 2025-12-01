@@ -47,7 +47,7 @@ void RawTab::reload() {
 
     int currentRawIndex = -1;
     QSqlQuery rawsQuery;
-    if (rawsQuery.exec("SELECT key, CONCAT(id, ' ', label) FROM raws")) {
+    if (rawsQuery.exec("SELECT key, CONCAT(id, ' ', label) FROM raws ORDER BY sortkey")) {
         while (rawsQuery.next()) {
             const int rawKey = rawsQuery.value(0).toInt();
             const QString rawName = rawsQuery.value(1).toString();

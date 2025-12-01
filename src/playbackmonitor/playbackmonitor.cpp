@@ -52,8 +52,8 @@ void PlaybackMonitor::reload() {
                 currentCueKey = currentCueQuery.value(0).toInt();
             }
             QSqlQuery cueQuery;
-            cueQuery.prepare("SELECT key, CONCAT(id, ' ', label) FROM cues WHERE cuelist_key = :key ORDER BY sortkey");
-            cueQuery.bindValue(":key", cuelistKey);
+            cueQuery.prepare("SELECT key, CONCAT(id, ' ', label) FROM cues WHERE cuelist_key = :cuelist ORDER BY sortkey");
+            cueQuery.bindValue(":cuelist", cuelistKey);
             if (cueQuery.exec()) {
                 QList<int> cueKeys;
                 int index = -1;

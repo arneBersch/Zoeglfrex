@@ -101,7 +101,7 @@ void CuelistTableModel::refresh() {
 
 QStringList CuelistTableModel::getCueValue(const QString table, const QString valueTable, const int cueKey, const int groupKey) {
     QSqlQuery query;
-    query.prepare("SELECT CONCAT(" + table + ".id, ' ', " + table + ".label) FROM " + valueTable + ", " + table + " WHERE " + valueTable + ".item_key = :cue AND " + valueTable + ".foreignitem_key = :group AND " + valueTable + ".valueitem_key = " + table + ".key");
+    query.prepare("SELECT CONCAT(" + table + ".id, ' ', " + table + ".label) FROM " + valueTable + ", " + table + " WHERE " + valueTable + ".item_key = :cue AND " + valueTable + ".foreignitem_key = :group AND " + valueTable + ".valueitem_key = " + table + ".key ORDER BY " + table + ".sortkey");
     query.bindValue(":cue", cueKey);
     query.bindValue(":group", groupKey);
     if (!query.exec()) {

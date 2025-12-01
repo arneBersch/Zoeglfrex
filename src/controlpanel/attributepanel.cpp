@@ -56,7 +56,7 @@ void AttributePanel::reload(const int item, const int model, const int fixture) 
     float value = 0;
     if (itemGiven) {
         QSqlQuery query;
-        query.prepare("SELECT ROUND(" + table + "." + attribute + ", 3) FROM " + table + " WHERE key = :key");
+        query.prepare("SELECT ROUND(" + attribute + ", 3) FROM " + table + " WHERE key = :key");
         query.bindValue(":key", itemKey);
         if (query.exec()) {
             if (query.next()) {
