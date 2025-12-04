@@ -82,95 +82,101 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
         titleLabel->setText(title);
         model->setTable(table);
         if (!ids.isEmpty()) {
-            const QString id = ids.last();
-            const QString label = getTextAttribute(table, "label", id);
-            if (!label.isEmpty()) {
-                infos.append(QString(AttributeIds::id) + " ID: " + id);
-                infos.append(QString(AttributeIds::label) + " Label: " + label);
-                if (table == "models") {
-                    infos.append(QString(AttributeIds::modelChannels) + " Channels: " + getTextAttribute(table, "channels", id));
-                    infos.append(QString(AttributeIds::modelPanRange) + " Pan Range: " + getNumberAttribute(table, "panrange", id, "°"));
-                    infos.append(QString(AttributeIds::modelTiltRange) + " Tilt Range: " + getNumberAttribute(table, "tiltrange", id, "°"));
-                    infos.append(QString(AttributeIds::modelMinZoom) + " Minimal Zoom: " + getNumberAttribute(table, "minzoom", id, "°"));
-                    infos.append(QString(AttributeIds::modelMaxZoom) + " Maximal Zoom: " + getNumberAttribute(table, "maxzoom", id, "°"));
-                } else if (table == "fixtures") {
-                    infos.append(QString(AttributeIds::fixtureModel) + " Model: " + getItemAttribute(table, "model_key", id, "models"));
-                    infos.append(QString(AttributeIds::fixtureUniverse) + " Universe: " + getNumberAttribute(table, "universe", id, ""));
-                    infos.append(QString(AttributeIds::fixtureAddress) + " Address: " + getNumberAttribute(table, "address", id, ""));
-                    infos.append(QString(AttributeIds::fixtureXPosition) + " X Position: " + getNumberAttribute(table, "xposition", id, ""));
-                    infos.append(QString(AttributeIds::fixtureYPosition) + " Y Position: " + getNumberAttribute(table, "yposition", id, ""));
-                    infos.append(QString(AttributeIds::fixtureRotation) + " Rotation: " + getNumberAttribute(table, "rotation", id, "°"));
-                    infos.append(QString(AttributeIds::fixtureInvertPan) + " Invert Pan: " + getBoolAttribute(table, "invertPan", id));
-                } else if (table == "groups") {
-                    infos.append(QString(AttributeIds::groupFixtures) + " Fixtures: " + getItemListAttribute(table, "fixtures", "group_fixtures", id));
-                } else if (table == "intensities") {
-                    infos.append(QString(AttributeIds::intensityDimmer) + " Dimmer: " + getNumberAttribute(table, "dimmer", id, "%"));
-                    infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "intensity_model_dimmer", "%", id));
-                    infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "intensity_fixture_dimmer", "%", id));
-                    infos.append(QString(AttributeIds::intensityRaws) + " Raws: " + getItemListAttribute(table, "raws", "intensity_raws", id));
-                } else if (table == "colors") {
-                    infos.append(QString(AttributeIds::colorHue) + " Hue: " + getNumberAttribute(table, "hue", id, "°"));
-                    infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "color_model_hue", "°", id));
-                    infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "color_fixture_hue", "°", id));
-                    infos.append(QString(AttributeIds::colorSaturation) + " Saturation: " + getNumberAttribute(table, "saturation", id, "%"));
-                    infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "color_model_saturation", "%", id));
-                    infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "color_fixture_saturation", "%", id));
-                    infos.append(QString(AttributeIds::colorQuality) + " Quality: " + getNumberAttribute(table, "quality", id, "%"));
-                    infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "color_model_quality", "%", id));
-                    infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "color_fixture_quality", "%", id));
-                    infos.append(QString(AttributeIds::colorRaws) + " Raws: " + getItemListAttribute(table, "raws", "color_raws", id));
-                } else if (table == "positions") {
-                    infos.append(QString(AttributeIds::positionPan) + " Pan: " + getNumberAttribute(table, "pan", id, "°"));
-                    infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "position_model_pan", "°", id));
-                    infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "position_fixture_pan", "°", id));
-                    infos.append(QString(AttributeIds::positionTilt) + " Tilt: " + getNumberAttribute(table, "tilt", id, "°"));
-                    infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "position_model_tilt", "°", id));
-                    infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "position_fixture_tilt", "°", id));
-                    infos.append(QString(AttributeIds::positionZoom) + " Zoom: " + getNumberAttribute(table, "zoom", id, "°"));
-                    infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "position_model_zoom", "°", id));
-                    infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "position_fixture_zoom", "°", id));
-                    infos.append(QString(AttributeIds::positionFocus) + " Focus: " + getNumberAttribute(table, "focus", id, "%"));
-                    infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute(table, "models", "position_model_focus", "%", id));
-                    infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "position_fixture_focus", "%", id));
-                    infos.append(QString(AttributeIds::positionRaws) + " Raws: " + getItemListAttribute(table, "raws", "position_raws", id));
-                } else if (table == "raws") {
-                    infos.append(QString(AttributeIds::rawChannelValues) + " Channel Values: " + getIntegerSpecificNumberAttribute(table, "raw_channel_values", id, ""));
-                    infos.append("   Model Exceptions: " + getItemAndIntegerSpecificNumberAttribute(table, "models", "raw_model_channel_values", id, ""));
-                    infos.append("   Fixture Exceptions: " + getItemAndIntegerSpecificNumberAttribute(table, "fixtures", "raw_fixture_channel_values", id, ""));
-                    infos.append(QString(AttributeIds::rawMoveWhileDark) + " Move while Dark: " + getBoolAttribute(table, "movewhiledark", id));
-                    infos.append(QString(AttributeIds::rawFade) + " Fade: " + getBoolAttribute(table, "fade", id));
-                } else if (table == "effects") {
-                    infos.append(QString(AttributeIds::effectSteps) + " Steps: " + getNumberAttribute(table, "steps", id, ""));
-                    infos.append(QString(AttributeIds::effectIntensities) + " Intensities: " + getIntegerSpecificItemListAttribute(table, "intensities", "effect_step_intensities", id));
-                    infos.append(QString(AttributeIds::effectColors) + " Colors: " + getIntegerSpecificItemListAttribute(table, "colors", "effect_step_colors", id));
-                    infos.append(QString(AttributeIds::effectPositions) + " Positions: " + getIntegerSpecificItemListAttribute(table, "positions", "effect_step_positions", id));
-                    infos.append(QString(AttributeIds::effectRaws) + " Raws: " + getIntegerSpecificItemListAttribute(table, "raws", "effect_step_raws", id));
-                    infos.append(QString(AttributeIds::effectHold) + " Hold: " + getNumberAttribute(table, "hold", id, "s"));
-                    infos.append("   Step Exceptions: " + getIntegerSpecificNumberAttribute(table, "effect_step_hold", id, "s"));
-                    infos.append(QString(AttributeIds::effectFade) + " Fade: " + getNumberAttribute(table, "fade", id, "s"));
-                    infos.append("   Step Exceptions: " + getIntegerSpecificNumberAttribute(table, "effect_step_fade", id, "s"));
-                    infos.append(QString(AttributeIds::effectPhase) + " Phase: " + getNumberAttribute(table, "phase", id, "°"));
-                    infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "effect_fixture_phase", "°", id));
-                    infos.append(QString(AttributeIds::effectSineFade) + " Sine Fade: " + getBoolAttribute(table, "sinefade", id));
-                } else if (table == "cuelists") {
-                    infos.append(QString(AttributeIds::cuelistPriority) + " Priority: " + getNumberAttribute(table, "priority", id, ""));
-                    infos.append(QString(AttributeIds::cuelistMoveWhileDark) + " Move while Dark: " + getBoolAttribute(table, "movewhiledark", id));
-                } else if (table == "currentcuelist_cues") {
-                    infos.append(QString(AttributeIds::cueIntensities) + " Intensities: " + getItemSpecificItemListAttribute(table, "groups", "intensities", "cue_group_intensities", id));
-                    infos.append(QString(AttributeIds::cueColors) + " Colors: " + getItemSpecificItemListAttribute(table, "groups", "colors", "cue_group_colors", id));
-                    infos.append(QString(AttributeIds::cuePositions) + " Positions: " + getItemSpecificItemListAttribute(table, "groups", "positions", "cue_group_positions", id));
-                    infos.append(QString(AttributeIds::cueRaws) + " Raws: " + getItemSpecificItemListAttribute(table, "groups", "raws", "cue_group_raws", id));
-                    infos.append(QString(AttributeIds::cueEffects) + " Effects: " + getItemSpecificItemListAttribute(table, "groups", "effects", "cue_group_effects", id));
-                    infos.append(QString(AttributeIds::cueBlock) + " Block: " + getBoolAttribute(table, "block", id));
-                    infos.append(QString(AttributeIds::cueFade) + " Fade: " + getNumberAttribute(table, "fade", id, "s"));
-                    infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "cue_fixture_fade", "s", id));
-                    infos.append(QString(AttributeIds::cueDelay) + " Delay: " + getNumberAttribute(table, "delay", id, "s"));
-                    infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute(table, "fixtures", "cue_fixture_delay", "s", id));
-                    infos.append(QString(AttributeIds::cueFollow) + " Follow: " + getBoolAttribute(table, "follow", id));
-                    infos.append(QString(AttributeIds::cueSineFade) + " Sine Fade: " + getBoolAttribute(table, "sinefade", id));
-                } else {
-                    Q_ASSERT(false);
+            QSqlQuery keyQuery;
+            keyQuery.prepare("SELECT key FROM " + table + " WHERE id = :id");
+            keyQuery.bindValue(":id", ids.last());
+            if (keyQuery.exec()) {
+                if (keyQuery.next()) {
+                    const int key = keyQuery.value(0).toInt();
+                    infos.append(QString(AttributeIds::id) + " ID: " + ids.last());
+                    infos.append(QString(AttributeIds::label) + " Label: " + getTextAttribute(table, "label", key));
+                    if (table == "models") {
+                        infos.append(QString(AttributeIds::modelChannels) + " Channels: " + getTextAttribute(table, "channels", key));
+                        infos.append(QString(AttributeIds::modelPanRange) + " Pan Range: " + getNumberAttribute(table, "panrange", key, "°"));
+                        infos.append(QString(AttributeIds::modelTiltRange) + " Tilt Range: " + getNumberAttribute(table, "tiltrange", key, "°"));
+                        infos.append(QString(AttributeIds::modelMinZoom) + " Minimal Zoom: " + getNumberAttribute(table, "minzoom", key, "°"));
+                        infos.append(QString(AttributeIds::modelMaxZoom) + " Maximal Zoom: " + getNumberAttribute(table, "maxzoom", key, "°"));
+                    } else if (table == "fixtures") {
+                        infos.append(QString(AttributeIds::fixtureModel) + " Model: " + getItemAttribute(table, "model_key", key, "models"));
+                        infos.append(QString(AttributeIds::fixtureUniverse) + " Universe: " + getNumberAttribute(table, "universe", key, ""));
+                        infos.append(QString(AttributeIds::fixtureAddress) + " Address: " + getNumberAttribute(table, "address", key, ""));
+                        infos.append(QString(AttributeIds::fixtureXPosition) + " X Position: " + getNumberAttribute(table, "xposition", key, ""));
+                        infos.append(QString(AttributeIds::fixtureYPosition) + " Y Position: " + getNumberAttribute(table, "yposition", key, ""));
+                        infos.append(QString(AttributeIds::fixtureRotation) + " Rotation: " + getNumberAttribute(table, "rotation", key, "°"));
+                        infos.append(QString(AttributeIds::fixtureInvertPan) + " Invert Pan: " + getBoolAttribute(table, "invertPan", key));
+                    } else if (table == "groups") {
+                        infos.append(QString(AttributeIds::groupFixtures) + " Fixtures: " + getItemListAttribute("fixtures", "group_fixtures", key));
+                    } else if (table == "intensities") {
+                        infos.append(QString(AttributeIds::intensityDimmer) + " Dimmer: " + getNumberAttribute(table, "dimmer", key, "%"));
+                        infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "intensity_model_dimmer", "%", key));
+                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "intensity_fixture_dimmer", "%", key));
+                        infos.append(QString(AttributeIds::intensityRaws) + " Raws: " + getItemListAttribute("raws", "intensity_raws", key));
+                    } else if (table == "colors") {
+                        infos.append(QString(AttributeIds::colorHue) + " Hue: " + getNumberAttribute(table, "hue", key, "°"));
+                        infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "color_model_hue", "°", key));
+                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "color_fixture_hue", "°", key));
+                        infos.append(QString(AttributeIds::colorSaturation) + " Saturation: " + getNumberAttribute(table, "saturation", key, "%"));
+                        infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "color_model_saturation", "%", key));
+                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "color_fixture_saturation", "%", key));
+                        infos.append(QString(AttributeIds::colorQuality) + " Quality: " + getNumberAttribute(table, "quality", key, "%"));
+                        infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "color_model_quality", "%", key));
+                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "color_fixture_quality", "%", key));
+                        infos.append(QString(AttributeIds::colorRaws) + " Raws: " + getItemListAttribute("raws", "color_raws", key));
+                    } else if (table == "positions") {
+                        infos.append(QString(AttributeIds::positionPan) + " Pan: " + getNumberAttribute(table, "pan", key, "°"));
+                        infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "position_model_pan", "°", key));
+                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "position_fixture_pan", "°", key));
+                        infos.append(QString(AttributeIds::positionTilt) + " Tilt: " + getNumberAttribute(table, "tilt", key, "°"));
+                        infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "position_model_tilt", "°", key));
+                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "position_fixture_tilt", "°", key));
+                        infos.append(QString(AttributeIds::positionZoom) + " Zoom: " + getNumberAttribute(table, "zoom", key, "°"));
+                        infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "position_model_zoom", "°", key));
+                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "position_fixture_zoom", "°", key));
+                        infos.append(QString(AttributeIds::positionFocus) + " Focus: " + getNumberAttribute(table, "focus", key, "%"));
+                        infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "position_model_focus", "%", key));
+                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "position_fixture_focus", "%", key));
+                        infos.append(QString(AttributeIds::positionRaws) + " Raws: " + getItemListAttribute("raws", "position_raws", key));
+                    } else if (table == "raws") {
+                        infos.append(QString(AttributeIds::rawChannelValues) + " Channel Values: " + getIntegerSpecificNumberAttribute("raw_channel_values", key, ""));
+                        infos.append("   Model Exceptions: " + getItemAndIntegerSpecificNumberAttribute("models", "raw_model_channel_values", key, ""));
+                        infos.append("   Fixture Exceptions: " + getItemAndIntegerSpecificNumberAttribute("fixtures", "raw_fixture_channel_values", key, ""));
+                        infos.append(QString(AttributeIds::rawMoveWhileDark) + " Move while Dark: " + getBoolAttribute(table, "movewhiledark", key));
+                        infos.append(QString(AttributeIds::rawFade) + " Fade: " + getBoolAttribute(table, "fade", key));
+                    } else if (table == "effects") {
+                        infos.append(QString(AttributeIds::effectSteps) + " Steps: " + getNumberAttribute(table, "steps", key, ""));
+                        infos.append(QString(AttributeIds::effectIntensities) + " Intensities: " + getIntegerSpecificItemListAttribute("intensities", "effect_step_intensities", key));
+                        infos.append(QString(AttributeIds::effectColors) + " Colors: " + getIntegerSpecificItemListAttribute("colors", "effect_step_colors", key));
+                        infos.append(QString(AttributeIds::effectPositions) + " Positions: " + getIntegerSpecificItemListAttribute("positions", "effect_step_positions", key));
+                        infos.append(QString(AttributeIds::effectRaws) + " Raws: " + getIntegerSpecificItemListAttribute("raws", "effect_step_raws", key));
+                        infos.append(QString(AttributeIds::effectHold) + " Hold: " + getNumberAttribute(table, "hold", key, "s"));
+                        infos.append("   Step Exceptions: " + getIntegerSpecificNumberAttribute("effect_step_hold", key, "s"));
+                        infos.append(QString(AttributeIds::effectFade) + " Fade: " + getNumberAttribute(table, "fade", key, "s"));
+                        infos.append("   Step Exceptions: " + getIntegerSpecificNumberAttribute("effect_step_fade", key, "s"));
+                        infos.append(QString(AttributeIds::effectPhase) + " Phase: " + getNumberAttribute(table, "phase", key, "°"));
+                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "effect_fixture_phase", "°", key));
+                        infos.append(QString(AttributeIds::effectSineFade) + " Sine Fade: " + getBoolAttribute(table, "sinefade", key));
+                    } else if (table == "cuelists") {
+                        infos.append(QString(AttributeIds::cuelistPriority) + " Priority: " + getNumberAttribute(table, "priority", key, ""));
+                        infos.append(QString(AttributeIds::cuelistMoveWhileDark) + " Move while Dark: " + getBoolAttribute(table, "movewhiledark", key));
+                    } else if (table == "currentcuelist_cues") {
+                        infos.append(QString(AttributeIds::cueIntensities) + " Intensities: " + getItemSpecificItemListAttribute("groups", "intensities", "cue_group_intensities", key));
+                        infos.append(QString(AttributeIds::cueColors) + " Colors: " + getItemSpecificItemListAttribute("groups", "colors", "cue_group_colors", key));
+                        infos.append(QString(AttributeIds::cuePositions) + " Positions: " + getItemSpecificItemListAttribute("groups", "positions", "cue_group_positions", key));
+                        infos.append(QString(AttributeIds::cueRaws) + " Raws: " + getItemSpecificItemListAttribute("groups", "raws", "cue_group_raws", key));
+                        infos.append(QString(AttributeIds::cueEffects) + " Effects: " + getItemSpecificItemListAttribute("groups", "effects", "cue_group_effects", key));
+                        infos.append(QString(AttributeIds::cueBlock) + " Block: " + getBoolAttribute(table, "block", key));
+                        infos.append(QString(AttributeIds::cueFade) + " Fade: " + getNumberAttribute(table, "fade", key, "s"));
+                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "cue_fixture_fade", "s", key));
+                        infos.append(QString(AttributeIds::cueDelay) + " Delay: " + getNumberAttribute(table, "delay", key, "s"));
+                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "cue_fixture_delay", "s", key));
+                        infos.append(QString(AttributeIds::cueFollow) + " Follow: " + getBoolAttribute(table, "follow", key));
+                        infos.append(QString(AttributeIds::cueSineFade) + " Sine Fade: " + getBoolAttribute(table, "sinefade", key));
+                    } else {
+                        Q_ASSERT(false);
+                    }
                 }
+            } else {
+                qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
             }
         }
     }
@@ -185,10 +191,10 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
     model->refresh();
 }
 
-QString Inspector::getBoolAttribute(const QString table, const QString attribute, const QString id) const {
+QString Inspector::getBoolAttribute(const QString table, const QString attribute, const int key) const {
     QSqlQuery query;
-    query.prepare("SELECT " + attribute + " FROM " + table + " WHERE id = :id");
-    query.bindValue(":id", id);
+    query.prepare("SELECT " + attribute + " FROM " + table + " WHERE key = :item");
+    query.bindValue(":item", key);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
@@ -205,10 +211,10 @@ QString Inspector::getBoolAttribute(const QString table, const QString attribute
     return QString();
 }
 
-QString Inspector::getTextAttribute(const QString table, const QString attribute, const QString id) const {
+QString Inspector::getTextAttribute(const QString table, const QString attribute, const int key) const {
     QSqlQuery query;
-    query.prepare("SELECT " + attribute + " FROM " + table + " WHERE id = :id");
-    query.bindValue(":id", id);
+    query.prepare("SELECT " + attribute + " FROM " + table + " WHERE key = :item");
+    query.bindValue(":item", key);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
@@ -219,10 +225,10 @@ QString Inspector::getTextAttribute(const QString table, const QString attribute
     return "\"" + query.value(0).toString() + "\"";
 }
 
-QString Inspector::getNumberAttribute(const QString table, const QString attribute, const QString id, const QString unit) const {
+QString Inspector::getNumberAttribute(const QString table, const QString attribute, const int key, const QString unit) const {
     QSqlQuery query;
-    query.prepare("SELECT ROUND(" + attribute + ", 3) FROM " + table + " WHERE id = :id");
-    query.bindValue(":id", id);
+    query.prepare("SELECT ROUND(" + attribute + ", 3) FROM " + table + " WHERE key = :item");
+    query.bindValue(":item", key);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
@@ -233,10 +239,10 @@ QString Inspector::getNumberAttribute(const QString table, const QString attribu
     return query.value(0).toString() + unit;
 }
 
-QString Inspector::getItemAttribute(const QString table, const QString attribute, const QString id, const QString valueItemTable) const {
+QString Inspector::getItemAttribute(const QString table, const QString attribute, const int key, const QString valueItemTable) const {
     QSqlQuery query;
-    query.prepare("SELECT CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + table + ", " + valueItemTable + " WHERE " + table + "." + " id = :id AND " + table + "." + attribute + " = " + valueItemTable + ".key");
-    query.bindValue(":id", id);
+    query.prepare("SELECT CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + table + ", " + valueItemTable + " WHERE " + table + ".key = :item AND " + table + "." + attribute + " = " + valueItemTable + ".key");
+    query.bindValue(":item", key);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
@@ -247,10 +253,10 @@ QString Inspector::getItemAttribute(const QString table, const QString attribute
     return query.value(0).toString();
 }
 
-QString Inspector::getItemListAttribute(const QString table, const QString valueItemTable, const QString valueTable, const QString id) const {
+QString Inspector::getItemListAttribute(const QString valueItemTable, const QString valueTable, const int key) const {
     QSqlQuery query;
-    query.prepare("SELECT CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + table + ", " + valueTable + ", " + valueItemTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + ".item_key AND " + valueItemTable + ".key = " + valueTable + ".valueitem_key ORDER BY " + valueItemTable + ".sortkey");
-    query.bindValue(":id", id);
+    query.prepare("SELECT CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + valueTable + ", " + valueItemTable + " WHERE " + valueTable + ".item_key = :item AND " + valueItemTable + ".key = " + valueTable + ".valueitem_key ORDER BY " + valueItemTable + ".sortkey");
+    query.bindValue(":item", key);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
@@ -262,10 +268,10 @@ QString Inspector::getItemListAttribute(const QString table, const QString value
     return itemIds.join(", ");
 }
 
-QString Inspector::getItemSpecificNumberAttribute(const QString table, const QString foreignItemsTable, const QString valueTable, const QString unit, const QString id) const {
+QString Inspector::getItemSpecificNumberAttribute(const QString foreignItemsTable, const QString valueTable, const QString unit, const int key) const {
     QSqlQuery query;
-    query.prepare("SELECT CONCAT(" + foreignItemsTable + ".id, ' ', " + foreignItemsTable + ".label), ROUND(" + valueTable + ".value, 3) FROM " + table + ", " + valueTable + ", " + foreignItemsTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + ".item_key AND " + foreignItemsTable + ".key = " + valueTable + ".foreignitem_key ORDER BY " + foreignItemsTable + ".sortkey");
-    query.bindValue(":id", id);
+    query.prepare("SELECT CONCAT(" + foreignItemsTable + ".id, ' ', " + foreignItemsTable + ".label), ROUND(" + valueTable + ".value, 3) FROM " + valueTable + ", " + foreignItemsTable + " WHERE " + valueTable + ".item_key = :item AND " + foreignItemsTable + ".key = " + valueTable + ".foreignitem_key ORDER BY " + foreignItemsTable + ".sortkey");
+    query.bindValue(":item", key);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
@@ -277,10 +283,10 @@ QString Inspector::getItemSpecificNumberAttribute(const QString table, const QSt
     return values.join(", ");
 }
 
-QString Inspector::getItemSpecificItemListAttribute(const QString table, const QString foreignItemTable, const QString valueItemTable, const QString valueTable, const QString id) const {
+QString Inspector::getItemSpecificItemListAttribute(const QString foreignItemTable, const QString valueItemTable, const QString valueTable, const int key) const {
     QSqlQuery query;
-    query.prepare("SELECT CONCAT(" + foreignItemTable + ".id, ' ', " + foreignItemTable + ".label), CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + table + ", " + foreignItemTable + ", " + valueItemTable + ", " + valueTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + ".item_key AND " + foreignItemTable + ".key = " + valueTable + ".foreignitem_key AND " + valueItemTable + ".key = " + valueTable + ".valueitem_key ORDER BY " + foreignItemTable + ".sortkey");
-    query.bindValue(":id", id);
+    query.prepare("SELECT CONCAT(" + foreignItemTable + ".id, ' ', " + foreignItemTable + ".label), CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + foreignItemTable + ", " + valueItemTable + ", " + valueTable + " WHERE " + valueTable + ".item_key = :item AND " + foreignItemTable + ".key = " + valueTable + ".foreignitem_key AND " + valueItemTable + ".key = " + valueTable + ".valueitem_key ORDER BY " + foreignItemTable + ".sortkey");
+    query.bindValue(":item", key);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
@@ -300,10 +306,10 @@ QString Inspector::getItemSpecificItemListAttribute(const QString table, const Q
     return values.join("; ");
 }
 
-QString Inspector::getIntegerSpecificNumberAttribute(const QString table, const QString valueTable, const QString id, const QString unit) const {
+QString Inspector::getIntegerSpecificNumberAttribute(const QString valueTable, const int key, const QString unit) const {
     QSqlQuery query;
-    query.prepare("SELECT " + valueTable + ".key, ROUND(" + valueTable + ".value, 3) FROM " + table + ", " + valueTable + " WHERE " + table + ".id = :id AND " + valueTable + ".item_key = " + table + ".key ORDER BY " + valueTable + ".key");
-    query.bindValue(":id", id);
+    query.prepare("SELECT key, ROUND(value, 3) FROM " + valueTable + " WHERE item_key = :item ORDER BY key");
+    query.bindValue(":item", key);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
@@ -315,10 +321,10 @@ QString Inspector::getIntegerSpecificNumberAttribute(const QString table, const 
     return values.join(", ");
 }
 
-QString Inspector::getIntegerSpecificItemListAttribute(const QString table, const QString valueItemTable, const QString valueTable, const QString id) const {
+QString Inspector::getIntegerSpecificItemListAttribute(const QString valueItemTable, const QString valueTable, const int key) const {
     QSqlQuery query;
-    query.prepare("SELECT " + valueTable + ".key, CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + table + ", " + valueItemTable + ", " + valueTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + ".item_key AND " + valueItemTable + ".key = " + valueTable + ".valueitem_key ORDER BY " + valueTable + ".key, " + valueItemTable + ".sortkey");
-    query.bindValue(":id", id);
+    query.prepare("SELECT " + valueTable + ".key, CONCAT(" + valueItemTable + ".id, ' ', " + valueItemTable + ".label) FROM " + valueItemTable + ", " + valueTable + " WHERE " + valueTable + ".item_key = :item AND " + valueItemTable + ".key = " + valueTable + ".valueitem_key ORDER BY " + valueTable + ".key, " + valueItemTable + ".sortkey");
+    query.bindValue(":item", key);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
@@ -338,10 +344,10 @@ QString Inspector::getIntegerSpecificItemListAttribute(const QString table, cons
     return values.join("; ");
 }
 
-QString Inspector::getItemAndIntegerSpecificNumberAttribute(const QString table, const QString foreignItemTable, const QString valueTable, const QString id, const QString unit) const {
+QString Inspector::getItemAndIntegerSpecificNumberAttribute(const QString foreignItemTable, const QString valueTable, const int key, const QString unit) const {
     QSqlQuery query;
-    query.prepare("SELECT CONCAT(" + foreignItemTable + ".id, ' ', " + foreignItemTable + ".label), " + valueTable + ".key, ROUND(" + valueTable + ".value, 3) FROM " + table + ", " + foreignItemTable + ", " + valueTable + " WHERE " + table + ".id = :id AND " + table + ".key = " + valueTable + ".item_key AND " + foreignItemTable + ".key = " + valueTable + ".foreignitem_key ORDER BY " + foreignItemTable + ".sortkey, " + valueTable + ".key");
-    query.bindValue(":id", id);
+    query.prepare("SELECT CONCAT(" + foreignItemTable + ".id, ' ', " + foreignItemTable + ".label), " + valueTable + ".key, ROUND(" + valueTable + ".value, 3) FROM " + foreignItemTable + ", " + valueTable + " WHERE " + valueTable + ".item_key = :item AND " + foreignItemTable + ".key = " + valueTable + ".foreignitem_key ORDER BY " + foreignItemTable + ".sortkey, " + valueTable + ".key");
+    query.bindValue(":item", key);
     if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
         return QString();
