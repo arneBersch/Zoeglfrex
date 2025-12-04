@@ -12,6 +12,8 @@ CuelistTableModel::CuelistTableModel() {}
 
 void CuelistTableModel::refresh() {
     beginResetModel();
+    rows.clear();
+
     int currentCueKey = -1;
     QSqlQuery currentCueQuery;
     if (currentCueQuery.exec("SELECT key FROM currentcue")) {
@@ -31,16 +33,24 @@ void CuelistTableModel::refresh() {
         qWarning() << Q_FUNC_INFO << currentGroupQuery.executedQuery() << currentGroupQuery.lastError().text();
     }
     currentKey = -1;
-    if (mode == CueMode) {
-        currentKey = currentGroupKey;
-    } else if (mode == GroupMode) {
-        currentKey = currentCueKey;
-    }
-    rows.clear();
+    int lastCueKey = -1;
     QSqlQuery rowQuery;
     if (mode == CueMode) {
+        currentKey = currentGroupKey;
         rowQuery.prepare("SELECT key, CONCAT(id, ' ', label) FROM groups ORDER BY sortkey");
+
+        QSqlQuery lastCueKeyQuery;
+        lastCueKeyQuery.prepare("SELECT key FROM cues WHERE cuelist_key = (SELECT cuelist_key FROM cues WHERE key = :cue) AND sortkey = (SELECT MAX(sortkey) FROM cues WHERE sortkey < (SELECT sortkey FROM cues WHERE key = :cue) AND cuelist_key = (SELECT cuelist_key FROM cues WHERE key = :cue))");
+        lastCueKeyQuery.bindValue(":cue", currentCueKey);
+        if (lastCueKeyQuery.exec()) {
+            if (lastCueKeyQuery.next()) {
+                lastCueKey = lastCueKeyQuery.value(0).toInt();
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << lastCueKeyQuery.executedQuery() << lastCueKeyQuery.lastError().text();
+        }
     } else if (mode == GroupMode) {
+        currentKey = currentCueKey;
         rowQuery.prepare("SELECT key, CONCAT(id, ' ', label) FROM currentcuelist_cues ORDER BY sortkey");
     }
     if (rowQuery.exec()) {
@@ -54,17 +64,6 @@ void CuelistTableModel::refresh() {
                 groupKey = row.key;
             } else if (mode == GroupMode) {
                 cueKey = row.key;
-            }
-            int lastCueKey = -1;
-            QSqlQuery lastCueKeyQuery;
-            lastCueKeyQuery.prepare("SELECT key FROM cues WHERE cuelist_key = (SELECT cuelist_key FROM cues WHERE key = :cue) AND sortkey = (SELECT MAX(sortkey) FROM cues WHERE sortkey < (SELECT sortkey FROM cues WHERE key = :cue) AND cuelist_key = (SELECT cuelist_key FROM cues WHERE key = :cue))");
-            lastCueKeyQuery.bindValue(":cue", cueKey);
-            if (lastCueKeyQuery.exec()) {
-                if (lastCueKeyQuery.next()) {
-                    lastCueKey = lastCueKeyQuery.value(0).toInt();
-                }
-            } else {
-                qWarning() << Q_FUNC_INFO << lastCueKeyQuery.executedQuery() << lastCueKeyQuery.lastError().text();
             }
             QStringList intensities = getCueValue("intensities", "cue_group_intensities", cueKey, groupKey);
             QStringList colors = getCueValue("colors", "cue_group_colors", cueKey, groupKey);
@@ -91,6 +90,9 @@ void CuelistTableModel::refresh() {
                 if (row.intensityChanged || row.colorChanged || row.positionChanged || row.rawsChanged || row.effectsChanged) {
                     rows.append(row);
                 }
+            }
+            if (mode == GroupMode) {
+                lastCueKey = cueKey;
             }
         }
     } else {
