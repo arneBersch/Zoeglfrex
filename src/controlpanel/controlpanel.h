@@ -11,8 +11,8 @@
 
 #include <QtWidgets>
 
-#include "intensitycolorpositiontab.h"
-#include "rawtab.h"
+#include "intensitycolorpositiontab/intensitycolorpositiontab.h"
+#include "rawtab/rawtab.h"
 
 class ControlPanel : public QWidget {
     Q_OBJECT

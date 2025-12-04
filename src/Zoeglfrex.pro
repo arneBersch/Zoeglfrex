@@ -13,11 +13,11 @@ CONFIG += c++17
 
 SOURCES += \
     aboutwindow/aboutwindow.cpp \
-    controlpanel/attributepanel.cpp \
     controlpanel/controlpanel.cpp \
-    controlpanel/fixturechannelmodel.cpp \
-    controlpanel/intensitycolorpositiontab.cpp \
-    controlpanel/rawtab.cpp \
+    controlpanel/intensitycolorpositiontab/attributepanel.cpp \
+    controlpanel/intensitycolorpositiontab/intensitycolorpositiontab.cpp \
+    controlpanel/rawtab/fixturechannelmodel.cpp \
+    controlpanel/rawtab/rawtab.cpp \
     cuelistview/cuelisttablemodel.cpp \
     cuelistview/cuelistview.cpp \
     dmxengine/dmxengine.cpp \
@@ -34,11 +34,11 @@ SOURCES += \
 HEADERS += \
     aboutwindow/aboutwindow.h \
     constants.h \
-    controlpanel/attributepanel.h \
     controlpanel/controlpanel.h \
-    controlpanel/fixturechannelmodel.h \
-    controlpanel/intensitycolorpositiontab.h \
-    controlpanel/rawtab.h \
+    controlpanel/intensitycolorpositiontab/attributepanel.h \
+    controlpanel/intensitycolorpositiontab/intensitycolorpositiontab.h \
+    controlpanel/rawtab/fixturechannelmodel.h \
+    controlpanel/rawtab/rawtab.h \
     cuelistview/cuelisttablemodel.h \
     cuelistview/cuelistview.h \
     dmxengine/dmxengine.h \
