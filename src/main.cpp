@@ -12,7 +12,8 @@
 #include "mainwindow/mainwindow.h"
 
 int main(int argc, char *argv[]) {
-    const QString VERSION = "1.0.0";
+    const QString VERSION = "1.0.1";
+    const QString FILEVERSION = "1.0.0";
     const QString COPYRIGHT = "Copyright (c) 2025 Arne Bersch (zoeglfrex-dmx@web.de)";
 
     qInfo() << "Zöglfrex " + VERSION;
@@ -65,8 +66,8 @@ int main(int argc, char *argv[]) {
             qFatal("Failed because no version was found in this Zöglfrex file.");
             return 1;
         }
-        if (versionQuery.value(0).toString() != VERSION) {
-            qFatal() << "Can't load this Zöglfrex file because its version (" << versionQuery.value(0).toString() << ") isn't compatible with this version of Zöglfrex (" << VERSION << ")";
+        if (versionQuery.value(0).toString() != FILEVERSION) {
+            qFatal() << "Can't load this Zöglfrex file because its file version (" << versionQuery.value(0).toString() << ") isn't compatible with this version of Zöglfrex (" << VERSION << ")";
             return 1;
         }
         queries.append("UPDATE currentitems SET cue_key = NULL"); // Reset Blind
@@ -156,7 +157,7 @@ int main(int argc, char *argv[]) {
         queries.append("CREATE TRIGGER resetcue_trigger AFTER UPDATE OF cuelist_key ON currentitems BEGIN UPDATE currentitems SET cue_key = NULL; END");
         queries.append("CREATE TRIGGER createcues_trigger AFTER INSERT ON cues BEGIN UPDATE cues SET cuelist_key = (SELECT cuelist_key FROM currentitems) WHERE id = NEW.id AND cuelist_key IS NULL; END");
         queries.append("CREATE TABLE about (version TEXT PRIMARY KEY)");
-        queries.append("INSERT INTO about (version) VALUES ('" + VERSION + "')");
+        queries.append("INSERT INTO about (version) VALUES ('" + FILEVERSION + "')");
     }
     for (QString queryText : queries) {
         QSqlQuery query;

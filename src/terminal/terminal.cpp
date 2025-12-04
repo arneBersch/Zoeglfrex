@@ -183,7 +183,7 @@ void Terminal::execute() {
         };
         auto setCueItem = [this] (const ItemInfos item, const QString valueTable, const QList<Key> idKeys, const bool multipleItemsAllowed) {
             QList<int> itemKeys;
-            if (((idKeys.size() != 2) || !idKeys.endsWith(Minus))) {
+            if ((idKeys.size() != 2) || !idKeys.endsWith(Minus)) {
                 const QStringList ids = keysToIds(idKeys);
                 if (ids.isEmpty()) {
                     error("Invalid " + item.singular + " selection given.");
