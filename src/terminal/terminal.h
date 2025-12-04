@@ -88,6 +88,8 @@ private:
     void execute();
     void updateSortingKeys(ItemInfos item);
     static bool compareIds(QString idA, QString idB);
+    void setCurrentItem(ItemInfos item, QString itemTable, QList<Key> idKeys, QString updateQueryText);
+    void setCueItem(ItemInfos item, QString valueTable, QList<Key> idKeys, bool multipleItemsAllowed);
     void createItems(ItemInfos item, QStringList ids);
     void deleteItems(ItemInfos item, QStringList ids);
     void moveItems(ItemInfos item, QStringList ids, QList<Key> valueKeys);

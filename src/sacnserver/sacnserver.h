@@ -18,6 +18,8 @@ public:
     SacnServer(QWidget* parent = nullptr);
 public slots:
     void sendUniverses(QHash<int, QByteArray> universeData);
+private slots:
+    void loadSocket(int socketIndex);
 private:
     void sendUniverseList();
     void reloadNetworkInterfaces();

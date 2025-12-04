@@ -70,35 +70,8 @@ void AttributePanel::reload(const int item, const int model, const int fixture) 
         valueButton->setText("");
     }
 
-    auto setExceptionButton = [](const int itemKey, const int exceptionItemKey, QPushButton* button, float* value, const QString table, const QString unit) {
-        const bool itemGiven = (itemKey >= 0);
-        const bool exceptionItemGiven = (exceptionItemKey >= 0);
-        button->setEnabled(itemGiven && exceptionItemGiven);
-        bool valueGiven = false;
-        if (itemGiven && exceptionItemGiven) {
-            QSqlQuery query;
-            query.prepare("SELECT ROUND(value, 3) FROM " + table + " WHERE item_key = :key AND foreignitem_key = :exceptionkey");
-            query.bindValue(":key", itemKey);
-            query.bindValue(":exceptionkey", exceptionItemKey);
-            if (query.exec()) {
-                valueGiven = query.next();
-                if (valueGiven) {
-                    (*value) = query.value(0).toFloat();
-                }
-            } else {
-                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-            }
-        }
-        if (itemGiven) {
-            button->setText(QString::number(*value) + unit);
-        } else {
-            button->setText("");
-        }
-        button->setChecked(valueGiven);
-    };
-
-    setExceptionButton(itemKey, modelKey, modelValueButton, &value, modelValueTable, unit);
-    setExceptionButton(itemKey, fixtureKey, fixtureValueButton, &value, fixtureValueTable, unit);
+    setExceptionButton(modelKey, modelValueButton, &value, modelValueTable);
+    setExceptionButton(fixtureKey, fixtureValueButton, &value, fixtureValueTable);
 
     if (valueDial->value() != (int) value) {
         valueDial->blockSignals(true);
@@ -144,4 +117,31 @@ void AttributePanel::setException(const int exceptionItemKey, const bool excepti
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
     }
     emit dbChanged();
+}
+
+void AttributePanel::setExceptionButton(const int exceptionItemKey, QPushButton* button, float* value, const QString table) {
+    const bool itemGiven = (itemKey >= 0);
+    const bool exceptionItemGiven = (exceptionItemKey >= 0);
+    button->setEnabled(itemGiven && exceptionItemGiven);
+    bool valueGiven = false;
+    if (itemGiven && exceptionItemGiven) {
+        QSqlQuery query;
+        query.prepare("SELECT ROUND(value, 3) FROM " + table + " WHERE item_key = :key AND foreignitem_key = :exceptionkey");
+        query.bindValue(":key", itemKey);
+        query.bindValue(":exceptionkey", exceptionItemKey);
+        if (query.exec()) {
+            valueGiven = query.next();
+            if (valueGiven) {
+                (*value) = query.value(0).toFloat();
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        }
+    }
+    if (itemGiven) {
+        button->setText(QString::number(*value) + unit);
+    } else {
+        button->setText("");
+    }
+    button->setChecked(valueGiven);
 }

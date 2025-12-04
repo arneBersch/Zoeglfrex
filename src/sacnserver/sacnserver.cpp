@@ -18,23 +18,9 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
     layout->addWidget(networkInterfaceLabel, 0, 0);
     networkInterfaceComboBox = new QComboBox();
     reloadNetworkInterfaces();
-    auto loadSocket = [this](int index) {
-        index--;
-        delete socket;
-        socket = nullptr;
-        if (index >= 0) {
-            socket = new QUdpSocket();
-            socket->bind(networkAddresses.at(index).ip());
-            socket->setMulticastInterface(networkInterfaces.at(index));
-            settings->setValue("sacn/interface", networkInterfaces.at(index).name());
-            settings->setValue("sacn/address", networkAddresses.at(index).ip().toString());
-        } else {
-            settings->setValue("sacn/interface", "none");
-            settings->setValue("sacn/address", "none");
-        }
-    };
+
     loadSocket(networkInterfaceComboBox->currentIndex());
-    connect(networkInterfaceComboBox, &QComboBox::currentIndexChanged, this, loadSocket);
+    connect(networkInterfaceComboBox, &QComboBox::currentIndexChanged, this, &SacnServer::loadSocket);
     layout->addWidget(networkInterfaceComboBox, 0, 1);
 
     QPushButton* reloadNetworkInterfaceButton = new QPushButton("Reload Network Interfaces");
@@ -76,6 +62,22 @@ void SacnServer::reloadNetworkInterfaces() {
         }
     }
     networkInterfaceComboBox->setCurrentIndex(interfaceIndex);
+}
+
+void SacnServer::loadSocket(int index) {
+    index--;
+    delete socket;
+    socket = nullptr;
+    if (index >= 0) {
+        socket = new QUdpSocket();
+        socket->bind(networkAddresses.at(index).ip());
+        socket->setMulticastInterface(networkInterfaces.at(index));
+        settings->setValue("sacn/interface", networkInterfaces.at(index).name());
+        settings->setValue("sacn/address", networkAddresses.at(index).ip().toString());
+    } else {
+        settings->setValue("sacn/interface", "none");
+        settings->setValue("sacn/address", "none");
+    }
 }
 
 void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {

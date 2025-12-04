@@ -23,6 +23,7 @@ signals:
 private:
     void setException(int foreignItemKey, bool exception, QString table);
     void setValue(int value);
+    void setExceptionButton(int exceptionItemKey, QPushButton* button, float* value, QString table);
     QPushButton* valueButton;
     QPushButton* modelValueButton;
     QPushButton* fixtureValueButton;

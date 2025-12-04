@@ -121,19 +121,6 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
 }
 
 void CuelistView::reload() {
-    auto setCurrentItemLabel = [](const QString queryText, const QString itemName, QLabel* label) {
-        QSqlQuery query;
-        if (query.exec(queryText)) {
-            if (query.next()) {
-                label->setText(query.value(0).toString());
-            } else {
-                label->setText("No " + itemName + " selected.");
-            }
-        } else {
-            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-            label->setText(QString());
-        }
-    };
     setCurrentItemLabel("SELECT CONCAT('Fixture ', fixtures.id, ' ', fixtures.label) FROM fixtures, currentitems WHERE fixtures.key = currentitems.fixture_key", "Fixture", fixtureLabel);
     setCurrentItemLabel("SELECT CONCAT('Group ', groups.id, ' ', groups.label) FROM groups, currentitems WHERE groups.key = currentitems.group_key", "Group", groupLabel);
     setCurrentItemLabel("SELECT CONCAT('Cuelist ', cuelists.id, ' ', cuelists.label) FROM cuelists, currentitems WHERE cuelists.key = currentitems.cuelist_key", "Cuelist", cuelistLabel);
@@ -184,4 +171,18 @@ void CuelistView::deselectItem(const QString currentItemsTableKey) {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
     }
     emit dbChanged();
+}
+
+void CuelistView::setCurrentItemLabel(const QString queryText, const QString itemName, QLabel* label) {
+    QSqlQuery query;
+    if (query.exec(queryText)) {
+        if (query.next()) {
+            label->setText(query.value(0).toString());
+        } else {
+            label->setText("No " + itemName + " selected.");
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        label->setText(QString());
+    }
 }
