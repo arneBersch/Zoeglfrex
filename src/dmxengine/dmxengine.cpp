@@ -84,7 +84,7 @@ void DmxEngine::generateDmx() {
     }
 
     QSqlQuery cuelistQuery;
-    if (!cuelistQuery.exec("SELECT key, currentcue_key, lastcue_key, priority FROM cuelists WHERE currentcue_key IS NOT NULL ORDER BY sortkey")) {
+    if (!cuelistQuery.exec("SELECT key, currentcue_key, COALESCE(lastcue_key, -1), priority FROM cuelists WHERE currentcue_key IS NOT NULL ORDER BY sortkey")) {
         qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
         return;
     }
@@ -178,7 +178,7 @@ void DmxEngine::generateDmx() {
         QHash<int, QHash<int, RawChannelData>> lastCueFixtureRaws;
 
         renderCue(currentCueKey, groupKeys, groupFixtureKeys, oldGroupEffectFrames, &currentCueFixtureIntensities, &currentCueFixtureColors, &currentCueFixturePositions, &currentCueFixtureRaws);
-        if (remainingTransitionFrames > 0) {
+        if ((remainingTransitionFrames > 0) && (lastCueKey >= 0)) {
             renderCue(lastCueKey, groupKeys, groupFixtureKeys, oldGroupEffectFrames, &lastCueFixtureIntensities, &lastCueFixtureColors, &lastCueFixturePositions, &lastCueFixtureRaws);
         }
 
@@ -280,6 +280,7 @@ void DmxEngine::generateDmx() {
             }
         }
     }
+
     if (cuelistRemainingTransitionFrames.value(currentCuelistKey, 0) > 0) {
         fadeProgressBar->setRange(0, cuelistTransitionFrames.value(currentCuelistKey, 1));
         fadeProgressBar->setValue(cuelistTransitionFrames.value(currentCuelistKey, 0) - cuelistRemainingTransitionFrames.value(currentCuelistKey, 0));
@@ -287,6 +288,7 @@ void DmxEngine::generateDmx() {
         fadeProgressBar->setRange(0, 1);
         fadeProgressBar->setValue(1);
     }
+
     QSet<int> currentFixtureKeys;
     QSqlQuery currentFixtureQuery;
     if (currentFixtureQuery.exec("SELECT key FROM currentfixtures")) {
@@ -296,6 +298,7 @@ void DmxEngine::generateDmx() {
     } else {
         qWarning() << Q_FUNC_INFO << currentFixtureQuery.executedQuery() << currentFixtureQuery.lastError().text();
     }
+
     QSqlQuery fixtureQuery;
     if (!fixtureQuery.exec("SELECT key, universe, address, xposition, yposition, CONCAT(id, ' ', label) FROM fixtures")) {
         qWarning() << Q_FUNC_INFO << fixtureQuery.executedQuery() << fixtureQuery.lastError().text();
