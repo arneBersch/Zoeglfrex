@@ -159,6 +159,16 @@ int main(int argc, char *argv[]) {
         queries.append("CREATE TABLE about (version TEXT PRIMARY KEY)");
         queries.append("INSERT INTO about (version) VALUES ('" + FILEVERSION + "')");
     }
+    queries.append("CREATE INDEX IF NOT EXISTS models_sortkey_index ON models (sortkey)");
+    queries.append("CREATE INDEX IF NOT EXISTS fixtures_sortkey_index ON fixtures (sortkey)");
+    queries.append("CREATE INDEX IF NOT EXISTS groups_sortkey_index ON groups (sortkey)");
+    queries.append("CREATE INDEX IF NOT EXISTS intensities_sortkey_index ON intensities (sortkey)");
+    queries.append("CREATE INDEX IF NOT EXISTS colors_sortkey_index ON colors (sortkey)");
+    queries.append("CREATE INDEX IF NOT EXISTS positions_sortkey_index ON positions (sortkey)");
+    queries.append("CREATE INDEX IF NOT EXISTS raws_sortkey_index ON raws (sortkey)");
+    queries.append("CREATE INDEX IF NOT EXISTS effects_sortkey_index ON effects (sortkey)");
+    queries.append("CREATE INDEX IF NOT EXISTS cuelists_sortkey_index ON cuelists (sortkey)");
+    queries.append("CREATE INDEX IF NOT EXISTS cues_sortkey_index ON cues (cuelist_key, sortkey)");
     for (QString queryText : queries) {
         QSqlQuery query;
         if (!query.exec(queryText)) {
