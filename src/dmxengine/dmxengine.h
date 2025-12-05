@@ -40,8 +40,6 @@ signals:
     void sendUniverses(QHash<int, QByteArray> universes);
     void updatePreviewFixtures(QHash<int, Preview2d::PreviewData> fixtures);
     void dbChanged();
-public slots:
-    void reload();
 private:
     void generateDmx();
     void renderCue(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, QHash<int, RawChannelData>>* fixtureRaws);
@@ -71,10 +69,6 @@ private:
     QHash<int, bool> cuelistSineFade;
 
     const int FRAMEDURATION = 25;
-
-    QHash<int, ColorData> mwdFixtureColors;
-    QHash<int, PositionData> mwdFixturePositions;
-    QHash<int, QHash<int, uint8_t>> mwdFixtureRaws;
 };
 
 #endif // DMXENGINE_H
