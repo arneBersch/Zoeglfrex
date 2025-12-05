@@ -534,7 +534,7 @@ You can select a Cue like this:
 ```
 Cue 1
 ```
-Please note that when you add a new Cue while Tracking is enabled, the cue will use the values of Attribute 2, 3, 4, 5 and 6 of the previouse Cue in the Cuelist as these values will be tracked.
+Please note that when you add a new Cue, the Cue will use the values of Attribute 2, 3, 4, 5 and 6 of the previouse Cue in the Cuelist as these values will be tracked.
 
 ### Cue Attribute 2 Set (Intensities)
 This command sets the Intensity of the selected Groups in the selected Cues:

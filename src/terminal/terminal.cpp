@@ -526,26 +526,33 @@ void Terminal::execute() {
 
 void Terminal::updateSortingKeys(const ItemInfos item) {
     QSqlQuery idsQuery;
-    idsQuery.prepare("SELECT key, id FROM " + item.selectTable);
+    idsQuery.prepare("SELECT key, id, sortkey FROM " + item.selectTable);
     if (idsQuery.exec()) {
         struct IdKey {
             int key;
             QString id;
+            int sortkey;
         };
         QList<IdKey> idKeys;
         while (idsQuery.next()) {
-            idKeys.append({idsQuery.value(0).toInt(), idsQuery.value(1).toString()});
+            IdKey idKey;
+            idKey.key = idsQuery.value(0).toInt();
+            idKey.id = idsQuery.value(1).toString();
+            idKey.sortkey = idsQuery.value(2).toInt();
+            idKeys.append(idKey);
         }
         std::sort(idKeys.begin(), idKeys.end(), [] (IdKey a, IdKey b) { return compareIds(a.id, b.id); });
         for (int index = 1; index <= idKeys.length(); index++) {
             const IdKey idKey = idKeys.at(index - 1);
-            QSqlQuery query;
-            query.prepare("UPDATE " + item.updateTable + " SET sortkey = :sortkey WHERE key = :key");
-            query.bindValue(":key", idKey.key);
-            query.bindValue(":sortkey", index);
-            if (!query.exec()) {
-                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                error("Failed to update the sorting key of " + item.singular + " " + idKey.id + ".");
+            if (idKey.sortkey != index) {
+                QSqlQuery query;
+                query.prepare("UPDATE " + item.updateTable + " SET sortkey = :sortkey WHERE key = :key");
+                query.bindValue(":key", idKey.key);
+                query.bindValue(":sortkey", index);
+                if (!query.exec()) {
+                    qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                    error("Failed to update the sorting key of " + item.singular + " " + idKey.id + ".");
+                }
             }
         }
     } else {
