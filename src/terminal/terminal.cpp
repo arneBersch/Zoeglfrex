@@ -234,9 +234,9 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::modelTiltRange) {
             setNumberAttribute<float>(modelInfos, "tiltrange", "Tilt Range", ids, valueKeys, {0, 360, false, "°"});
         } else if (attribute == AttributeIds::modelMinZoom) {
-            setNumberAttribute<float>(modelInfos, "minzoom", "Universe", ids, valueKeys, {0, 180, false, "°"});
+            setNumberAttribute<float>(modelInfos, "minzoom", "Minimal Zoom", ids, valueKeys, {0, 180, false, "°"});
         } else if (attribute == AttributeIds::modelMaxZoom) {
-            setNumberAttribute<float>(modelInfos, "maxzoom", "Universe", ids, valueKeys, {0, 180, false, "°"});
+            setNumberAttribute<float>(modelInfos, "maxzoom", "Maximal Zoom", ids, valueKeys, {0, 180, false, "°"});
         } else {
             error("Unknown Model Attribute.");
         }
