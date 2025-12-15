@@ -294,7 +294,7 @@ void DmxEngine::generateDmx() {
     QHash<int, int> mwdGroupPriorities;
     QSqlQuery mwdCuelistQuery;
     if (mwdCuelistQuery.exec("SELECT key, priority, currentcue_key FROM cuelists WHERE movewhiledark = 1 AND currentcue_key IS NOT NULL ORDER BY sortkey")) {
-        while (cuelistQuery.next()) {
+        while (mwdCuelistQuery.next()) {
             const int cuelistKey = mwdCuelistQuery.value(0).toInt();
             const int cuelistPriority = mwdCuelistQuery.value(1).toInt();
             const int cuelistCurrentCueKey = mwdCuelistQuery.value(2).toInt();
