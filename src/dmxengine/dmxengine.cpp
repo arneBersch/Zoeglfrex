@@ -300,7 +300,7 @@ void DmxEngine::generateDmx() {
             const int cuelistCurrentCueKey = mwdCuelistQuery.value(2).toInt();
 
             QSqlQuery cuesQuery;
-            cuesQuery.prepare("SELECT key FROM cues WHERE cuelist_key = :cuelist AND sortkey > (SELECT sortkey FROM cues WHERE key = :currentcue)");
+            cuesQuery.prepare("SELECT key FROM cues WHERE cuelist_key = :cuelist AND sortkey > (SELECT sortkey FROM cues WHERE key = :currentcue) LIMIT 10");
             cuesQuery.bindValue(":cuelist", cuelistKey);
             cuesQuery.bindValue(":currentcue", cuelistCurrentCueKey);
             if (cuesQuery.exec()) {
