@@ -520,8 +520,7 @@ This command sets if the Fixtures which are not set are allowed to be set before
 The accepted values are 0 (False / Move while Dark deactivated) and 1 (True / Move while Dark activated).
 
 > [!CAUTION]
-> Please note that enabling Move while Dark significantly increases the required processing power!
-> This is especially important when you have many Cues in your Cuelist and many Groups in your project.
+> Please note that Move while Dark will only look at the next 10 Cues in each Cuelist in order to reduce the required processing.
 
 ## Cues
 You can only edit Cues of the currently selected Cuelist.
