@@ -367,7 +367,6 @@ Position 1 Attribute 5 Set + Raw 4
 ```
 
 ## Raws
-If no Raw Attribute is given, the standard Attribute 2 will be used.
 If no Raw IDs are given, the IDs of the Raws of the currently selected Group in the current Cue will be used.
 
 ### Raw Attribute 2.x Set (Channel Values)
