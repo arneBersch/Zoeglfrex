@@ -499,8 +499,6 @@ This command sets if the Fades are rendered as linear transitions or if the are 
 The accepted values are 0 (False / Linear Fade) and 1 (True / Sine-Shaped Fade).
 
 ## Cuelists
-If no Cuelist Attribute is given, the standard Attribute 2 will be used.
-
 If no Cuelist ID is given, the ID of the current Cuelist will be used.
 You can select the current Cuelist like this:
 ```
