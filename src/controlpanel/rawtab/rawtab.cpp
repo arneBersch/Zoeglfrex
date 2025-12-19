@@ -19,6 +19,7 @@ RawTab::RawTab(QWidget* parent) : QWidget(parent) {
         } else {
             model->setRawKey(-1);
         }
+        reload();
     });
     layout->addWidget(rawComboBox);
 
@@ -38,6 +39,7 @@ RawTab::RawTab(QWidget* parent) : QWidget(parent) {
 }
 
 void RawTab::reload() {
+    rawComboBox->blockSignals(true);
     int currentRawKey = -1;
     if (rawComboBox->currentIndex() >= 0) {
         currentRawKey = rawKeys.at(rawComboBox->currentIndex());
@@ -64,6 +66,7 @@ void RawTab::reload() {
     if (currentRawIndex >= 0) {
         rawComboBox->setCurrentIndex(currentRawIndex);
     }
+    rawComboBox->blockSignals(false);
 
     model->setRawKey(currentRawKey);
 
