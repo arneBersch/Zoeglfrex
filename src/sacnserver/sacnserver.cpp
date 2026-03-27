@@ -93,41 +93,7 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
 
         QByteArray packet;
         // Root Layer
-        // Preamble Size (Octet 0-1)
-        packet.append((char)0x00);
-        packet.append((char)0x10);
-
-        // Postamble Size (Octet 2-3)
-        packet.append((char)0x00);
-        packet.append((char)0x00);
-
-        // ACN Packet Identifier (Octet 4-15)
-        packet.append((char)0x41);
-        packet.append((char)0x53);
-        packet.append((char)0x43);
-        packet.append((char)0x2d);
-        packet.append((char)0x45);
-        packet.append((char)0x31);
-        packet.append((char)0x2e);
-        packet.append((char)0x31);
-        packet.append((char)0x37);
-        packet.append((char)0x00);
-        packet.append((char)0x00);
-        packet.append((char)0x00);
-
-        // Flags and Length (Octet 16-17)
-        packet.append((char)0x00);
-        packet.append((char)0x00);
-
-        // Vector (Octet 18-21)
-        packet.append((char)0x00);
-        packet.append((char)0x00);
-        packet.append((char)0x00);
-        packet.append((char)0x04);
-
-        // CID (Octet 22-37)
-        Q_ASSERT(CID.length() == 16);
-        packet.append(CID);
+        addRootLayerData(&packet, 0x04);
 
         // Framing Layer
         // Flags and Length (Octet 38-39)
@@ -225,41 +191,7 @@ void SacnServer::sendUniverseList() {
     for (int page = 0; page < universePages.length(); page++) {
         QByteArray packet;
         // Root Layer
-        // Preamble Size (Octet 0-1)
-        packet.append((char)0x00);
-        packet.append((char)0x10);
-
-        // Postamble Size (Octet 2-3)
-        packet.append((char)0x00);
-        packet.append((char)0x00);
-
-        // ACN Packet Identifier (Octet 4-15)
-        packet.append((char)0x41);
-        packet.append((char)0x53);
-        packet.append((char)0x43);
-        packet.append((char)0x2d);
-        packet.append((char)0x45);
-        packet.append((char)0x31);
-        packet.append((char)0x2e);
-        packet.append((char)0x31);
-        packet.append((char)0x37);
-        packet.append((char)0x00);
-        packet.append((char)0x00);
-        packet.append((char)0x00);
-
-        // Flags and Length (Octet 16-17)
-        packet.append((char)0x00);
-        packet.append((char)0x00);
-
-        // Vector (Octet 18-21)
-        packet.append((char)0x00);
-        packet.append((char)0x00);
-        packet.append((char)0x00);
-        packet.append((char)0x08);
-
-        // CID (Octet 22-37)
-        Q_ASSERT(CID.length() == 16);
-        packet.append(CID);
+        addRootLayerData(&packet, 0x08);
 
         // Framing Layer
         // Flags and Length (Octet 38-39)
@@ -319,10 +251,50 @@ void SacnServer::sendUniverseList() {
     }
 }
 
-void SacnServer::updateFlagsAndLength(QByteArray* data, const int index) {
-    int length = 0x7000;
-    length += data->length() - index;
+void SacnServer::addRootLayerData(QByteArray* packet, char vectorSuffix) {
+    // Preamble Size (Octet 0-1)
+    packet->append((char)0x00);
+    packet->append((char)0x10);
 
-    (*data)[index] = (char)(length / 256);
-    (*data)[index + 1] = (char)(length % 256);
+    // Postamble Size (Octet 2-3)
+    packet->append((char)0x00);
+    packet->append((char)0x00);
+
+    // ACN Packet Identifier (Octet 4-15)
+    packet->append((char)0x41);
+    packet->append((char)0x53);
+    packet->append((char)0x43);
+    packet->append((char)0x2d);
+    packet->append((char)0x45);
+    packet->append((char)0x31);
+    packet->append((char)0x2e);
+    packet->append((char)0x31);
+    packet->append((char)0x37);
+    packet->append((char)0x00);
+    packet->append((char)0x00);
+    packet->append((char)0x00);
+
+    // Flags and Length (Octet 16-17)
+    packet->append((char)0x00);
+    packet->append((char)0x00);
+
+    // Vector (Octet 18-21)
+    packet->append((char)0x00);
+    packet->append((char)0x00);
+    packet->append((char)0x00);
+    packet->append(vectorSuffix);
+
+    // CID (Octet 22-37)
+    Q_ASSERT(CID.length() == 16);
+    packet->append(CID);
+}
+
+void SacnServer::updateFlagsAndLength(QByteArray* packet, const int index) {
+    Q_ASSERT(index < packet->length());
+
+    int length = 0x7000;
+    length += packet->length() - index;
+
+    (*packet)[index] = (char)(length / 256);
+    (*packet)[index + 1] = (char)(length % 256);
 }

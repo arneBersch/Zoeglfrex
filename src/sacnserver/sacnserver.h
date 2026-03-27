@@ -38,6 +38,7 @@ private:
     void sendUniverseList();
     void reloadNetworkInterfaces();
     void updateFlagsAndLength(QByteArray* data, int index);
+    void addRootLayerData(QByteArray* data, char vectorSuffix);
     QSettings* settings;
     QUdpSocket* socket = nullptr;
     QComboBox* networkInterfaceComboBox;
