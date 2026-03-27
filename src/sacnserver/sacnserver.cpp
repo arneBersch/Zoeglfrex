@@ -30,9 +30,9 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
     QLabel* priorityLabel = new QLabel("Priority");
     layout->addWidget(priorityLabel, 2, 0);
     QSpinBox* prioritySpinBox = new QSpinBox();
-    prioritySpinBox->setMinimum(0);
-    prioritySpinBox->setMaximum(200);
-    prioritySpinBox->setValue(settings->value("sacn/priority", 100).toInt());
+    prioritySpinBox->setMinimum(MIN_PRIORITY);
+    prioritySpinBox->setMaximum(MAX_PRIORITY);
+    prioritySpinBox->setValue(settings->value("sacn/priority", DEFAULT_PRIORITY).toInt());
     connect(prioritySpinBox, &QSpinBox::valueChanged, this, [this](int port) {
         settings->setValue("sacn/priority", port);
     });
@@ -40,7 +40,7 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
 
     QTimer* universeListTimer = new QTimer();
     connect(universeListTimer, &QTimer::timeout, this, &SacnServer::sendUniverseList);
-    universeListTimer->start(10000);
+    universeListTimer->start(DISCOVERY_INTERVAL);
 }
 
 void SacnServer::reloadNetworkInterfaces() {
@@ -88,8 +88,8 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
     for (const int universe : universeData.keys()) {
         const QByteArray data = universeData.value(universe);
         Q_ASSERT(data.size() <= 512);
-        Q_ASSERT(universe <= 63999);
-        Q_ASSERT(universe >= 1);
+        Q_ASSERT(universe <= MAX_UNIVERSE);
+        Q_ASSERT(universe >= MIN_UNIVERSE);
 
         QByteArray packet;
         // Root Layer
@@ -126,8 +126,8 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         packet.append((char)0x04);
 
         // CID (Octet 22-37)
-        Q_ASSERT(cid.length() == 16);
-        packet.append(cid);
+        Q_ASSERT(CID.length() == 16);
+        packet.append(CID);
 
         // Framing Layer
         // Flags and Length (Octet 38-39)
@@ -147,7 +147,7 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         packet.append(source);
 
         // Priority (Octet 108)
-        packet.append((char)settings->value("sacn/priority", 100).toInt());
+        packet.append((char)settings->value("sacn/priority", DEFAULT_PRIORITY).toInt());
 
         // Synchronization Address (Octet 109-110)
         packet.append((char)0x00);
@@ -196,8 +196,8 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         updateFlagsAndLength(&packet, 38);
         updateFlagsAndLength(&packet, 115);
 
-        const QString address = "239.255." + QString::number(universe / 256) + "." + QString::number(universe % 256);
-        const qint64 result = socket->writeDatagram(packet, QHostAddress(address), 5568);
+        const QString address = DATA_ADDRESS_FORMAT.arg(universe / 256, universe % 256);
+        const qint64 result = socket->writeDatagram(packet, QHostAddress(address), PORT);
         if (result < 0) {
             qWarning() << Q_FUNC_INFO << socket->error() << socket->errorString();
         }
@@ -258,8 +258,8 @@ void SacnServer::sendUniverseList() {
         packet.append((char)0x08);
 
         // CID (Octet 22-37)
-        Q_ASSERT(cid.length() == 16);
-        packet.append(cid);
+        Q_ASSERT(CID.length() == 16);
+        packet.append(CID);
 
         // Framing Layer
         // Flags and Length (Octet 38-39)
@@ -273,10 +273,10 @@ void SacnServer::sendUniverseList() {
         packet.append((char)0x02);
 
         // Source Name (Octet 44-107)
-        QByteArray source = QString("Zöglfrex - " + QHostInfo::localHostName()).toUtf8();
-        source.truncate(63);
-        source.resize(64, (char)0x00);
-        packet.append(source);
+        QByteArray sourceName = QString("Zöglfrex - " + QHostInfo::localHostName()).toUtf8();
+        sourceName.truncate(63);
+        sourceName.resize(64, (char)0x00);
+        packet.append(sourceName);
 
         // Reserved (Octet 108-111)
         packet.append((char)0x00);
@@ -312,7 +312,7 @@ void SacnServer::sendUniverseList() {
         updateFlagsAndLength(&packet, 38);
         updateFlagsAndLength(&packet, 112);
 
-        const qint64 result = socket->writeDatagram(packet, QHostAddress("239.255.250.214"), 5568);
+        const qint64 result = socket->writeDatagram(packet, DISCOVERY_ADDRESS, PORT);
         if (result < 0) {
             qWarning() << Q_FUNC_INFO << socket->error() << socket->errorString();
         }
@@ -322,6 +322,7 @@ void SacnServer::sendUniverseList() {
 void SacnServer::updateFlagsAndLength(QByteArray* data, const int index) {
     int length = 0x7000;
     length += data->length() - index;
+
     (*data)[index] = (char)(length / 256);
     (*data)[index + 1] = (char)(length % 256);
 }

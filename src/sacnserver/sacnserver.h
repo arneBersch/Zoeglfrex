@@ -16,11 +16,25 @@ class SacnServer : public QWidget {
     Q_OBJECT
 public:
     SacnServer(QWidget* parent = nullptr);
+
 public slots:
     void sendUniverses(QHash<int, QByteArray> universeData);
+
 private slots:
     void loadSocket(int socketIndex);
+
 private:
+    const int MIN_PRIORITY = 0;
+    const int MAX_PRIORITY = 200;
+    const int DEFAULT_PRIORITY = 100;
+    const int MIN_UNIVERSE = 1;
+    const int MAX_UNIVERSE = 63999;
+    const int PORT = 5568;
+    const QString DATA_ADDRESS_FORMAT =  "239.255.%1.%2";
+    const QHostAddress DISCOVERY_ADDRESS = QHostAddress("239.255.250.214");
+    const QByteArray CID = QUuid::createUuid().toRfc4122();
+    const int DISCOVERY_INTERVAL = 10 * 1000; // send the Discovery Universe List every 10 seconds
+
     void sendUniverseList();
     void reloadNetworkInterfaces();
     void updateFlagsAndLength(QByteArray* data, int index);
@@ -31,7 +45,6 @@ private:
     QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
     uint8_t sequence = 0;
     QList<int> universes;
-    const QByteArray cid = QUuid::createUuid().toRfc4122();
 };
 
 #endif // SACNSERVER_H
