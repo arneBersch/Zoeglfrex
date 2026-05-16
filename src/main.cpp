@@ -12,7 +12,7 @@
 #include "mainwindow/mainwindow.h"
 
 int main(int argc, char *argv[]) {
-    const QString VERSION = "1.0.1";
+    const QString VERSION = "1.1.0";
     const QString FILEVERSION = "1.0.0";
     const QString COPYRIGHT = "Copyright (c) 2025 Arne Bersch (zoeglfrex-dmx@web.de)";
 

@@ -1,7 +1,7 @@
 # Zöglfrex
 Zöglfrex is a Free and Open Source stage lighting software.
 
-It currently runs on Linux (via AppImage) and Windows.
+It currently runs on Linux (via AppImage).
 
 You can download the latest version of Zöglfrex [here](https://github.com/arneBersch/Zoeglfrex/releases/latest/).
 
@@ -19,7 +19,7 @@ I am aware that there are many things that you can't do with Zöglfrex, but most
 However, you can help by testing Zöglfrex, reporting bugs in the Issues tab and therefore making this software more stable.
 Please check this points before creating an Issue:
 1. First of all, make sure you're using the latest version of Zöglfrex.
-    In case you haven't, upgrade Zöglfrex and check if the problem still occurs.
+    In case you don't, upgrade Zöglfrex and check if the problem still occurs.
 2. Always check the Changelog and the open Issues.
     Did someone report this bug yet? 
 3. Try to reduce the number of steps needed for recreating the bug to a minimal amount.
