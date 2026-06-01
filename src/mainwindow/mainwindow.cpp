@@ -80,6 +80,7 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     mainColumns->setSizes(QList<int>() << 1000 << 500);
     setCentralWidget(mainColumns);
 
+    setWindowTitle("Zöglfrex");
     show();
 }
 

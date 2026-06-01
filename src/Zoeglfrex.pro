@@ -29,6 +29,7 @@ SOURCES += \
     preview2d/fixturegraphicsitem.cpp \
     preview2d/preview2d.cpp \
     sacnserver/sacnserver.cpp \
+    startscreen/startscreen.cpp \
     terminal/terminal.cpp
 
 HEADERS += \
@@ -49,6 +50,7 @@ HEADERS += \
     preview2d/fixturegraphicsitem.h \
     preview2d/preview2d.h \
     sacnserver/sacnserver.h \
+    startscreen/startscreen.h \
     terminal/terminal.h
 
 # Default rules for deployment.
