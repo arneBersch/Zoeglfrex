@@ -109,7 +109,6 @@ private:
     void writeKey(Key key);
     void backspace();
     void clearPrompt();
-    QSettings* settings;
     QList<Key> promptKeys;
     QPlainTextEdit *messages;
     QLabel* promptLabel;

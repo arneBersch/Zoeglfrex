@@ -42,6 +42,18 @@ StartScreen::StartScreen(const QString version, const QString copyright, const Q
     });
     layout->addWidget(openFileButton);
 
+    QPushButton* lastFileButton = new QPushButton("Open Last File");
+    QString lastFile = QSettings().value("file/lastfile", QString()).toString();
+    if (lastFile.isEmpty()) {
+        lastFileButton->setDisabled(true);
+    } else {
+        lastFileButton->setText("Open Last File:\n" + lastFile);
+        connect(lastFileButton, &QPushButton::clicked, this, [this, lastFile, version, copyright, fileVersion]{
+            openFile(lastFile, version, copyright, fileVersion);
+        });
+    }
+    layout->addWidget(lastFileButton);
+
     resize(600, 300);
     show();
 }
@@ -88,7 +100,9 @@ void StartScreen::openFile(const QString fileName, const QString version, const 
         }
     }
 
-    close();
+    QSettings().setValue("file/lastfile", fileName);
+
+    close();    
     new MainWindow(version, copyright);
 }
 

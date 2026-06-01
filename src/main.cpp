@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
     app.setApplicationName("Zöglfrex");
+    app.setOrganizationName("Zöglfrex");
     app.setApplicationVersion(VERSION);
 
     QFile styleSheet(":/resources/style.qss");

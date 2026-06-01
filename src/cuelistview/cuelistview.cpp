@@ -9,8 +9,6 @@
 #include "cuelistview.h"
 
 CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
-    settings = new QSettings("Zoeglfrex");
-
     model = new CuelistTableModel();
 
     QVBoxLayout *layout = new QVBoxLayout();
@@ -39,9 +37,9 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
         } else if (index == 1) {
             model->setMode(CuelistTableModel::GroupMode);
         }
-        settings->setValue("cuelistview/mode", index);
+        QSettings().setValue("cuelistview/mode", index);
     });
-    modeComboBox->setCurrentIndex(settings->value("cuelistview/mode", 0).toInt());
+    modeComboBox->setCurrentIndex(QSettings().value("cuelistview/mode", 0).toInt());
     buttonHeader->addWidget(modeComboBox);
 
     filterComboBox = new QComboBox();
@@ -56,9 +54,9 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
         } else if (index == 2) {
             model->setRowFilter(CuelistTableModel::ChangedRows);
         }
-        settings->setValue("cuelistview/filter", index);
+        QSettings().setValue("cuelistview/filter", index);
     });
-    filterComboBox->setCurrentIndex(settings->value("cuelistview/filter", 0).toInt());
+    filterComboBox->setCurrentIndex(QSettings().value("cuelistview/filter", 0).toInt());
     buttonHeader->addWidget(filterComboBox);
 
     cuelistTableView = new QTableView();

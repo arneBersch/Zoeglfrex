@@ -9,25 +9,23 @@
 #include "dmxengine.h"
 
 DmxEngine::DmxEngine(QWidget* parent) : QWidget(parent) {
-    settings = new QSettings("Zoeglfrex");
-
     QHBoxLayout* layout = new QHBoxLayout();
     setLayout(layout);
 
     highlightButton = new QPushButton("Highlight");
     highlightButton->setCheckable(true);
     connect(highlightButton, &QPushButton::clicked, this, [this] {
-        settings->setValue("cuelistview/highlight", highlightButton->isChecked());
+        QSettings().setValue("cuelistview/highlight", highlightButton->isChecked());
     });
-    highlightButton->setChecked(settings->value("cuelistview/highlight", true).toBool());
+    highlightButton->setChecked(QSettings().value("cuelistview/highlight", true).toBool());
     layout->addWidget(highlightButton);
 
     soloButton = new QPushButton("Solo");
     soloButton->setCheckable(true);
     connect(soloButton, &QPushButton::clicked, this, [this] {
-        settings->setValue("cuelistview/solo", soloButton->isChecked());
+        QSettings().setValue("cuelistview/solo", soloButton->isChecked());
     });
-    soloButton->setChecked(settings->value("cuelistview/solo", true).toBool());
+    soloButton->setChecked(QSettings().value("cuelistview/solo", true).toBool());
     layout->addWidget(soloButton);
 
     fadeProgressBar = new QProgressBar();
@@ -38,9 +36,9 @@ DmxEngine::DmxEngine(QWidget* parent) : QWidget(parent) {
     skipFadeButton = new QPushButton("Skip Fade");
     skipFadeButton->setCheckable(true);
     connect(skipFadeButton, &QPushButton::clicked, this, [this] {
-        settings->setValue("cuelistview/skipfade", skipFadeButton->isChecked());
+        QSettings().setValue("cuelistview/skipfade", skipFadeButton->isChecked());
     });
-    skipFadeButton->setChecked(settings->value("cuelistview/skipfade", true).toBool());
+    skipFadeButton->setChecked(QSettings().value("cuelistview/skipfade", true).toBool());
     layout->addWidget(skipFadeButton);
 
     new QShortcut(Qt::SHIFT | Qt::Key_H, this, [this] { highlightButton->click(); }, Qt::ApplicationShortcut);

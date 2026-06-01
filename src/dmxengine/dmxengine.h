@@ -49,7 +49,6 @@ private:
     QHash<int, RawChannelData> getFixtureRaws(int fixtureKey, QList<int> rawKeys);
     void getFixtureEffects(int fixtureKey, QList<int> effectKeys, QHash<int, int> effectFrames, bool* intensityInformation, float* intensity, bool* colorInformation, ColorData* color, bool* PositionInformation, PositionData* position, QHash<int, RawChannelData>* raws);
     float getFixtureValue(int fixtureKey, int itemKey, QString itemTable, QString itemTableAttribute, QString modelExceptionTable, QString fixtureExceptionTable);
-    QSettings* settings;
     QPushButton* highlightButton;
     QPushButton* soloButton;
     QProgressBar* fadeProgressBar;
