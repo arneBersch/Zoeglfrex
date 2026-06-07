@@ -13,24 +13,15 @@
 #include <QtSql>
 
 #include "preview2d/preview2d.h"
+#include "valuedata/intensitydata.h"
+#include "valuedata/colordata.h"
+#include "valuedata/positiondata.h"
 
 class DmxEngine : public QWidget {
     Q_OBJECT
 public:
     DmxEngine(QWidget* parent = nullptr);
 private:
-    struct ColorData {
-        float red = 100;
-        float green = 100;
-        float blue = 100;
-        float quality = 100;
-    };
-    struct PositionData {
-        float pan = 0;
-        float tilt = 0;
-        float zoom = 15;
-        float focus = 0;
-    };
     struct RawChannelData {
         uint8_t value = 0;
         bool fading = false;
@@ -42,13 +33,29 @@ signals:
     void dbChanged();
 private:
     void generateDmx();
-    void renderCue(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, QHash<int, RawChannelData>>* fixtureRaws);
-    float getFixtureIntensity(int fixtureKey, int intensityKey);
-    ColorData getFixtureColor(int fixtureKey, int colorKey);
-    PositionData getFixturePosition(int fixtureKey, int positionKey);
+    void renderCue(
+        int cueKey,
+        QList<int> groupKeys,
+        QHash<int, QSet<int>> groupFixtureKeys,
+        QHash<int, QHash<int, int>> oldGroupEffectFrames,
+        QHash<int, IntensityData>* fixtureIntensities,
+        QHash<int, ColorData>* fixtureColors,
+        QHash<int, PositionData>* fixturePositions,
+        QHash<int, QHash<int, RawChannelData>>* fixtureRaws
+    );
     QHash<int, RawChannelData> getFixtureRaws(int fixtureKey, QList<int> rawKeys);
-    void getFixtureEffects(int fixtureKey, QList<int> effectKeys, QHash<int, int> effectFrames, bool* intensityInformation, float* intensity, bool* colorInformation, ColorData* color, bool* PositionInformation, PositionData* position, QHash<int, RawChannelData>* raws);
-    float getFixtureValue(int fixtureKey, int itemKey, QString itemTable, QString itemTableAttribute, QString modelExceptionTable, QString fixtureExceptionTable);
+    void getFixtureEffects(
+        int fixtureKey,
+        QList<int> effectKeys,
+        QHash<int, int> effectFrames,
+        bool* intensityInformation,
+        IntensityData* intensity,
+        bool* colorInformation,
+        ColorData* color,
+        bool* PositionInformation,
+        PositionData* position,
+        QHash<int, RawChannelData>* raws
+    );
     QPushButton* highlightButton;
     QPushButton* soloButton;
     QProgressBar* fadeProgressBar;

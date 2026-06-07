@@ -92,7 +92,7 @@ void DmxEngine::generateDmx() {
     cuelistCurrentCueKeys.clear();
     QHash<int, int> oldCuelistRemainingTransitionFrames = cuelistRemainingTransitionFrames;
     cuelistRemainingTransitionFrames.clear();
-    QHash<int, float> fixtureIntensities;
+    QHash<int, IntensityData> fixtureIntensities;
     QHash<int, ColorData> fixtureColors;
     QHash<int, int> fixtureColorPriorities;
     QHash<int, PositionData> fixturePositions;
@@ -166,8 +166,8 @@ void DmxEngine::generateDmx() {
         const int remainingTransitionFrames = cuelistRemainingTransitionFrames.value(cuelistKey, 0);
         const int transitionFrames = cuelistTransitionFrames.value(cuelistKey, 0);
 
-        QHash<int, float> currentCueFixtureIntensities;
-        QHash<int, float> lastCueFixtureIntensities;
+        QHash<int, IntensityData> currentCueFixtureIntensities;
+        QHash<int, IntensityData> lastCueFixtureIntensities;
         QHash<int, ColorData> currentCueFixtureColors;
         QHash<int, ColorData> lastCueFixtureColors;
         QHash<int, PositionData> currentCueFixturePositions;
@@ -194,23 +194,25 @@ void DmxEngine::generateDmx() {
                     fade = std::cos(M_PI * (1 - fade)) / 2 + 0.5;
                 }
             }
-            float currentIntensity = currentCueFixtureIntensities.value(fixtureKey, 0);
-            float lastIntensity = lastCueFixtureIntensities.value(fixtureKey, 0);
-            currentIntensity += (lastIntensity - currentIntensity) * fade;
-            if (currentIntensity > fixtureIntensities.value(fixtureKey, 0)) {
+            IntensityData lastIntensity;
+            IntensityData currentIntensity;
+            if (lastCueFixtureIntensities.contains(fixtureKey) && (fade > 0)) {
+                lastIntensity = lastCueFixtureIntensities.value(fixtureKey);
+            } else if (currentCueFixtureIntensities.contains(fixtureKey)) {
+                currentIntensity = currentCueFixtureIntensities.value(fixtureKey);
+            }
+            currentIntensity.fade(lastIntensity, fade);
+            if (fixtureIntensities.contains(fixtureKey)) {
+                fixtureIntensities[fixtureKey].setMax(currentIntensity);
+            } else {
                 fixtureIntensities[fixtureKey] = currentIntensity;
             }
             if (priority >= fixtureColorPriorities.value(fixtureKey, 0)) {
                 if (lastCueFixtureColors.contains(fixtureKey) && (fade > 0)) {
                     ColorData lastColor = lastCueFixtureColors.value(fixtureKey);
-                    if (currentCueFixtureColors.contains(fixtureKey)) {
-                        ColorData currentColor = currentCueFixtureColors.value(fixtureKey);
-                        lastColor.red = currentColor.red + (lastColor.red - currentColor.red) * fade;
-                        lastColor.green = currentColor.green + (lastColor.green - currentColor.green) * fade;
-                        lastColor.blue = currentColor.blue + (lastColor.blue - currentColor.blue) * fade;
-                        lastColor.quality = currentColor.quality + (lastColor.quality - currentColor.quality) * fade;
-                    }
-                    fixtureColors[fixtureKey] = lastColor;
+                    ColorData currentColor = currentCueFixtureColors.value(fixtureKey, lastColor);
+                    currentColor.fade(lastColor, fade);
+                    fixtureColors[fixtureKey] = currentColor;
                     fixtureColorPriorities[fixtureKey] = priority;
                 } else if (currentCueFixtureColors.contains(fixtureKey)) {
                     fixtureColors[fixtureKey] = currentCueFixtureColors.value(fixtureKey);
@@ -220,24 +222,9 @@ void DmxEngine::generateDmx() {
             if (priority >= fixturePositionPriorities.value(fixtureKey, 0)) {
                 if (lastCueFixturePositions.contains(fixtureKey) && (fade > 0)) {
                     PositionData lastPosition = lastCueFixturePositions.value(fixtureKey);
-                    if (currentCueFixturePositions.contains(fixtureKey)) {
-                        PositionData currentPosition = currentCueFixturePositions.value(fixtureKey);
-                        if (std::abs(currentPosition.pan - lastPosition.pan) > 180) {
-                            if (lastPosition.pan > currentPosition.pan) {
-                                currentPosition.pan += 360;
-                            } else {
-                                lastPosition.pan += 360;
-                            }
-                        }
-                        lastPosition.pan = currentPosition.pan + (lastPosition.pan - currentPosition.pan) * fade;
-                        while (lastPosition.pan >= 360) {
-                            lastPosition.pan -= 360;
-                        }
-                        lastPosition.tilt = currentPosition.tilt + (lastPosition.tilt - currentPosition.tilt) * fade;
-                        lastPosition.zoom = currentPosition.zoom + (lastPosition.zoom - currentPosition.zoom) * fade;
-                        lastPosition.focus = currentPosition.focus + (lastPosition.focus - currentPosition.focus) * fade;
-                    }
-                    fixturePositions[fixtureKey] = lastPosition;
+                    PositionData currentPosition = currentCueFixturePositions.value(fixtureKey, lastPosition);
+                    currentPosition.fade(lastPosition, fade);
+                    fixturePositions[fixtureKey] = currentPosition;
                     fixturePositionPriorities[fixtureKey] = priority;
                 } else if (currentCueFixturePositions.contains(fixtureKey)) {
                     fixturePositions[fixtureKey] = currentCueFixturePositions.value(fixtureKey);
@@ -384,7 +371,7 @@ void DmxEngine::generateDmx() {
                     fixtureGroupFixture[groupKey].insert(fixtureKey);
                 }
 
-                QHash<int, float> cueFixtureIntensities;
+                QHash<int, IntensityData> cueFixtureIntensities;
                 QHash<int, ColorData> cueFixtureColors;
                 QHash<int, PositionData> cueFixturePositions;
                 QHash<int, QHash<int, RawChannelData>> cueFixtureRaws;
@@ -407,37 +394,26 @@ void DmxEngine::generateDmx() {
             }
         }
 
-        float dimmer = fixtureIntensities.value(fixtureKey, 0);
+        IntensityData intensity = fixtureIntensities.value(fixtureKey, IntensityData());
 
-        const ColorData color = fixtureColors.value(fixtureKey);
-        float red = color.red;
-        float green = color.green;
-        float blue = color.blue;
-        float quality = color.quality;
+        ColorData color = fixtureColors.value(fixtureKey, ColorData());
         if (currentFixtureKeys.contains(fixtureKey) && highlightButton->isChecked()) {
-            dimmer = 100;
-            red = 100;
-            green = 100;
-            blue = 100;
-            quality = 0;
+            intensity = IntensityData::highlightValue();
+            color = ColorData::highlightValue();
         } else if (!currentFixtureKeys.contains(fixtureKey) && soloButton->isChecked()) {
-            dimmer = 0;
+            intensity = IntensityData();
         }
 
-        const PositionData position = fixturePositions.value(fixtureKey);
-        float panAngle = position.pan;
-        float tiltAngle = position.tilt;
-        float zoomAngle = position.zoom;
-        float focus = position.focus;
+        PositionData position = fixturePositions.value(fixtureKey, PositionData());
 
         Preview2d::PreviewData previewFixture;
         previewFixture.xPosition = fixtureQuery.value(3).toFloat();
         previewFixture.yPosition = fixtureQuery.value(4).toFloat();
         previewFixture.label = fixtureQuery.value(5).toString();
-        previewFixture.color = QColor((red / 100) * (dimmer / 100) * 255, (green / 100) * (dimmer / 100) * 255, (blue / 100) * (dimmer / 100) * 255);
-        previewFixture.pan = panAngle;
-        previewFixture.tilt = tiltAngle;
-        previewFixture.zoom = zoomAngle;
+        previewFixture.color = color.toQColor(intensity);
+        previewFixture.pan = position.getPan();
+        previewFixture.tilt = position.getTilt();
+        previewFixture.zoom = position.getZoom();
         previewFixtures[fixtureKey] = previewFixture;
 
         if (address > 0) {
@@ -457,16 +433,12 @@ void DmxEngine::generateDmx() {
                         dmxUniverses[universe] = QByteArray(512, 0);
                     }
                     if (!channels.contains('D')) {
-                        red *= (dimmer / 100);
-                        green *= (dimmer / 100);
-                        blue *= (dimmer / 100);
+                        color.dim(intensity);
                     }
-                    const float white = std::min(std::min(red, green), blue);
                     if (channels.contains('W')) {
-                        red -= white * (quality / 100);
-                        green -= white * (quality / 100);
-                        blue -= white * (quality / 100);
+                        color.addWhite();
                     }
+                    float panAngle = position.getPan();
                     if (invertPan) {
                         panAngle = rotation - panAngle;
                     } else {
@@ -478,21 +450,21 @@ void DmxEngine::generateDmx() {
                     while (panAngle < 0) {
                         panAngle += 360;
                     }
-                    float pan = (panAngle / panRange) * 100;
+                    float pan = panAngle / panRange;
                     const float lastFramePan = lastFrameFixturePan.value(fixtureKey, 0);
                     for (float angle = panAngle; angle <= panRange; angle += 360) {
-                        const float anglePan = (angle / panRange) * 100;
+                        const float anglePan = angle / panRange;
                         if (std::abs(lastFramePan - anglePan) < std::abs(lastFramePan - pan)) {
                             pan = anglePan;
                         }
                     }
-                    pan = std::min<float>(pan, 100);
+                    pan = std::min<float>(pan, 1);
                     fixturePan[fixtureKey] = pan;
-                    float tilt = 50 + (tiltAngle / (tiltRange / 2) * 50);
-                    tilt = std::min<float>(tilt, 100);
+                    float tilt = 0.5 + (position.getTilt() / (tiltRange / 2) * 0.5);
+                    tilt = std::min<float>(tilt, 1);
                     tilt = std::max<float>(tilt, 0);
-                    float zoom = (zoomAngle - minZoom) / (maxZoom - minZoom) * 100;
-                    zoom = std::min<float>(zoom, 100);
+                    float zoom = (position.getZoom() - minZoom) / (maxZoom - minZoom);
+                    zoom = std::min<float>(zoom, 1);
                     zoom = std::max<float>(zoom, 0);
                     for (int channel = address; channel < (address + channels.size()); channel++) {
                         QChar channelType = channels.at(channel - address);
@@ -500,21 +472,21 @@ void DmxEngine::generateDmx() {
                         channelType = channelType.toUpper();
                         float value = 0;
                         if (channelType == QChar('D')) { // Dimmer
-                            value = dimmer;
+                            value = intensity.getDimmer();
                         } else if (channelType == QChar('R')) { // Red
-                            value = red;
+                            value = color.getRed();
                         } else if (channelType == QChar('G')) { // Green
-                            value = green;
+                            value = color.getGreen();
                         } else if (channelType == QChar('B')) { // Blue
-                            value = blue;
+                            value = color.getBlue();
                         } else if (channelType == QChar('W')) { // White
-                            value = white;
+                            value = color.getWhite();
                         } else if (channelType == QChar('C')) { // Cyan
-                            value = (100 - red);
+                            value = color.getCyan();
                         } else if (channelType == QChar('M')) { // Magenta
-                            value = (100 - green);
+                            value = color.getMagenta();
                         } else if (channelType == QChar('Y')) { // Yellow
-                            value = (100 - blue);
+                            value = color.getYellow();
                         } else if (channelType == QChar('P')) { // Pan
                             value = pan;
                         } else if (channelType == QChar('T')) { // Tilt
@@ -522,18 +494,18 @@ void DmxEngine::generateDmx() {
                         } else if (channelType == QChar('Z')) { // Zoom
                             value = zoom;
                         } else if (channelType == QChar('F')) { // Focus
-                            value = focus;
+                            value = position.getFocus();
                         } else if (channelType == QChar('0')) { // DMX 0
                             value = 0;
                         } else if (channelType == QChar('1')) { // DMX 255
-                            value = 100;
+                            value = 1;
                         } else {
                             Q_ASSERT(false);
                         }
-                        Q_ASSERT(value <= 100);
+                        Q_ASSERT(value <= 1);
                         Q_ASSERT(value >= 0);
                         if (channel <= 512) {
-                            value *= 655.35;
+                            value *= 65535;
                             if (fine) {
                                 dmxUniverses[universe][channel - 1] = (uint8_t)((int)value % 256);
                             } else {
@@ -587,7 +559,7 @@ void DmxEngine::generateDmx() {
     }
 }
 
-void DmxEngine::renderCue(const int cueKey, const QList<int> groupKeys, const QHash<int, QSet<int>> groupFixtureKeys, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, QHash<int, RawChannelData>>* fixtureRaws) {
+void DmxEngine::renderCue(const int cueKey, const QList<int> groupKeys, const QHash<int, QSet<int>> groupFixtureKeys, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, IntensityData>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, QHash<int, RawChannelData>>* fixtureRaws) {
     for (const int groupKey : groupKeys) {
         QList<int> rawKeys;
         QSqlQuery intensityQuery;
@@ -598,9 +570,11 @@ void DmxEngine::renderCue(const int cueKey, const QList<int> groupKeys, const QH
             while (intensityQuery.next()) {
                 const int intensityKey = intensityQuery.value(0).toInt();
                 for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
-                    const float dimmer = getFixtureIntensity(fixtureKey, intensityKey);
-                    if (dimmer >= fixtureIntensities->value(fixtureKey, 0)) {
-                        (*fixtureIntensities)[fixtureKey] = dimmer;
+                    const IntensityData intensity = IntensityData(fixtureKey, intensityKey);
+                    if (fixtureIntensities->contains(fixtureKey)) {
+                        (*fixtureIntensities)[fixtureKey].setMax(intensity);
+                    } else {
+                        (*fixtureIntensities)[fixtureKey] = intensity;
                     }
                 }
                 QSqlQuery rawsQuery;
@@ -625,7 +599,7 @@ void DmxEngine::renderCue(const int cueKey, const QList<int> groupKeys, const QH
             while (colorQuery.next()) {
                 const int colorKey = colorQuery.value(0).toInt();
                 for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
-                    (*fixtureColors)[fixtureKey] = getFixtureColor(fixtureKey, colorKey);
+                    (*fixtureColors)[fixtureKey] = ColorData(fixtureKey, colorKey);
                 }
                 QSqlQuery rawsQuery;
                 rawsQuery.prepare("SELECT color_raws.valueitem_key FROM color_raws, raws WHERE color_raws.item_key = :color AND color_raws.valueitem_key = raws.key ORDER BY raws.sortkey");
@@ -649,7 +623,7 @@ void DmxEngine::renderCue(const int cueKey, const QList<int> groupKeys, const QH
             while (positionQuery.next()) {
                 const int positionKey = positionQuery.value(0).toInt();
                 for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
-                    (*fixturePositions)[fixtureKey] = getFixturePosition(fixtureKey, positionKey);
+                    (*fixturePositions)[fixtureKey] = PositionData(fixtureKey, positionKey);
                 }
                 QSqlQuery rawsQuery;
                 rawsQuery.prepare("SELECT position_raws.valueitem_key FROM position_raws, raws WHERE position_raws.item_key = :position AND position_raws.valueitem_key = raws.key ORDER BY raws.sortkey");
@@ -708,15 +682,19 @@ void DmxEngine::renderCue(const int cueKey, const QList<int> groupKeys, const QH
             }
             for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
                 bool intensityInformation = false;
-                float intensity = 0;
+                IntensityData intensity;
                 bool colorInformation = false;
                 ColorData color;
                 bool positionInformation = false;
                 PositionData position;
                 QHash<int, RawChannelData> raws;
                 getFixtureEffects(fixtureKey, effectKeys, groupEffectFrames.value(groupKey), &intensityInformation, &intensity, &colorInformation, &color, &positionInformation, &position, &raws);
-                if (intensityInformation && (intensity > fixtureIntensities->value(fixtureKey, 0))) {
-                    (*fixtureIntensities)[fixtureKey] = intensity;
+                if (intensityInformation) {
+                    if (fixtureIntensities->contains(fixtureKey)) {
+                        (*fixtureIntensities)[fixtureKey].setMax(intensity);
+                    } else {
+                        (*fixtureIntensities)[fixtureKey] = intensity;
+                    }
                 }
                 if (colorInformation) {
                     (*fixtureColors)[fixtureKey] = color;
@@ -738,96 +716,6 @@ void DmxEngine::renderCue(const int cueKey, const QList<int> groupKeys, const QH
             qWarning() << Q_FUNC_INFO << effectQuery.executedQuery() << effectQuery.lastError().text();
         }
     }
-}
-
-float DmxEngine::getFixtureValue(const int fixtureKey, const int itemKey, const QString itemTable, const QString itemTableAttribute, const QString modelExceptionTable, const QString fixtureExceptionTable) {
-    QSqlQuery fixtureExceptionQuery;
-    fixtureExceptionQuery.prepare("SELECT value FROM " + fixtureExceptionTable + " WHERE item_key = :item AND foreignitem_key = :fixture");
-    fixtureExceptionQuery.bindValue(":item", itemKey);
-    fixtureExceptionQuery.bindValue(":fixture", fixtureKey);
-    if (fixtureExceptionQuery.exec()) {
-        if (fixtureExceptionQuery.next()) {
-            return fixtureExceptionQuery.value(0).toFloat();
-        }
-    } else {
-        qWarning() << Q_FUNC_INFO << fixtureExceptionQuery.executedQuery() << fixtureExceptionQuery.lastError().text();
-    }
-    QSqlQuery modelExceptionQuery;
-    modelExceptionQuery.prepare("SELECT " + modelExceptionTable + ".value FROM " + modelExceptionTable + ", fixtures WHERE " + modelExceptionTable + ".item_key = :item AND " + modelExceptionTable + ".foreignitem_key = fixtures.model_key AND fixtures.key = :fixture");
-    modelExceptionQuery.bindValue(":item", itemKey);
-    modelExceptionQuery.bindValue(":fixture", fixtureKey);
-    if (modelExceptionQuery.exec()) {
-        if (modelExceptionQuery.next()) {
-            return modelExceptionQuery.value(0).toFloat();
-        }
-    } else {
-        qWarning() << Q_FUNC_INFO << modelExceptionQuery.executedQuery() << modelExceptionQuery.lastError().text();
-    }
-    QSqlQuery itemQuery;
-    itemQuery.prepare("SELECT " + itemTableAttribute + " FROM " + itemTable + " WHERE key = :item");
-    itemQuery.bindValue(":item", itemKey);
-    if (itemQuery.exec()) {
-        if (itemQuery.next()) {
-            return itemQuery.value(0).toFloat();
-        } else {
-            qWarning() << Q_FUNC_INFO << itemQuery.executedQuery() << itemTable + " Item with key " + QString::number(itemKey) + " should exist but wasn't found!";
-        }
-    } else {
-        qWarning() << Q_FUNC_INFO << itemQuery.executedQuery() << itemQuery.lastError().text();
-    }
-    return 0;
-}
-
-float DmxEngine::getFixtureIntensity(const int fixtureKey, const int intensityKey) {
-    return getFixtureValue(fixtureKey, intensityKey, "intensities", "dimmer", "intensity_model_dimmer", "intensity_fixture_dimmer");
-}
-
-DmxEngine::ColorData DmxEngine::getFixtureColor(const int fixtureKey, const int colorKey) {
-    const float hue = getFixtureValue(fixtureKey, colorKey, "colors", "hue", "color_model_hue", "color_fixture_hue");
-    const float saturation = getFixtureValue(fixtureKey, colorKey, "colors", "saturation", "color_model_saturation", "color_fixture_saturation");
-    ColorData color;
-    const float h = (hue / 60);
-    const int i = (int)h;
-    const float f = h - i;
-    const float p = (100 - saturation);
-    const float q = (100 - (saturation * f));
-    const float t = (100 - (saturation * (1 - f)));
-    if (i == 0) {
-        color.red = 100;
-        color.green = t;
-        color.blue = p;
-    } else if (i == 1) {
-        color.red = q;
-        color.green = 100;
-        color.blue = p;
-    } else if (i == 2) {
-        color.red = p;
-        color.green = 100;
-        color.blue = t;
-    } else if (i == 3) {
-        color.red = p;
-        color.green = q;
-        color.blue = 100;
-    } else if (i == 4) {
-        color.red = t;
-        color.green = p;
-        color.blue = 100;
-    } else if (i == 5) {
-        color.red = 100;
-        color.green = p;
-        color.blue = q;
-    }
-    color.quality = getFixtureValue(fixtureKey, colorKey, "colors", "quality", "color_model_quality", "color_fixture_quality");
-    return color;
-}
-
-DmxEngine::PositionData DmxEngine::getFixturePosition(const int fixtureKey, const int positionKey) {
-    PositionData position;
-    position.pan = getFixtureValue(fixtureKey, positionKey, "positions", "pan", "position_model_pan", "position_fixture_pan");
-    position.tilt = getFixtureValue(fixtureKey, positionKey, "positions", "tilt", "position_model_tilt", "position_fixture_tilt");
-    position.zoom = getFixtureValue(fixtureKey, positionKey, "positions", "zoom", "position_model_zoom", "position_fixture_zoom");
-    position.focus = getFixtureValue(fixtureKey, positionKey, "positions", "focus", "position_model_focus", "position_fixture_focus");
-    return position;
 }
 
 QHash<int, DmxEngine::RawChannelData> DmxEngine::getFixtureRaws(const int fixtureKey, const QList<int> rawKeys) {
@@ -902,7 +790,7 @@ QHash<int, DmxEngine::RawChannelData> DmxEngine::getFixtureRaws(const int fixtur
     return channels;
 }
 
-void DmxEngine::getFixtureEffects(const int fixtureKey, const QList<int> effectKeys, const QHash<int, int> effectFrames, bool* intensityInformation, float* dimmer, bool* colorInformation, ColorData* color, bool* positionInformation, PositionData* position, QHash<int, RawChannelData>* raws) {
+void DmxEngine::getFixtureEffects(const int fixtureKey, const QList<int> effectKeys, const QHash<int, int> effectFrames, bool* intensityInformation, IntensityData* intensity, bool* colorInformation, ColorData* color, bool* positionInformation, PositionData* position, QHash<int, RawChannelData>* raws) {
     for (const int effectKey : effectKeys) {
         QSqlQuery effectAttributesQuery;
         effectAttributesQuery.prepare("SELECT steps, hold, fade, phase, sinefade FROM effects WHERE key = :effect");
@@ -1042,36 +930,31 @@ void DmxEngine::getFixtureEffects(const int fixtureKey, const QList<int> effectK
                     }
                     if (!stepIntensityKeys.isEmpty()) {
                         (*intensityInformation) = true;
-                        float currentDimmer = 0;
+                        IntensityData currentIntensity;
                         if (stepIntensityKeys.contains(currentStep)) {
-                            currentDimmer = getFixtureIntensity(fixtureKey, stepIntensityKeys.value(currentStep));
+                            currentIntensity = IntensityData(fixtureKey, stepIntensityKeys.value(currentStep));
                         }
                         if (fade > 0) {
-                            float lastDimmer = 0;
+                            IntensityData lastIntensity;
                             if (stepIntensityKeys.contains(lastStep)) {
-                                lastDimmer = getFixtureIntensity(fixtureKey, stepIntensityKeys.value(lastStep));
+                                lastIntensity = IntensityData(fixtureKey, stepIntensityKeys.value(lastStep));
                             }
-                            currentDimmer += (lastDimmer - currentDimmer) * fade;
+                            currentIntensity.fade(lastIntensity, fade);
                         }
-                        if (currentDimmer >= (*dimmer)) {
-                            (*dimmer) = currentDimmer;
-                        }
+                        (*intensity).setMax(currentIntensity);
                     }
                     if (!stepColorKeys.isEmpty()) {
                         (*colorInformation) = true;
                         ColorData currentColor;
                         if (stepColorKeys.contains(currentStep)) {
-                            currentColor = getFixtureColor(fixtureKey, stepColorKeys.value(currentStep));
+                            currentColor = ColorData(fixtureKey, stepColorKeys.value(currentStep));
                         }
                         if (fade > 0) {
                             ColorData lastColor;
                             if (stepColorKeys.contains(lastStep)) {
-                                lastColor = getFixtureColor(fixtureKey, stepColorKeys.value(lastStep));
+                                lastColor = ColorData(fixtureKey, stepColorKeys.value(lastStep));
                             }
-                            currentColor.red += (lastColor.red - currentColor.red) * fade;
-                            currentColor.green += (lastColor.green - currentColor.green) * fade;
-                            currentColor.blue += (lastColor.blue - currentColor.blue) * fade;
-                            currentColor.quality += (lastColor.quality - currentColor.quality) * fade;
+                            currentColor.fade(lastColor, fade);
                         }
                         (*color) = currentColor;
                     }
@@ -1079,27 +962,14 @@ void DmxEngine::getFixtureEffects(const int fixtureKey, const QList<int> effectK
                         (*positionInformation) = true;
                         PositionData currentPosition;
                         if (stepPositionKeys.contains(currentStep)) {
-                            currentPosition = getFixturePosition(fixtureKey, stepPositionKeys.value(currentStep));
+                            currentPosition = PositionData(fixtureKey, stepPositionKeys.value(currentStep));
                         }
                         if (fade > 0) {
                             PositionData lastPosition;
                             if (stepPositionKeys.contains(lastStep)) {
-                                lastPosition = getFixturePosition(fixtureKey, stepPositionKeys.value(lastStep));
+                                lastPosition = PositionData(fixtureKey, stepPositionKeys.value(lastStep));
                             }
-                            if (std::abs(currentPosition.pan - lastPosition.pan) > 180) {
-                                if (lastPosition.pan > currentPosition.pan) {
-                                    currentPosition.pan += 360;
-                                } else {
-                                    lastPosition.pan += 360;
-                                }
-                            }
-                            currentPosition.pan += (lastPosition.pan - currentPosition.pan) * fade;
-                            while (currentPosition.pan >= 360) {
-                                currentPosition.pan -= 360;
-                            }
-                            currentPosition.tilt += (lastPosition.tilt - currentPosition.tilt) * fade;
-                            currentPosition.zoom += (lastPosition.zoom - currentPosition.zoom) * fade;
-                            currentPosition.focus += (lastPosition.focus - currentPosition.focus) * fade;
+                            currentPosition.fade(lastPosition, fade);
                         }
                         (*position) = currentPosition;
                     }
