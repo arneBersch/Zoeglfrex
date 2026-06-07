@@ -28,6 +28,8 @@ public:
     float getMagenta();
     float getYellow();
     float getWhite();
+    float getHue();
+    float getSaturation();
 private:
     float red = 1; // 0 <= red <= 1
     float green = 1; // 0 <= green <= 1

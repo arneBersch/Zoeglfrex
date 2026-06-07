@@ -226,7 +226,7 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(modelInfos, "label", "Label", ids, "");
         } else if ((attribute == AttributeIds::modelChannels) || !attributes.contains(Attribute)) {
-            setTextAttribute(modelInfos, "channels", "Channels", ids, "^[01DdRrGgBbWwCcMmYyPpTtZzFf]+$");
+            setTextAttribute(modelInfos, "channels", "Channels", ids, "^[01DdRrGgBbWwCcMmYyHhSsPpTtZzFf]+$");
         } else if (attribute == AttributeIds::modelPanRange) {
             setNumberAttribute<float>(modelInfos, "panrange", "Pan Range", ids, valueKeys, {0, 3600, false, "°"});
         } else if (attribute == AttributeIds::modelTiltRange) {

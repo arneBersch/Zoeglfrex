@@ -90,6 +90,47 @@ float ColorData::getWhite() {
     return white;
 }
 
+float ColorData::getHue() {
+    const float min = std::min(std::min(red, green), blue);
+    const float max = std::max(std::max(red, green), blue);
+
+    if (min == max) {
+        return 0;
+    }
+
+    float hue;
+    if (max >= red) {
+        hue = (green - blue) / (max - min);
+    } else if (max >= green) {
+        hue = (blue - red) / (max - min);
+        hue += 2;
+    } else if (max >= blue) {
+        hue = (red - green) / (max - min);
+        hue += 4;
+    } else {
+        Q_ASSERT(false);
+    }
+
+    hue /= 6;
+
+    if (hue < 0) {
+        hue += 1;
+    }
+
+    return hue;
+}
+
+float ColorData::getSaturation() {
+    const float min = std::min(std::min(red, green), blue);
+    const float max = std::max(std::max(red, green), blue);
+
+    if (max <= 0) {
+        return 0;
+    }
+
+    return 1 - (min / max);
+}
+
 QColor ColorData::toQColor(IntensityData intensity) {
     return QColor(
         red * intensity.getDimmer() * 255,

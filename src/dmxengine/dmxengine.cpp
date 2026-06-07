@@ -487,6 +487,10 @@ void DmxEngine::generateDmx() {
                             value = color.getMagenta();
                         } else if (channelType == QChar('Y')) { // Yellow
                             value = color.getYellow();
+                        } else if (channelType == QChar('H')) { // Hue
+                            value = color.getHue();
+                        } else if (channelType == QChar('S')) { // Saturation
+                            value = color.getSaturation();
                         } else if (channelType == QChar('P')) { // Pan
                             value = pan;
                         } else if (channelType == QChar('T')) { // Tilt
