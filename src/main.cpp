@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     QTextStream styleSheetStream(&styleSheet);
     app.setStyleSheet(styleSheetStream.readAll());
 
-    StartScreen* startScreen = new StartScreen(VERSION, COPYRIGHT, FILEVERSION);
+    new StartScreen(VERSION, COPYRIGHT, FILEVERSION);
 
     return app.exec();
 }
