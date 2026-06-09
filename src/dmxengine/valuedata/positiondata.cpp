@@ -8,42 +8,103 @@
 
 #include "positiondata.h"
 
+QHash<int, float> PositionData::fixturePan;
+QHash<int, float> PositionData::oldFixturePan;
+
 PositionData::PositionData() {}
 
 PositionData::PositionData(const int fixtureKey, const int positionKey) {
-    pan = getFixtureValue(fixtureKey, positionKey, "positions", "pan", "position_model_pan", "position_fixture_pan");
-    tilt = getFixtureValue(fixtureKey, positionKey, "positions", "tilt", "position_model_tilt", "position_fixture_tilt");
-    zoom = getFixtureValue(fixtureKey, positionKey, "positions", "zoom", "position_model_zoom", "position_fixture_zoom");
+    panAngle = getFixtureValue(fixtureKey, positionKey, "positions", "pan", "position_model_pan", "position_fixture_pan");
+    tiltAngle = getFixtureValue(fixtureKey, positionKey, "positions", "tilt", "position_model_tilt", "position_fixture_tilt");
+    zoomAngle = getFixtureValue(fixtureKey, positionKey, "positions", "zoom", "position_model_zoom", "position_fixture_zoom");
     focus = getFixtureValue(fixtureKey, positionKey, "positions", "focus", "position_model_focus", "position_fixture_focus");
 }
 
 void PositionData::fade(PositionData lastPosition, float fade) {
-    if (std::abs(pan - lastPosition.pan) > 180) {
-        if (lastPosition.pan > pan) {
-            pan += 360;
+    if (std::abs(panAngle - lastPosition.panAngle) > 180) {
+        if (lastPosition.panAngle > panAngle) {
+            panAngle += 360;
         } else {
-            lastPosition.pan += 360;
+            lastPosition.panAngle += 360;
         }
     }
-    pan += (lastPosition.pan - pan) * fade;
-    pan = std::fmod(pan, 360);
-    tilt += (lastPosition.tilt - tilt) * fade;
-    zoom += (lastPosition.zoom - zoom) * fade;
+    panAngle += (lastPosition.panAngle - panAngle) * fade;
+    panAngle = std::fmod(panAngle, 360);
+
+    tiltAngle += (lastPosition.tiltAngle - tiltAngle) * fade;
+
+    zoomAngle += (lastPosition.zoomAngle - zoomAngle) * fade;
+
     focus += (lastPosition.focus - focus) * fade;
 }
 
-float PositionData::getPan() {
+float PositionData::getPan(const int fixtureKey, const float panRange, const float rotation, const bool invertPan) const {
+    float resultingAngle;
+    if (invertPan) {
+        resultingAngle = rotation - panAngle;
+    } else {
+        resultingAngle = rotation + panAngle;
+    }
+
+    while (resultingAngle >= 360) {
+        resultingAngle -= 360;
+    }
+    while (resultingAngle < 0) {
+        resultingAngle += 360;
+    }
+
+    float pan = panAngle / panRange;
+
+    const float lastFramePan = oldFixturePan.value(fixtureKey, 0);
+
+    for (float angle = panAngle; angle <= panRange; angle += 360) {
+        const float anglePan = angle / panRange;
+
+        if (std::abs(lastFramePan - anglePan) < std::abs(lastFramePan - pan)) {
+            pan = anglePan;
+        }
+    }
+
+    pan = std::min<float>(pan, 1);
+
+    fixturePan[fixtureKey] = pan;
+
     return pan;
 }
 
-float PositionData::getTilt() {
+float PositionData::getPanAngle() const {
+    return panAngle;
+}
+
+float PositionData::getTilt(const float tiltRange) const{
+    float tilt = 0.5 + (tiltAngle / tiltRange);
+
+    tilt = std::min<float>(tilt, 1);
+    tilt = std::max<float>(tilt, 0);
     return tilt;
 }
 
-float PositionData::getZoom() {
+float PositionData::getTiltAngle() const {
+    return tiltAngle;
+}
+
+float PositionData::getZoom(const float minZoom, const float maxZoom) const {
+    float zoom = (zoomAngle - minZoom) / (maxZoom - minZoom);
+
+    zoom = std::min<float>(zoom, 1);
+    zoom = std::max<float>(zoom, 0);
     return zoom;
 }
 
-float PositionData::getFocus() {
+float PositionData::getZoomAngle() const {
+    return zoomAngle;
+}
+
+float PositionData::getFocus() const {
     return focus;
+}
+
+void PositionData::nextFrame() {
+    oldFixturePan = fixturePan;
+    fixturePan.clear();
 }

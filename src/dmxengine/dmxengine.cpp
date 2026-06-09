@@ -11,7 +11,6 @@
 #include "valuedata/intensitydata.h"
 #include "valuedata/colordata.h"
 #include "valuedata/positiondata.h"
-#include "valuedata/rawdata.h"
 #include "valuedata/cuedata.h"
 
 DmxEngine::DmxEngine(QWidget* parent) : QWidget(parent) {
@@ -336,8 +335,7 @@ void DmxEngine::generateDmx() {
     }
     QHash<int, Preview2d::PreviewData> previewFixtures;
     QHash<int, QByteArray> dmxUniverses;
-    QHash<int, float> lastFrameFixturePan = fixturePan;
-    fixturePan.clear();
+    PositionData::nextFrame();
     while (fixtureQuery.next()) {
         const int fixtureKey = fixtureQuery.value(0).toInt();
         const int universe = fixtureQuery.value(1).toInt();
@@ -403,9 +401,9 @@ void DmxEngine::generateDmx() {
         previewFixture.yPosition = fixtureQuery.value(4).toFloat();
         previewFixture.label = fixtureQuery.value(5).toString();
         previewFixture.color = color.toQColor(intensity);
-        previewFixture.pan = position.getPan();
-        previewFixture.tilt = position.getTilt();
-        previewFixture.zoom = position.getZoom();
+        previewFixture.pan = position.getPanAngle();
+        previewFixture.tilt = position.getTiltAngle();
+        previewFixture.zoom = position.getZoomAngle();
         previewFixtures[fixtureKey] = previewFixture;
 
         if (address > 0) {
@@ -434,35 +432,6 @@ void DmxEngine::generateDmx() {
                         color.addWhite();
                     }
 
-                    float panAngle = position.getPan();
-                    if (invertPan) {
-                        panAngle = rotation - panAngle;
-                    } else {
-                        panAngle = rotation + panAngle;
-                    }
-                    while (panAngle >= 360) {
-                        panAngle -= 360;
-                    }
-                    while (panAngle < 0) {
-                        panAngle += 360;
-                    }
-                    float pan = panAngle / panRange;
-                    const float lastFramePan = lastFrameFixturePan.value(fixtureKey, 0);
-                    for (float angle = panAngle; angle <= panRange; angle += 360) {
-                        const float anglePan = angle / panRange;
-                        if (std::abs(lastFramePan - anglePan) < std::abs(lastFramePan - pan)) {
-                            pan = anglePan;
-                        }
-                    }
-                    pan = std::min<float>(pan, 1);
-                    fixturePan[fixtureKey] = pan;
-                    float tilt = 0.5 + (position.getTilt() / (tiltRange / 2) * 0.5);
-                    tilt = std::min<float>(tilt, 1);
-                    tilt = std::max<float>(tilt, 0);
-                    float zoom = (position.getZoom() - minZoom) / (maxZoom - minZoom);
-                    zoom = std::min<float>(zoom, 1);
-                    zoom = std::max<float>(zoom, 0);
-
                     for (int channel = address; channel < (address + channels.size()); channel++) {
                         QChar channelType = channels.at(channel - address);
                         const bool fine = (channelType != channelType.toUpper());
@@ -490,11 +459,11 @@ void DmxEngine::generateDmx() {
                         } else if (channelType == QChar('S')) { // Saturation
                             value = color.getSaturation();
                         } else if (channelType == QChar('P')) { // Pan
-                            value = pan;
+                            value = position.getPan(fixtureKey, panRange, rotation, invertPan);
                         } else if (channelType == QChar('T')) { // Tilt
-                            value = tilt;
+                            value = position.getTilt(tiltRange);
                         } else if (channelType == QChar('Z')) { // Zoom
-                            value = zoom;
+                            value = position.getZoom(minZoom, maxZoom);
                         } else if (channelType == QChar('F')) { // Focus
                             value = position.getFocus();
                         } else if (channelType == QChar('0')) { // DMX 0

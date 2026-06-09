@@ -15,15 +15,21 @@ class PositionData : public ValueData {
 public:
     PositionData();
     PositionData(int fixtureKey, int positionKey);
+    static void nextFrame();
     void fade(PositionData lastPosition, float fade);
-    float getPan();
-    float getTilt();
-    float getZoom();
-    float getFocus();
+    float getPan(const int fixtureKey, const float panRange, const float rotation, const bool invertPan) const;
+    float getPanAngle() const;
+    float getTilt(float tiltRange) const;
+    float getTiltAngle() const;
+    float getZoom(float minZoom, float maxZoom) const;
+    float getZoomAngle() const;
+    float getFocus() const;
 private:
-    float pan = 0; // 0 <= pan < 360
-    float tilt = 0; // -180 <= tilt <= 180
-    float zoom = 15; // 0 < zoom <= 180
+    static QHash<int, float> fixturePan;
+    static QHash<int, float> oldFixturePan;
+    float panAngle = 0; // 0 <= pan < 360
+    float tiltAngle = 0; // -180 <= tilt <= 180
+    float zoomAngle = 15; // 0 < zoom <= 180
     float focus = 0; // 0 <= focus <= 1
 };
 

@@ -29,8 +29,6 @@ private:
     QProgressBar* fadeProgressBar;
     QPushButton* skipFadeButton;
 
-    QHash<int, float> fixturePan;
-
     QHash<int, int> cuelistCurrentCueKeys;
     QHash<int, int> cuelistFadeFrames;
     QHash<int, QHash<int, int>> cuelistFixtureFadeFrames;

@@ -27,7 +27,7 @@ public:
     RawData getRaws() const;
 private:
     static QHash<int, QHash<int, int>> groupEffectFrames;
-    static QHash<int, QHash<int, int>> oldGroupEffectFrames ;
+    static QHash<int, QHash<int, int>> oldGroupEffectFrames;
     IntensityData intensity;
     bool colorGiven = false;
     ColorData color;

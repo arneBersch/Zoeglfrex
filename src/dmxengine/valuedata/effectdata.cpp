@@ -8,8 +8,8 @@
 
 #include "effectdata.h"
 
-QHash<int, QHash<int, int>> EffectData::groupEffectFrames = QHash<int, QHash<int, int>>();
-QHash<int, QHash<int, int>> EffectData::oldGroupEffectFrames = QHash<int, QHash<int, int>>();
+QHash<int, QHash<int, int>> EffectData::groupEffectFrames;
+QHash<int, QHash<int, int>> EffectData::oldGroupEffectFrames;
 
 EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int> effectKeys, const int FRAMEDURATION) {
     for (const int effectKey : effectKeys) {
