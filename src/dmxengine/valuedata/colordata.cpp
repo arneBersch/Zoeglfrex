@@ -62,35 +62,35 @@ ColorData ColorData::highlightValue() {
     return data;
 }
 
-float ColorData::getRed() {
+float ColorData::getRed() const {
     return red;
 }
 
-float ColorData::getGreen() {
+float ColorData::getGreen() const {
     return green;
 }
 
-float ColorData::getBlue() {
+float ColorData::getBlue() const {
     return blue;
 }
 
-float ColorData::getCyan() {
+float ColorData::getCyan() const {
     return 1 - red;
 }
 
-float ColorData::getMagenta() {
+float ColorData::getMagenta() const {
     return 1 - green;
 }
 
-float ColorData::getYellow() {
+float ColorData::getYellow() const {
     return 1 - blue;
 }
 
-float ColorData::getWhite() {
+float ColorData::getWhite() const {
     return white;
 }
 
-float ColorData::getHue() {
+float ColorData::getHue() const {
     const float min = std::min(std::min(red, green), blue);
     const float max = std::max(std::max(red, green), blue);
 
@@ -120,7 +120,7 @@ float ColorData::getHue() {
     return hue;
 }
 
-float ColorData::getSaturation() {
+float ColorData::getSaturation() const {
     const float min = std::min(std::min(red, green), blue);
     const float max = std::max(std::max(red, green), blue);
 

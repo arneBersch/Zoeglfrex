@@ -21,15 +21,15 @@ public:
     QColor toQColor(IntensityData intensity);
     void dim(IntensityData intensity);
     void addWhite();
-    float getRed();
-    float getGreen();
-    float getBlue();
-    float getCyan();
-    float getMagenta();
-    float getYellow();
-    float getWhite();
-    float getHue();
-    float getSaturation();
+    float getRed() const;
+    float getGreen() const;
+    float getBlue() const;
+    float getCyan() const;
+    float getMagenta() const;
+    float getYellow() const;
+    float getWhite() const;
+    float getHue() const;
+    float getSaturation() const;
 private:
     float red = 1; // 0 <= red <= 1
     float green = 1; // 0 <= green <= 1

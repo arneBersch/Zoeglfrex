@@ -22,8 +22,11 @@ SOURCES += \
     cuelistview/cuelistview.cpp \
     dmxengine/dmxengine.cpp \
     dmxengine/valuedata/colordata.cpp \
+    dmxengine/valuedata/cuedata.cpp \
+    dmxengine/valuedata/effectdata.cpp \
     dmxengine/valuedata/intensitydata.cpp \
     dmxengine/valuedata/positiondata.cpp \
+    dmxengine/valuedata/rawdata.cpp \
     dmxengine/valuedata/valuedata.cpp \
     inspector/inspector.cpp \
     inspector/itemtablemodel.cpp \
@@ -48,8 +51,11 @@ HEADERS += \
     cuelistview/cuelistview.h \
     dmxengine/dmxengine.h \
     dmxengine/valuedata/colordata.h \
+    dmxengine/valuedata/cuedata.h \
+    dmxengine/valuedata/effectdata.h \
     dmxengine/valuedata/intensitydata.h \
     dmxengine/valuedata/positiondata.h \
+    dmxengine/valuedata/rawdata.h \
     dmxengine/valuedata/valuedata.h \
     inspector/inspector.h \
     inspector/itemtablemodel.h \

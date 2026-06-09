@@ -6,21 +6,30 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef INTENSITYDATA_H
-#define INTENSITYDATA_H
+#ifndef CUEDATA_H
+#define CUEDATA_H
+
+#include <QtWidgets>
 
 #include "valuedata.h"
+#include "intensitydata.h"
+#include "colordata.h"
+#include "positiondata.h"
+#include "rawdata.h"
 
-class IntensityData : public ValueData {
+class CueData : public ValueData {
 public:
-    IntensityData();
-    IntensityData(int fixtureKey, int intensityKey);
-    void merge(IntensityData intensity);
-    void fade(IntensityData lastIntensity, float fade);
-    static IntensityData highlightValue();
-    float getDimmer() const;
+    CueData();
+    CueData(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys, int FRAMEDURATION);
+    QHash<int, IntensityData> getFixtureIntensities() const;
+    QHash<int, ColorData> getFixtureColors() const;
+    QHash<int, PositionData> getFixturePositions() const;
+    QHash<int, RawData> getFixtureRaws() const;
 private:
-    float dimmer = 0;
+    QHash<int, IntensityData> fixtureIntensities;
+    QHash<int, ColorData> fixtureColors;
+    QHash<int, PositionData> fixturePositions;
+    QHash<int, RawData> fixtureRaws;
 };
 
-#endif // INTENSITYDATA_H
+#endif // CUEDATA_H

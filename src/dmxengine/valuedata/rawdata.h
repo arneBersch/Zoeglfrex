@@ -6,28 +6,25 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "intensitydata.h"
+#ifndef RAWDATA_H
+#define RAWDATA_H
 
-IntensityData::IntensityData() {}
+#include <QtWidgets>
 
-IntensityData::IntensityData(int fixtureKey, int intensityKey) {
-    dimmer = getFixtureValue(fixtureKey, intensityKey, "intensities", "dimmer", "intensity_model_dimmer", "intensity_fixture_dimmer") / 100;
-}
+#include "valuedata.h"
 
-void IntensityData::merge(IntensityData intensity) {
-    dimmer = std::max(dimmer, intensity.dimmer);
-}
+class RawData : public ValueData {
+public:
+    RawData();
+    RawData(int fixtureKey, QList<int> rawKeys);
+    void merge(RawData raws);
+private:
+    struct RawChannelData {
+        uint8_t value = 0;
+        bool fading = false;
+        bool moveWhileDark = false;
+    };
+    QHash<int, RawChannelData> channels;
+};
 
-void IntensityData::fade(IntensityData lastIntensity, float fade) {
-    dimmer += (lastIntensity.dimmer - dimmer) * fade;
-}
-
-IntensityData IntensityData::highlightValue() {
-    IntensityData data;
-    data.dimmer = 1;
-    return data;
-}
-
-float IntensityData::getDimmer() const {
-    return dimmer;
-}
+#endif // RAWDATA_H

@@ -13,57 +13,23 @@
 #include <QtSql>
 
 #include "preview2d/preview2d.h"
-#include "valuedata/intensitydata.h"
-#include "valuedata/colordata.h"
-#include "valuedata/positiondata.h"
 
 class DmxEngine : public QWidget {
     Q_OBJECT
 public:
     DmxEngine(QWidget* parent = nullptr);
-private:
-    struct RawChannelData {
-        uint8_t value = 0;
-        bool fading = false;
-        bool moveWhileDark = false;
-    };
 signals:
     void sendUniverses(QHash<int, QByteArray> universes);
     void updatePreviewFixtures(QHash<int, Preview2d::PreviewData> fixtures);
     void dbChanged();
 private:
     void generateDmx();
-    void renderCue(
-        int cueKey,
-        QList<int> groupKeys,
-        QHash<int, QSet<int>> groupFixtureKeys,
-        QHash<int, QHash<int, int>> oldGroupEffectFrames,
-        QHash<int, IntensityData>* fixtureIntensities,
-        QHash<int, ColorData>* fixtureColors,
-        QHash<int, PositionData>* fixturePositions,
-        QHash<int, QHash<int, RawChannelData>>* fixtureRaws
-    );
-    QHash<int, RawChannelData> getFixtureRaws(int fixtureKey, QList<int> rawKeys);
-    void getFixtureEffects(
-        int fixtureKey,
-        QList<int> effectKeys,
-        QHash<int, int> effectFrames,
-        bool* intensityInformation,
-        IntensityData* intensity,
-        bool* colorInformation,
-        ColorData* color,
-        bool* PositionInformation,
-        PositionData* position,
-        QHash<int, RawChannelData>* raws
-    );
     QPushButton* highlightButton;
     QPushButton* soloButton;
     QProgressBar* fadeProgressBar;
     QPushButton* skipFadeButton;
 
     QHash<int, float> fixturePan;
-
-    QHash<int, QHash<int, int>> groupEffectFrames;
 
     QHash<int, int> cuelistCurrentCueKeys;
     QHash<int, int> cuelistFadeFrames;
