@@ -62,32 +62,44 @@ ColorData ColorData::highlightValue() {
     return data;
 }
 
-float ColorData::getRed() const {
+float ColorData::getRed(const bool whiteChannel) const {
+    if (whiteChannel) {
+        return red - (getWhite() * quality);
+    }
+
     return red;
 }
 
-float ColorData::getGreen() const {
+float ColorData::getGreen(const bool whiteChannel) const {
+    if (whiteChannel) {
+        return green - (getWhite() * quality);
+    }
+
     return green;
 }
 
-float ColorData::getBlue() const {
+float ColorData::getBlue(const bool whiteChannel) const {
+    if (whiteChannel) {
+        return blue - (getWhite() * quality);
+    }
+
     return blue;
 }
 
-float ColorData::getCyan() const {
-    return 1 - red;
+float ColorData::getCyan(const bool whiteChannel) const {
+    return 1 - getRed(whiteChannel);
 }
 
-float ColorData::getMagenta() const {
-    return 1 - green;
+float ColorData::getMagenta(const bool whiteChannel) const {
+    return 1 - getGreen(whiteChannel);
 }
 
-float ColorData::getYellow() const {
-    return 1 - blue;
+float ColorData::getYellow(const bool whiteChannel) const {
+    return 1 - getBlue(whiteChannel);
 }
 
 float ColorData::getWhite() const {
-    return white;
+    return std::min(std::min(red, green), blue);
 }
 
 float ColorData::getHue() const {
@@ -131,23 +143,16 @@ float ColorData::getSaturation() const {
     return 1 - (min / max);
 }
 
-QColor ColorData::toQColor(IntensityData intensity) {
+void ColorData::dim(const float dimmer) {
+    red *= dimmer;
+    green *= dimmer;
+    blue *= dimmer;
+}
+
+QColor ColorData::toQColor(const float dimmer) const {
     return QColor(
-        red * intensity.getDimmer() * 255,
-        green * intensity.getDimmer() * 255,
-        blue * intensity.getDimmer() * 255
+        red * dimmer * 255,
+        green * dimmer * 255,
+        blue * dimmer * 255
     );
-}
-
-void ColorData::dim(IntensityData intensity) {
-    red *= intensity.getDimmer();
-    green *= intensity.getDimmer();
-    blue *= intensity.getDimmer();
-}
-
-void ColorData::addWhite() {
-    white = std::min(std::min(red, green), blue);
-    red -= white * quality;
-    green -= white * quality;
-    blue -= white * quality;
 }

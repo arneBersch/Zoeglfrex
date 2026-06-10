@@ -400,7 +400,7 @@ void DmxEngine::generateDmx() {
         previewFixture.xPosition = fixtureQuery.value(3).toFloat();
         previewFixture.yPosition = fixtureQuery.value(4).toFloat();
         previewFixture.label = fixtureQuery.value(5).toString();
-        previewFixture.color = color.toQColor(intensity);
+        previewFixture.color = color.toQColor(intensity.getDimmer());
         previewFixture.pan = position.getPanAngle();
         previewFixture.tilt = position.getTiltAngle();
         previewFixture.zoom = position.getZoomAngle();
@@ -425,12 +425,9 @@ void DmxEngine::generateDmx() {
                     }
 
                     if (!channels.contains('D')) {
-                        color.dim(intensity);
+                        color.dim(intensity.getDimmer());
                     }
-
-                    if (channels.contains('W')) {
-                        color.addWhite();
-                    }
+                    const bool whiteChannelGiven = channels.contains('W');
 
                     for (int channel = address; channel < (address + channels.size()); channel++) {
                         QChar channelType = channels.at(channel - address);
@@ -441,19 +438,19 @@ void DmxEngine::generateDmx() {
                         if (channelType == QChar('D')) { // Dimmer
                             value = intensity.getDimmer();
                         } else if (channelType == QChar('R')) { // Red
-                            value = color.getRed();
+                            value = color.getRed(whiteChannelGiven);
                         } else if (channelType == QChar('G')) { // Green
-                            value = color.getGreen();
+                            value = color.getGreen(whiteChannelGiven);
                         } else if (channelType == QChar('B')) { // Blue
-                            value = color.getBlue();
+                            value = color.getBlue(whiteChannelGiven);
                         } else if (channelType == QChar('W')) { // White
                             value = color.getWhite();
                         } else if (channelType == QChar('C')) { // Cyan
-                            value = color.getCyan();
+                            value = color.getCyan(whiteChannelGiven);
                         } else if (channelType == QChar('M')) { // Magenta
-                            value = color.getMagenta();
+                            value = color.getMagenta(whiteChannelGiven);
                         } else if (channelType == QChar('Y')) { // Yellow
-                            value = color.getYellow();
+                            value = color.getYellow(whiteChannelGiven);
                         } else if (channelType == QChar('H')) { // Hue
                             value = color.getHue();
                         } else if (channelType == QChar('S')) { // Saturation
