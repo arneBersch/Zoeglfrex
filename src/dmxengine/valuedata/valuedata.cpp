@@ -47,3 +47,7 @@ float ValueData::getFixtureValue(const int fixtureKey, const int itemKey, const 
     }
     return 0;
 }
+
+float ValueData::fadeValue(const float oldValue, const float newValue, const float fade) {
+    return newValue + ((oldValue - newValue) * fade);
+}

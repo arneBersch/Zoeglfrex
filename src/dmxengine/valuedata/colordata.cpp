@@ -50,10 +50,10 @@ ColorData::ColorData(const int fixtureKey, const int colorKey) {
 }
 
 void ColorData::fade(ColorData lastColor, float fade) {
-    red += (lastColor.red - red) * fade;
-    green += (lastColor.green - green) * fade;
-    blue += (lastColor.blue - blue) * fade;
-    quality += (lastColor.quality - quality) * fade;
+    red = fadeValue(lastColor.red, red, fade);
+    green = fadeValue(lastColor.green, green, fade);
+    blue = fadeValue(lastColor.blue, blue, fade);
+    quality = fadeValue(lastColor.quality, quality, fade);
 }
 
 ColorData ColorData::highlightValue() {

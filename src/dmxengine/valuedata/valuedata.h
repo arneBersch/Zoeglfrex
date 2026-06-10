@@ -17,6 +17,7 @@ public:
     ValueData();
 protected:
     float getFixtureValue(int fixtureKey, int itemKey, QString itemTable, QString itemTableAttribute, QString modelExceptionTable, QString fixtureExceptionTable);
+    float fadeValue(float oldValue, float newValue, float fade);
 };
 
 #endif // VALUEDATA_H

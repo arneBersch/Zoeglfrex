@@ -28,14 +28,14 @@ void PositionData::fade(PositionData lastPosition, float fade) {
             lastPosition.panAngle += 360;
         }
     }
-    panAngle += (lastPosition.panAngle - panAngle) * fade;
+    panAngle = fadeValue(lastPosition.panAngle, panAngle, fade);
     panAngle = std::fmod(panAngle, 360);
 
-    tiltAngle += (lastPosition.tiltAngle - tiltAngle) * fade;
+    tiltAngle = fadeValue(lastPosition.tiltAngle, tiltAngle, fade);
 
-    zoomAngle += (lastPosition.zoomAngle - zoomAngle) * fade;
+    zoomAngle = fadeValue(lastPosition.zoomAngle, zoomAngle, fade);
 
-    focus += (lastPosition.focus - focus) * fade;
+    focus = fadeValue(lastPosition.focus, focus, fade);
 }
 
 float PositionData::getPan(const int fixtureKey, const float panRange, const float rotation, const bool invertPan) const {

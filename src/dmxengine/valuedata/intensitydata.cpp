@@ -19,7 +19,7 @@ void IntensityData::merge(IntensityData intensity) {
 }
 
 void IntensityData::fade(IntensityData lastIntensity, float fade) {
-    dimmer += (lastIntensity.dimmer - dimmer) * fade;
+    dimmer = fadeValue(lastIntensity.dimmer, dimmer, fade);
 }
 
 IntensityData IntensityData::highlightValue() {
