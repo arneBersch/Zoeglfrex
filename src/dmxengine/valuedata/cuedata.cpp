@@ -127,6 +127,49 @@ QList<int> CueData::getItemRawKeys(const int itemKey, const QString table) {
     return rawKeys;
 }
 
+void CueData::fade(const CueData lastCue, const float standardFade, const QHash<int, float> fixtureFades) {
+    QSet<int> intensityFixtures(fixtureIntensities.keys().cbegin(), fixtureIntensities.keys().cend());
+    intensityFixtures.unite(QSet<int>(lastCue.fixtureIntensities.keys().cbegin(), lastCue.fixtureIntensities.keys().cend()));
+    for (const int fixtureKey : intensityFixtures) {
+        const float fade = fixtureFades.value(fixtureKey, standardFade);
+        if (!fixtureIntensities.contains(fixtureKey)) {
+            fixtureIntensities[fixtureKey] = IntensityData();
+        }
+        IntensityData lastIntensity = lastCue.fixtureIntensities.value(fixtureKey, IntensityData());
+        fixtureIntensities[fixtureKey].fade(lastIntensity, fade);
+    }
+
+    for (const int fixtureKey : lastCue.fixtureColors.keys()) {
+        const ColorData lastColor = lastCue.fixtureColors.value(fixtureKey);
+        if (fixtureColors.contains(fixtureKey)) {
+            const float fade = fixtureFades.value(fixtureKey, standardFade);
+            fixtureColors[fixtureKey].fade(lastColor, fade);
+        } else {
+            fixtureColors[fixtureKey] = lastColor;
+        }
+    }
+
+    for (const int fixtureKey : lastCue.fixturePositions.keys()) {
+        const PositionData lastPosition = lastCue.fixturePositions.value(fixtureKey);
+        if (fixturePositions.contains(fixtureKey)) {
+            const float fade = fixtureFades.value(fixtureKey, standardFade);
+            fixturePositions[fixtureKey].fade(lastPosition, fade);
+        } else {
+            fixturePositions[fixtureKey] = lastPosition;
+        }
+    }
+
+    for (const int fixtureKey : lastCue.fixtureRaws.keys()) {
+        const RawData lastRaws = lastCue.fixtureRaws.value(fixtureKey);
+        if (fixtureRaws.contains(fixtureKey)) {
+            const float fade = fixtureFades.value(fixtureKey, standardFade);
+            fixtureRaws[fixtureKey].fade(lastRaws, fade);
+        } else {
+            fixtureRaws[fixtureKey] = lastRaws;
+        }
+    }
+}
+
 QHash<int, IntensityData> CueData::getFixtureIntensities() const {
     return fixtureIntensities;
 }

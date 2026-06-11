@@ -82,10 +82,6 @@ void RawData::merge(const RawData raws) {
 }
 
 void RawData::fade(const RawData oldRaws, const float fade) {
-    if (fade <= 0) {
-        return;
-    }
-
     for (const int channel : oldRaws.channels.keys()) {
         const RawChannelData oldData = oldRaws.channels.value(channel);
         if (!channels.contains(channel)) {

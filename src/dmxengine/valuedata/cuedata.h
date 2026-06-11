@@ -21,6 +21,7 @@ class CueData : public ValueData {
 public:
     CueData();
     CueData(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys);
+    void fade(CueData lastCue, float standardFade, QHash<int, float> fixtureFades);
     QHash<int, IntensityData> getFixtureIntensities() const;
     QHash<int, ColorData> getFixtureColors() const;
     QHash<int, PositionData> getFixturePositions() const;
