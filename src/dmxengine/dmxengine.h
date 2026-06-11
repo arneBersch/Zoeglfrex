@@ -37,8 +37,8 @@ private:
     QHash<int, int> cuelistTransitionFrames;
     QHash<int, int> cuelistRemainingTransitionFrames;
     QHash<int, bool> cuelistSineFade;
-
-    const int FRAMEDURATION = 25;
 };
+
+const int FRAMEDURATION = 25;
 
 #endif // DMXENGINE_H

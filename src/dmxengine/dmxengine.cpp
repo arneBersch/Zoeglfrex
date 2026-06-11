@@ -169,10 +169,10 @@ void DmxEngine::generateDmx() {
         const int remainingTransitionFrames = cuelistRemainingTransitionFrames.value(cuelistKey, 0);
         const int transitionFrames = cuelistTransitionFrames.value(cuelistKey, 0);
 
-        CueData currentCue = CueData(currentCueKey, groupKeys, groupFixtureKeys, FRAMEDURATION);
+        CueData currentCue = CueData(currentCueKey, groupKeys, groupFixtureKeys);
         CueData lastCue;
         if ((remainingTransitionFrames > 0) && (lastCueKey >= 0)) {
-            lastCue = CueData(lastCueKey, groupKeys, groupFixtureKeys, FRAMEDURATION);
+            lastCue = CueData(lastCueKey, groupKeys, groupFixtureKeys);
         }
 
         for (const int fixtureKey : fixtureKeys) {
@@ -365,7 +365,7 @@ void DmxEngine::generateDmx() {
                     fixtureGroupFixture[groupKey].insert(fixtureKey);
                 }
 
-                CueData cue = CueData(fixtureCue, fixtureGroups, fixtureGroupFixture, FRAMEDURATION);
+                CueData cue = CueData(fixtureCue, fixtureGroups, fixtureGroupFixture);
 
                 if (cue.getFixtureColors().contains(fixtureKey)) {
                     fixtureColors[fixtureKey] = cue.getFixtureColors().value(fixtureKey);

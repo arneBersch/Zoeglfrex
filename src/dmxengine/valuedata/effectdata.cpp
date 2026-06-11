@@ -7,11 +7,12 @@
 */
 
 #include "effectdata.h"
+#include "../dmxengine.h"
 
 QHash<int, QHash<int, int>> EffectData::groupEffectFrames;
 QHash<int, QHash<int, int>> EffectData::oldGroupEffectFrames;
 
-EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int> effectKeys, const int FRAMEDURATION) {
+EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int> effectKeys) {
     for (const int effectKey : effectKeys) {
         if (!groupEffectFrames.contains(groupKey)) {
             groupEffectFrames[groupKey] = QHash<int, int>();

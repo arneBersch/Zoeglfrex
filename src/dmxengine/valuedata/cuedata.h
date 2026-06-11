@@ -20,7 +20,7 @@
 class CueData : public ValueData {
 public:
     CueData();
-    CueData(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys, int FRAMEDURATION);
+    CueData(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys);
     QHash<int, IntensityData> getFixtureIntensities() const;
     QHash<int, ColorData> getFixtureColors() const;
     QHash<int, PositionData> getFixturePositions() const;
@@ -30,6 +30,9 @@ private:
     QHash<int, ColorData> fixtureColors;
     QHash<int, PositionData> fixturePositions;
     QHash<int, RawData> fixtureRaws;
+    static int getItemKey(int cueKey, int groupKey, QString table);
+    static QList<int> getItemKeys(int cueKey, int groupKey, QString valueTable, QString itemTable);
+    static QList<int> getItemRawKeys(const int itemKey, const QString table);
 };
 
 #endif // CUEDATA_H

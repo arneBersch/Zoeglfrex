@@ -11,100 +11,40 @@
 
 CueData::CueData() {}
 
-CueData::CueData(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys, int FRAMEDURATION) {
+CueData::CueData(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys) {
     for (const int groupKey : groupKeys) {
         QList<int> rawKeys;
-        QSqlQuery intensityQuery;
-        intensityQuery.prepare("SELECT valueitem_key FROM cue_group_intensities WHERE item_key = :cue AND foreignitem_key = :group");
-        intensityQuery.bindValue(":group", groupKey);
-        intensityQuery.bindValue(":cue", cueKey);
-        if (intensityQuery.exec()) {
-            while (intensityQuery.next()) {
-                const int intensityKey = intensityQuery.value(0).toInt();
-                for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
-                    const IntensityData intensity = IntensityData(fixtureKey, intensityKey);
-                    if (fixtureIntensities.contains(fixtureKey)) {
-                        fixtureIntensities[fixtureKey].merge(intensity);
-                    } else {
-                        fixtureIntensities[fixtureKey] = intensity;
-                    }
-                }
-                QSqlQuery rawsQuery;
-                rawsQuery.prepare("SELECT intensity_raws.valueitem_key FROM intensity_raws, raws WHERE intensity_raws.item_key = :intensity AND intensity_raws.valueitem_key = raws.key ORDER BY raws.sortkey");
-                rawsQuery.bindValue(":intensity", intensityKey);
-                if (rawsQuery.exec()) {
-                    while (rawsQuery.next()) {
-                        rawKeys.append(rawsQuery.value(0).toInt());
-                    }
+
+        const int intensityKey = getItemKey(cueKey, groupKey, "cue_group_intensitites");
+        if (intensityKey >= 0) {
+            for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
+                const IntensityData intensity = IntensityData(fixtureKey, intensityKey);
+                if (fixtureIntensities.contains(fixtureKey)) {
+                    fixtureIntensities[fixtureKey].merge(intensity);
                 } else {
-                    qWarning() << Q_FUNC_INFO << rawsQuery.executedQuery() << rawsQuery.lastError().text();
+                    fixtureIntensities[fixtureKey] = intensity;
                 }
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << intensityQuery.executedQuery() << intensityQuery.lastError().text();
+            rawKeys.append(getItemRawKeys(intensityKey, "intensity_raws"));
         }
 
-        QSqlQuery colorQuery;
-        colorQuery.prepare("SELECT valueitem_key FROM cue_group_colors WHERE item_key = :cue AND foreignitem_key = :group");
-        colorQuery.bindValue(":group", groupKey);
-        colorQuery.bindValue(":cue", cueKey);
-        if (colorQuery.exec()) {
-            while (colorQuery.next()) {
-                const int colorKey = colorQuery.value(0).toInt();
-                for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
-                    fixtureColors[fixtureKey] = ColorData(fixtureKey, colorKey);
-                }
-                QSqlQuery rawsQuery;
-                rawsQuery.prepare("SELECT color_raws.valueitem_key FROM color_raws, raws WHERE color_raws.item_key = :color AND color_raws.valueitem_key = raws.key ORDER BY raws.sortkey");
-                rawsQuery.bindValue(":color", colorKey);
-                if (rawsQuery.exec()) {
-                    while (rawsQuery.next()) {
-                        rawKeys.append(rawsQuery.value(0).toInt());
-                    }
-                } else {
-                    qWarning() << Q_FUNC_INFO << rawsQuery.executedQuery() << rawsQuery.lastError().text();
-                }
+        const int colorKey = getItemKey(cueKey, groupKey, "cue_group_colors");
+        if (colorKey >= 0) {
+            for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
+                fixtureColors[fixtureKey] = ColorData(fixtureKey, colorKey);
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << colorQuery.executedQuery() << colorQuery.lastError().text();
+            rawKeys.append(getItemRawKeys(colorKey, "color_raws"));
         }
 
-        QSqlQuery positionQuery;
-        positionQuery.prepare("SELECT valueitem_key FROM cue_group_positions WHERE item_key = :cue AND foreignitem_key = :group");
-        positionQuery.bindValue(":group", groupKey);
-        positionQuery.bindValue(":cue", cueKey);
-        if (positionQuery.exec()) {
-            while (positionQuery.next()) {
-                const int positionKey = positionQuery.value(0).toInt();
-                for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
-                    fixturePositions[fixtureKey] = PositionData(fixtureKey, positionKey);
-                }
-                QSqlQuery rawsQuery;
-                rawsQuery.prepare("SELECT position_raws.valueitem_key FROM position_raws, raws WHERE position_raws.item_key = :position AND position_raws.valueitem_key = raws.key ORDER BY raws.sortkey");
-                rawsQuery.bindValue(":position", positionKey);
-                if (rawsQuery.exec()) {
-                    while (rawsQuery.next()) {
-                        rawKeys.append(rawsQuery.value(0).toInt());
-                    }
-                } else {
-                    qWarning() << Q_FUNC_INFO << rawsQuery.executedQuery() << rawsQuery.lastError().text();
-                }
+        const int positionKey = getItemKey(cueKey, groupKey, "cue_group_positions");
+        if (positionKey >= 0) {
+            for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
+                fixturePositions[fixtureKey] = PositionData(fixtureKey, positionKey);
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << positionQuery.executedQuery() << positionQuery.lastError().text();
+            rawKeys.append(getItemRawKeys(positionKey, "position_raws"));
         }
 
-        QSqlQuery rawQuery;
-        rawQuery.prepare("SELECT cue_group_raws.valueitem_key FROM cue_group_raws, raws WHERE cue_group_raws.item_key = :cue AND cue_group_raws.foreignitem_key = :group AND cue_group_raws.valueitem_key = raws.key ORDER BY raws.sortkey");
-        rawQuery.bindValue(":group", groupKey);
-        rawQuery.bindValue(":cue", cueKey);
-        if (rawQuery.exec()) {
-            while (rawQuery.next()) {
-                rawKeys.append(rawQuery.value(0).toInt());
-            }
-        } else {
-            qWarning() << Q_FUNC_INFO << rawQuery.executedQuery() << rawQuery.lastError().text();
-        }
+        rawKeys.append(getItemKeys(cueKey, groupKey, "cue_group_raws", "raws"));
         if (!rawKeys.isEmpty()) {
             for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
                 const RawData raws = RawData(fixtureKey, rawKeys);
@@ -116,18 +56,10 @@ CueData::CueData(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFi
             }
         }
 
-        QSqlQuery effectQuery;
-        effectQuery.prepare("SELECT cue_group_effects.valueitem_key FROM cue_group_effects, effects WHERE cue_group_effects.item_key = :cue AND cue_group_effects.foreignitem_key = :group AND cue_group_effects.valueitem_key = effects.key ORDER BY effects.sortkey");
-        effectQuery.bindValue(":group", groupKey);
-        effectQuery.bindValue(":cue", cueKey);
-        if (effectQuery.exec()) {
-            QList<int> effectKeys;
-            while (effectQuery.next()) {
-                const int effectKey = effectQuery.value(0).toInt();
-                effectKeys.append(effectKey);
-            }
+        const QList<int> effectKeys = getItemKeys(cueKey, groupKey, "cue_group_effects", "effects");
+        if (!effectKeys.isEmpty()) {
             for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
-                EffectData effects = EffectData(fixtureKey, groupKey, effectKeys, FRAMEDURATION);
+                EffectData effects = EffectData(fixtureKey, groupKey, effectKeys);
                 if (fixtureIntensities.contains(fixtureKey)) {
                     fixtureIntensities[fixtureKey].merge(effects.getIntensity());
                 } else {
@@ -145,10 +77,54 @@ CueData::CueData(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFi
                     fixtureRaws[fixtureKey] = effects.getRaws();
                 }
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << effectQuery.executedQuery() << effectQuery.lastError().text();
         }
     }
+}
+
+int CueData::getItemKey(const int cueKey, const int groupKey, const QString table) {
+    QSqlQuery query;
+    query.prepare("SELECT valueitem_key FROM " + table + " WHERE item_key = :cue AND foreignitem_key = :group");
+    query.bindValue(":group", groupKey);
+    query.bindValue(":cue", cueKey);
+    if (query.exec()) {
+        if (query.next()) {
+            return query.value(0).toInt();
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+    }
+    return -1;
+}
+
+QList<int> CueData::getItemKeys(const int cueKey, const int groupKey, const QString valueTable, const QString itemTable) {
+    QList<int> itemKeys;
+    QSqlQuery query;
+    query.prepare("SELECT " + valueTable + ".valueitem_key FROM " + valueTable + ", " + itemTable + " WHERE " + valueTable + ".item_key = :cue AND " + valueTable + ".foreignitem_key = :group AND " + valueTable + ".valueitem_key = " + itemTable + ".key ORDER BY " + itemTable + ".sortkey");
+    query.bindValue(":group", groupKey);
+    query.bindValue(":cue", cueKey);
+    if (query.exec()) {
+        while (query.next()) {
+            itemKeys.append(query.value(0).toInt());
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+    }
+    return itemKeys;
+}
+
+QList<int> CueData::getItemRawKeys(const int itemKey, const QString table) {
+    QList<int> rawKeys;
+    QSqlQuery query;
+    query.prepare("SELECT " + table + ".valueitem_key FROM " + table + ", raws WHERE " + table + ".item_key = :item AND " + table + ".valueitem_key = raws.key ORDER BY raws.sortkey");
+    query.bindValue(":item", itemKey);
+    if (query.exec()) {
+        while (query.next()) {
+            rawKeys.append(query.value(0).toInt());
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+    }
+    return rawKeys;
 }
 
 QHash<int, IntensityData> CueData::getFixtureIntensities() const {

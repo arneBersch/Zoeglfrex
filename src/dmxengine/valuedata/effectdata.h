@@ -17,7 +17,7 @@
 
 class EffectData : public ValueData {
 public:
-    EffectData(int fixtureKey, int groupKey, QList<int> effectKeys, int frameduration);
+    EffectData(int fixtureKey, int groupKey, QList<int> effectKeys);
     static void nextFrame();
     IntensityData getIntensity() const;
     bool hasColor() const;
