@@ -14,11 +14,11 @@ IntensityData::IntensityData(int fixtureKey, int intensityKey) {
     dimmer = getFixtureValue(fixtureKey, intensityKey, "intensities", "dimmer", "intensity_model_dimmer", "intensity_fixture_dimmer") / 100;
 }
 
-void IntensityData::merge(IntensityData intensity) {
+void IntensityData::merge(const IntensityData intensity) {
     dimmer = std::max(dimmer, intensity.dimmer);
 }
 
-void IntensityData::fade(IntensityData lastIntensity, float fade) {
+void IntensityData::fade(const IntensityData lastIntensity, const float fade) {
     dimmer = fadeValue(lastIntensity.dimmer, dimmer, fade);
 }
 

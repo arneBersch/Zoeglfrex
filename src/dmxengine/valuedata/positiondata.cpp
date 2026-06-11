@@ -20,15 +20,16 @@ PositionData::PositionData(const int fixtureKey, const int positionKey) {
     focus = getFixtureValue(fixtureKey, positionKey, "positions", "focus", "position_model_focus", "position_fixture_focus");
 }
 
-void PositionData::fade(PositionData lastPosition, float fade) {
-    if (std::abs(panAngle - lastPosition.panAngle) > 180) {
-        if (lastPosition.panAngle > panAngle) {
+void PositionData::fade(const PositionData lastPosition, const float fade) {
+    float lastPan = lastPosition.panAngle;
+    if (std::abs(panAngle - lastPan) > 180) {
+        if (lastPan > panAngle) {
             panAngle += 360;
         } else {
-            lastPosition.panAngle += 360;
+            lastPan += 360;
         }
     }
-    panAngle = fadeValue(lastPosition.panAngle, panAngle, fade);
+    panAngle = fadeValue(lastPan, panAngle, fade);
     panAngle = std::fmod(panAngle, 360);
 
     tiltAngle = fadeValue(lastPosition.tiltAngle, tiltAngle, fade);

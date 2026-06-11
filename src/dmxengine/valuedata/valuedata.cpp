@@ -49,5 +49,8 @@ float ValueData::getFixtureValue(const int fixtureKey, const int itemKey, const 
 }
 
 float ValueData::fadeValue(const float oldValue, const float newValue, const float fade) {
+    Q_ASSERT(fade >= 0);
+    Q_ASSERT(fade <= 1);
+
     return newValue + ((oldValue - newValue) * fade);
 }

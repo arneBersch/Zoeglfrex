@@ -18,6 +18,8 @@ public:
     RawData();
     RawData(int fixtureKey, QList<int> rawKeys);
     void merge(RawData raws);
+    void fade(RawData lastRaws, float fade);
+    QHash<int, uint8_t> getChannels() const;
 private:
     struct RawChannelData {
         uint8_t value = 0;
@@ -25,6 +27,7 @@ private:
         bool moveWhileDark = false;
     };
     QHash<int, RawChannelData> channels;
+    void setChannel(int channel, uint8_t value, bool fading, bool moveWhileDark);
 };
 
 #endif // RAWDATA_H

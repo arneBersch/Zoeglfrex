@@ -10,7 +10,7 @@
 
 RawData::RawData() {}
 
-RawData::RawData(int fixtureKey, QList<int> rawKeys) {
+RawData::RawData(const int fixtureKey, const QList<int> rawKeys) {
     for (const int rawKey : rawKeys) {
         bool fading = false;
         bool moveWhileDark = false;
@@ -33,13 +33,7 @@ RawData::RawData(int fixtureKey, QList<int> rawKeys) {
         itemQuery.bindValue(":raw", rawKey);
         if (itemQuery.exec()) {
             while (itemQuery.next()) {
-                const int channel = itemQuery.value(0).toInt();
-                if (!channels.contains(channel)) {
-                    channels[channel] = RawChannelData();
-                }
-                channels[channel].value = itemQuery.value(1).toUInt();
-                channels[channel].fading = fading;
-                channels[channel].moveWhileDark = moveWhileDark;
+                setChannel(itemQuery.value(0).toInt(), itemQuery.value(1).toUInt(), fading, moveWhileDark);
             }
         } else {
             qWarning() << Q_FUNC_INFO << itemQuery.executedQuery() << itemQuery.lastError().text();
@@ -51,13 +45,7 @@ RawData::RawData(int fixtureKey, QList<int> rawKeys) {
         modelExceptionQuery.bindValue(":fixture", fixtureKey);
         if (modelExceptionQuery.exec()) {
             while (modelExceptionQuery.next()) {
-                const int channel = modelExceptionQuery.value(0).toInt();
-                if (!channels.contains(channel)) {
-                    channels[channel] = RawChannelData();
-                }
-                channels[channel].value = (uint8_t)modelExceptionQuery.value(1).toUInt();
-                channels[channel].fading = fading;
-                channels[channel].moveWhileDark = moveWhileDark;
+                setChannel(modelExceptionQuery.value(0).toInt(), modelExceptionQuery.value(1).toUInt(), fading, moveWhileDark);
             }
         } else {
             qWarning() << Q_FUNC_INFO << modelExceptionQuery.executedQuery() << modelExceptionQuery.lastError().text();
@@ -69,13 +57,7 @@ RawData::RawData(int fixtureKey, QList<int> rawKeys) {
         fixtureExceptionQuery.bindValue(":fixture", fixtureKey);
         if (fixtureExceptionQuery.exec()) {
             while (fixtureExceptionQuery.next()) {
-                const int channel = fixtureExceptionQuery.value(0).toInt();
-                if (!channels.contains(channel)) {
-                    channels[channel] = RawChannelData();
-                }
-                channels[channel].value = (uint8_t)fixtureExceptionQuery.value(1).toUInt();
-                channels[channel].fading = fading;
-                channels[channel].moveWhileDark = moveWhileDark;
+                setChannel(fixtureExceptionQuery.value(0).toInt(), fixtureExceptionQuery.value(1).toUInt(), fading, moveWhileDark);
             }
         } else {
             qWarning() << Q_FUNC_INFO << fixtureExceptionQuery.executedQuery() << fixtureExceptionQuery.lastError().text();
@@ -83,8 +65,42 @@ RawData::RawData(int fixtureKey, QList<int> rawKeys) {
     }
 }
 
-void RawData::merge(RawData raws) {
+void RawData::setChannel(const int channel, const uint8_t value, const bool fading, const bool moveWhileDark) {
+    if (!channels.contains(channel)) {
+        channels[channel] = RawChannelData();
+    }
+
+    channels[channel].value = value;
+    channels[channel].fading = fading;
+    channels[channel].moveWhileDark = moveWhileDark;
+}
+
+void RawData::merge(const RawData raws) {
     for (const int channel : raws.channels.keys()) {
         channels[channel] = raws.channels.value(channel);
     }
+}
+
+void RawData::fade(const RawData oldRaws, const float fade) {
+    if (fade <= 0) {
+        return;
+    }
+
+    for (const int channel : oldRaws.channels.keys()) {
+        const RawChannelData oldData = oldRaws.channels.value(channel);
+        if (!channels.contains(channel)) {
+            channels[channel] = oldData;
+        } else if (channels.value(channel).fading) {
+            const uint8_t newValue = channels[channel].value;
+            channels[channel].value = fadeValue(oldData.value, newValue, fade);
+        }
+    }
+}
+
+QHash<int, uint8_t> RawData::getChannels() const {
+    QHash<int, uint8_t> result;
+    for (const int channel : channels.keys()) {
+        result[channel] = channels.value(channel).value;
+    }
+    return result;
 }

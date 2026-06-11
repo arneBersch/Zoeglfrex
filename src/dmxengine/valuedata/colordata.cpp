@@ -49,7 +49,7 @@ ColorData::ColorData(const int fixtureKey, const int colorKey) {
     quality = getFixtureValue(fixtureKey, colorKey, "colors", "quality", "color_model_quality", "color_fixture_quality") / 100;
 }
 
-void ColorData::fade(ColorData lastColor, float fade) {
+void ColorData::fade(const ColorData lastColor, const float fade) {
     red = fadeValue(lastColor.red, red, fade);
     green = fadeValue(lastColor.green, green, fade);
     blue = fadeValue(lastColor.blue, blue, fade);
