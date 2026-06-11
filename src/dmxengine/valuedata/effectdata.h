@@ -34,6 +34,8 @@ private:
     bool positionGiven = false;
     PositionData position;
     RawData raws;
+    static int getStepKey(int step, int effectKey, QString table);
+    static RawData getStepRaws(int step, int effectKey, int fixtureKey);
 };
 
 #endif // EFFECTDATA_H
