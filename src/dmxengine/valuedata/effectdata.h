@@ -19,23 +19,27 @@ class EffectData : public ValueData {
 public:
     EffectData(int fixtureKey, int groupKey, QList<int> effectKeys, bool renderMwD);
     static void nextFrame();
+    bool hasIntensity() const;
     IntensityData getIntensity() const;
     bool hasColor() const;
     ColorData getColor() const;
     bool hasPosition() const;
     PositionData getPosition() const;
+    bool hasRaws() const;
     RawData getRaws() const;
 private:
     static QHash<int, QHash<int, int>> groupFrames;
     static QHash<int, QHash<int, int>> oldGroupFrames;
+    bool intensityGiven = false;
     IntensityData intensity;
     bool colorGiven = false;
     ColorData color;
     bool positionGiven = false;
     PositionData position;
+    bool rawsGiven = false;
     RawData raws;
     static int getStepKey(int step, int effectKey, QString table);
-    static RawData getStepRaws(int step, int effectKey, int fixtureKey, bool renderMwD);
+    static QList<int> getStepRawKeys(int step, int effectKey);
 };
 
 #endif // EFFECTDATA_H

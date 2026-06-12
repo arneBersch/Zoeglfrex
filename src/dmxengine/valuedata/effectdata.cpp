@@ -114,15 +114,19 @@ EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int
                     if (currentIntensityKey >= 0) {
                         currentIntensity = IntensityData(fixtureKey, currentIntensityKey);
                     }
+                    int lastIntensityKey = -1;
                     if (fade > 0) {
                         IntensityData lastIntensity;
-                        const int lastIntensityKey = getStepKey(lastStep, effectKey, "effect_step_intensities");
+                        lastIntensityKey = getStepKey(lastStep, effectKey, "effect_step_intensities");
                         if (lastIntensityKey >= 0) {
                             lastIntensity = IntensityData(fixtureKey, lastIntensityKey);
                         }
                         currentIntensity.fade(lastIntensity, fade);
                     }
-                    intensity.merge(currentIntensity);
+                    if ((currentIntensityKey >= 0) || (lastIntensityKey >= 0)) {
+                        intensityGiven = true;
+                        intensity.merge(currentIntensity);
+                    }
 
                     const int currentColorKey = getStepKey(currentStep, effectKey, "effect_step_colors");
                     ColorData currentColor;
@@ -168,12 +172,23 @@ EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int
                         position = currentPosition;
                     }
 
-                    RawData currentStepRaws = getStepRaws(currentStep, effectKey, fixtureKey, renderMwD);
-                    if (fade > 0) {
-                        RawData lastStepRaws = getStepRaws(lastStep, effectKey, fixtureKey, renderMwD);
-                        currentStepRaws.fade(lastStepRaws, fade);
+                    QList<int> currentRawKeys = getStepRawKeys(currentStep, effectKey);
+                    RawData currentRaws;
+                    if (!currentRawKeys.isEmpty()) {
+                        currentRaws = RawData(fixtureKey, currentRawKeys, renderMwD);
                     }
-                    raws.merge(currentStepRaws);
+                    QList<int> lastRawKeys;
+                    if (fade > 0) {
+                        lastRawKeys = getStepRawKeys(lastStep, effectKey);
+                        if (!lastRawKeys.isEmpty()) {
+                            RawData lastRaws = RawData(fixtureKey, lastRawKeys, renderMwD);
+                            currentRaws.fade(lastRaws, fade);
+                        }
+                    }
+                    if (!currentRawKeys.isEmpty() || !lastRawKeys.isEmpty()) {
+                        rawsGiven = true;
+                        raws.merge(currentRaws);
+                    }
                 }
             } else {
                 qWarning() << Q_FUNC_INFO << effectAttributesQuery.executedQuery() << "Effect with key " + QString::number(effectKey) + " should exist but wasn't found!";
@@ -199,7 +214,7 @@ int EffectData::getStepKey(const int step, const int effectKey, const QString ta
     return -1;
 }
 
-RawData EffectData::getStepRaws(const int step, const int effectKey, const int fixtureKey, const bool renderMwD) {
+QList<int> EffectData::getStepRawKeys(const int step, const int effectKey) {
     QList<int> rawKeys;
     QSqlQuery query;
     query.prepare("SELECT effect_step_raws.valueitem_key FROM effect_step_raws, raws WHERE effect_step_raws.item_key = :effect AND effect_step_raws.key = :step AND effect_step_raws.valueitem_key = raws.key ORDER BY raws.sortkey");
@@ -212,12 +227,16 @@ RawData EffectData::getStepRaws(const int step, const int effectKey, const int f
     } else {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
     }
-    return RawData(fixtureKey, rawKeys, renderMwD);
+    return rawKeys;
 }
 
 void EffectData::nextFrame() {
     oldGroupFrames = groupFrames;
     groupFrames.clear();
+}
+
+bool EffectData::hasIntensity() const {
+    return intensityGiven;
 }
 
 IntensityData EffectData::getIntensity() const {
@@ -238,6 +257,10 @@ bool EffectData::hasPosition() const {
 
 PositionData EffectData::getPosition() const {
     return position;
+}
+
+bool EffectData::hasRaws() const {
+    return rawsGiven;
 }
 
 RawData EffectData::getRaws() const {

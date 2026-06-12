@@ -27,6 +27,7 @@ public:
     ColorData getFixtureColor(int fixtureKey) const;
     PositionData getFixturePosition(int fixtureKey) const;
     RawData getFixtureRaws(int fixtureKey) const;
+    bool hasData(int fixtureKey);
 private:
     QHash<int, IntensityData> fixtureIntensities;
     QHash<int, ColorData> fixtureColors;
