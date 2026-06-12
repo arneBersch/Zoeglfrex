@@ -160,22 +160,20 @@ void DmxEngine::generateDmx() {
         CueData currentCue = CueData(currentCueKey, groupKeys, groupFixtureKeys);
         if ((remainingTransitionFrames > 0) && (lastCueKey >= 0)) {
             const CueData lastCue = CueData(lastCueKey, groupKeys, groupFixtureKeys);
-            float fade = 0;
-            if (remainingTransitionFrames > 0) {
-                //const int delayFrames = cuelistFixtureDelayFrames.value(cuelistKey).value(fixtureKey, cuelistDelayFrames.value(cuelistKey, 0));
-                //const int fadeFrames = cuelistFixtureFadeFrames.value(cuelistKey).value(fixtureKey, cuelistFadeFrames.value(cuelistKey, 0));
-                const int delayFrames = cuelistDelayFrames.value(cuelistKey, 0);
-                const int fadeFrames = cuelistFadeFrames.value(cuelistKey, 0);
+            QHash<int, float> fixtureFades;
+            for (const int fixtureKey : fixtureKeys) {
+                const int delayFrames = cuelistFixtureDelayFrames.value(cuelistKey).value(fixtureKey, cuelistDelayFrames.value(cuelistKey, 0));
+                const int fadeFrames = cuelistFixtureFadeFrames.value(cuelistKey).value(fixtureKey, cuelistFadeFrames.value(cuelistKey, 0));
                 if ((transitionFrames - remainingTransitionFrames) <= delayFrames) {
-                    fade = 1;
+                    fixtureFades[fixtureKey] = 1;
                 } else if ((transitionFrames - remainingTransitionFrames - delayFrames) <= fadeFrames) {
-                    fade = 1 - (float)(transitionFrames - remainingTransitionFrames - delayFrames) / (float)fadeFrames;
+                    fixtureFades[fixtureKey] = 1 - (float)(transitionFrames - remainingTransitionFrames - delayFrames) / (float)fadeFrames;
                 }
-                if (cuelistSineFade.value(cuelistKey, false)) {
-                    fade = 0.5 - (std::cos(M_PI * fade) / 2);
+                if (fixtureFades.contains(fixtureKey) && cuelistSineFade.value(cuelistKey, false)) {
+                    fixtureFades[fixtureKey] = 0.5 - (std::cos(M_PI * fixtureFades.value(fixtureKey)) / 2);
                 }
             }
-            currentCue.fade(lastCue, fade);
+            currentCue.fade(lastCue, fixtureFades);
         }
     }
 

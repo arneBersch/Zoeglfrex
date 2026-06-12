@@ -127,41 +127,42 @@ QList<int> CueData::getItemRawKeys(const int itemKey, const QString table) {
     return rawKeys;
 }
 
-void CueData::fade(const CueData lastCue, const float fade) {
-    QSet<int> intensityFixtures(fixtureIntensities.keys().cbegin(), fixtureIntensities.keys().cend());
-    intensityFixtures.unite(QSet<int>(lastCue.fixtureIntensities.keys().cbegin(), lastCue.fixtureIntensities.keys().cend()));
-    for (const int fixtureKey : intensityFixtures) {
-        if (!fixtureIntensities.contains(fixtureKey)) {
-            fixtureIntensities[fixtureKey] = IntensityData();
-        }
-        IntensityData lastIntensity = lastCue.fixtureIntensities.value(fixtureKey, IntensityData());
-        fixtureIntensities[fixtureKey].fade(lastIntensity, fade);
-    }
+void CueData::fade(const CueData lastCue, const QHash<int, float> fixtureFades) {
+    for (const int fixtureKey : fixtureFades.keys()) {
+        const float fade = fixtureFades.value(fixtureKey);
+        if (fade > 0) {
+            if (!fixtureIntensities.contains(fixtureKey)) {
+                fixtureIntensities[fixtureKey] = IntensityData();
+            }
+            IntensityData lastIntensity = lastCue.fixtureIntensities.value(fixtureKey, IntensityData());
+            fixtureIntensities[fixtureKey].fade(lastIntensity, fade);
 
-    for (const int fixtureKey : lastCue.fixtureColors.keys()) {
-        const ColorData lastColor = lastCue.fixtureColors.value(fixtureKey);
-        if (fixtureColors.contains(fixtureKey)) {
-            fixtureColors[fixtureKey].fade(lastColor, fade);
-        } else {
-            fixtureColors[fixtureKey] = lastColor;
-        }
-    }
+            if (lastCue.fixtureColors.contains(fixtureKey)) {
+                const ColorData lastColor = lastCue.fixtureColors.value(fixtureKey);
+                if (fixtureColors.contains(fixtureKey)) {
+                    fixtureColors[fixtureKey].fade(lastColor, fade);
+                } else {
+                    fixtureColors[fixtureKey] = lastColor;
+                }
+            }
 
-    for (const int fixtureKey : lastCue.fixturePositions.keys()) {
-        const PositionData lastPosition = lastCue.fixturePositions.value(fixtureKey);
-        if (fixturePositions.contains(fixtureKey)) {
-            fixturePositions[fixtureKey].fade(lastPosition, fade);
-        } else {
-            fixturePositions[fixtureKey] = lastPosition;
-        }
-    }
+            if (lastCue.fixturePositions.contains(fixtureKey)) {
+                const PositionData lastPosition = lastCue.fixturePositions.value(fixtureKey);
+                if (fixturePositions.contains(fixtureKey)) {
+                    fixturePositions[fixtureKey].fade(lastPosition, fade);
+                } else {
+                    fixturePositions[fixtureKey] = lastPosition;
+                }
+            }
 
-    for (const int fixtureKey : lastCue.fixtureRaws.keys()) {
-        const RawData lastRaws = lastCue.fixtureRaws.value(fixtureKey);
-        if (fixtureRaws.contains(fixtureKey)) {
-            fixtureRaws[fixtureKey].fade(lastRaws, fade);
-        } else {
-            fixtureRaws[fixtureKey] = lastRaws;
+            if (lastCue.fixtureRaws.contains(fixtureKey)) {
+                const RawData lastRaws = lastCue.fixtureRaws.value(fixtureKey);
+                if (fixtureRaws.contains(fixtureKey)) {
+                    fixtureRaws[fixtureKey].fade(lastRaws, fade);
+                } else {
+                    fixtureRaws[fixtureKey] = lastRaws;
+                }
+            }
         }
     }
 }
