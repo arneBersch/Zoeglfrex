@@ -56,16 +56,6 @@ DmxEngine::DmxEngine(QWidget* parent) : QWidget(parent) {
 }
 
 void DmxEngine::generateDmx() {
-    int currentCuelistKey = -1;
-    QSqlQuery currentCuelistQuery;
-    if (currentCuelistQuery.exec("SELECT cuelist_key FROM currentitems")) {
-        if (currentCuelistQuery.next()) {
-            currentCuelistKey = currentCuelistQuery.value(0).toInt();
-        }
-    } else {
-        qWarning() << Q_FUNC_INFO << currentCuelistQuery.executedQuery() << currentCuelistQuery.lastError().text();
-    }
-
     QList<int> groupKeys;
     QHash<int, QSet<int>> groupFixtureKeys;
     QSet<int> fixtureKeys;
@@ -87,7 +77,7 @@ void DmxEngine::generateDmx() {
     }
 
     QSqlQuery cuelistQuery;
-    if (!cuelistQuery.exec("SELECT key, currentcue_key, COALESCE(lastcue_key, -1), priority FROM cuelists WHERE currentcue_key IS NOT NULL ORDER BY sortkey")) {
+    if (!cuelistQuery.exec("SELECT key, currentcue_key, COALESCE(lastcue_key, -1) FROM cuelists WHERE currentcue_key IS NOT NULL ORDER BY priority, sortkey")) {
         qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
         return;
     }
@@ -97,16 +87,12 @@ void DmxEngine::generateDmx() {
     cuelistRemainingTransitionFrames.clear();
     QHash<int, IntensityData> fixtureIntensities;
     QHash<int, ColorData> fixtureColors;
-    QHash<int, int> fixtureColorPriorities;
     QHash<int, PositionData> fixturePositions;
-    QHash<int, int> fixturePositionPriorities;
     QHash<int, QHash<int, uint8_t>> fixtureChannelRaws;
-    QHash<int, QHash<int, int>> fixtureChannelRawPriorities;
     while (cuelistQuery.next()) {
         const int cuelistKey = cuelistQuery.value(0).toInt();
         const int currentCueKey = cuelistQuery.value(1).toInt();
         const int lastCueKey = cuelistQuery.value(2).toInt();
-        const int priority = cuelistQuery.value(3).toInt();
         if (!skipFadeButton->isChecked()) {
             if (oldCuelistCurrentCueKeys.value(cuelistKey, -1) != currentCueKey) {
                 QSqlQuery transitionQuery;
@@ -202,29 +188,21 @@ void DmxEngine::generateDmx() {
             } else {
                 fixtureIntensities[fixtureKey] = currentIntensity;
             }
-            if (priority >= fixtureColorPriorities.value(fixtureKey, 0)) {
-                if (lastCue.getFixtureColors().contains(fixtureKey) && (fade > 0)) {
-                    ColorData lastColor = lastCue.getFixtureColors().value(fixtureKey);
-                    ColorData currentColor = currentCue.getFixtureColors().value(fixtureKey, lastColor);
-                    currentColor.fade(lastColor, fade);
-                    fixtureColors[fixtureKey] = currentColor;
-                    fixtureColorPriorities[fixtureKey] = priority;
-                } else if (currentCue.getFixtureColors().contains(fixtureKey)) {
-                    fixtureColors[fixtureKey] = currentCue.getFixtureColors().value(fixtureKey);
-                    fixtureColorPriorities[fixtureKey] = priority;
-                }
+            if (lastCue.getFixtureColors().contains(fixtureKey) && (fade > 0)) {
+                ColorData lastColor = lastCue.getFixtureColors().value(fixtureKey);
+                ColorData currentColor = currentCue.getFixtureColors().value(fixtureKey, lastColor);
+                currentColor.fade(lastColor, fade);
+                fixtureColors[fixtureKey] = currentColor;
+            } else if (currentCue.getFixtureColors().contains(fixtureKey)) {
+                fixtureColors[fixtureKey] = currentCue.getFixtureColors().value(fixtureKey);
             }
-            if (priority >= fixturePositionPriorities.value(fixtureKey, 0)) {
-                if (lastCue.getFixturePositions().contains(fixtureKey) && (fade > 0)) {
-                    PositionData lastPosition = lastCue.getFixturePositions().value(fixtureKey);
-                    PositionData currentPosition = currentCue.getFixturePositions().value(fixtureKey, lastPosition);
-                    currentPosition.fade(lastPosition, fade);
-                    fixturePositions[fixtureKey] = currentPosition;
-                    fixturePositionPriorities[fixtureKey] = priority;
-                } else if (currentCue.getFixturePositions().contains(fixtureKey)) {
-                    fixturePositions[fixtureKey] = currentCue.getFixturePositions().value(fixtureKey);
-                    fixturePositionPriorities[fixtureKey] = priority;
-                }
+            if (lastCue.getFixturePositions().contains(fixtureKey) && (fade > 0)) {
+                PositionData lastPosition = lastCue.getFixturePositions().value(fixtureKey);
+                PositionData currentPosition = currentCue.getFixturePositions().value(fixtureKey, lastPosition);
+                currentPosition.fade(lastPosition, fade);
+                fixturePositions[fixtureKey] = currentPosition;
+            } else if (currentCue.getFixturePositions().contains(fixtureKey)) {
+                fixturePositions[fixtureKey] = currentCue.getFixturePositions().value(fixtureKey);
             }
             /*QSet<int> rawChannels;
             RawData currentRaws = currentCueFixtureRaws.value(fixtureKey);
@@ -261,12 +239,23 @@ void DmxEngine::generateDmx() {
         }
     }
 
-    if (cuelistRemainingTransitionFrames.value(currentCuelistKey, 0) > 0) {
-        fadeProgressBar->setRange(0, cuelistTransitionFrames.value(currentCuelistKey, 1));
-        fadeProgressBar->setValue(cuelistTransitionFrames.value(currentCuelistKey, 0) - cuelistRemainingTransitionFrames.value(currentCuelistKey, 0));
+    QSqlQuery currentCuelistQuery;
+    if (currentCuelistQuery.exec("SELECT cuelist_key FROM currentitems")) {
+        if (currentCuelistQuery.next()) {
+            const int currentCuelistKey = currentCuelistQuery.value(0).toInt();
+            if (cuelistRemainingTransitionFrames.value(currentCuelistKey, 0) > 0) {
+                fadeProgressBar->setRange(0, cuelistTransitionFrames.value(currentCuelistKey, 1));
+                fadeProgressBar->setValue(cuelistTransitionFrames.value(currentCuelistKey, 0) - cuelistRemainingTransitionFrames.value(currentCuelistKey, 0));
+            } else {
+                fadeProgressBar->setRange(0, 1);
+                fadeProgressBar->setValue(1);
+            }
+        } else {
+            fadeProgressBar->setRange(0, 1);
+            fadeProgressBar->setValue(1);
+        }
     } else {
-        fadeProgressBar->setRange(0, 1);
-        fadeProgressBar->setValue(1);
+        qWarning() << Q_FUNC_INFO << currentCuelistQuery.executedQuery() << currentCuelistQuery.lastError().text();
     }
 
     QHash<int, int> mwdGroupCues;
@@ -494,36 +483,42 @@ void DmxEngine::generateDmx() {
             }
         }
     }
+
     emit sendUniverses(dmxUniverses);
     emit updatePreviewFixtures(previewFixtures);
+
     if (!skipFadeButton->isChecked()) {
-        QSqlQuery cuelistQuery;
-        if (cuelistQuery.exec("SELECT key FROM cuelists WHERE currentcue_key IS NOT NULL")) {
-            while (cuelistQuery.next()) {
-                const int cuelistKey = cuelistQuery.value(0).toInt();
-                if (cuelistRemainingTransitionFrames.value(cuelistKey, 0) <= 0) {
-                    QSqlQuery followQuery;
-                    followQuery.prepare("SELECT key, follow FROM cues WHERE cuelist_key = :cuelist AND sortkey = (SELECT MIN(sortkey) FROM cues WHERE cuelist_key = :cuelist AND sortkey > (SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key))");
-                    followQuery.bindValue(":cuelist", cuelistKey);
-                    if (followQuery.exec()) {
-                        if (followQuery.next() && (followQuery.value(1).toInt() == 1)) {
-                            const int followCueKey = followQuery.value(0).toInt();
-                            QSqlQuery cueUpdateQuery;
-                            cueUpdateQuery.prepare("UPDATE cuelists SET currentcue_key = :cue WHERE key = :cuelist");
-                            cueUpdateQuery.bindValue(":cuelist", cuelistKey);
-                            cueUpdateQuery.bindValue(":cue", followCueKey);
-                            if (!cueUpdateQuery.exec()) {
-                                qWarning() << Q_FUNC_INFO << cueUpdateQuery.executedQuery() << cueUpdateQuery.lastError().text();
-                            }
-                            emit dbChanged();
+        checkFollow();
+    }
+}
+
+void DmxEngine::checkFollow() {
+    QSqlQuery cuelistQuery;
+    if (cuelistQuery.exec("SELECT key FROM cuelists WHERE currentcue_key IS NOT NULL")) {
+        while (cuelistQuery.next()) {
+            const int cuelistKey = cuelistQuery.value(0).toInt();
+            if (cuelistRemainingTransitionFrames.value(cuelistKey, 0) <= 0) {
+                QSqlQuery followQuery;
+                followQuery.prepare("SELECT key, follow FROM cues WHERE cuelist_key = :cuelist AND sortkey = (SELECT MIN(sortkey) FROM cues WHERE cuelist_key = :cuelist AND sortkey > (SELECT cues.sortkey FROM cues, cuelists WHERE cuelists.key = :cuelist AND cuelists.currentcue_key = cues.key))");
+                followQuery.bindValue(":cuelist", cuelistKey);
+                if (followQuery.exec()) {
+                    if (followQuery.next() && (followQuery.value(1).toInt() == 1)) {
+                        const int followCueKey = followQuery.value(0).toInt();
+                        QSqlQuery cueUpdateQuery;
+                        cueUpdateQuery.prepare("UPDATE cuelists SET currentcue_key = :cue WHERE key = :cuelist");
+                        cueUpdateQuery.bindValue(":cuelist", cuelistKey);
+                        cueUpdateQuery.bindValue(":cue", followCueKey);
+                        if (!cueUpdateQuery.exec()) {
+                            qWarning() << Q_FUNC_INFO << cueUpdateQuery.executedQuery() << cueUpdateQuery.lastError().text();
                         }
-                    } else {
-                        qWarning() << Q_FUNC_INFO << followQuery.executedQuery() << followQuery.lastError().text();
+                        emit dbChanged();
                     }
+                } else {
+                    qWarning() << Q_FUNC_INFO << followQuery.executedQuery() << followQuery.lastError().text();
                 }
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
         }
+    } else {
+        qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
     }
 }

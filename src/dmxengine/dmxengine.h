@@ -24,6 +24,7 @@ signals:
     void dbChanged();
 private:
     void generateDmx();
+    void checkFollow();
     QPushButton* highlightButton;
     QPushButton* soloButton;
     QProgressBar* fadeProgressBar;
