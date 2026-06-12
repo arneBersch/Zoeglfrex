@@ -10,7 +10,7 @@
 
 RawData::RawData() {}
 
-RawData::RawData(const int fixtureKey, const QList<int> rawKeys) {
+RawData::RawData(const int fixtureKey, const QList<int> rawKeys, const bool renderMwD) {
     for (const int rawKey : rawKeys) {
         bool fading = false;
         bool moveWhileDark = false;
@@ -28,51 +28,52 @@ RawData::RawData(const int fixtureKey, const QList<int> rawKeys) {
             qWarning() << Q_FUNC_INFO << rawAttributesQuery.executedQuery() << rawAttributesQuery.lastError().text();
         }
 
-        QSqlQuery itemQuery;
-        itemQuery.prepare("SELECT key, value FROM raw_channel_values WHERE item_key = :raw");
-        itemQuery.bindValue(":raw", rawKey);
-        if (itemQuery.exec()) {
-            while (itemQuery.next()) {
-                setChannel(itemQuery.value(0).toInt(), itemQuery.value(1).toUInt(), fading, moveWhileDark);
+        if (!renderMwD || moveWhileDark) {
+            QSqlQuery itemQuery;
+            itemQuery.prepare("SELECT key, value FROM raw_channel_values WHERE item_key = :raw");
+            itemQuery.bindValue(":raw", rawKey);
+            if (itemQuery.exec()) {
+                while (itemQuery.next()) {
+                    setChannel(itemQuery.value(0).toInt(), itemQuery.value(1).toUInt(), fading);
+                }
+            } else {
+                qWarning() << Q_FUNC_INFO << itemQuery.executedQuery() << itemQuery.lastError().text();
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << itemQuery.executedQuery() << itemQuery.lastError().text();
-        }
 
-        QSqlQuery modelExceptionQuery;
-        modelExceptionQuery.prepare("SELECT raw_model_channel_values.key, raw_model_channel_values.value FROM raw_model_channel_values, fixtures WHERE raw_model_channel_values.item_key = :raw AND raw_model_channel_values.foreignitem_key = fixtures.model_key AND fixtures.key = :fixture");
-        modelExceptionQuery.bindValue(":raw", rawKey);
-        modelExceptionQuery.bindValue(":fixture", fixtureKey);
-        if (modelExceptionQuery.exec()) {
-            while (modelExceptionQuery.next()) {
-                setChannel(modelExceptionQuery.value(0).toInt(), modelExceptionQuery.value(1).toUInt(), fading, moveWhileDark);
+            QSqlQuery modelExceptionQuery;
+            modelExceptionQuery.prepare("SELECT raw_model_channel_values.key, raw_model_channel_values.value FROM raw_model_channel_values, fixtures WHERE raw_model_channel_values.item_key = :raw AND raw_model_channel_values.foreignitem_key = fixtures.model_key AND fixtures.key = :fixture");
+            modelExceptionQuery.bindValue(":raw", rawKey);
+            modelExceptionQuery.bindValue(":fixture", fixtureKey);
+            if (modelExceptionQuery.exec()) {
+                while (modelExceptionQuery.next()) {
+                    setChannel(modelExceptionQuery.value(0).toInt(), modelExceptionQuery.value(1).toUInt(), fading);
+                }
+            } else {
+                qWarning() << Q_FUNC_INFO << modelExceptionQuery.executedQuery() << modelExceptionQuery.lastError().text();
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << modelExceptionQuery.executedQuery() << modelExceptionQuery.lastError().text();
-        }
 
-        QSqlQuery fixtureExceptionQuery;
-        fixtureExceptionQuery.prepare("SELECT key, value FROM raw_fixture_channel_values WHERE item_key = :raw AND foreignitem_key = :fixture");
-        fixtureExceptionQuery.bindValue(":raw", rawKey);
-        fixtureExceptionQuery.bindValue(":fixture", fixtureKey);
-        if (fixtureExceptionQuery.exec()) {
-            while (fixtureExceptionQuery.next()) {
-                setChannel(fixtureExceptionQuery.value(0).toInt(), fixtureExceptionQuery.value(1).toUInt(), fading, moveWhileDark);
+            QSqlQuery fixtureExceptionQuery;
+            fixtureExceptionQuery.prepare("SELECT key, value FROM raw_fixture_channel_values WHERE item_key = :raw AND foreignitem_key = :fixture");
+            fixtureExceptionQuery.bindValue(":raw", rawKey);
+            fixtureExceptionQuery.bindValue(":fixture", fixtureKey);
+            if (fixtureExceptionQuery.exec()) {
+                while (fixtureExceptionQuery.next()) {
+                    setChannel(fixtureExceptionQuery.value(0).toInt(), fixtureExceptionQuery.value(1).toUInt(), fading);
+                }
+            } else {
+                qWarning() << Q_FUNC_INFO << fixtureExceptionQuery.executedQuery() << fixtureExceptionQuery.lastError().text();
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << fixtureExceptionQuery.executedQuery() << fixtureExceptionQuery.lastError().text();
         }
     }
 }
 
-void RawData::setChannel(const int channel, const uint8_t value, const bool fading, const bool moveWhileDark) {
+void RawData::setChannel(const int channel, const uint8_t value, const bool fading) {
     if (!channels.contains(channel)) {
         channels[channel] = RawChannelData();
     }
 
     channels[channel].value = value;
     channels[channel].fading = fading;
-    channels[channel].moveWhileDark = moveWhileDark;
 }
 
 void RawData::merge(const RawData raws) {

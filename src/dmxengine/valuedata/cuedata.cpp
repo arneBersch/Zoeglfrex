@@ -11,21 +11,23 @@
 
 CueData::CueData() {}
 
-CueData::CueData(const int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys) {
+CueData::CueData(const int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys, const bool renderMwD) {
     for (const int groupKey : groupKeys) {
         QList<int> rawKeys;
 
-        const int intensityKey = getItemKey(cueKey, groupKey, "cue_group_intensities");
-        if (intensityKey >= 0) {
-            for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
-                const IntensityData intensity = IntensityData(fixtureKey, intensityKey);
-                if (fixtureIntensities.contains(fixtureKey)) {
-                    fixtureIntensities[fixtureKey].merge(intensity);
-                } else {
-                    fixtureIntensities[fixtureKey] = intensity;
+        if (!renderMwD) {
+            const int intensityKey = getItemKey(cueKey, groupKey, "cue_group_intensities");
+            if (intensityKey >= 0) {
+                for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
+                    const IntensityData intensity = IntensityData(fixtureKey, intensityKey);
+                    if (fixtureIntensities.contains(fixtureKey)) {
+                        fixtureIntensities[fixtureKey].merge(intensity);
+                    } else {
+                        fixtureIntensities[fixtureKey] = intensity;
+                    }
                 }
+                rawKeys.append(getItemRawKeys(intensityKey, "intensity_raws"));
             }
-            rawKeys.append(getItemRawKeys(intensityKey, "intensity_raws"));
         }
 
         const int colorKey = getItemKey(cueKey, groupKey, "cue_group_colors");
@@ -47,7 +49,7 @@ CueData::CueData(const int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> g
         rawKeys.append(getItemKeys(cueKey, groupKey, "cue_group_raws", "raws"));
         if (!rawKeys.isEmpty()) {
             for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
-                const RawData raws = RawData(fixtureKey, rawKeys);
+                const RawData raws = RawData(fixtureKey, rawKeys, renderMwD);
                 if (fixtureRaws.contains(fixtureKey)) {
                     fixtureRaws[fixtureKey].merge(raws);
                 } else {
@@ -59,7 +61,7 @@ CueData::CueData(const int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> g
         const QList<int> effectKeys = getItemKeys(cueKey, groupKey, "cue_group_effects", "effects");
         if (!effectKeys.isEmpty()) {
             for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
-                EffectData effects = EffectData(fixtureKey, groupKey, effectKeys);
+                EffectData effects = EffectData(fixtureKey, groupKey, effectKeys, renderMwD);
                 if (fixtureIntensities.contains(fixtureKey)) {
                     fixtureIntensities[fixtureKey].merge(effects.getIntensity());
                 } else {

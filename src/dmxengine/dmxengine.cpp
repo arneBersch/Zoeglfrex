@@ -159,9 +159,9 @@ void DmxEngine::generateDmx() {
         const int remainingTransitionFrames = cuelistRemainingTransitionFrames.value(cuelistKey, 0);
         const int transitionFrames = cuelistTransitionFrames.value(cuelistKey, 0);
 
-        CueData currentCue = CueData(currentCueKey, groupKeys, groupFixtureKeys);
+        CueData currentCue = CueData(currentCueKey, groupKeys, groupFixtureKeys, false);
         if ((remainingTransitionFrames > 0) && (lastCueKey >= 0)) {
-            const CueData lastCue = CueData(lastCueKey, groupKeys, groupFixtureKeys);
+            const CueData lastCue = CueData(lastCueKey, groupKeys, groupFixtureKeys, false);
             QHash<int, float> fixtureFades;
             for (const int fixtureKey : fixtureKeys) {
                 const int delayFrames = cuelistFixtureDelayFrames.value(cuelistKey).value(fixtureKey, cuelistDelayFrames.value(cuelistKey, 0));
@@ -201,25 +201,23 @@ void DmxEngine::generateDmx() {
 
     /*QHash<int, int> mwdGroupCues;
     QHash<int, int> mwdGroupCueDifference;
-    QHash<int, int> mwdGroupPriorities;
     QSqlQuery mwdCuelistQuery;
-    if (mwdCuelistQuery.exec("SELECT key, priority, currentcue_key FROM cuelists WHERE movewhiledark = 1 AND currentcue_key IS NOT NULL ORDER BY sortkey")) {
+    if (mwdCuelistQuery.exec("SELECT key, currentcue_key FROM cuelists WHERE movewhiledark = 1 AND currentcue_key IS NOT NULL ORDER BY priority, sortkey")) {
         while (mwdCuelistQuery.next()) {
             const int cuelistKey = mwdCuelistQuery.value(0).toInt();
-            const int cuelistPriority = mwdCuelistQuery.value(1).toInt();
-            const int cuelistCurrentCueKey = mwdCuelistQuery.value(2).toInt();
+            const int currentCueKey = mwdCuelistQuery.value(1).toInt();
 
             QSqlQuery cuesQuery;
             cuesQuery.prepare("SELECT key FROM cues WHERE cuelist_key = :cuelist AND sortkey > (SELECT sortkey FROM cues WHERE key = :currentcue) LIMIT 10");
             cuesQuery.bindValue(":cuelist", cuelistKey);
-            cuesQuery.bindValue(":currentcue", cuelistCurrentCueKey);
+            cuesQuery.bindValue(":currentcue", currentCueKey);
             if (cuesQuery.exec()) {
                 while (cuesQuery.next()) {
                     const int cueKey = cuesQuery.value(0).toInt();
                     const int cueDifference = cuesQuery.at() + 1;
 
                     for (const int groupKey : groupKeys) {
-                        if (!mwdGroupCueDifference.contains(groupKey) || (mwdGroupCueDifference.value(groupKey) > cueDifference) || ((mwdGroupCueDifference.value(groupKey) >= cueDifference) && (cuelistPriority >= mwdGroupPriorities.value(groupKey)))) {
+                        if (!mwdGroupCueDifference.contains(groupKey) || (mwdGroupCueDifference.value(groupKey) >= cueDifference)) {
                             const QStringList tables = {"cue_group_intensities", "cue_group_colors", "cue_group_positions", "cue_group_raws", "cue_group_effects"};
                             for (QString table : tables) {
                                 QSqlQuery cueValueQuery;
@@ -230,7 +228,6 @@ void DmxEngine::generateDmx() {
                                     if (cueValueQuery.next()) {
                                         mwdGroupCues[groupKey] = cueKey;
                                         mwdGroupCueDifference[groupKey] = cueDifference;
-                                        mwdGroupPriorities[groupKey] = cuelistPriority;
                                         break;
                                     }
                                 } else {

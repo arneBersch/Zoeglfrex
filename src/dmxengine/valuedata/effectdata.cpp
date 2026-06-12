@@ -12,7 +12,7 @@
 QHash<int, QHash<int, int>> EffectData::groupFrames;
 QHash<int, QHash<int, int>> EffectData::oldGroupFrames;
 
-EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int> effectKeys) {
+EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int> effectKeys, const bool renderMwD) {
     for (const int effectKey : effectKeys) {
         if (!groupFrames.contains(groupKey)) {
             groupFrames[groupKey] = QHash<int, int>();
@@ -168,9 +168,9 @@ EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int
                         position = currentPosition;
                     }
 
-                    RawData currentStepRaws = getStepRaws(currentStep, effectKey, fixtureKey);
+                    RawData currentStepRaws = getStepRaws(currentStep, effectKey, fixtureKey, renderMwD);
                     if (fade > 0) {
-                        RawData lastStepRaws = getStepRaws(lastStep, effectKey, fixtureKey);
+                        RawData lastStepRaws = getStepRaws(lastStep, effectKey, fixtureKey, renderMwD);
                         currentStepRaws.fade(lastStepRaws, fade);
                     }
                     raws.merge(currentStepRaws);
@@ -199,7 +199,7 @@ int EffectData::getStepKey(const int step, const int effectKey, const QString ta
     return -1;
 }
 
-RawData EffectData::getStepRaws(const int step, const int effectKey, const int fixtureKey) {
+RawData EffectData::getStepRaws(const int step, const int effectKey, const int fixtureKey, const bool renderMwD) {
     QList<int> rawKeys;
     QSqlQuery query;
     query.prepare("SELECT effect_step_raws.valueitem_key FROM effect_step_raws, raws WHERE effect_step_raws.item_key = :effect AND effect_step_raws.key = :step AND effect_step_raws.valueitem_key = raws.key ORDER BY raws.sortkey");
@@ -212,7 +212,7 @@ RawData EffectData::getStepRaws(const int step, const int effectKey, const int f
     } else {
         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
     }
-    return RawData(fixtureKey, rawKeys);
+    return RawData(fixtureKey, rawKeys, renderMwD);
 }
 
 void EffectData::nextFrame() {

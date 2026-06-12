@@ -17,7 +17,7 @@
 
 class EffectData : public ValueData {
 public:
-    EffectData(int fixtureKey, int groupKey, QList<int> effectKeys);
+    EffectData(int fixtureKey, int groupKey, QList<int> effectKeys, bool renderMwD);
     static void nextFrame();
     IntensityData getIntensity() const;
     bool hasColor() const;
@@ -35,7 +35,7 @@ private:
     PositionData position;
     RawData raws;
     static int getStepKey(int step, int effectKey, QString table);
-    static RawData getStepRaws(int step, int effectKey, int fixtureKey);
+    static RawData getStepRaws(int step, int effectKey, int fixtureKey, bool renderMwD);
 };
 
 #endif // EFFECTDATA_H
