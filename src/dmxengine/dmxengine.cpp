@@ -177,6 +177,7 @@ void DmxEngine::generateDmx() {
             }
             currentCue.fade(lastCue, fixtureFades);
         }
+        fixtureData.merge(currentCue);
     }
 
     QSqlQuery currentCuelistQuery;
