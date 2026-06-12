@@ -84,7 +84,7 @@ void FixtureChannelModel::setRawKey(const int raw) {
         QChar channelChar = channelsString.at(i);
         ChannelData channel;
         channel.title = QString::number(i + 1) + ". ";
-        const bool fine = (channelChar != channelChar.toUpper());
+        const bool fine = channelChar != channelChar.toUpper();
         channelChar = channelChar.toUpper();
         if (channelChar == QChar('D')) {
             channel.title.append("Dimmer");

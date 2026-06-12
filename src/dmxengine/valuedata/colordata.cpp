@@ -16,9 +16,9 @@ ColorData::ColorData(const int fixtureKey, const int colorKey) {
 
     const int h = hue / 60;
     const float f = (hue / 60) - h;
-    const float p = (1 - saturation);
-    const float q = (1 - (saturation * f));
-    const float t = (1 - (saturation * (1 - f)));
+    const float p = 1 - saturation;
+    const float q = 1 - (saturation * f);
+    const float t = 1 - (saturation * (1 - f));
 
     if (h == 0) {
         red = 1;

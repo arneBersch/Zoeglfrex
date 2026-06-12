@@ -75,11 +75,11 @@ void CuelistTableModel::refresh() {
             row.position = positions.join(", ");
             row.raws = raws.join(", ");
             row.effects = effects.join(", ");
-            row.intensityChanged = (intensities != getCueValue("intensities", "cue_group_intensities", lastCueKey, groupKey));
-            row.colorChanged = (colors != getCueValue("colors", "cue_group_colors", lastCueKey, groupKey));
-            row.positionChanged = (positions != getCueValue("positions", "cue_group_positions", lastCueKey, groupKey));
-            row.rawsChanged = (raws != getCueValue("raws", "cue_group_raws", lastCueKey, groupKey));
-            row.effectsChanged = (effects != getCueValue("effects", "cue_group_effects", lastCueKey, groupKey));
+            row.intensityChanged = intensities != getCueValue("intensities", "cue_group_intensities", lastCueKey, groupKey);
+            row.colorChanged = colors != getCueValue("colors", "cue_group_colors", lastCueKey, groupKey);
+            row.positionChanged = positions != getCueValue("positions", "cue_group_positions", lastCueKey, groupKey);
+            row.rawsChanged = raws != getCueValue("raws", "cue_group_raws", lastCueKey, groupKey);
+            row.effectsChanged = effects != getCueValue("effects", "cue_group_effects", lastCueKey, groupKey);
             if (filter == AllRows) {
                 rows.append(row);
             } else if (filter == ActiveRows) {

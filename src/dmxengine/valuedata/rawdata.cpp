@@ -19,8 +19,8 @@ RawData::RawData(const int fixtureKey, const QList<int> rawKeys) {
         rawAttributesQuery.bindValue(":raw", rawKey);
         if (rawAttributesQuery.exec()) {
             if (rawAttributesQuery.next()) {
-                fading = (rawAttributesQuery.value(0).toInt() == 1);
-                moveWhileDark = (rawAttributesQuery.value(1).toInt() == 1);
+                fading = rawAttributesQuery.value(0).toInt() == 1;
+                moveWhileDark = rawAttributesQuery.value(1).toInt() == 1;
             } else {
                 qWarning() << Q_FUNC_INFO << rawAttributesQuery.executedQuery() << "Raw with key " + QString::number(rawKey) + " should exist but wasn't found!";
             }

@@ -29,10 +29,10 @@ EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int
         if (effectAttributesQuery.exec()) {
             if (effectAttributesQuery.next()) {
                 const int stepAmount = effectAttributesQuery.value(0).toInt();
-                const int standardHoldFrames = (effectAttributesQuery.value(1).toFloat() * 1000 / FRAMEDURATION);
-                const int standardFadeFrames = (effectAttributesQuery.value(2).toFloat() * 1000 / FRAMEDURATION);
+                const int standardHoldFrames = effectAttributesQuery.value(1).toFloat() * 1000 / FRAMEDURATION;
+                const int standardFadeFrames = effectAttributesQuery.value(2).toFloat() * 1000 / FRAMEDURATION;
                 float phase = effectAttributesQuery.value(3).toFloat();
-                const bool sineFade = (effectAttributesQuery.value(4).toInt() == 1);
+                const bool sineFade = effectAttributesQuery.value(4).toInt() == 1;
 
                 QHash<int, int> stepHoldFrames;
                 QSqlQuery stepHoldQuery;
@@ -42,7 +42,7 @@ EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int
                     while (stepHoldQuery.next()) {
                         const int step = stepHoldQuery.value(0).toInt();
                         if (step <= stepAmount) {
-                            stepHoldFrames[step] = (stepHoldQuery.value(1).toFloat() * 1000 / FRAMEDURATION);
+                            stepHoldFrames[step] = stepHoldQuery.value(1).toFloat() * 1000 / FRAMEDURATION;
                         }
                     }
                 } else {
@@ -57,7 +57,7 @@ EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int
                     while (stepFadeQuery.next()) {
                         const int step = stepFadeQuery.value(0).toInt();
                         if (step <= stepAmount) {
-                            stepFadeFrames[step] = (stepFadeQuery.value(1).toFloat() * 1000 / FRAMEDURATION);
+                            stepFadeFrames[step] = stepFadeQuery.value(1).toFloat() * 1000 / FRAMEDURATION;
                         }
                     }
                 } else {
@@ -86,12 +86,12 @@ EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int
                     int frames = groupFrames.value(groupKey, QHash<int, int>()).value(effectKey, 0);
                     frames = (int)(frames + (phase / 360) * totalFrames) % totalFrames;
                     int currentStep = 1;
-                    float fade = 0;
+                    float fade = 1;
                     for (int step = 1; step <= stepAmount; step++) {
                         const int fadeFrames = stepFadeFrames.value(step, standardFadeFrames);
                         if ((frames > 0) && (fadeFrames > 0)) {
                             currentStep = step;
-                            fade = (float)frames / (float)fadeFrames;
+                            fade = 1 - (float)frames / (float)fadeFrames;
                         }
                         frames -= fadeFrames;
                         if (frames > 0) {
@@ -100,12 +100,13 @@ EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int
                         }
                         frames -= stepHoldFrames.value(step, standardHoldFrames);
                     }
+                    if (sineFade) {
+                        fade = 0.5 - (std::cos(M_PI * fade) / 2);
+                    }
+
                     int lastStep = currentStep - 1;
                     if (lastStep < 1) {
                         lastStep = stepAmount;
-                    }
-                    if (sineFade) {
-                        fade = 0.5 - (std::cos(M_PI * fade) / 2);
                     }
 
                     const int currentIntensityKey = getStepKey(currentStep, effectKey, "effect_step_intensities");

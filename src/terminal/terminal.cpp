@@ -682,7 +682,7 @@ void Terminal::setCueItem(const ItemInfos item, const QString valueTable, const 
                         while (cueValueQuery.next()) {
                             cueValueKeys.insert(cueValueQuery.value(0).toInt());
                         }
-                        sameValue = (cueValueKeys == currentCueValueKeys);
+                        sameValue = cueValueKeys == currentCueValueKeys;
                         if (sameValue) {
                             cueKeys.append(cueKey);
                         }
@@ -1098,7 +1098,7 @@ template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, co
 
 void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QStringList ids, QList<Key> valueKeys, const ItemInfos foreignItem) {
     Q_ASSERT(!ids.isEmpty());
-    const bool removeItem = ((valueKeys.size() == 1) && valueKeys.startsWith(Minus));
+    const bool removeItem = (valueKeys.size() == 1) && valueKeys.startsWith(Minus);
     QString foreignItemId;
     int foreignItemKey;
     QStringList successfulIds;
@@ -1263,7 +1263,7 @@ void Terminal::setItemListAttribute(const ItemInfos item, const QString attribut
 template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, const ItemInfos foreignItem, const QString valueTable, const NumberInfos number) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(!foreignItemIds.isEmpty());
-    const bool removeValues = ((valueKeys.size() == 1) && valueKeys.startsWith(Minus));
+    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Minus);
     const bool difference = valueKeys.startsWith(Plus);
     T value;
     if (!removeValues && !difference) {
@@ -1398,7 +1398,7 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
 void Terminal::setItemSpecificItemListAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, const ItemInfos foreignItem, const ItemInfos valueItem, const QString valueTable, const bool limitToOne) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(!foreignItemIds.isEmpty());
-    const bool removeValues = ((valueKeys.size() == 1) && valueKeys.startsWith(Minus));
+    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Minus);
     QList<int> valueItemKeys;
     QStringList valueItemIdStrings;
     if (!removeValues) {
@@ -1546,7 +1546,7 @@ template <typename T> void Terminal::setIntegerSpecificNumberAttribute(const Ite
         error("Can't set " + item.singular + " " + attributeName + " because the given Attribute is not valid.");
         return;
     }
-    const bool removeValues = ((valueKeys.size() == 1) && valueKeys.startsWith(Minus));
+    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Minus);
     const bool difference = valueKeys.startsWith(Plus);
     T value;
     if (!removeValues && !difference) {
@@ -1663,7 +1663,7 @@ void Terminal::setIntegerSpecificItemListAttribute(ItemInfos item, QString attri
         error("Can't set " + item.singular + " " + attributeName + " because the given Attribute is not valid.");
         return;
     }
-    const bool removeValues = ((valueKeys.size() == 1) && valueKeys.startsWith(Minus));
+    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Minus);
     QList<int> valueItemKeys;
     QStringList valueItemIdStrings;
     if (!removeValues) {
@@ -1786,7 +1786,7 @@ template <typename T> void Terminal::setItemAndIntegerSpecificNumberAttribute(It
         error("Can't set " + item.singular + " " + attributeName + " because the given Attribute is not valid.");
         return;
     }
-    const bool removeValues = ((valueKeys.size() == 1) && valueKeys.startsWith(Minus));
+    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Minus);
     const bool difference = valueKeys.startsWith(Plus);
     T value;
     if (!removeValues && !difference) {
@@ -1973,10 +1973,10 @@ float Terminal::keysToFloat(QList<Key> keys, bool* ok, const float currentValue,
     }
     if (number.cyclic) {
         while (value < number.minValue) {
-            value += (number.maxValue - number.minValue);
+            value += number.maxValue - number.minValue;
         }
         while (value >= number.maxValue) {
-            value -= (number.maxValue - number.minValue);
+            value -= number.maxValue - number.minValue;
         }
     } else {
         if ((value < number.minValue) || (value > number.maxValue)) {
