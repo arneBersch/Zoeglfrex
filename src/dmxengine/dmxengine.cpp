@@ -186,7 +186,7 @@ void DmxEngine::generateDmx() {
                     fade = 1 - (float)(transitionFrames - remainingTransitionFrames - delayFrames) / (float)fadeFrames;
                 }
                 if (cuelistSineFade.value(cuelistKey, false)) {
-                    fade = std::cos(M_PI * (1 - fade)) / 2 + 0.5;
+                    fade = 0.5 - (std::cos(M_PI * fade) / 2);
                 }
             }
             IntensityData lastIntensity;

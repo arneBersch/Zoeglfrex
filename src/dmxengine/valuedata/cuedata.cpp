@@ -170,6 +170,32 @@ void CueData::fade(const CueData lastCue, const float standardFade, const QHash<
     }
 }
 
+void CueData::merge(const CueData cue) {
+    for (const int fixtureKey : cue.fixtureIntensities.keys()) {
+        if (fixtureIntensities.contains(fixtureKey)) {
+            fixtureIntensities[fixtureKey].merge(cue.fixtureIntensities.value(fixtureKey));
+        } else {
+            fixtureIntensities[fixtureKey] = cue.fixtureIntensities.value(fixtureKey);
+        }
+    }
+
+    for (const int fixtureKey : cue.fixtureColors.keys()) {
+        fixtureColors[fixtureKey] = cue.fixtureColors.value(fixtureKey);
+    }
+
+    for (const int fixtureKey : cue.fixturePositions.keys()) {
+        fixturePositions[fixtureKey] = cue.fixturePositions.value(fixtureKey);
+    }
+
+    for (const int fixtureKey : cue.fixtureRaws.keys()) {
+        if (fixtureRaws.contains(fixtureKey)) {
+            fixtureRaws[fixtureKey].merge(cue.fixtureRaws.value(fixtureKey));
+        } else {
+            fixtureRaws[fixtureKey] = cue.fixtureRaws.value(fixtureKey);
+        }
+    }
+}
+
 QHash<int, IntensityData> CueData::getFixtureIntensities() const {
     return fixtureIntensities;
 }
