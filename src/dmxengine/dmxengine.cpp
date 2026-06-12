@@ -267,7 +267,12 @@ void DmxEngine::generateDmx() {
         const int universe = fixtureQuery.value(1).toInt();
         const int address = fixtureQuery.value(2).toInt();
 
-        /*if (!fixtureIntensities.contains(fixtureKey) && !fixtureColors.contains(fixtureKey) && !fixturePositions.contains(fixtureKey) && !fixtureChannelRaws.contains(fixtureKey)) {
+        IntensityData intensity = fixtureData.getFixtureIntensity(fixtureKey);
+        ColorData color = fixtureData.getFixtureColor(fixtureKey);
+        PositionData position = fixtureData.getFixturePosition(fixtureKey);
+        RawData raws = fixtureData.getFixtureRaws(fixtureKey);
+
+        /*if (!fixtureData.hasData(fixtureKey)) {
             int fixtureCue = -1;
             QList<int> fixtureGroups;
             int cueDifference = -1;
@@ -287,8 +292,7 @@ void DmxEngine::generateDmx() {
             if (fixtureCue > 0) {
                 QHash<int, QSet<int>> fixtureGroupFixture;
                 for (const int groupKey : fixtureGroups) {
-                    fixtureGroupFixture[groupKey] = QSet<int>();
-                    fixtureGroupFixture[groupKey].insert(fixtureKey);
+                    fixtureGroupFixture[groupKey] = { fixtureKey };
                 }
 
                 CueData cue = CueData(fixtureCue, fixtureGroups, fixtureGroupFixture);
@@ -310,17 +314,12 @@ void DmxEngine::generateDmx() {
             }
         }*/
 
-        IntensityData intensity = fixtureData.getFixtureIntensity(fixtureKey);
-
-        ColorData color = fixtureData.getFixtureColor(fixtureKey);
         if (currentFixtureKeys.contains(fixtureKey) && highlightButton->isChecked()) {
             intensity = IntensityData::highlightValue();
             color = ColorData::highlightValue();
         } else if (!currentFixtureKeys.contains(fixtureKey) && soloButton->isChecked()) {
             intensity = IntensityData();
         }
-
-        PositionData position = fixtureData.getFixturePosition(fixtureKey);
 
         Preview2d::PreviewData previewFixture;
         previewFixture.xPosition = fixtureQuery.value(3).toFloat();
@@ -408,7 +407,7 @@ void DmxEngine::generateDmx() {
                             }
                         }
                     }
-                    const QHash<int, uint8_t> rawChannels = fixtureData.getFixtureRaws(fixtureKey).getChannels();
+                    const QHash<int, uint8_t> rawChannels = raws.getChannels();
                     for (const int channel : rawChannels.keys()) {
                         const int dmxChannel = address + channel - 1;
                         if (dmxChannel <= 512) {
