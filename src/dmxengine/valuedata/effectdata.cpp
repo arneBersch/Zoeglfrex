@@ -9,18 +9,18 @@
 #include "effectdata.h"
 #include "../dmxengine.h"
 
-QHash<int, QHash<int, int>> EffectData::groupEffectFrames;
-QHash<int, QHash<int, int>> EffectData::oldGroupEffectFrames;
+QHash<int, QHash<int, int>> EffectData::groupFrames;
+QHash<int, QHash<int, int>> EffectData::oldGroupFrames;
 
 EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int> effectKeys) {
     for (const int effectKey : effectKeys) {
-        if (!groupEffectFrames.contains(groupKey)) {
-            groupEffectFrames[groupKey] = QHash<int, int>();
+        if (!groupFrames.contains(groupKey)) {
+            groupFrames[groupKey] = QHash<int, int>();
         }
-        if (oldGroupEffectFrames.value(groupKey, QHash<int, int>()).contains(effectKey)) {
-            groupEffectFrames[groupKey][effectKey] = oldGroupEffectFrames.value(groupKey).value(effectKey) + 1;
+        if (oldGroupFrames.value(groupKey, QHash<int, int>()).contains(effectKey)) {
+            groupFrames[groupKey][effectKey] = oldGroupFrames.value(groupKey).value(effectKey) + 1;
         } else {
-            groupEffectFrames[groupKey][effectKey] = 1;
+            groupFrames[groupKey][effectKey] = 1;
         }
 
         QSqlQuery effectAttributesQuery;
@@ -83,7 +83,7 @@ EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int
                         qWarning() << Q_FUNC_INFO << fixturePhaseQuery.executedQuery() << fixturePhaseQuery.lastError().text();
                     }
 
-                    int frames = groupEffectFrames.value(groupKey, QHash<int, int>()).value(effectKey, 0);
+                    int frames = groupFrames.value(groupKey, QHash<int, int>()).value(effectKey, 0);
                     frames = (int)(frames + (phase / 360) * totalFrames) % totalFrames;
                     int currentStep = 1;
                     float fade = 0;
@@ -215,8 +215,8 @@ RawData EffectData::getStepRaws(const int step, const int effectKey, const int f
 }
 
 void EffectData::nextFrame() {
-    oldGroupEffectFrames = groupEffectFrames;
-    groupEffectFrames.clear();
+    oldGroupFrames = groupFrames;
+    groupFrames.clear();
 }
 
 IntensityData EffectData::getIntensity() const {

@@ -11,6 +11,7 @@
 #include "valuedata/intensitydata.h"
 #include "valuedata/colordata.h"
 #include "valuedata/positiondata.h"
+#include "valuedata/effectdata.h"
 #include "valuedata/cuedata.h"
 
 DmxEngine::DmxEngine(QWidget* parent) : QWidget(parent) {
@@ -56,6 +57,9 @@ DmxEngine::DmxEngine(QWidget* parent) : QWidget(parent) {
 }
 
 void DmxEngine::generateDmx() {
+    PositionData::nextFrame();
+    EffectData::nextFrame();
+
     QList<int> groupKeys;
     QHash<int, QSet<int>> groupFixtureKeys;
     QSet<int> fixtureKeys;
@@ -85,14 +89,12 @@ void DmxEngine::generateDmx() {
     cuelistCurrentCueKeys.clear();
     QHash<int, int> oldCuelistRemainingTransitionFrames = cuelistRemainingTransitionFrames;
     cuelistRemainingTransitionFrames.clear();
-    QHash<int, IntensityData> fixtureIntensities;
-    QHash<int, ColorData> fixtureColors;
-    QHash<int, PositionData> fixturePositions;
-    QHash<int, QHash<int, uint8_t>> fixtureChannelRaws;
+    CueData fixtureData;
     while (cuelistQuery.next()) {
         const int cuelistKey = cuelistQuery.value(0).toInt();
         const int currentCueKey = cuelistQuery.value(1).toInt();
         const int lastCueKey = cuelistQuery.value(2).toInt();
+
         if (!skipFadeButton->isChecked()) {
             if (oldCuelistCurrentCueKeys.value(cuelistKey, -1) != currentCueKey) {
                 QSqlQuery transitionQuery;
@@ -147,7 +149,7 @@ void DmxEngine::generateDmx() {
                     qWarning() << Q_FUNC_INFO << transitionQuery.executedQuery() << transitionQuery.lastError().text();
                 }
             } else if (oldCuelistRemainingTransitionFrames.value(cuelistKey, 0) > 0) {
-                cuelistRemainingTransitionFrames[cuelistKey] = (oldCuelistRemainingTransitionFrames.value(cuelistKey) - 1);
+                cuelistRemainingTransitionFrames[cuelistKey] = oldCuelistRemainingTransitionFrames.value(cuelistKey) - 1;
             }
         }
         cuelistCurrentCueKeys[cuelistKey] = currentCueKey;
@@ -156,16 +158,14 @@ void DmxEngine::generateDmx() {
         const int transitionFrames = cuelistTransitionFrames.value(cuelistKey, 0);
 
         CueData currentCue = CueData(currentCueKey, groupKeys, groupFixtureKeys);
-        CueData lastCue;
         if ((remainingTransitionFrames > 0) && (lastCueKey >= 0)) {
-            lastCue = CueData(lastCueKey, groupKeys, groupFixtureKeys);
-        }
-
-        for (const int fixtureKey : fixtureKeys) {
+            const CueData lastCue = CueData(lastCueKey, groupKeys, groupFixtureKeys);
             float fade = 0;
             if (remainingTransitionFrames > 0) {
-                const int delayFrames = cuelistFixtureDelayFrames.value(cuelistKey).value(fixtureKey, cuelistDelayFrames.value(cuelistKey, 0));
-                const int fadeFrames = cuelistFixtureFadeFrames.value(cuelistKey).value(fixtureKey, cuelistFadeFrames.value(cuelistKey, 0));
+                //const int delayFrames = cuelistFixtureDelayFrames.value(cuelistKey).value(fixtureKey, cuelistDelayFrames.value(cuelistKey, 0));
+                //const int fadeFrames = cuelistFixtureFadeFrames.value(cuelistKey).value(fixtureKey, cuelistFadeFrames.value(cuelistKey, 0));
+                const int delayFrames = cuelistDelayFrames.value(cuelistKey, 0);
+                const int fadeFrames = cuelistFadeFrames.value(cuelistKey, 0);
                 if ((transitionFrames - remainingTransitionFrames) <= delayFrames) {
                     fade = 1;
                 } else if ((transitionFrames - remainingTransitionFrames - delayFrames) <= fadeFrames) {
@@ -175,67 +175,7 @@ void DmxEngine::generateDmx() {
                     fade = 0.5 - (std::cos(M_PI * fade) / 2);
                 }
             }
-            IntensityData lastIntensity;
-            IntensityData currentIntensity;
-            if (currentCue.getFixtureIntensities().contains(fixtureKey) && (fade > 0)) {
-                lastIntensity = lastCue.getFixtureIntensities().value(fixtureKey);
-            } else if (currentCue.getFixtureIntensities().contains(fixtureKey)) {
-                currentIntensity = currentCue.getFixtureIntensities().value(fixtureKey);
-            }
-            currentIntensity.fade(lastIntensity, fade);
-            if (fixtureIntensities.contains(fixtureKey)) {
-                fixtureIntensities[fixtureKey].merge(currentIntensity);
-            } else {
-                fixtureIntensities[fixtureKey] = currentIntensity;
-            }
-            if (lastCue.getFixtureColors().contains(fixtureKey) && (fade > 0)) {
-                ColorData lastColor = lastCue.getFixtureColors().value(fixtureKey);
-                ColorData currentColor = currentCue.getFixtureColors().value(fixtureKey, lastColor);
-                currentColor.fade(lastColor, fade);
-                fixtureColors[fixtureKey] = currentColor;
-            } else if (currentCue.getFixtureColors().contains(fixtureKey)) {
-                fixtureColors[fixtureKey] = currentCue.getFixtureColors().value(fixtureKey);
-            }
-            if (lastCue.getFixturePositions().contains(fixtureKey) && (fade > 0)) {
-                PositionData lastPosition = lastCue.getFixturePositions().value(fixtureKey);
-                PositionData currentPosition = currentCue.getFixturePositions().value(fixtureKey, lastPosition);
-                currentPosition.fade(lastPosition, fade);
-                fixturePositions[fixtureKey] = currentPosition;
-            } else if (currentCue.getFixturePositions().contains(fixtureKey)) {
-                fixturePositions[fixtureKey] = currentCue.getFixturePositions().value(fixtureKey);
-            }
-            /*QSet<int> rawChannels;
-            RawData currentRaws = currentCueFixtureRaws.value(fixtureKey);
-            for (const int channel : currentRaws.keys()) {
-                rawChannels.insert(channel);
-            }
-            RawData lastRaws = lastCueFixtureRaws.value(fixtureKey);
-            for (const int channel : lastRaws.keys()) {
-                rawChannels.insert(channel);
-            }
-            for (const int channel : rawChannels) {
-                if (!fixtureChannelRaws.contains(fixtureKey)) {
-                    fixtureChannelRaws[fixtureKey] = QHash<int, uint8_t>();
-                    fixtureChannelRawPriorities[fixtureKey] = QHash<int, int>();
-                }
-                if (priority >= fixtureChannelRawPriorities.value(fixtureKey).value(channel, 0)) {
-                    fixtureChannelRawPriorities[fixtureKey][channel] = priority;
-                    if (lastRaws.contains(channel) && (fade > 0)) {
-                        uint8_t lastValue = lastRaws.value(channel).value;
-                        if (currentRaws.contains(channel)) {
-                            const uint8_t currentValue = currentRaws.value(channel).value;
-                            if (currentRaws.value(channel).fading) {
-                                lastValue = currentValue + (lastValue - currentValue) * fade;
-                            } else {
-                                lastValue = currentValue;
-                            }
-                        }
-                        fixtureChannelRaws[fixtureKey][channel] = lastValue;
-                    } else if (currentRaws.contains(channel)) {
-                        fixtureChannelRaws[fixtureKey][channel] = currentRaws.value(channel).value;
-                    }
-                }
-            }*/
+            currentCue.fade(lastCue, fade);
         }
     }
 
@@ -258,7 +198,7 @@ void DmxEngine::generateDmx() {
         qWarning() << Q_FUNC_INFO << currentCuelistQuery.executedQuery() << currentCuelistQuery.lastError().text();
     }
 
-    QHash<int, int> mwdGroupCues;
+    /*QHash<int, int> mwdGroupCues;
     QHash<int, int> mwdGroupCueDifference;
     QHash<int, int> mwdGroupPriorities;
     QSqlQuery mwdCuelistQuery;
@@ -305,7 +245,7 @@ void DmxEngine::generateDmx() {
         }
     } else {
         qWarning() << mwdCuelistQuery.executedQuery() << mwdCuelistQuery.lastError().text();
-    }
+    }*/
 
     QSet<int> currentFixtureKeys;
     QSqlQuery currentFixtureQuery;
@@ -324,13 +264,12 @@ void DmxEngine::generateDmx() {
     }
     QHash<int, Preview2d::PreviewData> previewFixtures;
     QHash<int, QByteArray> dmxUniverses;
-    PositionData::nextFrame();
     while (fixtureQuery.next()) {
         const int fixtureKey = fixtureQuery.value(0).toInt();
         const int universe = fixtureQuery.value(1).toInt();
         const int address = fixtureQuery.value(2).toInt();
 
-        if (!fixtureIntensities.contains(fixtureKey) && !fixtureColors.contains(fixtureKey) && !fixturePositions.contains(fixtureKey) && !fixtureChannelRaws.contains(fixtureKey)) {
+        /*if (!fixtureIntensities.contains(fixtureKey) && !fixtureColors.contains(fixtureKey) && !fixturePositions.contains(fixtureKey) && !fixtureChannelRaws.contains(fixtureKey)) {
             int fixtureCue = -1;
             QList<int> fixtureGroups;
             int cueDifference = -1;
@@ -362,20 +301,20 @@ void DmxEngine::generateDmx() {
                 if (cue.getFixturePositions().contains(fixtureKey)) {
                     fixturePositions[fixtureKey] = cue.getFixturePositions().value(fixtureKey);
                 }
-                /*if (cue.getFixtureRaws().contains(fixtureKey)) {
+                if (cue.getFixtureRaws().contains(fixtureKey)) {
                     fixtureChannelRaws[fixtureKey] = QHash<int, uint8_t>();
                     for (const int channel : cueFixtureRaws.value(fixtureKey).keys()) {
                         if (cueFixtureRaws.value(fixtureKey).value(channel).moveWhileDark) {
                             fixtureChannelRaws[fixtureKey][channel] = cueFixtureRaws.value(fixtureKey).value(channel).value;
                         }
                     }
-                }*/
+                }
             }
-        }
+        }*/
 
-        IntensityData intensity = fixtureIntensities.value(fixtureKey, IntensityData());
+        IntensityData intensity = fixtureData.getFixtureIntensity(fixtureKey);
 
-        ColorData color = fixtureColors.value(fixtureKey, ColorData());
+        ColorData color = fixtureData.getFixtureColor(fixtureKey);
         if (currentFixtureKeys.contains(fixtureKey) && highlightButton->isChecked()) {
             intensity = IntensityData::highlightValue();
             color = ColorData::highlightValue();
@@ -383,7 +322,7 @@ void DmxEngine::generateDmx() {
             intensity = IntensityData();
         }
 
-        PositionData position = fixturePositions.value(fixtureKey, PositionData());
+        PositionData position = fixtureData.getFixturePosition(fixtureKey);
 
         Preview2d::PreviewData previewFixture;
         previewFixture.xPosition = fixtureQuery.value(3).toFloat();
@@ -471,10 +410,11 @@ void DmxEngine::generateDmx() {
                             }
                         }
                     }
-                    for (const int channel : fixtureChannelRaws.value(fixtureKey, QHash<int, uint8_t>()).keys()) {
+                    const QHash<int, uint8_t> rawChannels = fixtureData.getFixtureRaws(fixtureKey).getChannels();
+                    for (const int channel : rawChannels.keys()) {
                         const int dmxChannel = address + channel - 1;
                         if (dmxChannel <= 512) {
-                            dmxUniverses[universe][dmxChannel - 1] = fixtureChannelRaws.value(fixtureKey).value(channel);
+                            dmxUniverses[universe][dmxChannel - 1] = rawChannels.value(channel);
                         }
                     }
                 }

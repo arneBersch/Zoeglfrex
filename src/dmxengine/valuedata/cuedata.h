@@ -21,12 +21,12 @@ class CueData : public ValueData {
 public:
     CueData();
     CueData(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys);
-    void fade(CueData lastCue, float standardFade, QHash<int, float> fixtureFades);
+    void fade(CueData lastCue, const float fade);
     void merge(CueData cue);
-    QHash<int, IntensityData> getFixtureIntensities() const;
-    QHash<int, ColorData> getFixtureColors() const;
-    QHash<int, PositionData> getFixturePositions() const;
-    QHash<int, RawData> getFixtureRaws() const;
+    IntensityData getFixtureIntensity(int fixtureKey) const;
+    ColorData getFixtureColor(int fixtureKey) const;
+    PositionData getFixturePosition(int fixtureKey) const;
+    RawData getFixtureRaws(int fixtureKey) const;
 private:
     QHash<int, IntensityData> fixtureIntensities;
     QHash<int, ColorData> fixtureColors;
