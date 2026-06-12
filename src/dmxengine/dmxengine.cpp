@@ -102,9 +102,10 @@ void DmxEngine::generateDmx() {
                 transitionQuery.bindValue(":key", currentCueKey);
                 if (transitionQuery.exec()) {
                     if (transitionQuery.next()) {
-                        const int standardFadeFrames = (transitionQuery.value(0).toFloat() * 1000 / FRAMEDURATION);
-                        const int standardDelayFrames = (transitionQuery.value(1).toFloat() * 1000 / FRAMEDURATION);
-                        const bool sineFade = (transitionQuery.value(2).toInt() == 1);
+                        const int standardFadeFrames = transitionQuery.value(0).toFloat() * 1000 / FRAMEDURATION;
+                        const int standardDelayFrames = transitionQuery.value(1).toFloat() * 1000 / FRAMEDURATION;
+                        const bool sineFade = transitionQuery.value(2).toInt() == 1;
+
                         QHash<int, int> fixtureFadeFrames;
                         int maxFadeFrames = standardFadeFrames;
                         QSqlQuery fixtureFadeQuery;
@@ -113,13 +114,14 @@ void DmxEngine::generateDmx() {
                         if (fixtureFadeQuery.exec()) {
                             while (fixtureFadeQuery.next()) {
                                 const int fixtureKey = fixtureFadeQuery.value(0).toInt();
-                                const int fadeFrames = (fixtureFadeQuery.value(1).toFloat() * 1000 / FRAMEDURATION);
+                                const int fadeFrames = fixtureFadeQuery.value(1).toFloat() * 1000 / FRAMEDURATION;
                                 fixtureFadeFrames[fixtureKey] = fadeFrames;
                                 maxFadeFrames = std::max(fadeFrames, maxFadeFrames);
                             }
                         } else {
                             qWarning() << Q_FUNC_INFO << fixtureFadeQuery.executedQuery() << fixtureFadeQuery.lastError().text();
                         }
+
                         QHash<int, int> fixtureDelayFrames;
                         int maxDelayFrames = standardDelayFrames;
                         QSqlQuery fixtureDelayQuery;
@@ -128,7 +130,7 @@ void DmxEngine::generateDmx() {
                         if (fixtureDelayQuery.exec()) {
                             while (fixtureDelayQuery.next()) {
                                 const int fixtureKey = fixtureDelayQuery.value(0).toInt();
-                                const int delayFrames = (fixtureDelayQuery.value(1).toFloat() * 1000 / FRAMEDURATION);
+                                const int delayFrames = fixtureDelayQuery.value(1).toFloat() * 1000 / FRAMEDURATION;
                                 fixtureDelayFrames[fixtureKey] = delayFrames;
                                 maxDelayFrames = std::max(delayFrames, maxDelayFrames);
                             }
@@ -344,7 +346,7 @@ void DmxEngine::generateDmx() {
                     const float minZoom = modelQuery.value(3).toFloat();
                     const float maxZoom = modelQuery.value(4).toFloat();
                     const float rotation = modelQuery.value(5).toFloat();
-                    const bool invertPan = (modelQuery.value(6).toInt() == 1);
+                    const bool invertPan = modelQuery.value(6).toInt() == 1;
 
                     if (!dmxUniverses.contains(universe)) {
                         dmxUniverses[universe] = QByteArray(512, 0);
@@ -357,7 +359,7 @@ void DmxEngine::generateDmx() {
 
                     for (int channel = address; channel < (address + channels.size()); channel++) {
                         QChar channelType = channels.at(channel - address);
-                        const bool fine = (channelType != channelType.toUpper());
+                        const bool fine = channelType != channelType.toUpper();
                         channelType = channelType.toUpper();
 
                         float value = 0;

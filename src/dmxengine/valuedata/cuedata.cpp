@@ -15,7 +15,7 @@ CueData::CueData(const int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> g
     for (const int groupKey : groupKeys) {
         QList<int> rawKeys;
 
-        const int intensityKey = getItemKey(cueKey, groupKey, "cue_group_intensitites");
+        const int intensityKey = getItemKey(cueKey, groupKey, "cue_group_intensities");
         if (intensityKey >= 0) {
             for (const int fixtureKey : groupFixtureKeys.value(groupKey)) {
                 const IntensityData intensity = IntensityData(fixtureKey, intensityKey);
@@ -84,8 +84,8 @@ CueData::CueData(const int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> g
 int CueData::getItemKey(const int cueKey, const int groupKey, const QString table) {
     QSqlQuery query;
     query.prepare("SELECT valueitem_key FROM " + table + " WHERE item_key = :cue AND foreignitem_key = :group");
-    query.bindValue(":group", groupKey);
     query.bindValue(":cue", cueKey);
+    query.bindValue(":group", groupKey);
     if (query.exec()) {
         if (query.next()) {
             return query.value(0).toInt();
