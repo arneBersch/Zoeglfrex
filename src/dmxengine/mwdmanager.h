@@ -18,13 +18,15 @@ public:
     void nextFrame();
     QSet<int> getMwDCues(QList<int> groupKeys);
 private:
-    int getCueKey(int cuelistKey);
+    void renderCue(int cueKey);
+    int sortkeyDifference;
+    QHash<int, int> cuelistSortkeys;
     struct GroupData {
         int difference;
         QSet<int> cueKeys;
     };
     QHash<int, GroupData> groupData;
-    QHash<int, int> cuelistSortkeys;
+    QHash<int, GroupData> oldGroupData;
     const QStringList mwdValueTables = {
         "cue_group_intensities",
         "cue_group_colors",
