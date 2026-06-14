@@ -70,14 +70,25 @@ QSet<int> MwDManager::getMwDCues(const QList<int> groupKeys) {
     int difference = -1;
     QSet<int> cueKeys;
     for (const int groupKey : groupKeys) {
-        if (oldGroupData.contains(groupKey)) {
-            const GroupData group = oldGroupData.value(groupKey);
+        if (groupData.contains(groupKey)) {
+            const GroupData group = groupData.value(groupKey);
             if ((group.difference < difference) || cueKeys.isEmpty()) {
                 difference = group.difference;
                 cueKeys.clear();
             }
             if (group.difference == difference) {
                 cueKeys.unite(group.cueKeys);
+            }
+        } else if (oldGroupData.contains(groupKey)) {
+            const GroupData group = oldGroupData.value(groupKey);
+            if (group.difference > sortkeyDifference) {
+                if ((group.difference < difference) || cueKeys.isEmpty()) {
+                    difference = group.difference;
+                    cueKeys.clear();
+                }
+                if (group.difference == difference) {
+                    cueKeys.unite(group.cueKeys);
+                }
             }
         }
     }
