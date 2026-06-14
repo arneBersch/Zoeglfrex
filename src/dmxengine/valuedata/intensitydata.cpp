@@ -22,6 +22,20 @@ void IntensityData::fade(const IntensityData lastIntensity, const float fade) {
     dimmer = fadeValue(lastIntensity.dimmer, dimmer, fade);
 }
 
+void IntensityData::smoothDim(const float lastDimmer) {
+    const float MAX_DIMMER_DIFFERENCE = 0.01;
+
+    if (std::abs(dimmer - lastDimmer) <= MAX_DIMMER_DIFFERENCE) {
+        return;
+    }
+
+    if (dimmer > lastDimmer) {
+        dimmer = lastDimmer + MAX_DIMMER_DIFFERENCE;
+    } else {
+        dimmer = lastDimmer - MAX_DIMMER_DIFFERENCE;
+    }
+}
+
 IntensityData IntensityData::highlightValue() {
     IntensityData data;
     data.dimmer = 1;

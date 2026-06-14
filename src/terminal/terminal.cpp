@@ -65,9 +65,9 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     trackingButton = new QPushButton("Tracking");
     trackingButton->setCheckable(true);
     connect(trackingButton, &QPushButton::clicked, this, [this] {
-        QSettings().setValue("cuelistview/tracking", trackingButton->isChecked());
+        QSettings().setValue("terminal/tracking", trackingButton->isChecked());
     });
-    trackingButton->setChecked(QSettings().value("cuelistview/tracking", true).toBool());
+    trackingButton->setChecked(QSettings().value("terminal/tracking", true).toBool());
     promptLayout->addWidget(trackingButton);
 
     messages = new QPlainTextEdit();

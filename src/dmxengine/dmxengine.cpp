@@ -21,17 +21,19 @@ DmxEngine::DmxEngine(QWidget* parent) : QWidget(parent) {
     highlightButton = new QPushButton("Highlight");
     highlightButton->setCheckable(true);
     connect(highlightButton, &QPushButton::clicked, this, [this] {
-        QSettings().setValue("cuelistview/highlight", highlightButton->isChecked());
+        QSettings().setValue("dmxengine/highlight", highlightButton->isChecked());
     });
-    highlightButton->setChecked(QSettings().value("cuelistview/highlight", true).toBool());
+    highlightButton->setChecked(QSettings().value("dmxengine/highlight", false).toBool());
+    new QShortcut(Qt::SHIFT | Qt::Key_H, this, [this] { highlightButton->click(); }, Qt::ApplicationShortcut);
     layout->addWidget(highlightButton);
 
     soloButton = new QPushButton("Solo");
     soloButton->setCheckable(true);
     connect(soloButton, &QPushButton::clicked, this, [this] {
-        QSettings().setValue("cuelistview/solo", soloButton->isChecked());
+        QSettings().setValue("dmxengine/solo", soloButton->isChecked());
     });
-    soloButton->setChecked(QSettings().value("cuelistview/solo", true).toBool());
+    soloButton->setChecked(QSettings().value("dmxengine/solo", false).toBool());
+    new QShortcut(Qt::SHIFT | Qt::Key_S, this, [this] { soloButton->click(); }, Qt::ApplicationShortcut);
     layout->addWidget(soloButton);
 
     fadeProgressBar = new QProgressBar();
@@ -42,14 +44,20 @@ DmxEngine::DmxEngine(QWidget* parent) : QWidget(parent) {
     skipFadeButton = new QPushButton("Skip Fade");
     skipFadeButton->setCheckable(true);
     connect(skipFadeButton, &QPushButton::clicked, this, [this] {
-        QSettings().setValue("cuelistview/skipfade", skipFadeButton->isChecked());
+        QSettings().setValue("dmxengine/skipfade", skipFadeButton->isChecked());
     });
-    skipFadeButton->setChecked(QSettings().value("cuelistview/skipfade", true).toBool());
+    skipFadeButton->setChecked(QSettings().value("dmxengine/skipfade", false).toBool());
+    new QShortcut(Qt::SHIFT | Qt::Key_F, this, [this] { skipFadeButton->click(); }, Qt::ApplicationShortcut);
     layout->addWidget(skipFadeButton);
 
-    new QShortcut(Qt::SHIFT | Qt::Key_H, this, [this] { highlightButton->click(); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::SHIFT | Qt::Key_S, this, [this] { soloButton->click(); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::SHIFT | Qt::Key_F, this, [this] { skipFadeButton->click(); }, Qt::ApplicationShortcut);
+    smoothDimButton = new QPushButton("Smooth Dim");
+    smoothDimButton->setCheckable(true);
+    connect(smoothDimButton, &QPushButton::clicked, this, [this] {
+        QSettings().setValue("dmxengine/smoothdim", smoothDimButton->isChecked());
+    });
+    smoothDimButton->setChecked(QSettings().value("dmxengine/smoothdim", false).toBool());
+    new QShortcut(Qt::SHIFT | Qt::Key_D, this, [this] { smoothDimButton->click(); }, Qt::ApplicationShortcut);
+    layout->addWidget(smoothDimButton);
 
     QTimer* timer = new QTimer();
     connect(timer, &QTimer::timeout, this, &DmxEngine::generateDmx);
@@ -211,6 +219,9 @@ void DmxEngine::generateDmx() {
         qWarning() << Q_FUNC_INFO << currentFixtureQuery.executedQuery() << currentFixtureQuery.lastError().text();
     }
 
+    QHash<int, float> oldFixtureDimmer = fixtureDimmer;
+    fixtureDimmer.clear();
+
     QSqlQuery fixtureQuery;
     if (!fixtureQuery.exec("SELECT key, universe, address, xposition, yposition, CONCAT(id, ' ', label) FROM fixtures")) {
         qWarning() << Q_FUNC_INFO << fixtureQuery.executedQuery() << fixtureQuery.lastError().text();
@@ -256,6 +267,11 @@ void DmxEngine::generateDmx() {
         } else if (!currentFixtureKeys.contains(fixtureKey) && soloButton->isChecked()) {
             intensity = IntensityData();
         }
+
+        if (smoothDimButton->isChecked()) {
+            intensity.smoothDim(oldFixtureDimmer.value(fixtureKey, 0));
+        }
+        fixtureDimmer[fixtureKey] = intensity.getDimmer();
 
         Preview2d::PreviewData previewFixture;
         previewFixture.xPosition = fixtureQuery.value(3).toFloat();

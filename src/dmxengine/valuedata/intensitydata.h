@@ -17,6 +17,7 @@ public:
     IntensityData(int fixtureKey, int intensityKey);
     void merge(IntensityData intensity);
     void fade(IntensityData lastIntensity, float fade);
+    void smoothDim(float lastDimmer);
     static IntensityData highlightValue();
     float getDimmer() const;
 private:

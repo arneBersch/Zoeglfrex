@@ -30,7 +30,9 @@ private:
     QPushButton* soloButton;
     QProgressBar* fadeProgressBar;
     QPushButton* skipFadeButton;
+    QPushButton* smoothDimButton;
 
+    QHash<int, float> fixtureDimmer;
     QHash<int, int> cuelistCurrentCueKeys;
     QHash<int, int> cuelistFadeFrames;
     QHash<int, QHash<int, int>> cuelistFixtureFadeFrames;
