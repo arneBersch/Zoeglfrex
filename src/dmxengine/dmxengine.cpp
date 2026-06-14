@@ -199,51 +199,7 @@ void DmxEngine::generateDmx() {
         qWarning() << Q_FUNC_INFO << currentCuelistQuery.executedQuery() << currentCuelistQuery.lastError().text();
     }
 
-    /*QHash<int, int> mwdGroupCues;
-    QHash<int, int> mwdGroupCueDifference;
-    QSqlQuery mwdCuelistQuery;
-    if (mwdCuelistQuery.exec("SELECT key, currentcue_key FROM cuelists WHERE movewhiledark = 1 AND currentcue_key IS NOT NULL ORDER BY priority, sortkey")) {
-        while (mwdCuelistQuery.next()) {
-            const int cuelistKey = mwdCuelistQuery.value(0).toInt();
-            const int currentCueKey = mwdCuelistQuery.value(1).toInt();
-
-            QSqlQuery cuesQuery;
-            cuesQuery.prepare("SELECT key FROM cues WHERE cuelist_key = :cuelist AND sortkey > (SELECT sortkey FROM cues WHERE key = :currentcue) LIMIT 10");
-            cuesQuery.bindValue(":cuelist", cuelistKey);
-            cuesQuery.bindValue(":currentcue", currentCueKey);
-            if (cuesQuery.exec()) {
-                while (cuesQuery.next()) {
-                    const int cueKey = cuesQuery.value(0).toInt();
-                    const int cueDifference = cuesQuery.at() + 1;
-
-                    for (const int groupKey : groupKeys) {
-                        if (!mwdGroupCueDifference.contains(groupKey) || (mwdGroupCueDifference.value(groupKey) >= cueDifference)) {
-                            const QStringList tables = {"cue_group_intensities", "cue_group_colors", "cue_group_positions", "cue_group_raws", "cue_group_effects"};
-                            for (QString table : tables) {
-                                QSqlQuery cueValueQuery;
-                                cueValueQuery.prepare("SELECT valueitem_key FROM " + table + " WHERE item_key = :cue AND foreignitem_key = :group LIMIT 1");
-                                cueValueQuery.bindValue(":cue", cueKey);
-                                cueValueQuery.bindValue(":group", groupKey);
-                                if (cueValueQuery.exec()) {
-                                    if (cueValueQuery.next()) {
-                                        mwdGroupCues[groupKey] = cueKey;
-                                        mwdGroupCueDifference[groupKey] = cueDifference;
-                                        break;
-                                    }
-                                } else {
-                                    qWarning() << cueValueQuery.executedQuery() << cueValueQuery.lastError().text();
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                qWarning() << cuesQuery.executedQuery() << cuesQuery.lastError().text();
-            }
-        }
-    } else {
-        qWarning() << mwdCuelistQuery.executedQuery() << mwdCuelistQuery.lastError().text();
-    }*/
+    mwdManager.nextFrame();
 
     QSet<int> currentFixtureKeys;
     QSqlQuery currentFixtureQuery;
@@ -272,47 +228,27 @@ void DmxEngine::generateDmx() {
         PositionData position = fixtureData.getFixturePosition(fixtureKey);
         RawData raws = fixtureData.getFixtureRaws(fixtureKey);
 
-        /*if (!fixtureData.hasData(fixtureKey)) {
-            int fixtureCue = -1;
+        if (!fixtureData.hasData(fixtureKey)) {
             QList<int> fixtureGroups;
-            int cueDifference = -1;
-            int priority = 0;
-
             for (const int groupKey : groupKeys) {
                 if (groupFixtureKeys.value(groupKey).contains(fixtureKey)) {
                     fixtureGroups.append(groupKey);
-                    if (mwdGroupCueDifference.contains(groupKey) && ((cueDifference < 0) || (mwdGroupCueDifference.value(groupKey) < cueDifference) || ((mwdGroupCueDifference.value(groupKey) <= cueDifference) && (mwdGroupPriorities.value(groupKey) >= priority)))) {
-                        cueDifference = mwdGroupCueDifference.value(groupKey);
-                        fixtureCue = mwdGroupCues.value(groupKey);
-                        priority = mwdGroupPriorities.value(groupKey);
-                    }
                 }
             }
-
-            if (fixtureCue > 0) {
+            const QList<int> cueKeys = mwdManager.getMwDCues(fixtureGroups);
+            if (!cueKeys.isEmpty()) {
                 QHash<int, QSet<int>> fixtureGroupFixture;
                 for (const int groupKey : fixtureGroups) {
                     fixtureGroupFixture[groupKey] = { fixtureKey };
                 }
-
-                CueData cue = CueData(fixtureCue, fixtureGroups, fixtureGroupFixture);
-
-                if (cue.getFixtureColors().contains(fixtureKey)) {
-                    fixtureColors[fixtureKey] = cue.getFixtureColors().value(fixtureKey);
-                }
-                if (cue.getFixturePositions().contains(fixtureKey)) {
-                    fixturePositions[fixtureKey] = cue.getFixturePositions().value(fixtureKey);
-                }
-                if (cue.getFixtureRaws().contains(fixtureKey)) {
-                    fixtureChannelRaws[fixtureKey] = QHash<int, uint8_t>();
-                    for (const int channel : cueFixtureRaws.value(fixtureKey).keys()) {
-                        if (cueFixtureRaws.value(fixtureKey).value(channel).moveWhileDark) {
-                            fixtureChannelRaws[fixtureKey][channel] = cueFixtureRaws.value(fixtureKey).value(channel).value;
-                        }
-                    }
+                for (const int cueKey : cueKeys) {
+                    const CueData cue = CueData(cueKey, fixtureGroups, fixtureGroupFixture, true);
+                    color = cue.getFixtureColor(fixtureKey);
+                    position = cue.getFixturePosition(fixtureKey);
+                    raws = cue.getFixtureRaws(fixtureKey);
                 }
             }
-        }*/
+        }
 
         if (currentFixtureKeys.contains(fixtureKey) && highlightButton->isChecked()) {
             intensity = IntensityData::highlightValue();

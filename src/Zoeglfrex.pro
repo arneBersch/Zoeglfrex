@@ -21,6 +21,7 @@ SOURCES += \
     cuelistview/cuelisttablemodel.cpp \
     cuelistview/cuelistview.cpp \
     dmxengine/dmxengine.cpp \
+    dmxengine/mwdmanager.cpp \
     dmxengine/valuedata/colordata.cpp \
     dmxengine/valuedata/cuedata.cpp \
     dmxengine/valuedata/effectdata.cpp \
@@ -50,6 +51,7 @@ HEADERS += \
     cuelistview/cuelisttablemodel.h \
     cuelistview/cuelistview.h \
     dmxengine/dmxengine.h \
+    dmxengine/mwdmanager.h \
     dmxengine/valuedata/colordata.h \
     dmxengine/valuedata/cuedata.h \
     dmxengine/valuedata/effectdata.h \

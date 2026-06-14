@@ -13,6 +13,7 @@
 #include <QtSql>
 
 #include "preview2d/preview2d.h"
+#include "mwdmanager.h"
 
 class DmxEngine : public QWidget {
     Q_OBJECT
@@ -38,6 +39,8 @@ private:
     QHash<int, int> cuelistTransitionFrames;
     QHash<int, int> cuelistRemainingTransitionFrames;
     QHash<int, bool> cuelistSineFade;
+
+    MwDManager mwdManager;
 };
 
 const int FRAMEDURATION = 25;
