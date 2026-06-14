@@ -235,7 +235,7 @@ void DmxEngine::generateDmx() {
                     fixtureGroups.append(groupKey);
                 }
             }
-            const QList<int> cueKeys = mwdManager.getMwDCues(fixtureGroups);
+            const QSet<int> cueKeys = mwdManager.getMwDCues(fixtureGroups);
             if (!cueKeys.isEmpty()) {
                 QHash<int, QSet<int>> fixtureGroupFixture;
                 for (const int groupKey : fixtureGroups) {
