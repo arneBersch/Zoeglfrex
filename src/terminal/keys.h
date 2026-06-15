@@ -43,6 +43,7 @@ enum Key {
 };
 
 QString keysToString(QList<Key> keys);
+bool isItemKey(Key key);
 
 }
 

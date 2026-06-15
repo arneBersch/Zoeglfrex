@@ -34,18 +34,6 @@ private:
     const ItemInfos effectInfos = {"effects", "effects", "Effect", "Effects", Keys::Effect};
     const ItemInfos cuelistInfos = {"cuelists", "cuelists", "Cuelist", "Cuelists", Keys::Cuelist};
     const ItemInfos cueInfos = {"currentcuelist_cues", "cues", "Cue", "Cues", Keys::Cue};
-    const QList<Keys::Key> itemKeys = {
-        Keys::Model,
-        Keys::Fixture,
-        Keys::Group,
-        Keys::Intensity,
-        Keys::Color,
-        Keys::Position,
-        Keys::Raw,
-        Keys::Effect,
-        Keys::Cuelist,
-        Keys::Cue
-    };
 
     struct NumberInfos {
         float minValue;

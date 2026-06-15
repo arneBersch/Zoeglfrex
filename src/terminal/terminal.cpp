@@ -111,7 +111,7 @@ void Terminal::execute() {
                 return;
             }
             valueReached = true;
-        } else if ((itemKeys.contains(key) || (key == Keys::Attribute)) && !valueReached) {
+        } else if ((Keys::isItemKey(key) || (key == Keys::Attribute)) && !valueReached) {
             attributeKeys.append(key);
             attributeReached = true;
         } else {
@@ -167,7 +167,7 @@ void Terminal::execute() {
         attributeKeys.append(Keys::Attribute);
         QList<Keys::Key> currentItemKeys;
         for (const Keys::Key key : attributeKeys) {
-            if (itemKeys.contains(key) || (key == Keys::Attribute)) {
+            if (Keys::isItemKey(key) || (key == Keys::Attribute)) {
                 if (!currentItemKeys.isEmpty()) {
                     Keys::Key currentItemType = currentItemKeys.first();
                     QStringList ids = keysToIds(currentItemKeys);
@@ -1897,7 +1897,7 @@ void Terminal::reload() {
     QList<Keys::Key> idKeys;
     bool append = true;
     for (const Keys::Key key : promptKeys) {
-        if (itemKeys.contains(key)) {
+        if (Keys::isItemKey(key)) {
             append = true;
             idKeys.clear();
         } else if ((key == Keys::Attribute) || (key == Keys::Set)) {

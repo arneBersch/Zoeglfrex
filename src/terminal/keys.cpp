@@ -8,7 +8,7 @@
 
 #include "keys.h"
 
-QString Keys::keysToString(QList<Keys::Key> keys) {
+QString Keys::keysToString(QList<Key> keys) {
     QHash<Key, QString> keyStrings;
     keyStrings[Zero] = "0";
     keyStrings[One] = "1";
@@ -43,4 +43,21 @@ QString Keys::keysToString(QList<Keys::Key> keys) {
         result.append(keyStrings.value(key));
     }
     return result.simplified();
+}
+
+bool Keys::isItemKey(Key key) {
+    const QList<Key> itemKeys = {
+        Model,
+        Fixture,
+        Group,
+        Intensity,
+        Color,
+        Position,
+        Raw,
+        Effect,
+        Cuelist,
+        Cue
+    };
+
+    return itemKeys.contains(key);
 }
