@@ -14,13 +14,15 @@ QHash<int, QHash<int, int>> EffectData::oldGroupFrames;
 
 EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int> effectKeys, const bool renderMwD) {
     for (const int effectKey : effectKeys) {
-        if (!groupFrames.contains(groupKey)) {
-            groupFrames[groupKey] = QHash<int, int>();
-        }
-        if (oldGroupFrames.value(groupKey, QHash<int, int>()).contains(effectKey)) {
-            groupFrames[groupKey][effectKey] = oldGroupFrames.value(groupKey).value(effectKey) + 1;
-        } else {
-            groupFrames[groupKey][effectKey] = 1;
+        if (!renderMwD) {
+            if (!groupFrames.contains(groupKey)) {
+                groupFrames[groupKey] = QHash<int, int>();
+            }
+            if (oldGroupFrames.value(groupKey, QHash<int, int>()).contains(effectKey)) {
+                groupFrames[groupKey][effectKey] = oldGroupFrames.value(groupKey).value(effectKey) + 1;
+            } else {
+                groupFrames[groupKey][effectKey] = 1;
+            }
         }
 
         QSqlQuery effectAttributesQuery;
@@ -83,7 +85,7 @@ EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int
                         qWarning() << Q_FUNC_INFO << fixturePhaseQuery.executedQuery() << fixturePhaseQuery.lastError().text();
                     }
 
-                    int frames = groupFrames.value(groupKey, QHash<int, int>()).value(effectKey, 0);
+                    int frames = groupFrames.value(groupKey, QHash<int, int>()).value(effectKey, 1);
                     frames = (int)(frames + (phase / 360) * totalFrames) % totalFrames;
                     int currentStep = 1;
                     float fade = 1;
@@ -109,23 +111,25 @@ EffectData::EffectData(const int fixtureKey, const int groupKey, const QList<int
                         lastStep = stepAmount;
                     }
 
-                    const int currentIntensityKey = getStepKey(currentStep, effectKey, "effect_step_intensities");
-                    IntensityData currentIntensity;
-                    if (currentIntensityKey >= 0) {
-                        currentIntensity = IntensityData(fixtureKey, currentIntensityKey);
-                    }
-                    int lastIntensityKey = -1;
-                    if (fade > 0) {
-                        IntensityData lastIntensity;
-                        lastIntensityKey = getStepKey(lastStep, effectKey, "effect_step_intensities");
-                        if (lastIntensityKey >= 0) {
-                            lastIntensity = IntensityData(fixtureKey, lastIntensityKey);
+                    if (!renderMwD) {
+                        const int currentIntensityKey = getStepKey(currentStep, effectKey, "effect_step_intensities");
+                        IntensityData currentIntensity;
+                        if (currentIntensityKey >= 0) {
+                            currentIntensity = IntensityData(fixtureKey, currentIntensityKey);
                         }
-                        currentIntensity.fade(lastIntensity, fade);
-                    }
-                    if ((currentIntensityKey >= 0) || (lastIntensityKey >= 0)) {
-                        intensityGiven = true;
-                        intensity.merge(currentIntensity);
+                        int lastIntensityKey = -1;
+                        if (fade > 0) {
+                            IntensityData lastIntensity;
+                            lastIntensityKey = getStepKey(lastStep, effectKey, "effect_step_intensities");
+                            if (lastIntensityKey >= 0) {
+                                lastIntensity = IntensityData(fixtureKey, lastIntensityKey);
+                            }
+                            currentIntensity.fade(lastIntensity, fade);
+                        }
+                        if ((currentIntensityKey >= 0) || (lastIntensityKey >= 0)) {
+                            intensityGiven = true;
+                            intensity.merge(currentIntensity);
+                        }
                     }
 
                     const int currentColorKey = getStepKey(currentStep, effectKey, "effect_step_colors");
