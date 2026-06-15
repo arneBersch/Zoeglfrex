@@ -10,33 +10,6 @@
 #include "constants.h"
 
 Terminal::Terminal(QWidget *parent) : QWidget(parent) {
-    keyStrings[Keys::Zero] = "0";
-    keyStrings[Keys::One] = "1";
-    keyStrings[Keys::Two] = "2";
-    keyStrings[Keys::Three] = "3";
-    keyStrings[Keys::Four] = "4";
-    keyStrings[Keys::Five] = "5";
-    keyStrings[Keys::Six] = "6";
-    keyStrings[Keys::Seven] = "7";
-    keyStrings[Keys::Eight] = "8";
-    keyStrings[Keys::Nine] = "9";
-    keyStrings[Keys::Model] = " Model ";
-    keyStrings[Keys::Fixture] = " Fixture ";
-    keyStrings[Keys::Group] = " Group ";
-    keyStrings[Keys::Intensity] = " Intensity ";
-    keyStrings[Keys::Color] = " Color ";
-    keyStrings[Keys::Position] = " Position ";
-    keyStrings[Keys::Raw] = " Raw ";
-    keyStrings[Keys::Effect] = " Effect ";
-    keyStrings[Keys::Cuelist] = " Cuelist ";
-    keyStrings[Keys::Cue] = " Cue ";
-    keyStrings[Keys::Set] = " Set ";
-    keyStrings[Keys::Attribute] = " Attribute ";
-    keyStrings[Keys::Plus] = " + ";
-    keyStrings[Keys::Minus] = " - ";
-    keyStrings[Keys::Thru] = " Thru ";
-    keyStrings[Keys::Period] = ".";
-
     QVBoxLayout *layout = new QVBoxLayout();
     setLayout(layout);
     QHBoxLayout* promptLayout = new QHBoxLayout();
@@ -180,7 +153,7 @@ void Terminal::execute() {
                 qWarning() << Q_FUNC_INFO << currentCueQuery.executedQuery() << currentCueQuery.lastError().text();
             }
         } else {
-            error("Can't select this Item type: " + keysToString({selectionType}));
+            error("Can't select this Item type: " + Keys::keysToString({selectionType}));
         }
         return;
     }
@@ -1938,7 +1911,7 @@ void Terminal::reload() {
     if (idKeys.isEmpty()) {
         emit itemChanged(QString(), QStringList());
     } else {
-        emit itemChanged(keysToString({ idKeys.first() }), keysToIds(idKeys));
+        emit itemChanged(Keys::keysToString({ idKeys.first() }), keysToIds(idKeys));
     }
 }
 
@@ -2189,15 +2162,6 @@ QStringList Terminal::keysToIds(QList<Keys::Key> keys) const {
     ids.removeDuplicates();
     std::sort(ids.begin(), ids.end(), Terminal::compareIds);
     return ids;
-}
-
-QString Terminal::keysToString(QList<Keys::Key> keys) const {
-    QString string;
-    for(const Keys::Key key: keys) {
-        Q_ASSERT(keyStrings.contains(key));
-        string.append(keyStrings.value(key));
-    }
-    return string.simplified();
 }
 
 void Terminal::info(QString message) {

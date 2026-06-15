@@ -6,8 +6,10 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef KEY_H
-#define KEY_H
+#ifndef KEYS_H
+#define KEYS_H
+
+#include <QtWidgets>
 
 namespace Keys {
 
@@ -40,6 +42,8 @@ enum Key {
     Cue,
 };
 
+QString keysToString(QList<Key> keys);
+
 }
 
-#endif // KEY_H
+#endif // KEYS_H

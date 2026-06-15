@@ -12,7 +12,7 @@
 #include <QtWidgets>
 #include <QtSql>
 
-#include "key.h"
+#include "keys.h"
 
 class Terminal : public QWidget {
     Q_OBJECT
@@ -88,7 +88,6 @@ private:
     template <typename T> void setItemAndIntegerSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QString numberId, QList<Keys::Key> valueKeys, ItemInfos foreignItem, QString valueTable, NumberInfos keyNumber, NumberInfos valueNumber);
     float keysToFloat(QList<Keys::Key> keys, bool* ok, float currentValue, NumberInfos number) const;
     QStringList keysToIds(QList<Keys::Key> keys) const;
-    QString keysToString(QList<Keys::Key> keys) const;
     void writeKey(Keys::Key key);
     void backspace();
     void clearPrompt();
@@ -97,7 +96,6 @@ private:
     QLabel* promptLabel;
     QPushButton* blindButton;
     QPushButton* trackingButton;
-    QHash<Keys::Key, QString> keyStrings;
 };
 
 #endif // TERMINAL_H
