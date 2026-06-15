@@ -7,34 +7,35 @@
 */
 
 #include "terminal.h"
+#include "constants.h"
 
 Terminal::Terminal(QWidget *parent) : QWidget(parent) {
-    keyStrings[Zero] = "0";
-    keyStrings[One] = "1";
-    keyStrings[Two] = "2";
-    keyStrings[Three] = "3";
-    keyStrings[Four] = "4";
-    keyStrings[Five] = "5";
-    keyStrings[Six] = "6";
-    keyStrings[Seven] = "7";
-    keyStrings[Eight] = "8";
-    keyStrings[Nine] = "9";
-    keyStrings[Model] = " Model ";
-    keyStrings[Fixture] = " Fixture ";
-    keyStrings[Group] = " Group ";
-    keyStrings[Intensity] = " Intensity ";
-    keyStrings[Color] = " Color ";
-    keyStrings[Position] = " Position ";
-    keyStrings[Raw] = " Raw ";
-    keyStrings[Effect] = " Effect ";
-    keyStrings[Cuelist] = " Cuelist ";
-    keyStrings[Cue] = " Cue ";
-    keyStrings[Set] = " Set ";
-    keyStrings[Attribute] = " Attribute ";
-    keyStrings[Plus] = " + ";
-    keyStrings[Minus] = " - ";
-    keyStrings[Thru] = " Thru ";
-    keyStrings[Period] = ".";
+    keyStrings[Keys::Zero] = "0";
+    keyStrings[Keys::One] = "1";
+    keyStrings[Keys::Two] = "2";
+    keyStrings[Keys::Three] = "3";
+    keyStrings[Keys::Four] = "4";
+    keyStrings[Keys::Five] = "5";
+    keyStrings[Keys::Six] = "6";
+    keyStrings[Keys::Seven] = "7";
+    keyStrings[Keys::Eight] = "8";
+    keyStrings[Keys::Nine] = "9";
+    keyStrings[Keys::Model] = " Model ";
+    keyStrings[Keys::Fixture] = " Fixture ";
+    keyStrings[Keys::Group] = " Group ";
+    keyStrings[Keys::Intensity] = " Intensity ";
+    keyStrings[Keys::Color] = " Color ";
+    keyStrings[Keys::Position] = " Position ";
+    keyStrings[Keys::Raw] = " Raw ";
+    keyStrings[Keys::Effect] = " Effect ";
+    keyStrings[Keys::Cuelist] = " Cuelist ";
+    keyStrings[Keys::Cue] = " Cue ";
+    keyStrings[Keys::Set] = " Set ";
+    keyStrings[Keys::Attribute] = " Attribute ";
+    keyStrings[Keys::Plus] = " + ";
+    keyStrings[Keys::Minus] = " - ";
+    keyStrings[Keys::Thru] = " Thru ";
+    keyStrings[Keys::Period] = ".";
 
     QVBoxLayout *layout = new QVBoxLayout();
     setLayout(layout);
@@ -74,35 +75,35 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     messages->setReadOnly(true);
     layout->addWidget(messages);
 
-    new QShortcut(Qt::Key_0, this, [this] { writeKey(Zero); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_1, this, [this] { writeKey(One); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_2, this, [this] { writeKey(Two); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_3, this, [this] { writeKey(Three); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_4, this, [this] { writeKey(Four); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_5, this, [this] { writeKey(Five); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_6, this, [this] { writeKey(Six); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_7, this, [this] { writeKey(Seven); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_8, this, [this] { writeKey(Eight); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_9, this, [this] { writeKey(Nine); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_0, this, [this] { writeKey(Keys::Zero); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_1, this, [this] { writeKey(Keys::One); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_2, this, [this] { writeKey(Keys::Two); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_3, this, [this] { writeKey(Keys::Three); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_4, this, [this] { writeKey(Keys::Four); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_5, this, [this] { writeKey(Keys::Five); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_6, this, [this] { writeKey(Keys::Six); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_7, this, [this] { writeKey(Keys::Seven); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_8, this, [this] { writeKey(Keys::Eight); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_9, this, [this] { writeKey(Keys::Nine); }, Qt::ApplicationShortcut);
 
-    new QShortcut(Qt::Key_Plus, this, [this] { writeKey(Plus); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_Minus, this, [this] { writeKey(Minus); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_T, this, [this] { writeKey(Thru); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_Period, this, [this] { writeKey(Period); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_Comma, this, [this] { writeKey(Period); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_A, this, [this] { writeKey(Attribute); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_S, this, [this] { writeKey(Set); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Plus, this, [this] { writeKey(Keys::Plus); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Minus, this, [this] { writeKey(Keys::Minus); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_T, this, [this] { writeKey(Keys::Thru); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Period, this, [this] { writeKey(Keys::Period); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Comma, this, [this] { writeKey(Keys::Period); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_A, this, [this] { writeKey(Keys::Attribute); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_S, this, [this] { writeKey(Keys::Set); }, Qt::ApplicationShortcut);
 
-    new QShortcut(Qt::Key_M, this, [this] { writeKey(Model); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_F, this, [this] { writeKey(Fixture); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_G, this, [this] { writeKey(Group); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_I, this, [this] { writeKey(Intensity); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_C, this, [this] { writeKey(Color); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_P, this, [this] { writeKey(Position); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_R, this, [this] { writeKey(Raw); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_E, this, [this] { writeKey(Effect); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_L, this, [this] { writeKey(Cuelist); }, Qt::ApplicationShortcut);
-    new QShortcut(Qt::Key_Q, this, [this] { writeKey(Cue); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_M, this, [this] { writeKey(Keys::Model); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_F, this, [this] { writeKey(Keys::Fixture); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_G, this, [this] { writeKey(Keys::Group); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_I, this, [this] { writeKey(Keys::Intensity); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_C, this, [this] { writeKey(Keys::Color); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_P, this, [this] { writeKey(Keys::Position); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_R, this, [this] { writeKey(Keys::Raw); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_E, this, [this] { writeKey(Keys::Effect); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_L, this, [this] { writeKey(Keys::Cuelist); }, Qt::ApplicationShortcut);
+    new QShortcut(Qt::Key_Q, this, [this] { writeKey(Keys::Cue); }, Qt::ApplicationShortcut);
 
     new QShortcut(Qt::Key_Backspace, this, [this] { backspace(); }, Qt::ApplicationShortcut);
     new QShortcut(Qt::SHIFT | Qt::Key_Backspace, this, [this] { clearPrompt(); }, Qt::ApplicationShortcut);
@@ -114,30 +115,30 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
 }
 
 void Terminal::execute() {
-    QList<Key> keys = promptKeys;
+    QList<Keys::Key> keys = promptKeys;
     if (keys.isEmpty()) {
         return;
     }
     info("> " + keysToString(keys));
     clearPrompt();
 
-    const Key selectionType = keys.first();
+    const Keys::Key selectionType = keys.first();
     keys.removeFirst();
 
-    QList<Key> selectionIdKeys;
+    QList<Keys::Key> selectionIdKeys;
     selectionIdKeys.append(selectionType);
-    QList<Key> attributeKeys;
-    QList<Key> valueKeys;
+    QList<Keys::Key> attributeKeys;
+    QList<Keys::Key> valueKeys;
     bool attributeReached = false;
     bool valueReached = false;
-    for (const Key key : keys) {
-        if (key == Set) {
+    for (const Keys::Key key : keys) {
+        if (key == Keys::Set) {
             if (valueReached) {
                 error("Can't use Set more than one time in one command.");
                 return;
             }
             valueReached = true;
-        } else if ((itemKeys.contains(key) || (key == Attribute)) && !valueReached) {
+        } else if ((itemKeys.contains(key) || (key == Keys::Attribute)) && !valueReached) {
             attributeKeys.append(key);
             attributeReached = true;
         } else {
@@ -151,23 +152,23 @@ void Terminal::execute() {
         }
     }
     if (!attributeReached && !valueReached) {
-        if (selectionType == Fixture) {
+        if (selectionType == Keys::Fixture) {
             setCurrentItem(fixtureInfos, "currentgroup_fixtures", selectionIdKeys, "UPDATE currentitems SET fixture_key = :key");
-        } else if (selectionType == Group) {
+        } else if (selectionType == Keys::Group) {
             setCurrentItem(groupInfos, groupInfos.selectTable, selectionIdKeys, "UPDATE currentitems SET group_key = :key");
-        } else if (selectionType == Intensity) {
+        } else if (selectionType == Keys::Intensity) {
             setCueItem(intensityInfos, "cue_group_intensities", selectionIdKeys, false);
-        } else if (selectionType == Color) {
+        } else if (selectionType == Keys::Color) {
             setCueItem(colorInfos, "cue_group_colors", selectionIdKeys, false);
-        } else if (selectionType == Position) {
+        } else if (selectionType == Keys::Position) {
             setCueItem(positionInfos, "cue_group_positions", selectionIdKeys, false);
-        } else if (selectionType == Raw) {
+        } else if (selectionType == Keys::Raw) {
             setCueItem(rawInfos, "cue_group_raws", selectionIdKeys, true);
-        } else if (selectionType == Effect) {
+        } else if (selectionType == Keys::Effect) {
             setCueItem(effectInfos, "cue_group_effects", selectionIdKeys, true);
-        } else if (selectionType == Cuelist) {
+        } else if (selectionType == Keys::Cuelist) {
             setCurrentItem(cuelistInfos, cuelistInfos.selectTable, selectionIdKeys, "UPDATE currentitems SET cuelist_key = :key");
-        } else if (selectionType == Cue) {
+        } else if (selectionType == Keys::Cue) {
             QSqlQuery currentCueQuery;
             if (currentCueQuery.exec("SELECT cue_key FROM currentitems WHERE cue_key IS NOT NULL")) {
                 if (currentCueQuery.next()) {
@@ -188,14 +189,14 @@ void Terminal::execute() {
         error("Invalid selection ID given.");
         return;
     }
-    QHash<Key, QStringList> attributes;
+    QHash<Keys::Key, QStringList> attributes;
     if (!attributeKeys.isEmpty()) {
-        attributeKeys.append(Attribute);
-        QList<Key> currentItemKeys;
-        for (const Key key : attributeKeys) {
-            if (itemKeys.contains(key) || (key == Attribute)) {
+        attributeKeys.append(Keys::Attribute);
+        QList<Keys::Key> currentItemKeys;
+        for (const Keys::Key key : attributeKeys) {
+            if (itemKeys.contains(key) || (key == Keys::Attribute)) {
                 if (!currentItemKeys.isEmpty()) {
-                    Key currentItemType = currentItemKeys.first();
+                    Keys::Key currentItemType = currentItemKeys.first();
                     QStringList ids = keysToIds(currentItemKeys);
                     if (ids.isEmpty()) {
                         error("Invalid Attribute given: " + keysToString(currentItemKeys));
@@ -209,23 +210,23 @@ void Terminal::execute() {
         }
     }
     QString attribute;
-    if (attributes.value(Attribute, QStringList()).size() == 0) {
+    if (attributes.value(Keys::Attribute, QStringList()).size() == 0) {
         attribute = QString();
-    } else if (attributes.value(Attribute).size() == 1) {
-        attribute = attributes.value(Attribute).first();
+    } else if (attributes.value(Keys::Attribute).size() == 1) {
+        attribute = attributes.value(Keys::Attribute).first();
     } else {
         error("Invalid number of Attribute IDs given.");
         return;
     }
 
-    if (selectionType == Model) {
-        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
+    if (selectionType == Keys::Model) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
             deleteItems(modelInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(modelInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(modelInfos, "label", "Label", ids, "");
-        } else if ((attribute == AttributeIds::modelChannels) || !attributes.contains(Attribute)) {
+        } else if ((attribute == AttributeIds::modelChannels) || !attributes.contains(Keys::Attribute)) {
             setTextAttribute(modelInfos, "channels", "Channels", ids, "^[01DdRrGgBbWwCcMmYyHhSsPpTtZzFf]+$");
         } else if (attribute == AttributeIds::modelPanRange) {
             setNumberAttribute<float>(modelInfos, "panrange", "Pan Range", ids, valueKeys, {0, 3600, false, "°"});
@@ -238,8 +239,8 @@ void Terminal::execute() {
         } else {
             error("Unknown Model Attribute.");
         }
-    } else if (selectionType == Fixture) {
-        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
+    } else if (selectionType == Keys::Fixture) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
             deleteItems(fixtureInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(fixtureInfos, ids, valueKeys);
@@ -249,7 +250,7 @@ void Terminal::execute() {
             setItemAttribute(fixtureInfos, "model_key", "Model", ids, valueKeys, modelInfos);
         } else if (attribute == AttributeIds::fixtureUniverse) {
             setNumberAttribute<int>(fixtureInfos, "universe", "Universe", ids, valueKeys, {1, 63999});
-        } else if ((attribute == AttributeIds::fixtureAddress) || !attributes.contains(Attribute)) {
+        } else if ((attribute == AttributeIds::fixtureAddress) || !attributes.contains(Keys::Attribute)) {
             setNumberAttribute<int>(fixtureInfos, "address", "Address", ids, valueKeys, {0, 512});
         } else if (attribute == AttributeIds::fixtureXPosition) {
             setNumberAttribute<float>(fixtureInfos, "xposition", "X Position", ids, valueKeys, {-100, 100});
@@ -262,30 +263,30 @@ void Terminal::execute() {
         } else {
             error("Unknown Fixture Attribute.");
         }
-    } else if (selectionType == Group) {
-        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
+    } else if (selectionType == Keys::Group) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
             deleteItems(groupInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(groupInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(groupInfos, "label", "Label", ids, "");
-        } else if ((attribute == AttributeIds::groupFixtures) || !attributes.contains(Attribute)) {
+        } else if ((attribute == AttributeIds::groupFixtures) || !attributes.contains(Keys::Attribute)) {
             setItemListAttribute(groupInfos, "Fixtures", ids, valueKeys, fixtureInfos, "group_fixtures");
         } else {
             error("Unknown Group Attribute.");
         }
-    } else if (selectionType == Intensity) {
-        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
+    } else if (selectionType == Keys::Intensity) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
             deleteItems(intensityInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(intensityInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(intensityInfos, "label", "Label", ids, "");
-        } else if ((attribute == AttributeIds::intensityDimmer) || !attributes.contains(Attribute)) {
-            if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "intensity_model_dimmer", percentageInfos);
-            } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "intensity_fixture_dimmer", percentageInfos);
+        } else if ((attribute == AttributeIds::intensityDimmer) || !attributes.contains(Keys::Attribute)) {
+            if (attributes.contains(Keys::Model)) {
+                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Model Exception", ids, attributes.value(Keys::Model), valueKeys, modelInfos, "intensity_model_dimmer", percentageInfos);
+            } else if (attributes.contains(Keys::Fixture)) {
+                setItemSpecificNumberAttribute<float>(intensityInfos, "Dimmer Fixture Exception", ids, attributes.value(Keys::Fixture), valueKeys, fixtureInfos, "intensity_fixture_dimmer", percentageInfos);
             } else {
                 setNumberAttribute<float>(intensityInfos, "dimmer", "Dimmer", ids, valueKeys, percentageInfos);
             }
@@ -294,34 +295,34 @@ void Terminal::execute() {
         } else {
             error("Unknown Intensity Attribute.");
         }
-    } else if (selectionType == Color) {
-        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
+    } else if (selectionType == Keys::Color) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
             deleteItems(colorInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(colorInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(colorInfos, "label", "Label", ids, "");
-        } else if ((attribute == AttributeIds::colorHue) || !attributes.contains(Attribute)) {
-            if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_hue", angleInfos);
-            } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_hue", angleInfos);
+        } else if ((attribute == AttributeIds::colorHue) || !attributes.contains(Keys::Attribute)) {
+            if (attributes.contains(Keys::Model)) {
+                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Model Exception", ids, attributes.value(Keys::Model), valueKeys, modelInfos, "color_model_hue", angleInfos);
+            } else if (attributes.contains(Keys::Fixture)) {
+                setItemSpecificNumberAttribute<float>(colorInfos, "Hue Fixture Exception", ids, attributes.value(Keys::Fixture), valueKeys, fixtureInfos, "color_fixture_hue", angleInfos);
             } else {
                 setNumberAttribute<float>(colorInfos, "hue", "Hue", ids, valueKeys, angleInfos);
             }
         } else if (attribute == AttributeIds::colorSaturation) {
-            if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_saturation", percentageInfos);
-            } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_saturation", percentageInfos);
+            if (attributes.contains(Keys::Model)) {
+                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Model Exception", ids, attributes.value(Keys::Model), valueKeys, modelInfos, "color_model_saturation", percentageInfos);
+            } else if (attributes.contains(Keys::Fixture)) {
+                setItemSpecificNumberAttribute<float>(colorInfos, "Saturation Fixture Exception", ids, attributes.value(Keys::Fixture), valueKeys, fixtureInfos, "color_fixture_saturation", percentageInfos);
             } else {
                 setNumberAttribute<float>(colorInfos, "saturation", "Saturation", ids, valueKeys, percentageInfos);
             }
         } else if (attribute == AttributeIds::colorQuality) {
-            if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Quality Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "color_model_quality", percentageInfos);
-            } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(colorInfos, "Quality Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "color_fixture_quality", percentageInfos);
+            if (attributes.contains(Keys::Model)) {
+                setItemSpecificNumberAttribute<float>(colorInfos, "Quality Model Exception", ids, attributes.value(Keys::Model), valueKeys, modelInfos, "color_model_quality", percentageInfos);
+            } else if (attributes.contains(Keys::Fixture)) {
+                setItemSpecificNumberAttribute<float>(colorInfos, "Quality Fixture Exception", ids, attributes.value(Keys::Fixture), valueKeys, fixtureInfos, "color_fixture_quality", percentageInfos);
             } else {
                 setNumberAttribute<float>(colorInfos, "quality", "Quality", ids, valueKeys, percentageInfos);
             }
@@ -330,42 +331,42 @@ void Terminal::execute() {
         } else {
             error("Unknown Color Attribute.");
         }
-    } else if (selectionType == Position) {
-        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
+    } else if (selectionType == Keys::Position) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
             deleteItems(positionInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(positionInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(positionInfos, "label", "Label", ids, "");
-        } else if ((attribute == AttributeIds::positionPan) || !attributes.contains(Attribute)) {
-            if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_pan", angleInfos);
-            } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_pan", angleInfos);
+        } else if ((attribute == AttributeIds::positionPan) || !attributes.contains(Keys::Attribute)) {
+            if (attributes.contains(Keys::Model)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Model Exception", ids, attributes.value(Keys::Model), valueKeys, modelInfos, "position_model_pan", angleInfos);
+            } else if (attributes.contains(Keys::Fixture)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Pan Fixture Exception", ids, attributes.value(Keys::Fixture), valueKeys, fixtureInfos, "position_fixture_pan", angleInfos);
             } else {
                 setNumberAttribute<float>(positionInfos, "pan", "Pan", ids, valueKeys, angleInfos);
             }
         } else if (attribute == AttributeIds::positionTilt) {
-            if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_tilt", {-180, 180, false, "°"});
-            } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_tilt", {-180, 180, false, "°"});
+            if (attributes.contains(Keys::Model)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Model Exception", ids, attributes.value(Keys::Model), valueKeys, modelInfos, "position_model_tilt", {-180, 180, false, "°"});
+            } else if (attributes.contains(Keys::Fixture)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Tilt Fixture Exception", ids, attributes.value(Keys::Fixture), valueKeys, fixtureInfos, "position_fixture_tilt", {-180, 180, false, "°"});
             } else {
                 setNumberAttribute<float>(positionInfos, "tilt", "Tilt", ids, valueKeys, {-180, 180, false, "°"});
             }
         } else if (attribute == AttributeIds::positionZoom) {
-            if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_zoom", {0, 180, false, "°"});
-            } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_zoom", {0, 180, false, "°"});
+            if (attributes.contains(Keys::Model)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Model Exception", ids, attributes.value(Keys::Model), valueKeys, modelInfos, "position_model_zoom", {0, 180, false, "°"});
+            } else if (attributes.contains(Keys::Fixture)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Zoom Fixture Exception", ids, attributes.value(Keys::Fixture), valueKeys, fixtureInfos, "position_fixture_zoom", {0, 180, false, "°"});
             } else {
                 setNumberAttribute<float>(positionInfos, "zoom", "Zoom", ids, valueKeys, {0, 180, false, "°"});
             }
         } else if (attribute == AttributeIds::positionFocus) {
-            if (attributes.contains(Model)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Focus Model Exception", ids, attributes.value(Model), valueKeys, modelInfos, "position_model_focus", percentageInfos);
-            } else if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(positionInfos, "Focus Fixture Exception", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "position_fixture_focus", percentageInfos);
+            if (attributes.contains(Keys::Model)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Focus Model Exception", ids, attributes.value(Keys::Model), valueKeys, modelInfos, "position_model_focus", percentageInfos);
+            } else if (attributes.contains(Keys::Fixture)) {
+                setItemSpecificNumberAttribute<float>(positionInfos, "Focus Fixture Exception", ids, attributes.value(Keys::Fixture), valueKeys, fixtureInfos, "position_fixture_focus", percentageInfos);
             } else {
                 setNumberAttribute<float>(positionInfos, "focus", "Focus", ids, valueKeys, percentageInfos);
             }
@@ -374,18 +375,18 @@ void Terminal::execute() {
         } else {
             error("Unknown Position Attribute.");
         }
-    } else if (selectionType == Raw) {
-        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
+    } else if (selectionType == Keys::Raw) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
             deleteItems(rawInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(rawInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(rawInfos, "label", "Label", ids, "");
         } else if (attribute.startsWith(QString(AttributeIds::rawChannelValues) + ".")) {
-            if (attributes.contains(Model)) {
-                setItemAndIntegerSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attributes.value(Model), attribute, valueKeys, modelInfos, "raw_model_channel_values", {1, 512}, {0, 255});
-            } else if (attributes.contains(Fixture)) {
-                setItemAndIntegerSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attributes.value(Fixture), attribute, valueKeys, fixtureInfos, "raw_fixture_channel_values", {1, 512}, {0, 255});
+            if (attributes.contains(Keys::Model)) {
+                setItemAndIntegerSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attributes.value(Keys::Model), attribute, valueKeys, modelInfos, "raw_model_channel_values", {1, 512}, {0, 255});
+            } else if (attributes.contains(Keys::Fixture)) {
+                setItemAndIntegerSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attributes.value(Keys::Fixture), attribute, valueKeys, fixtureInfos, "raw_fixture_channel_values", {1, 512}, {0, 255});
             } else {
                 setIntegerSpecificNumberAttribute<int>(rawInfos, "Channel Values", ids, attribute, valueKeys, "raw_channel_values", {1, 512}, {0, 255});
             }
@@ -396,14 +397,14 @@ void Terminal::execute() {
         } else {
             error("Unknown Raw Attribute.");
         }
-    } else if (selectionType == Effect) {
-        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
+    } else if (selectionType == Keys::Effect) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
             deleteItems(effectInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(effectInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(effectInfos, "label", "Label", ids, "");
-        } else if ((attribute == AttributeIds::effectSteps) || !attributes.contains(Attribute)) {
+        } else if ((attribute == AttributeIds::effectSteps) || !attributes.contains(Keys::Attribute)) {
             setNumberAttribute<int>(effectInfos, "steps", "Steps", ids, valueKeys, {2, 99});
         } else if (attribute.startsWith(QString(AttributeIds::effectIntensities) + ".")) {
             setIntegerSpecificItemListAttribute(effectInfos, "Intensities", ids, attribute, valueKeys, intensityInfos, "effect_step_intensities", {1, 99}, true);
@@ -422,8 +423,8 @@ void Terminal::execute() {
         } else if (attribute.startsWith(QString(AttributeIds::effectFade) + ".")) {
             setIntegerSpecificNumberAttribute<float>(effectInfos, "Fade", ids, attribute, valueKeys, "effect_step_fade", {1, 99}, {0, 600, false, "s"});
         } else if (attribute == AttributeIds::effectPhase) {
-            if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(effectInfos, "Phase", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "effect_fixture_phase", angleInfos);
+            if (attributes.contains(Keys::Fixture)) {
+                setItemSpecificNumberAttribute<float>(effectInfos, "Phase", ids, attributes.value(Keys::Fixture), valueKeys, fixtureInfos, "effect_fixture_phase", angleInfos);
             } else {
                 setNumberAttribute<float>(effectInfos, "phase", "Phase", ids, valueKeys, angleInfos);
             }
@@ -432,8 +433,8 @@ void Terminal::execute() {
         } else {
             error("Unknown Effect Attribute.");
         }
-    } else if (selectionType == Cuelist) {
-        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
+    } else if (selectionType == Keys::Cuelist) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
             deleteItems(cuelistInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(cuelistInfos, ids, valueKeys);
@@ -446,7 +447,7 @@ void Terminal::execute() {
         } else {
             error("Unknown Cuelist Attribute.");
         }
-    } else if (selectionType == Cue) {
+    } else if (selectionType == Keys::Cue) {
         QSqlQuery currentCuelistQuery;
         if (currentCuelistQuery.exec("SELECT cuelists.id FROM cuelists, currentitems WHERE currentitems.cuelist_key = cuelists.key")) {
             if (!currentCuelistQuery.next()) {
@@ -458,53 +459,53 @@ void Terminal::execute() {
             error("Can't set Cue Attribute because the request for the current Cuelist failed.");
             return;
         }
-        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Minus)) {
+        if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
             deleteItems(cueInfos, ids);
         } else if (attribute == AttributeIds::id) {
             moveItems(cueInfos, ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
             setTextAttribute(cueInfos, "label", "Label", ids, "");
         } else if (attribute == AttributeIds::cueIntensities) {
-            if (attributes.contains(Group)) {
-                setItemSpecificItemListAttribute(cueInfos, "Intensities", ids, attributes.value(Group), valueKeys, groupInfos, intensityInfos, "cue_group_intensities", true);
+            if (attributes.contains(Keys::Group)) {
+                setItemSpecificItemListAttribute(cueInfos, "Intensities", ids, attributes.value(Keys::Group), valueKeys, groupInfos, intensityInfos, "cue_group_intensities", true);
             } else {
                 error("Can't set Cue Intensities because no Group Attribute was provided.");
             }
         } else if (attribute == AttributeIds::cueColors) {
-            if (attributes.contains(Group)) {
-                setItemSpecificItemListAttribute(cueInfos, "Colors", ids, attributes.value(Group), valueKeys, groupInfos, colorInfos, "cue_group_colors", true);
+            if (attributes.contains(Keys::Group)) {
+                setItemSpecificItemListAttribute(cueInfos, "Colors", ids, attributes.value(Keys::Group), valueKeys, groupInfos, colorInfos, "cue_group_colors", true);
             } else {
                 error("Can't set Cue Colors because no Group Attribute was provided.");
             }
         } else if (attribute == AttributeIds::cuePositions) {
-            if (attributes.contains(Group)) {
-                setItemSpecificItemListAttribute(cueInfos, "Positions", ids, attributes.value(Group), valueKeys, groupInfos, positionInfos, "cue_group_positions", true);
+            if (attributes.contains(Keys::Group)) {
+                setItemSpecificItemListAttribute(cueInfos, "Positions", ids, attributes.value(Keys::Group), valueKeys, groupInfos, positionInfos, "cue_group_positions", true);
             } else {
                 error("Can't set Cue Positions because no Group Attribute was provided.");
             }
         } else if (attribute == AttributeIds::cueRaws) {
-            if (attributes.contains(Group)) {
-                setItemSpecificItemListAttribute(cueInfos, "Raws", ids, attributes.value(Group), valueKeys, groupInfos, rawInfos, "cue_group_raws");
+            if (attributes.contains(Keys::Group)) {
+                setItemSpecificItemListAttribute(cueInfos, "Raws", ids, attributes.value(Keys::Group), valueKeys, groupInfos, rawInfos, "cue_group_raws");
             } else {
                 error("Can't set Cue Raws because no Group Attribute was provided.");
             }
         } else if (attribute == AttributeIds::cueEffects) {
-            if (attributes.contains(Group)) {
-                setItemSpecificItemListAttribute(cueInfos, "Effects", ids, attributes.value(Group), valueKeys, groupInfos, effectInfos, "cue_group_effects");
+            if (attributes.contains(Keys::Group)) {
+                setItemSpecificItemListAttribute(cueInfos, "Effects", ids, attributes.value(Keys::Group), valueKeys, groupInfos, effectInfos, "cue_group_effects");
             } else {
                 error("Can't set Cue Effects because no Group Attribute was provided.");
             }
         } else if (attribute == AttributeIds::cueBlock) {
             setBoolAttribute(cueInfos, "block", "Block", ids, valueKeys);
-        } else if ((attribute == AttributeIds::cueFade) || (!attributes.contains(Attribute))) {
-            if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(cueInfos, "Fade", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "cue_fixture_fade", {0, 600, false, "s"});
+        } else if ((attribute == AttributeIds::cueFade) || (!attributes.contains(Keys::Attribute))) {
+            if (attributes.contains(Keys::Fixture)) {
+                setItemSpecificNumberAttribute<float>(cueInfos, "Fade", ids, attributes.value(Keys::Fixture), valueKeys, fixtureInfos, "cue_fixture_fade", {0, 600, false, "s"});
             } else {
                 setNumberAttribute<float>(cueInfos, "fade", "Fade", ids, valueKeys, {0, 600, false, "s"});
             }
         } else if (attribute == AttributeIds::cueDelay) {
-            if (attributes.contains(Fixture)) {
-                setItemSpecificNumberAttribute<float>(cueInfos, "Delay", ids, attributes.value(Fixture), valueKeys, fixtureInfos, "cue_fixture_delay", {0, 600, false, "s"});
+            if (attributes.contains(Keys::Fixture)) {
+                setItemSpecificNumberAttribute<float>(cueInfos, "Delay", ids, attributes.value(Keys::Fixture), valueKeys, fixtureInfos, "cue_fixture_delay", {0, 600, false, "s"});
             } else {
                 setNumberAttribute<float>(cueInfos, "delay", "Delay", ids, valueKeys, {0, 600, false, "s"});
             }
@@ -572,7 +573,7 @@ bool Terminal::compareIds(const QString a, const QString b) {
     return (aParts.length() < bParts.length());
 }
 
-void Terminal::setCurrentItem(const ItemInfos item, const QString itemTable, const QList<Key> idKeys, const QString updateQueryText) {
+void Terminal::setCurrentItem(const ItemInfos item, const QString itemTable, const QList<Keys::Key> idKeys, const QString updateQueryText) {
     const QStringList ids = keysToIds(idKeys);
     if (ids.size() != 1) {
         error("Invalid " + item.singular + " selection given.");
@@ -601,9 +602,9 @@ void Terminal::setCurrentItem(const ItemInfos item, const QString itemTable, con
     emit dbChanged();
 }
 
-void Terminal::setCueItem(const ItemInfos item, const QString valueTable, const QList<Key> idKeys, const bool multipleItemsAllowed) {
+void Terminal::setCueItem(const ItemInfos item, const QString valueTable, const QList<Keys::Key> idKeys, const bool multipleItemsAllowed) {
     QList<int> itemKeys;
-    if ((idKeys.size() != 2) || !idKeys.endsWith(Minus)) {
+    if ((idKeys.size() != 2) || !idKeys.endsWith(Keys::Minus)) {
         const QStringList ids = keysToIds(idKeys);
         if (ids.isEmpty()) {
             error("Invalid " + item.singular + " selection given.");
@@ -858,7 +859,7 @@ void Terminal::deleteItems(const ItemInfos item, QStringList ids) {
     emit dbChanged();
 }
 
-void Terminal::moveItems(const ItemInfos item, QStringList ids, QList<Key> valueKeys) {
+void Terminal::moveItems(const ItemInfos item, QStringList ids, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     valueKeys.prepend(item.key);
     QStringList newIds = keysToIds(valueKeys);
@@ -913,12 +914,12 @@ void Terminal::moveItems(const ItemInfos item, QStringList ids, QList<Key> value
     emit dbChanged();
 }
 
-void Terminal::setBoolAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QStringList ids, QList<Key> valueKeys) {
+void Terminal::setBoolAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QStringList ids, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     int value = 0;
     QString valueText = "False";
-    if ((valueKeys.size() == 1) && valueKeys.startsWith(Zero)) {
-    } else if ((valueKeys.size() == 1) && valueKeys.startsWith(One)) {
+    if ((valueKeys.size() == 1) && valueKeys.startsWith(Keys::Zero)) {
+    } else if ((valueKeys.size() == 1) && valueKeys.startsWith(Keys::One)) {
         value = 1;
         valueText = "True";
     } else {
@@ -1019,9 +1020,9 @@ void Terminal::setTextAttribute(const ItemInfos item, const QString attribute, c
     emit dbChanged();
 }
 
-template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QStringList ids, QList<Key> valueKeys, const NumberInfos number) {
+template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, const NumberInfos number) {
     Q_ASSERT(!ids.isEmpty());
-    const bool difference = valueKeys.startsWith(Plus);
+    const bool difference = valueKeys.startsWith(Keys::Plus);
     T value;
     if (!difference) {
         bool ok;
@@ -1096,9 +1097,9 @@ template <typename T> void Terminal::setNumberAttribute(const ItemInfos item, co
     emit dbChanged();
 }
 
-void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QStringList ids, QList<Key> valueKeys, const ItemInfos foreignItem) {
+void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, const QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, const ItemInfos foreignItem) {
     Q_ASSERT(!ids.isEmpty());
-    const bool removeItem = (valueKeys.size() == 1) && valueKeys.startsWith(Minus);
+    const bool removeItem = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
     QString foreignItemId;
     int foreignItemKey;
     QStringList successfulIds;
@@ -1171,11 +1172,11 @@ void Terminal::setItemAttribute(const ItemInfos item, const QString attribute, c
     emit dbChanged();
 }
 
-void Terminal::setItemListAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QList<Key> valueKeys, const ItemInfos foreignItem, const QString valueTable) {
+void Terminal::setItemListAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, const ItemInfos foreignItem, const QString valueTable) {
     Q_ASSERT(!ids.isEmpty());
     QList<int> foreignItemKeys;
     QStringList foreignItemIdStrings;
-    if ((valueKeys.size() != 1) || !valueKeys.startsWith(Minus)) {
+    if ((valueKeys.size() != 1) || !valueKeys.startsWith(Keys::Minus)) {
         if (!valueKeys.startsWith(foreignItem.key)) {
             error("Can't set " + item.singular + " " + attributeName + " because no " + foreignItem.plural + " were given.");
             return;
@@ -1260,11 +1261,11 @@ void Terminal::setItemListAttribute(const ItemInfos item, const QString attribut
     emit dbChanged();
 }
 
-template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, const ItemInfos foreignItem, const QString valueTable, const NumberInfos number) {
+template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys, const ItemInfos foreignItem, const QString valueTable, const NumberInfos number) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(!foreignItemIds.isEmpty());
-    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Minus);
-    const bool difference = valueKeys.startsWith(Plus);
+    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
+    const bool difference = valueKeys.startsWith(Keys::Plus);
     T value;
     if (!removeValues && !difference) {
         bool ok;
@@ -1395,10 +1396,10 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemIn
     emit dbChanged();
 }
 
-void Terminal::setItemSpecificItemListAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, const ItemInfos foreignItem, const ItemInfos valueItem, const QString valueTable, const bool limitToOne) {
+void Terminal::setItemSpecificItemListAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys, const ItemInfos foreignItem, const ItemInfos valueItem, const QString valueTable, const bool limitToOne) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(!foreignItemIds.isEmpty());
-    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Minus);
+    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
     QList<int> valueItemKeys;
     QStringList valueItemIdStrings;
     if (!removeValues) {
@@ -1528,7 +1529,7 @@ void Terminal::setItemSpecificItemListAttribute(const ItemInfos item, const QStr
     emit dbChanged();
 }
 
-template <typename T> void Terminal::setIntegerSpecificNumberAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QString numberId, QList<Key> valueKeys, const QString valueTable, const NumberInfos keyNumber, const NumberInfos valueNumber) {
+template <typename T> void Terminal::setIntegerSpecificNumberAttribute(const ItemInfos item, const QString attributeName, QStringList ids, QString numberId, QList<Keys::Key> valueKeys, const QString valueTable, const NumberInfos keyNumber, const NumberInfos valueNumber) {
     Q_ASSERT(!ids.isEmpty());
     QList<QString> numberIdParts = numberId.split(".");
     if (numberIdParts.length() != 2) {
@@ -1541,13 +1542,13 @@ template <typename T> void Terminal::setIntegerSpecificNumberAttribute(const Ite
         error("Can't set " + item.singular + " " + attributeName + " because the given Attribute is not valid.");
         return;
     }
-    key = keysToFloat({Plus, Zero}, &ok, key, keyNumber);
+    key = keysToFloat({Keys::Plus, Keys::Zero}, &ok, key, keyNumber);
     if (!ok) {
         error("Can't set " + item.singular + " " + attributeName + " because the given Attribute is not valid.");
         return;
     }
-    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Minus);
-    const bool difference = valueKeys.startsWith(Plus);
+    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
+    const bool difference = valueKeys.startsWith(Keys::Plus);
     T value;
     if (!removeValues && !difference) {
         bool ok;
@@ -1645,7 +1646,7 @@ template <typename T> void Terminal::setIntegerSpecificNumberAttribute(const Ite
     emit dbChanged();
 }
 
-void Terminal::setIntegerSpecificItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QString integerId, QList<Key> valueKeys, ItemInfos valueItem, QString valueTable, NumberInfos keyInteger, bool limitToOne) {
+void Terminal::setIntegerSpecificItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QString integerId, QList<Keys::Key> valueKeys, ItemInfos valueItem, QString valueTable, NumberInfos keyInteger, bool limitToOne) {
     Q_ASSERT(!ids.isEmpty());
     QList<QString> numberIdParts = integerId.split(".");
     if (numberIdParts.length() != 2) {
@@ -1658,12 +1659,12 @@ void Terminal::setIntegerSpecificItemListAttribute(ItemInfos item, QString attri
         error("Can't set " + item.singular + " " + attributeName + " because the given Attribute is not valid.");
         return;
     }
-    key = keysToFloat({Plus, Zero}, &ok, key, keyInteger);
+    key = keysToFloat({Keys::Plus, Keys::Zero}, &ok, key, keyInteger);
     if (!ok) {
         error("Can't set " + item.singular + " " + attributeName + " because the given Attribute is not valid.");
         return;
     }
-    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Minus);
+    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
     QList<int> valueItemKeys;
     QStringList valueItemIdStrings;
     if (!removeValues) {
@@ -1768,7 +1769,7 @@ void Terminal::setIntegerSpecificItemListAttribute(ItemInfos item, QString attri
     emit dbChanged();
 }
 
-template <typename T> void Terminal::setItemAndIntegerSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QString numberId, QList<Key> valueKeys, ItemInfos foreignItem, QString valueTable, NumberInfos keyNumber, NumberInfos valueNumber) {
+template <typename T> void Terminal::setItemAndIntegerSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QString numberId, QList<Keys::Key> valueKeys, ItemInfos foreignItem, QString valueTable, NumberInfos keyNumber, NumberInfos valueNumber) {
     Q_ASSERT(!ids.isEmpty());
     QList<QString> numberIdParts = numberId.split(".");
     if (numberIdParts.length() != 2) {
@@ -1781,13 +1782,13 @@ template <typename T> void Terminal::setItemAndIntegerSpecificNumberAttribute(It
         error("Can't set " + item.singular + " " + attributeName + " because the given Attribute is not valid.");
         return;
     }
-    key = keysToFloat({Plus, Zero}, &ok, key, keyNumber);
+    key = keysToFloat({Keys::Plus, Keys::Zero}, &ok, key, keyNumber);
     if (!ok) {
         error("Can't set " + item.singular + " " + attributeName + " because the given Attribute is not valid.");
         return;
     }
-    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Minus);
-    const bool difference = valueKeys.startsWith(Plus);
+    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
+    const bool difference = valueKeys.startsWith(Keys::Plus);
     T value;
     if (!removeValues && !difference) {
         bool ok;
@@ -1920,13 +1921,13 @@ template <typename T> void Terminal::setItemAndIntegerSpecificNumberAttribute(It
 }
 
 void Terminal::reload() {
-    QList<Key> idKeys;
+    QList<Keys::Key> idKeys;
     bool append = true;
-    for (const Key key : promptKeys) {
+    for (const Keys::Key key : promptKeys) {
         if (itemKeys.contains(key)) {
             append = true;
             idKeys.clear();
-        } else if ((key == Attribute) || (key == Set)) {
+        } else if ((key == Keys::Attribute) || (key == Keys::Set)) {
             append = false;
         }
         if (append) {
@@ -1941,7 +1942,7 @@ void Terminal::reload() {
     }
 }
 
-void Terminal::writeKey(Key key) {
+void Terminal::writeKey(Keys::Key key) {
     promptKeys.append(key);
     reload();
 }
@@ -1959,8 +1960,8 @@ void Terminal::clearPrompt() {
     reload();
 }
 
-float Terminal::keysToFloat(QList<Key> keys, bool* ok, const float currentValue, const NumberInfos number) const {
-    const bool difference = keys.startsWith(Plus);
+float Terminal::keysToFloat(QList<Keys::Key> keys, bool* ok, const float currentValue, const NumberInfos number) const {
+    const bool difference = keys.startsWith(Keys::Plus);
     if (difference) {
         keys.removeFirst();
     }
@@ -1988,34 +1989,34 @@ float Terminal::keysToFloat(QList<Key> keys, bool* ok, const float currentValue,
     return value;
 }
 
-QStringList Terminal::keysToIds(QList<Key> keys) const {
+QStringList Terminal::keysToIds(QList<Keys::Key> keys) const {
     if (keys.isEmpty()) {
         return QStringList();
     }
-    const Key itemType = keys.first();
+    const Keys::Key itemType = keys.first();
     keys.removeFirst();
     QStringList ids;
     if (keys.isEmpty()) {
         QSqlQuery query;
-        if (itemType == Model) {
+        if (itemType == Keys::Model) {
             query.prepare("SELECT models.id FROM models, currentfixtures WHERE currentfixtures.model_key = models.key");
-        } else if (itemType == Fixture) {
+        } else if (itemType == Keys::Fixture) {
             query.prepare("SELECT id FROM currentfixtures");
-        } else if (itemType == Group) {
+        } else if (itemType == Keys::Group) {
             query.prepare("SELECT groups.id FROM groups, currentitems WHERE groups.key = currentitems.group_key");
-        } else if (itemType == Intensity) {
+        } else if (itemType == Keys::Intensity) {
             query.prepare("SELECT intensities.id FROM intensities, currentcue, currentitems, cue_group_intensities WHERE currentitems.group_key = cue_group_intensities.foreignitem_key AND cue_group_intensities.valueitem_key = intensities.key AND cue_group_intensities.item_key = currentcue.key");
-        } else if (itemType == Color) {
+        } else if (itemType == Keys::Color) {
             query.prepare("SELECT colors.id FROM colors, currentcue, currentitems, cuelists, cue_group_colors WHERE currentitems.group_key = cue_group_colors.foreignitem_key AND cue_group_colors.valueitem_key = colors.key AND cue_group_colors.item_key = currentcue.key");
-        } else if (itemType == Position) {
+        } else if (itemType == Keys::Position) {
             query.prepare("SELECT positions.id FROM positions, currentcue, currentitems, cuelists, cue_group_positions WHERE currentitems.group_key = cue_group_positions.foreignitem_key AND cue_group_positions.valueitem_key = positions.key AND cue_group_positions.item_key = currentcue.key");
-        } else if (itemType == Raw) {
+        } else if (itemType == Keys::Raw) {
             query.prepare("SELECT raws.id FROM raws, currentcue, currentitems, cuelists, cue_group_raws WHERE currentitems.group_key = cue_group_raws.foreignitem_key AND cue_group_raws.valueitem_key = raws.key AND cue_group_raws.item_key = currentcue.key");
-        } else if (itemType == Effect) {
+        } else if (itemType == Keys::Effect) {
             query.prepare("SELECT effects.id FROM effects, currentcue, currentitems, cuelists, cue_group_effects WHERE currentitems.group_key = cue_group_effects.foreignitem_key AND cue_group_effects.valueitem_key = effects.key AND cue_group_effects.item_key = currentcue.key");
-        } else if (itemType == Cuelist) {
+        } else if (itemType == Keys::Cuelist) {
             query.prepare("SELECT cuelists.id FROM cuelists, currentitems WHERE cuelists.key = currentitems.cuelist_key");
-        } else if (itemType == Cue) {
+        } else if (itemType == Keys::Cue) {
             query.prepare("SELECT id FROM currentcue");
         } else {
             return QStringList();
@@ -2030,27 +2031,27 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
     } else {
         QStringList allIds;
         QString table;
-        if (itemType == Model) {
+        if (itemType == Keys::Model) {
             table = modelInfos.selectTable;
-        } else if (itemType == Fixture) {
+        } else if (itemType == Keys::Fixture) {
             table = fixtureInfos.selectTable;
-        } else if (itemType == Group) {
+        } else if (itemType == Keys::Group) {
             table = groupInfos.selectTable;
-        } else if (itemType == Intensity) {
+        } else if (itemType == Keys::Intensity) {
             table = intensityInfos.selectTable;
-        } else if (itemType == Color) {
+        } else if (itemType == Keys::Color) {
             table = colorInfos.selectTable;
-        } else if (itemType == Position) {
+        } else if (itemType == Keys::Position) {
             table = positionInfos.selectTable;
-        } else if (itemType == Raw) {
+        } else if (itemType == Keys::Raw) {
             table = rawInfos.selectTable;
-        } else if (itemType == Effect) {
+        } else if (itemType == Keys::Effect) {
             table = effectInfos.selectTable;
-        } else if (itemType == Cuelist) {
+        } else if (itemType == Keys::Cuelist) {
             table = cuelistInfos.selectTable;
-        } else if (itemType == Cue) {
+        } else if (itemType == Keys::Cue) {
             table = cueInfos.selectTable;
-        } else if (itemType == Attribute) {
+        } else if (itemType == Keys::Attribute) {
         } else {
             return QStringList();
         }
@@ -2065,14 +2066,14 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
             }
         }
 
-        keys.append(Plus);
+        keys.append(Keys::Plus);
         QStringList thruParts;
         QStringList idParts;
-        QList<Key> currentIdPartKeys;
+        QList<Keys::Key> currentIdPartKeys;
         bool idAdding = true;
         bool idStartsWithPeriod = false;
-        for (const Key key : keys) {
-            if (((key == Plus) || (key == Minus)) && currentIdPartKeys.isEmpty()) { // IDs which end with a period
+        for (const Keys::Key key : keys) {
+            if (((key == Keys::Plus) || (key == Keys::Minus)) && currentIdPartKeys.isEmpty()) { // IDs that end with a period
                 if (idStartsWithPeriod) {
                     if (!thruParts.isEmpty() || !idParts.isEmpty()) {
                         return QStringList();
@@ -2100,8 +2101,8 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                     }
                     idParts.clear();
                 }
-            } else if ((key == Period) || (key == Plus) || (key == Minus) || (key == Thru)) {
-                if ((key == Period) && idParts.isEmpty() && currentIdPartKeys.isEmpty() && !idStartsWithPeriod) {
+            } else if ((key == Keys::Period) || (key == Keys::Plus) || (key == Keys::Minus) || (key == Keys::Thru)) {
+                if ((key == Keys::Period) && idParts.isEmpty() && currentIdPartKeys.isEmpty() && !idStartsWithPeriod) {
                     idStartsWithPeriod = true;
                 } else {
                     bool ok;
@@ -2112,7 +2113,7 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
                     idParts.append(QString::number(idPart));
                     currentIdPartKeys.clear();
                 }
-                if ((key == Plus) || (key == Minus)) {
+                if ((key == Keys::Plus) || (key == Keys::Minus)) {
                     if (idParts.isEmpty() && !idStartsWithPeriod) {
                         return QStringList();
                     }
@@ -2172,15 +2173,15 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
             } else {
                 currentIdPartKeys.append(key);
             }
-            if (key == Thru) {
+            if (key == Keys::Thru) {
                 if (!thruParts.isEmpty() || idParts.isEmpty() || idStartsWithPeriod) {
                     return QStringList();
                 }
                 thruParts = idParts;
                 idParts.clear();
-            } else if (key == Plus) {
+            } else if (key == Keys::Plus) {
                 idAdding = true;
-            } else if (key == Minus) {
+            } else if (key == Keys::Minus) {
                 idAdding = false;
             }
         }
@@ -2190,9 +2191,9 @@ QStringList Terminal::keysToIds(QList<Key> keys) const {
     return ids;
 }
 
-QString Terminal::keysToString(QList<Key> keys) const {
+QString Terminal::keysToString(QList<Keys::Key> keys) const {
     QString string;
-    for(const Key key: keys) {
+    for(const Keys::Key key: keys) {
         Q_ASSERT(keyStrings.contains(key));
         string.append(keyStrings.value(key));
     }

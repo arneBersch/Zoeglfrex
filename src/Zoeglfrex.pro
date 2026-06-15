@@ -67,6 +67,7 @@ HEADERS += \
     preview2d/preview2d.h \
     sacnserver/sacnserver.h \
     startscreen/startscreen.h \
+    terminal/key.h \
     terminal/terminal.h
 
 # Default rules for deployment.
