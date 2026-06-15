@@ -13,28 +13,11 @@
 #include <QtSql>
 
 #include "keys.h"
+#include "itemtype.h"
 
 class Terminal : public QWidget {
     Q_OBJECT
 private:
-    struct ItemInfos {
-        QString selectTable;
-        QString updateTable;
-        QString singular;
-        QString plural;
-        Keys::Key key;
-    };
-    const ItemInfos modelInfos = {"models", "models", "Model", "Models", Keys::Model};
-    const ItemInfos fixtureInfos = {"fixtures", "fixtures", "Fixture", "Fixtures", Keys::Fixture};
-    const ItemInfos groupInfos = {"groups", "groups", "Group", "Groups", Keys::Group};
-    const ItemInfos intensityInfos = {"intensities", "intensities", "Intensity", "Intensities", Keys::Intensity};
-    const ItemInfos colorInfos = {"colors", "colors", "Color", "Colors", Keys::Color};
-    const ItemInfos positionInfos = {"positions", "positions", "Position", "Positions", Keys::Position};
-    const ItemInfos rawInfos = {"raws", "raws", "Raw", "Raws", Keys::Raw};
-    const ItemInfos effectInfos = {"effects", "effects", "Effect", "Effects", Keys::Effect};
-    const ItemInfos cuelistInfos = {"cuelists", "cuelists", "Cuelist", "Cuelists", Keys::Cuelist};
-    const ItemInfos cueInfos = {"currentcuelist_cues", "cues", "Cue", "Cues", Keys::Cue};
-
     struct NumberInfos {
         float minValue;
         float maxValue;
@@ -57,23 +40,23 @@ public slots:
     void reload();
 private:
     void execute();
-    void updateSortingKeys(ItemInfos item);
+    void updateSortingKeys(ItemType item);
     static bool compareIds(QString idA, QString idB);
-    void setCurrentItem(ItemInfos item, QString itemTable, QList<Keys::Key> idKeys, QString updateQueryText);
-    void setCueItem(ItemInfos item, QString valueTable, QList<Keys::Key> idKeys, bool multipleItemsAllowed);
-    void createItems(ItemInfos item, QStringList ids);
-    void deleteItems(ItemInfos item, QStringList ids);
-    void moveItems(ItemInfos item, QStringList ids, QList<Keys::Key> valueKeys);
-    void setBoolAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys);
-    void setTextAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QString regex);
-    template <typename T> void setNumberAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, NumberInfos number);
-    void setItemAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, ItemInfos foreignItem);
-    void setItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, ItemInfos foreignItem, QString valueTable);
-    template <typename T> void setItemSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys, ItemInfos foreignItem, QString valueTable, NumberInfos number);
-    void setItemSpecificItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys, ItemInfos foreignItem, ItemInfos valueItem, QString valueTable, bool limitToOne = false);
-    template <typename T> void setIntegerSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QString integerId, QList<Keys::Key> valueKeys, QString valueTable, NumberInfos keyInteger, NumberInfos valueNumber);
-    void setIntegerSpecificItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QString integerId, QList<Keys::Key> valueKeys, ItemInfos valueItem, QString valueTable, NumberInfos keyInteger, bool limitToOne = false);
-    template <typename T> void setItemAndIntegerSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QString numberId, QList<Keys::Key> valueKeys, ItemInfos foreignItem, QString valueTable, NumberInfos keyNumber, NumberInfos valueNumber);
+    void setCurrentItem(ItemType item, QString itemTable, QList<Keys::Key> idKeys, QString updateQueryText);
+    void setCueItem(ItemType item, QString valueTable, QList<Keys::Key> idKeys, bool multipleItemsAllowed);
+    void createItems(ItemType item, QStringList ids);
+    void deleteItems(ItemType item, QStringList ids);
+    void moveItems(ItemType item, QStringList ids, QList<Keys::Key> valueKeys);
+    void setBoolAttribute(ItemType item, QString attribute, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys);
+    void setTextAttribute(ItemType item, QString attribute, QString attributeName, QStringList ids, QString regex);
+    template <typename T> void setNumberAttribute(ItemType item, QString attribute, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, NumberInfos number);
+    void setItemAttribute(ItemType item, QString attribute, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, ItemType foreignItem);
+    void setItemListAttribute(ItemType item, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, ItemType foreignItem, QString valueTable);
+    template <typename T> void setItemSpecificNumberAttribute(ItemType item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys, ItemType foreignItem, QString valueTable, NumberInfos number);
+    void setItemSpecificItemListAttribute(ItemType item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys, ItemType foreignItem, ItemType valueItem, QString valueTable, bool limitToOne = false);
+    template <typename T> void setIntegerSpecificNumberAttribute(ItemType item, QString attributeName, QStringList ids, QString integerId, QList<Keys::Key> valueKeys, QString valueTable, NumberInfos keyInteger, NumberInfos valueNumber);
+    void setIntegerSpecificItemListAttribute(ItemType item, QString attributeName, QStringList ids, QString integerId, QList<Keys::Key> valueKeys, ItemType valueItem, QString valueTable, NumberInfos keyInteger, bool limitToOne = false);
+    template <typename T> void setItemAndIntegerSpecificNumberAttribute(ItemType item, QString attributeName, QStringList ids, QStringList foreignItemIds, QString numberId, QList<Keys::Key> valueKeys, ItemType foreignItem, QString valueTable, NumberInfos keyNumber, NumberInfos valueNumber);
     float keysToFloat(QList<Keys::Key> keys, bool* ok, float currentValue, NumberInfos number) const;
     QStringList keysToIds(QList<Keys::Key> keys) const;
     void writeKey(Keys::Key key);

@@ -38,6 +38,7 @@ SOURCES += \
     preview2d/preview2d.cpp \
     sacnserver/sacnserver.cpp \
     startscreen/startscreen.cpp \
+    terminal/itemtype.cpp \
     terminal/keys.cpp \
     terminal/terminal.cpp
 
@@ -68,6 +69,7 @@ HEADERS += \
     preview2d/preview2d.h \
     sacnserver/sacnserver.h \
     startscreen/startscreen.h \
+    terminal/itemtype.h \
     terminal/keys.h \
     terminal/terminal.h
 
