@@ -20,6 +20,7 @@ public:
     QString getSingular() const;
     QString getPlural() const;
     Keys::Key getKey() const;
+    QString format(QStringList ids) const;
     bool operator==(ItemType item) const;
 
     static ItemType model();

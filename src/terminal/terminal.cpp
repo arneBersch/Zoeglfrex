@@ -725,10 +725,8 @@ void Terminal::createItems(const ItemType item, QStringList ids) {
             error("Failed to check if " + item.getSingular() + " " + id + " already exists.");
         }
     }
-    if (successfulIds.size() == 1) {
-        success("Created " + item.getSingular() + " " + successfulIds.join(", ") + ".");
-    } else if (successfulIds.size() > 1) {
-        success("Created " + item.getPlural() + " " + successfulIds.join(", ") + ".");
+    if (!successfulIds.isEmpty()) {
+        success("Created " + item.format(successfulIds) + ".");
     }
     updateSortingKeys(item);
     if (item == ItemType::cue()) {
@@ -823,10 +821,8 @@ void Terminal::deleteItems(const ItemType item, QStringList ids) {
             error("Couldn't delete " + item.getSingular() + " " + id + ": ");
         }
     }
-    if (successfulIds.size() == 1) {
-        success("Deleted " + item.getSingular() + " " + successfulIds.join(", ") + ".");
-    } else if (successfulIds.size() > 1) {
-        success("Deleted " + item.getPlural() + " " + successfulIds.join(", ") + ".");
+    if (!successfulIds.isEmpty()) {
+        success("Deleted " + item.format(successfulIds) + ".");
     }
     updateSortingKeys(item);
     emit dbChanged();
@@ -878,10 +874,8 @@ void Terminal::moveItems(const ItemType item, QStringList ids, QList<Keys::Key> 
             error("Error executing check if " + item.getSingular() + " " + newIds.first() + " exists.");
         }
     }
-    if (successfulIds.size() == 1) {
-        success("Set ID of " + item.getSingular() + " " + successfulIds.join(", ") + " to " + newIds.first() + ".");
-    } else if (successfulIds.size() > 1) {
-        success("Set ID of " + item.getPlural() + " " + successfulIds.join(", ") + " to " + newIds.first() + ".");
+    if (!successfulIds.isEmpty()) {
+        success("Set ID of " + item.format(successfulIds) + " to " + newIds.first() + ".");
     }
     updateSortingKeys(item);
     emit dbChanged();
@@ -925,10 +919,8 @@ void Terminal::setBoolAttribute(const ItemType item, const QString attribute, co
             error("Failed loading " + item.getSingular() + " " + id + ".");
         }
     }
-    if (successfulIds.length() == 1) {
-        success("Set " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " to " + valueText + ".");
-    } else if (successfulIds.length() > 1) {
-        success("Set " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " to " + valueText + ".");
+    if (!successfulIds.isEmpty()) {
+        success("Set " + attributeName + " of " + item.format(successfulIds) + " to " + valueText + ".");
     }
     emit dbChanged();
 }
@@ -985,10 +977,8 @@ void Terminal::setTextAttribute(const ItemType item, const QString attribute, co
             error("Failed loading " + item.getSingular() + " " + id + ".");
         }
     }
-    if (successfulIds.length() == 1) {
-        success("Set " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " to \"" + textValue + "\".");
-    } else if (successfulIds.length() > 1) {
-        success("Set " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " to \"" + textValue + "\".");
+    if (!successfulIds.isEmpty()) {
+        success("Set " + attributeName + " of " + item.format(successfulIds) + " to \"" + textValue + "\".");
     }
     emit dbChanged();
 }
@@ -1054,17 +1044,11 @@ template <typename T> void Terminal::setNumberAttribute(const ItemType item, con
             }
         }
     }
-    if (difference) {
-        if (successfulIds.length() == 1) {
-            success("Changed " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " by " + QString::number(value) + number.unit + ".");
-        } else if (successfulIds.length() > 1) {
-            success("Changed " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " by " + QString::number(value) + number.unit + ".");
-        }
-    } else {
-        if (successfulIds.length() == 1) {
-            success("Set " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " to " + QString::number(value) + number.unit + ".");
-        } else if (successfulIds.length() > 1) {
-            success("Set " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " to " + QString::number(value) + number.unit + ".");
+    if (!successfulIds.isEmpty()) {
+        if (difference) {
+            success("Changed " + attributeName + " of " + item.format(successfulIds) + " by " + QString::number(value) + number.unit + ".");
+        } else {
+            success("Set " + attributeName + " of " + item.format(successfulIds) + " to " + QString::number(value) + number.unit + ".");
         }
     }
     emit dbChanged();
@@ -1129,17 +1113,11 @@ void Terminal::setItemAttribute(const ItemType item, const QString attribute, co
             error("Failed loading " + item.getSingular() + " " + id + ".");
         }
     }
-    if (removeItem) {
-        if (successfulIds.length() == 1) {
-            success("Removed " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + ".");
-        } else if (successfulIds.length() > 1) {
-            success("Removed " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + ".");
-        }
-    } else {
-        if (successfulIds.length() == 1) {
-            success("Set " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " to " + foreignItem.getSingular() + " " + foreignItemId + ".");
-        } else if (successfulIds.length() > 1) {
-            success("Set " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " to " + foreignItem.getSingular() + " " + foreignItemId + ".");
+    if (!successfulIds.isEmpty()) {
+        if (removeItem) {
+            success("Removed " + attributeName + " of " + item.format(successfulIds) + ".");
+        } else {
+            success("Set " + attributeName + " of " + item.format(successfulIds) + " to " + foreignItem.getSingular() + " " + foreignItemId + ".");
         }
     }
     emit dbChanged();
@@ -1226,10 +1204,8 @@ void Terminal::setItemListAttribute(const ItemType item, const QString attribute
     if (foreignItemIdStrings.size() == 1) {
         foreignItemString = foreignItem.getSingular() + foreignItemIdStrings.join(", ");
     }
-    if (successfulIds.length() == 1) {
-        success("Set " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " to " + foreignItemString + ".");
-    } else if (successfulIds.length() > 1) {
-        success("Set " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " to " + foreignItemString + ".");
+    if (!successfulIds.isEmpty()) {
+        success("Set " + attributeName + " of " + item.format(successfulIds) + " to " + foreignItemString + ".");
     }
     emit dbChanged();
 }
@@ -1345,25 +1321,13 @@ template <typename T> void Terminal::setItemSpecificNumberAttribute(const ItemTy
     if (foreignItemIdStrings.length() == 1) {
         foreignItemString = foreignItem.getSingular() + " " + foreignItemIdStrings.join(", ");
     }
-    if (removeValues) {
-        if (successfulIds.length() == 1) {
-            success("Removed " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " at " + foreignItemString + ".");
-        } else if (successfulIds.length() > 1) {
-            success("Removed " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " at " + foreignItemString + ".");
-        }
-    } else {
-        if (difference) {
-            if (successfulIds.length() == 1) {
-                success("Changed " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " at " + foreignItemString + " by " + QString::number(value) + number.unit + ".");
-            } else if (successfulIds.length() > 1) {
-                success("Changed " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " at " + foreignItemString + " by " + QString::number(value) + number.unit + ".");
-            }
+    if (!successfulIds.isEmpty()) {
+        if (removeValues) {
+            success("Removed " + attributeName + " of " + item.format(successfulIds) + " at " + foreignItemString + ".");
+        } else if (difference) {
+            success("Changed " + attributeName + " of " + item.format(successfulIds) + " at " + foreignItemString + " by " + QString::number(value) + number.unit + ".");
         } else {
-            if (successfulIds.length() == 1) {
-                success("Set " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " at " + foreignItemString + " to " + QString::number(value) + number.unit + ".");
-            } else if (successfulIds.length() > 1) {
-                success("Set " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " at " + foreignItemString + " to " + QString::number(value) + number.unit + ".");
-            }
+            success("Set " + attributeName + " of " + item.format(successfulIds) + " at " + foreignItemString + " to " + QString::number(value) + number.unit + ".");
         }
     }
     emit dbChanged();
@@ -1478,25 +1442,11 @@ void Terminal::setItemSpecificItemListAttribute(const ItemType item, const QStri
             error("Failed loading " + item.getSingular() + " " + id + ".");
         }
     }
-    QString valueItemString = valueItem.getPlural() + " " + valueItemIdStrings.join(", ");
-    if (valueItemKeys.length() == 1) {
-        valueItemString = valueItem.getSingular() + " " + valueItemIdStrings.join(", ");
-    }
-    QString foreignItemString = foreignItem.getPlural() + " " + foreignItemIdStrings.join(", ");
-    if (foreignItemKeys.length() == 1) {
-        foreignItemString = foreignItem.getSingular() + " " + foreignItemIdStrings.join(", ");
-    }
-    if (removeValues) {
-        if (successfulIds.length() == 1) {
-            success("Removed " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " at " + foreignItemString + ".");
-        } else if (successfulIds.length() > 1) {
-            success("Removed " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " at " + foreignItemString + ".");
-        }
-    } else {
-        if (successfulIds.length() == 1) {
-            success("Set " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " at " + foreignItemString + " to " + valueItemString + ".");
-        } else if (successfulIds.length() > 1) {
-            success("Set " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " at " + foreignItemString + " to " + valueItemString + ".");
+    if (!successfulIds.isEmpty()) {
+        if (removeValues) {
+            success("Removed " + attributeName + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + ".");
+        } else {
+            success("Set " + attributeName + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " to " + valueItem.format(valueItemIdStrings) + ".");
         }
     }
     emit dbChanged();
@@ -1595,25 +1545,13 @@ template <typename T> void Terminal::setIntegerSpecificNumberAttribute(const Ite
             error("Failed loading " + item.getSingular() + " " + id + ".");
         }
     }
-    if (removeValues) {
-        if (successfulIds.length() == 1) {
-            success("Removed " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " at " + QString::number(key) + ".");
-        } else if (successfulIds.length() > 1) {
-            success("Removed " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " at " + QString::number(key) + ".");
-        }
-    } else {
-        if (difference) {
-            if (successfulIds.length() == 1) {
-                success("Changed " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " at " + QString::number(key) + keyNumber.unit + " by " + QString::number(value) + valueNumber.unit + ".");
-            } else if (successfulIds.length() > 1) {
-                success("Changed " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " at " + QString::number(key) + keyNumber.unit + " by " + QString::number(value) + valueNumber.unit + ".");
-            }
+    if (!successfulIds.isEmpty()) {
+        if (removeValues) {
+            success("Removed " + attributeName + " of " + item.format(successfulIds) + " at " + QString::number(key) + ".");
+        } else if (difference) {
+            success("Changed " + attributeName + " of " + item.format(successfulIds) + " at " + QString::number(key) + keyNumber.unit + " by " + QString::number(value) + valueNumber.unit + ".");
         } else {
-            if (successfulIds.length() == 1) {
-                success("Set " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " at " + QString::number(key) + keyNumber.unit + " to " + QString::number(value) + valueNumber.unit + ".");
-            } else if (successfulIds.length() > 1) {
-                success("Set " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " at " + QString::number(key) + keyNumber.unit + " to " + QString::number(value) + valueNumber.unit + ".");
-            }
+            success("Set " + attributeName + " of " + item.format(successfulIds) + " at " + QString::number(key) + keyNumber.unit + " to " + QString::number(value) + valueNumber.unit + ".");
         }
     }
     emit dbChanged();
@@ -1722,21 +1660,11 @@ void Terminal::setIntegerSpecificItemListAttribute(ItemType item, QString attrib
             error("Failed loading " + item.getSingular() + " " + id + ".");
         }
     }
-    QString valueItemString = valueItem.getPlural() + " " + valueItemIdStrings.join(", ");
-    if (valueItemKeys.length() == 1) {
-        valueItemString = valueItem.getSingular() + " " + valueItemIdStrings.join(", ");
-    }
-    if (removeValues) {
-        if (successfulIds.length() == 1) {
-            success("Removed " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " at " + QString::number(key) + ".");
-        } else if (successfulIds.length() > 1) {
-            success("Removed " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " at " + QString::number(key) + ".");
-        }
-    } else {
-        if (successfulIds.length() == 1) {
-            success("Set " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " at " + QString::number(key) + " to " + valueItemString + ".");
-        } else if (successfulIds.length() > 1) {
-            success("Set " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " at " + QString::number(key) + " to " + valueItemString + ".");
+    if (!successfulIds.isEmpty()) {
+        if (removeValues) {
+            success("Removed " + attributeName + " of " + item.format(successfulIds) + " at " + QString::number(key) + ".");
+        } else {
+            success("Set " + attributeName + " of " + item.format(successfulIds) + " at " + QString::number(key) + " to " + valueItem.format(valueItemIdStrings) + ".");
         }
     }
     emit dbChanged();
@@ -1865,29 +1793,13 @@ template <typename T> void Terminal::setItemAndIntegerSpecificNumberAttribute(It
             error("Failed loading " + item.getSingular() + " " + id + ".");
         }
     }
-    QString foreignItemString = foreignItem.getPlural() + " " + foreignItemIdStrings.join(", ");
-    if (foreignItemKeys.length() == 1) {
-        foreignItemString = foreignItem.getPlural() + " " + foreignItemIdStrings.join(", ");
-    }
-    if (removeValues) {
-        if (successfulIds.length() == 1) {
-            success("Removed " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " at " + foreignItemString + " and " + QString::number(key) + ".");
-        } else if (successfulIds.length() > 1) {
-            success("Removed " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " at " + foreignItemString +  QString::number(key) + ".");
-        }
-    } else {
-        if (difference) {
-            if (successfulIds.length() == 1) {
-                success("Changed " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " at " + foreignItemString + " and " + QString::number(key) + keyNumber.unit + " by " + QString::number(value) + valueNumber.unit + ".");
-            } else if (successfulIds.length() > 1) {
-                success("Changed " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " at " + foreignItemString + " and " + QString::number(key) + keyNumber.unit + " by " + QString::number(value) + valueNumber.unit + ".");
-            }
+    if (!successfulIds.isEmpty()) {
+        if (removeValues) {
+            success("Removed " + attributeName + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " and " + QString::number(key) + keyNumber.unit + ".");
+        } else if (difference) {
+            success("Changed " + attributeName + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " and " + QString::number(key) + keyNumber.unit + " by " + QString::number(value) + valueNumber.unit + ".");
         } else {
-            if (successfulIds.length() == 1) {
-                success("Set " + attributeName + " of " + item.getSingular() + " " + successfulIds.join(", ") + " at " + foreignItemString + " and " + QString::number(key) + keyNumber.unit + " to " + QString::number(value) + valueNumber.unit + ".");
-            } else if (successfulIds.length() > 1) {
-                success("Set " + attributeName + " of " + item.getPlural() + " " + successfulIds.join(", ") + " at " + foreignItemString + " and " + QString::number(key) + keyNumber.unit + " to " + QString::number(value) + valueNumber.unit + ".");
-            }
+            success("Set " + attributeName + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " and " + QString::number(key) + keyNumber.unit + " to " + QString::number(value) + valueNumber.unit + ".");
         }
     }
     emit dbChanged();

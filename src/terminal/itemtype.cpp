@@ -38,6 +38,16 @@ Keys::Key ItemType::getKey() const {
     return key;
 }
 
+QString ItemType::format(const QStringList ids) const {
+    if (ids.length() == 0) {
+        return "0 " + plural;
+    }
+    if (ids.length() == 1) {
+        return singular + " " + ids.first();
+    }
+    return plural + ids.join(", ");
+}
+
 bool ItemType::operator==(ItemType item) const {
     return (item.selectTable == selectTable) && (item.updateTable == updateTable) && (item.singular == singular) && (item.plural == plural) && (item.key == key);
 }
