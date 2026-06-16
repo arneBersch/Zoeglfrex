@@ -48,7 +48,6 @@ private:
     void deleteItems(ItemType item, QStringList ids);
     void moveItems(ItemType item, QStringList ids, QList<Keys::Key> valueKeys);
     template <typename T> void setNumberAttribute(ItemType item, QString attribute, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, NumberInfos number);
-    void setItemAttribute(ItemType item, QString attribute, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, ItemType foreignItem);
     void setItemListAttribute(ItemType item, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, ItemType foreignItem, QString valueTable);
     template <typename T> void setItemSpecificNumberAttribute(ItemType item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys, ItemType foreignItem, QString valueTable, NumberInfos number);
     void setItemSpecificItemListAttribute(ItemType item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys, ItemType foreignItem, ItemType valueItem, QString valueTable, bool limitToOne = false);

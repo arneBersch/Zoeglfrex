@@ -6,28 +6,18 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ATTRIBUTE_H
-#define ATTRIBUTE_H
+#ifndef ITEMATTRIBUTE_H
+#define ITEMATTRIBUTE_H
 
-#include <QtWidgets>
-#include <QtSql>
+#include "attribute.h"
 
-#include "../itemtype.h"
-
-class Attribute {
+class ItemAttribute : public Attribute {
 public:
-    Attribute(ItemType item, QString attributeName);
-protected:
-    static QStringList keysToIds(QList<Keys::Key> keys);
-    void createItems(ItemType item, QStringList ids);
-    void success(QString message);
-    void warning(QString message);
-    void error(QString message);
-    const ItemType item;
-    const QString name;
+    ItemAttribute(ItemType item, QString attribute, QString attributeName, ItemType foreignItem);
+    void set(QStringList ids, QList<Keys::Key> valueKeys);
 private:
-    void updateSortingKeys(ItemType item);
-    static bool compareIds(QString idA, QString idB);
+    const QString tableAttribute;
+    const ItemType foreignItem;
 };
 
-#endif // ATTRIBUTE_H
+#endif // ITEMATTRIBUTE_H
