@@ -9,6 +9,7 @@
 #include "terminal.h"
 #include "constants.h"
 #include "attributes/boolattribute.h"
+#include "attributes/textattribute.h"
 
 Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -199,9 +200,13 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::id) {
             moveItems(ItemType::model(), ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
-            setTextAttribute(ItemType::model(), "label", "Label", ids, "");
+            TextAttribute attribute = TextAttribute(ItemType::model(), "label", "Label", "", this);
+            attribute.set(ids);
+            emit dbChanged();
         } else if ((attribute == AttributeIds::modelChannels) || !attributes.contains(Keys::Attribute)) {
-            setTextAttribute(ItemType::model(), "channels", "Channels", ids, "^[01DdRrGgBbWwCcMmYyHhSsPpTtZzFf]+$");
+            TextAttribute attribute = TextAttribute(ItemType::model(), "channels", "Channels", "^[01DdRrGgBbWwCcMmYyHhSsPpTtZzFf]+$", this);
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::modelPanRange) {
             setNumberAttribute<float>(ItemType::model(), "panrange", "Pan Range", ids, valueKeys, {0, 3600, false, "°"});
         } else if (attribute == AttributeIds::modelTiltRange) {
@@ -219,7 +224,9 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::id) {
             moveItems(ItemType::fixture(), ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
-            setTextAttribute(ItemType::fixture(), "label", "Label", ids, "");
+            TextAttribute attribute = TextAttribute(ItemType::fixture(), "label", "Label", "", this);
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::fixtureModel) {
             setItemAttribute(ItemType::fixture(), "model_key", "Model", ids, valueKeys, ItemType::model());
         } else if (attribute == AttributeIds::fixtureUniverse) {
@@ -245,7 +252,9 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::id) {
             moveItems(ItemType::group(), ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
-            setTextAttribute(ItemType::group(), "label", "Label", ids, "");
+            TextAttribute attribute = TextAttribute(ItemType::group(), "label", "Label", "", this);
+            attribute.set(ids);
+            emit dbChanged();
         } else if ((attribute == AttributeIds::groupFixtures) || !attributes.contains(Keys::Attribute)) {
             setItemListAttribute(ItemType::group(), "Fixtures", ids, valueKeys, ItemType::fixture(), "group_fixtures");
         } else {
@@ -257,7 +266,9 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::id) {
             moveItems(ItemType::intensity(), ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
-            setTextAttribute(ItemType::intensity(), "label", "Label", ids, "");
+            TextAttribute attribute = TextAttribute(ItemType::intensity(), "label", "Label", "", this);
+            attribute.set(ids);
+            emit dbChanged();
         } else if ((attribute == AttributeIds::intensityDimmer) || !attributes.contains(Keys::Attribute)) {
             if (attributes.contains(ItemType::model().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::intensity(), "Dimmer Model Exception", ids, attributes.value(ItemType::model().getKey()), valueKeys, ItemType::model(), "intensity_model_dimmer", percentageInfos);
@@ -277,7 +288,9 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::id) {
             moveItems(ItemType::color(), ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
-            setTextAttribute(ItemType::color(), "label", "Label", ids, "");
+            TextAttribute attribute = TextAttribute(ItemType::color(), "label", "Label", "", this);
+            attribute.set(ids);
+            emit dbChanged();
         } else if ((attribute == AttributeIds::colorHue) || !attributes.contains(Keys::Attribute)) {
             if (attributes.contains(ItemType::model().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::color(), "Hue Model Exception", ids, attributes.value(ItemType::model().getKey()), valueKeys, ItemType::model(), "color_model_hue", angleInfos);
@@ -313,7 +326,9 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::id) {
             moveItems(ItemType::position(), ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
-            setTextAttribute(ItemType::position(), "label", "Label", ids, "");
+            TextAttribute attribute = TextAttribute(ItemType::position(), "label", "Label", "", this);
+            attribute.set(ids);
+            emit dbChanged();
         } else if ((attribute == AttributeIds::positionPan) || !attributes.contains(Keys::Attribute)) {
             if (attributes.contains(ItemType::model().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::position(), "Pan Model Exception", ids, attributes.value(ItemType::model().getKey()), valueKeys, ItemType::model(), "position_model_pan", angleInfos);
@@ -357,7 +372,9 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::id) {
             moveItems(ItemType::raw(), ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
-            setTextAttribute(ItemType::raw(), "label", "Label", ids, "");
+            TextAttribute attribute = TextAttribute(ItemType::raw(), "label", "Label", "", this);
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute.startsWith(QString(AttributeIds::rawChannelValues) + ".")) {
             if (attributes.contains(ItemType::model().getKey())) {
                 setItemAndIntegerSpecificNumberAttribute<int>(ItemType::raw(), "Channel Values", ids, attributes.value(ItemType::model().getKey()), attribute, valueKeys, ItemType::model(), "raw_model_channel_values", {1, 512}, {0, 255});
@@ -383,7 +400,9 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::id) {
             moveItems(ItemType::effect(), ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
-            setTextAttribute(ItemType::effect(), "label", "Label", ids, "");
+            TextAttribute attribute = TextAttribute(ItemType::effect(), "label", "Label", "", this);
+            attribute.set(ids);
+            emit dbChanged();
         } else if ((attribute == AttributeIds::effectSteps) || !attributes.contains(Keys::Attribute)) {
             setNumberAttribute<int>(ItemType::effect(), "steps", "Steps", ids, valueKeys, {2, 99});
         } else if (attribute.startsWith(QString(AttributeIds::effectIntensities) + ".")) {
@@ -421,7 +440,9 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::id) {
             moveItems(ItemType::cuelist(), ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
-            setTextAttribute(ItemType::cuelist(), "label", "Label", ids, "");
+            TextAttribute attribute = TextAttribute(ItemType::cuelist(), "label", "Label", "", this);
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::cuelistPriority) {
             setNumberAttribute<int>(ItemType::cuelist(), "priority", "Priority", ids, valueKeys, {1, 200});
         } else if (attribute == AttributeIds::cuelistMoveWhileDark) {
@@ -448,7 +469,9 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::id) {
             moveItems(ItemType::cue(), ids, valueKeys);
         } else if (attribute == AttributeIds::label) {
-            setTextAttribute(ItemType::cue(), "label", "Label", ids, "");
+            TextAttribute attribute = TextAttribute(ItemType::cue(), "label", "Label", "", this);
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::cueIntensities) {
             if (attributes.contains(ItemType::group().getKey())) {
                 setItemSpecificItemListAttribute(ItemType::cue(), "Intensities", ids, attributes.value(ItemType::group().getKey()), valueKeys, ItemType::group(), ItemType::intensity(), "cue_group_intensities", true);
@@ -895,64 +918,6 @@ void Terminal::moveItems(const ItemType item, QStringList ids, QList<Keys::Key> 
         success("Set ID of " + item.format(successfulIds) + " to " + newIds.first() + ".");
     }
     updateSortingKeys(item);
-    emit dbChanged();
-}
-
-void Terminal::setTextAttribute(const ItemType item, const QString attribute, const QString attributeName, QStringList ids, const QString regex) {
-    Q_ASSERT(!ids.isEmpty());
-    QString textValue = QString();
-    if (ids.length() == 1) {
-        QSqlQuery query;
-        query.prepare("SELECT " + attribute + " FROM " + item.getSelectTable() + " WHERE id = :id");
-        query.bindValue(":id", ids.first());
-        if (!query.exec()) {
-            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-            error("Failed to load current " + attributeName + " of " + item.getSingular() + " " + ids.first() + ".");
-            return;
-        }
-        while (query.next()) {
-            textValue = query.value(0).toString();
-        }
-    }
-    bool ok;
-    textValue = QInputDialog::getText(this, QString(), (item.getSingular()+ " " + attributeName), QLineEdit::Normal, textValue, &ok);
-    if (!ok) {
-        error("Popup canceled.");
-        return;
-    }
-    if (!regex.isEmpty() && !textValue.contains(QRegularExpression(regex))) {
-        error("Can't set " + item.getSingular() + " " + attributeName + " because the given value \"" + textValue + "\" is not valid.");
-        return;
-    }
-    createItems(item, ids);
-    QStringList successfulIds;
-    for (QString id : ids) {
-        QSqlQuery keyQuery;
-        keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-        keyQuery.bindValue(":id", id);
-        if (keyQuery.exec()) {
-            if (keyQuery.next()) {
-                QSqlQuery updateQuery;
-                updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + attribute + " = :value WHERE key = :key");
-                updateQuery.bindValue(":key", keyQuery.value(0).toInt());
-                updateQuery.bindValue(":value", textValue);
-                if (updateQuery.exec()) {
-                    successfulIds.append(id);
-                } else {
-                    qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                    error("Failed setting " + attributeName + " of " + item.getSingular() + " " + id + ".");
-                }
-            } else {
-                warning("Failed to set " + attributeName + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found.");
-            }
-        } else {
-            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            error("Failed loading " + item.getSingular() + " " + id + ".");
-        }
-    }
-    if (!successfulIds.isEmpty()) {
-        success("Set " + attributeName + " of " + item.format(successfulIds) + " to \"" + textValue + "\".");
-    }
     emit dbChanged();
 }
 

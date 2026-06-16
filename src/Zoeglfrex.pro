@@ -40,6 +40,7 @@ SOURCES += \
     startscreen/startscreen.cpp \
     terminal/attributes/attribute.cpp \
     terminal/attributes/boolattribute.cpp \
+    terminal/attributes/textattribute.cpp \
     terminal/itemtype.cpp \
     terminal/keys.cpp \
     terminal/terminal.cpp
@@ -73,6 +74,7 @@ HEADERS += \
     startscreen/startscreen.h \
     terminal/attributes/attribute.h \
     terminal/attributes/boolattribute.h \
+    terminal/attributes/textattribute.h \
     terminal/itemtype.h \
     terminal/keys.h \
     terminal/terminal.h

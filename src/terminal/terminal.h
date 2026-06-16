@@ -47,7 +47,6 @@ private:
     void createItems(ItemType item, QStringList ids);
     void deleteItems(ItemType item, QStringList ids);
     void moveItems(ItemType item, QStringList ids, QList<Keys::Key> valueKeys);
-    void setTextAttribute(ItemType item, QString attribute, QString attributeName, QStringList ids, QString regex);
     template <typename T> void setNumberAttribute(ItemType item, QString attribute, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, NumberInfos number);
     void setItemAttribute(ItemType item, QString attribute, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, ItemType foreignItem);
     void setItemListAttribute(ItemType item, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, ItemType foreignItem, QString valueTable);
