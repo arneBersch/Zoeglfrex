@@ -11,6 +11,7 @@
 #include "attributes/boolattribute.h"
 #include "attributes/textattribute.h"
 #include "attributes/itemattribute.h"
+#include "attributes/itemlistattribute.h"
 
 Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -259,7 +260,9 @@ void Terminal::execute() {
             attribute.set(ids);
             emit dbChanged();
         } else if ((attribute == AttributeIds::groupFixtures) || !attributes.contains(Keys::Attribute)) {
-            setItemListAttribute(ItemType::group(), "Fixtures", ids, valueKeys, ItemType::fixture(), "group_fixtures");
+            ItemListAttribute attribute = ItemListAttribute(ItemType::group(), "Fixtures", ItemType::fixture(), "group_fixtures");
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else {
             error("Unknown Group Attribute.");
         }
@@ -281,7 +284,9 @@ void Terminal::execute() {
                 setNumberAttribute<float>(ItemType::intensity(), "dimmer", "Dimmer", ids, valueKeys, percentageInfos);
             }
         } else if (attribute == AttributeIds::intensityRaws) {
-            setItemListAttribute(ItemType::intensity(), "Raws", ids, valueKeys, ItemType::raw(), "intensity_raws");
+            ItemListAttribute attribute = ItemListAttribute(ItemType::intensity(), "Raws", ItemType::raw(), "intensity_raws");
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else {
             error("Unknown Intensity Attribute.");
         }
@@ -319,7 +324,9 @@ void Terminal::execute() {
                 setNumberAttribute<float>(ItemType::color(), "quality", "Quality", ids, valueKeys, percentageInfos);
             }
         } else if (attribute == AttributeIds::colorRaws) {
-            setItemListAttribute(ItemType::color(), "Raws", ids, valueKeys, ItemType::raw(), "color_raws");
+            ItemListAttribute attribute = ItemListAttribute(ItemType::color(), "Raws", ItemType::raw(), "color_raws");
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else {
             error("Unknown Color Attribute.");
         }
@@ -365,7 +372,9 @@ void Terminal::execute() {
                 setNumberAttribute<float>(ItemType::position(), "focus", "Focus", ids, valueKeys, percentageInfos);
             }
         } else if (attribute == AttributeIds::positionRaws) {
-            setItemListAttribute(ItemType::position(), "Raws", ids, valueKeys, ItemType::raw(), "position_raws");
+            ItemListAttribute attribute = ItemListAttribute(ItemType::position(), "Raws", ItemType::raw(), "position_raws");
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else {
             error("Unknown Position Attribute.");
         }
@@ -991,93 +1000,6 @@ template <typename T> void Terminal::setNumberAttribute(const ItemType item, con
         } else {
             success("Set " + attributeName + " of " + item.format(successfulIds) + " to " + QString::number(value) + number.unit + ".");
         }
-    }
-    emit dbChanged();
-}
-
-void Terminal::setItemListAttribute(const ItemType item, const QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, const ItemType foreignItem, const QString valueTable) {
-    Q_ASSERT(!ids.isEmpty());
-    QList<int> foreignItemKeys;
-    QStringList foreignItemIdStrings;
-    if ((valueKeys.size() != 1) || !valueKeys.startsWith(Keys::Minus)) {
-        if (!valueKeys.startsWith(foreignItem.getKey())) {
-            error("Can't set " + item.getSingular() + " " + attributeName + " because no " + foreignItem.getPlural() + " were given.");
-            return;
-        }
-        const QStringList foreignItemIds = keysToIds(valueKeys);
-        if (foreignItemIds.isEmpty()) {
-            error("Can't set " + item.getSingular() + " " + attributeName + " because the given " + foreignItem.getSingular() + " IDs are invalid.");
-            return;
-        }
-        for (QString foreignItemId : foreignItemIds) {
-            QSqlQuery foreignItemQuery;
-            foreignItemQuery.prepare("SELECT key FROM " + foreignItem.getSelectTable() + " WHERE id = :id");
-            foreignItemQuery.bindValue(":id", foreignItemId);
-            if (foreignItemQuery.exec()) {
-                if (foreignItemQuery.next()) {
-                    foreignItemKeys.append(foreignItemQuery.value(0).toInt());
-                    foreignItemIdStrings.append(foreignItemId);
-                } else {
-                    warning("Can't add " + foreignItem.getSingular() + " " + foreignItemId + " to " + item.getSingular() + " " + attributeName + " because this " + foreignItem.getSingular() + " doesn't exist.");
-                }
-            } else {
-                qWarning() << Q_FUNC_INFO << foreignItemQuery.executedQuery() << foreignItemQuery.lastError().text();
-                error("Failed to execute check if " + foreignItem.getSingular() + " " + foreignItemId + " exists.");
-            }
-        }
-        Q_ASSERT(foreignItemKeys.length() == foreignItemIdStrings.length());
-        if (foreignItemKeys.isEmpty()) {
-            error("Can't set " + item.getSingular() + " " + attributeName + " because no valid " + foreignItem.getPlural() + " were given.");
-            return;
-        }
-    }
-    createItems(item, ids);
-    QStringList successfulIds;
-    for (QString id : ids) {
-        QSqlQuery keyQuery;
-        keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-        keyQuery.bindValue(":id", id);
-        if (keyQuery.exec()) {
-            if (keyQuery.next()) {
-                const int itemKey = keyQuery.value(0).toInt();
-                bool allQueriesSuccessful = true;
-                QSqlQuery deleteQuery;
-                deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key =  :key");
-                deleteQuery.bindValue(":key", itemKey);
-                if (deleteQuery.exec()) {
-                    for (const int foreignItemKey : foreignItemKeys) {
-                        QSqlQuery insertQuery;
-                        insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, valueItem_key) VALUES (:item, :foreign_item)");
-                        insertQuery.bindValue(":item", itemKey);
-                        insertQuery.bindValue(":foreign_item", foreignItemKey);
-                        if (!insertQuery.exec()) {
-                            allQueriesSuccessful = false;
-                            qWarning() << Q_FUNC_INFO << insertQuery.executedQuery() << insertQuery.lastError().text();
-                            error("Failed to insert a " + foreignItem.getSingular() + " into " + item.getSingular() + " " + id + ".");
-                        }
-                    }
-                } else {
-                    allQueriesSuccessful = false;
-                    qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
-                    error("Failed deleting old " + attributeName + " of " + item.getSingular() + " " + id + ".");
-                }
-                if (allQueriesSuccessful) {
-                    successfulIds.append(id);
-                }
-            } else {
-                error("Failed loading " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found.");
-            }
-        } else {
-            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            error("Failed loading " + item.getSingular() + " " + id + ".");
-        }
-    }
-    QString foreignItemString = foreignItem.getPlural() + foreignItemIdStrings.join(", ");
-    if (foreignItemIdStrings.size() == 1) {
-        foreignItemString = foreignItem.getSingular() + foreignItemIdStrings.join(", ");
-    }
-    if (!successfulIds.isEmpty()) {
-        success("Set " + attributeName + " of " + item.format(successfulIds) + " to " + foreignItemString + ".");
     }
     emit dbChanged();
 }

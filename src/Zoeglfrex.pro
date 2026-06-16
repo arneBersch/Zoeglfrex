@@ -41,6 +41,7 @@ SOURCES += \
     terminal/attributes/attribute.cpp \
     terminal/attributes/boolattribute.cpp \
     terminal/attributes/itemattribute.cpp \
+    terminal/attributes/itemlistattribute.cpp \
     terminal/attributes/textattribute.cpp \
     terminal/itemtype.cpp \
     terminal/keys.cpp \
@@ -76,6 +77,7 @@ HEADERS += \
     terminal/attributes/attribute.h \
     terminal/attributes/boolattribute.h \
     terminal/attributes/itemattribute.h \
+    terminal/attributes/itemlistattribute.h \
     terminal/attributes/textattribute.h \
     terminal/itemtype.h \
     terminal/keys.h \
