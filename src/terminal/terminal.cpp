@@ -8,6 +8,7 @@
 
 #include "terminal.h"
 #include "constants.h"
+#include "attributes/boolattribute.h"
 
 Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -232,7 +233,9 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::fixtureRotation) {
             setNumberAttribute<float>(ItemType::fixture(), "rotation", "Rotation", ids, valueKeys, angleInfos);
         } else if (attribute == AttributeIds::fixtureInvertPan) {
-            setBoolAttribute(ItemType::fixture(), "invertpan", "Invert Pan", ids, valueKeys);
+            BoolAttribute attribute(ItemType::fixture(), "invertpan", "Invert Pan");
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else {
             error("Unknown Fixture Attribute.");
         }
@@ -364,9 +367,13 @@ void Terminal::execute() {
                 setIntegerSpecificNumberAttribute<int>(ItemType::raw(), "Channel Values", ids, attribute, valueKeys, "raw_channel_values", {1, 512}, {0, 255});
             }
         } else if (attribute == AttributeIds::rawMoveWhileDark) {
-            setBoolAttribute(ItemType::raw(), "movewhiledark", "Move while Dark", ids, valueKeys);
+            BoolAttribute attribute(ItemType::raw(), "movewhiledark", "Move while Dark");
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if (attribute == AttributeIds::rawFade) {
-            setBoolAttribute(ItemType::raw(), "fade", "Fade", ids, valueKeys);
+            BoolAttribute attribute(ItemType::raw(), "fade", "Fade");
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else {
             error("Unknown Raw Attribute.");
         }
@@ -402,7 +409,9 @@ void Terminal::execute() {
                 setNumberAttribute<float>(ItemType::effect(), "phase", "Phase", ids, valueKeys, angleInfos);
             }
         } else if (attribute == AttributeIds::effectSineFade) {
-            setBoolAttribute(ItemType::effect(), "sinefade", "Sine Fade", ids, valueKeys);
+            BoolAttribute attribute(ItemType::effect(), "sinefade", "Sine Fade");
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else {
             error("Unknown Effect Attribute.");
         }
@@ -416,7 +425,9 @@ void Terminal::execute() {
         } else if (attribute == AttributeIds::cuelistPriority) {
             setNumberAttribute<int>(ItemType::cuelist(), "priority", "Priority", ids, valueKeys, {1, 200});
         } else if (attribute == AttributeIds::cuelistMoveWhileDark) {
-            setBoolAttribute(ItemType::cuelist(), "movewhiledark", "Move while Dark", ids, valueKeys);
+            BoolAttribute attribute(ItemType::cuelist(), "movewhiledark", "Move while Dark");
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else {
             error("Unknown Cuelist Attribute.");
         }
@@ -469,7 +480,9 @@ void Terminal::execute() {
                 error("Can't set Cue Effects because no Group Attribute was provided.");
             }
         } else if (attribute == AttributeIds::cueBlock) {
-            setBoolAttribute(ItemType::cue(), "block", "Block", ids, valueKeys);
+            BoolAttribute attribute(ItemType::cue(), "block", "Block");
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if ((attribute == AttributeIds::cueFade) || (!attributes.contains(Keys::Attribute))) {
             if (attributes.contains(ItemType::fixture().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::cue(), "Fade", ids, attributes.value(ItemType::fixture().getKey()), valueKeys, ItemType::fixture(), "cue_fixture_fade", {0, 600, false, "s"});
@@ -483,9 +496,13 @@ void Terminal::execute() {
                 setNumberAttribute<float>(ItemType::cue(), "delay", "Delay", ids, valueKeys, {0, 600, false, "s"});
             }
         } else if (attribute == AttributeIds::cueFollow) {
-            setBoolAttribute(ItemType::cue(), "follow", "Follow", ids, valueKeys);
+            BoolAttribute attribute(ItemType::cue(), "follow", "Follow");
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if (attribute == AttributeIds::cueSineFade) {
-            setBoolAttribute(ItemType::cue(), "sinefade", "Sine Fade", ids, valueKeys);
+            BoolAttribute attribute(ItemType::cue(), "sinefade", "Sine Fade");
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else {
             error("Unknown Cue Attribute.");
             return;
@@ -878,50 +895,6 @@ void Terminal::moveItems(const ItemType item, QStringList ids, QList<Keys::Key> 
         success("Set ID of " + item.format(successfulIds) + " to " + newIds.first() + ".");
     }
     updateSortingKeys(item);
-    emit dbChanged();
-}
-
-void Terminal::setBoolAttribute(const ItemType item, const QString attribute, const QString attributeName, QStringList ids, QList<Keys::Key> valueKeys) {
-    Q_ASSERT(!ids.isEmpty());
-    int value = 0;
-    QString valueText = "False";
-    if ((valueKeys.size() == 1) && valueKeys.startsWith(Keys::Zero)) {
-    } else if ((valueKeys.size() == 1) && valueKeys.startsWith(Keys::One)) {
-        value = 1;
-        valueText = "True";
-    } else {
-        error("Can't set " + item.getSingular() + " " + attributeName + " because no valid value was given.");
-        return;
-    }
-    createItems(item, ids);
-    QStringList successfulIds;
-    for (QString id : ids) {
-        QSqlQuery keyQuery;
-        keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-        keyQuery.bindValue(":id", id);
-        if (keyQuery.exec()) {
-            if (keyQuery.next()) {
-                QSqlQuery updateQuery;
-                updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + attribute + " = :value WHERE key = :key");
-                updateQuery.bindValue(":key", keyQuery.value(0).toInt());
-                updateQuery.bindValue(":value", value);
-                if (updateQuery.exec()) {
-                    successfulIds.append(id);
-                } else {
-                    qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                    error("Failed setting " + attributeName + " of " + item.getSingular() + " " + id + ".");
-                }
-            } else {
-                warning("Failed to set " + attributeName + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found.");
-            }
-        } else {
-            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            error("Failed loading " + item.getSingular() + " " + id + ".");
-        }
-    }
-    if (!successfulIds.isEmpty()) {
-        success("Set " + attributeName + " of " + item.format(successfulIds) + " to " + valueText + ".");
-    }
     emit dbChanged();
 }
 

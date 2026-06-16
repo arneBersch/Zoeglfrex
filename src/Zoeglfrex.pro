@@ -38,6 +38,8 @@ SOURCES += \
     preview2d/preview2d.cpp \
     sacnserver/sacnserver.cpp \
     startscreen/startscreen.cpp \
+    terminal/attributes/attribute.cpp \
+    terminal/attributes/boolattribute.cpp \
     terminal/itemtype.cpp \
     terminal/keys.cpp \
     terminal/terminal.cpp
@@ -69,6 +71,8 @@ HEADERS += \
     preview2d/preview2d.h \
     sacnserver/sacnserver.h \
     startscreen/startscreen.h \
+    terminal/attributes/attribute.h \
+    terminal/attributes/boolattribute.h \
     terminal/itemtype.h \
     terminal/keys.h \
     terminal/terminal.h
