@@ -45,6 +45,21 @@ QString Keys::keysToString(QList<Key> keys) {
     return result.simplified();
 }
 
+float Keys::keysToFloat(QList<Key> keys, bool* ok, const float currentValue, const NumberType number) {
+    const bool difference = keys.startsWith(Plus);
+    if (difference) {
+        keys.removeFirst();
+    }
+    float value = keysToString(keys).replace(" ", "").toFloat(ok);
+    if (!(*ok)) {
+        return value;
+    }
+    if (difference) {
+        value += currentValue;
+    }
+    return number.format(ok, value);
+}
+
 bool Keys::isItemKey(Key key) {
     const QList<Key> itemKeys = {
         Model,

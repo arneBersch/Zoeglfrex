@@ -1151,7 +1151,7 @@ template <typename T> void Terminal::setIntegerSpecificNumberAttribute(const Ite
         error("Can't set " + item.getSingular() + " " + attributeName + " because the given Attribute is not valid.");
         return;
     }
-    key = keysToFloat({Keys::Plus, Keys::Zero}, &ok, key, keyNumber);
+    key = Keys::keysToFloat({Keys::Plus, Keys::Zero}, &ok, key, keyNumber);
     if (!ok) {
         error("Can't set " + item.getSingular() + " " + attributeName + " because the given Attribute is not valid.");
         return;
@@ -1256,7 +1256,7 @@ void Terminal::setIntegerSpecificItemListAttribute(ItemType item, QString attrib
         error("Can't set " + item.getSingular() + " " + attributeName + " because the given Attribute is not valid.");
         return;
     }
-    key = keysToFloat({Keys::Plus, Keys::Zero}, &ok, key, keyInteger);
+    key = Keys::keysToFloat({Keys::Plus, Keys::Zero}, &ok, key, keyInteger);
     if (!ok) {
         error("Can't set " + item.getSingular() + " " + attributeName + " because the given Attribute is not valid.");
         return;
@@ -1369,7 +1369,7 @@ template <typename T> void Terminal::setItemAndIntegerSpecificNumberAttribute(It
         error("Can't set " + item.getSingular() + " " + attributeName + " because the given Attribute is not valid.");
         return;
     }
-    key = keysToFloat({Keys::Plus, Keys::Zero}, &ok, key, keyNumber);
+    key = Keys::keysToFloat({Keys::Plus, Keys::Zero}, &ok, key, keyNumber);
     if (!ok) {
         error("Can't set " + item.getSingular() + " " + attributeName + " because the given Attribute is not valid.");
         return;
@@ -1529,21 +1529,6 @@ void Terminal::backspace() {
 void Terminal::clearPrompt() {
     promptKeys.clear();
     reload();
-}
-
-float Terminal::keysToFloat(QList<Keys::Key> keys, bool* ok, const float currentValue, const NumberType number) const {
-    const bool difference = keys.startsWith(Keys::Plus);
-    if (difference) {
-        keys.removeFirst();
-    }
-    float value = keysToString(keys).replace(" ", "").toFloat(ok);
-    if (!(*ok)) {
-        return value;
-    }
-    if (difference) {
-        value += currentValue;
-    }
-    return number.format(ok, value);
 }
 
 QStringList Terminal::keysToIds(QList<Keys::Key> keys) const {

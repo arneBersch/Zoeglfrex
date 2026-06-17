@@ -11,6 +11,8 @@
 
 #include <QtWidgets>
 
+#include "numbertype.h"
+
 namespace Keys {
 
 enum Key {
@@ -43,6 +45,7 @@ enum Key {
 };
 
 QString keysToString(QList<Key> keys);
+float keysToFloat(QList<Keys::Key> keys, bool* ok, float currentValue, NumberType number);
 bool isItemKey(Key key);
 
 }
