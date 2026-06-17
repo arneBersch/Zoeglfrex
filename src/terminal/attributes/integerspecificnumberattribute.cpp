@@ -8,16 +8,16 @@
 
 #include "integerspecificnumberattribute.h"
 
-template <typename T> IntegerSpecificNumberAttribute<T>::IntegerSpecificNumberAttribute(
+IntegerSpecificNumberAttribute::IntegerSpecificNumberAttribute(
     const ItemType item,
     const QString name,
     const QString attributeValueTable,
     const NumberType key,
-    const NumberType value)
-    : Attribute(item, name), valueTable(attributeValueTable), keyNumber(key), valueNumber(value) {
+    const NumberType value
+    ) : Attribute(item, name), valueTable(attributeValueTable), keyNumber(key), valueNumber(value) {
 }
 
-template <typename T> void IntegerSpecificNumberAttribute<T>::set(QStringList ids, QString integerId, QList<Keys::Key> valueKeys) {
+void IntegerSpecificNumberAttribute::set(QStringList ids, QString integerId, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     QList<QString> numberIdParts = integerId.split(".");
     if (numberIdParts.length() != 2) {
@@ -25,22 +25,22 @@ template <typename T> void IntegerSpecificNumberAttribute<T>::set(QStringList id
         return;
     }
     bool ok;
-    int key = numberIdParts.last().toInt(&ok);
+    QVariant key = numberIdParts.last().toInt(&ok);
     if (!ok) {
         error("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid.");
         return;
     }
-    key = Keys::keysToFloat({Keys::Plus, Keys::Zero}, &ok, key, keyNumber);
+    key = Keys::keysToNumber({Keys::Plus, Keys::Zero}, &ok, key.toFloat(), keyNumber);
     if (!ok) {
         error("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid.");
         return;
     }
     const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
     const bool difference = valueKeys.startsWith(Keys::Plus);
-    T value;
+    QVariant value;
     if (!removeValues && !difference) {
         bool ok;
-        value = keysToFloat(valueKeys, &ok, 0, valueNumber);
+        value = keysToNumber(valueKeys, &ok, 0, valueNumber);
         if (!ok) {
             error("Invalid value given.");
             return;
@@ -75,9 +75,9 @@ template <typename T> void IntegerSpecificNumberAttribute<T>::set(QStringList id
                         currentValueQuery.bindValue(":key", key);
                         if (currentValueQuery.exec()) {
                             if (currentValueQuery.next()) {
-                                value = keysToFloat(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), valueNumber);
+                                value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), valueNumber);
                             } else {
-                                value = keysToFloat(valueKeys, &valueOk, 0, valueNumber);
+                                value = keysToNumber(valueKeys, &valueOk, 0, valueNumber);
                             }
                             if (!valueOk) {
                                 error("Invalid value given for " + item.getSingular() + " " + id + ".");
@@ -112,11 +112,11 @@ template <typename T> void IntegerSpecificNumberAttribute<T>::set(QStringList id
     }
     if (!successfulIds.isEmpty()) {
         if (removeValues) {
-            success("Removed " + name + " of " + item.format(successfulIds) + " at " + QString::number(key) + ".");
+            success("Removed " + name + " of " + item.format(successfulIds) + " at " + key.toString() + ".");
         } else if (difference) {
-            success("Changed " + name + " of " + item.format(successfulIds) + " at " + QString::number(key) + keyNumber.getUnit() + " by " + QString::number(value) + valueNumber.getUnit() + ".");
+            success("Changed " + name + " of " + item.format(successfulIds) + " at " + key.toString() + keyNumber.getUnit() + " by " + value.toString() + valueNumber.getUnit() + ".");
         } else {
-            success("Set " + name + " of " + item.format(successfulIds) + " at " + QString::number(key) + keyNumber.getUnit() + " to " + QString::number(value) + valueNumber.getUnit() + ".");
+            success("Set " + name + " of " + item.format(successfulIds) + " at " + key.toString() + keyNumber.getUnit() + " to " + value.toString() + valueNumber.getUnit() + ".");
         }
     }
 }

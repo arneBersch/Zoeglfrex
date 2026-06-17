@@ -11,7 +11,7 @@
 
 #include "attribute.h"
 
-template <typename T> class NumberAttribute : public Attribute {
+class NumberAttribute : public Attribute {
 public:
     NumberAttribute(ItemType item, QString tableAttribute, QString name, NumberType number);
     void set(QStringList ids, QList<Keys::Key> valueKeys);

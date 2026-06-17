@@ -29,12 +29,17 @@ public:
     static NumberType zoomRange();
     static NumberType coordinate();
     QString getUnit() const;
-    float format(bool* ok, float value) const;
+    QVariant format(bool* ok, float value) const;
 private:
-    NumberType(float min, float max, QString unit = "", bool cyclic = false);
+    enum DataType {
+        INTEGER,
+        FLOAT,
+    };
+    NumberType(float min, float max, QString unit = "", DataType type = FLOAT, bool cyclic = false);
     const float min;
     const float max;
     const QString unit;
+    const DataType dataType;
     const bool cyclic;
 };
 

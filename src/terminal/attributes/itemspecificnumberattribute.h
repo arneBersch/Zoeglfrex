@@ -11,7 +11,7 @@
 
 #include "attribute.h"
 
-template<typename t> class ItemSpecificNumberAttribute : public Attribute {
+class ItemSpecificNumberAttribute : public Attribute {
 public:
     ItemSpecificNumberAttribute(ItemType item, QString name, ItemType foreignItem, QString valueTable, NumberType number);
     void set(QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys);

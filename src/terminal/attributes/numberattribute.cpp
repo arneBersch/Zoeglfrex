@@ -8,16 +8,16 @@
 
 #include "numberattribute.h"
 
-template <typename T> NumberAttribute<T>::NumberAttribute(const ItemType item, const QString attribute, const QString name, const NumberType numberType)
+NumberAttribute::NumberAttribute(const ItemType item, const QString attribute, const QString name, const NumberType numberType)
     : Attribute(item, name), tableAttribute(attribute), number(numberType) {}
 
-template <typename T> void NumberAttribute<T>::set(QStringList ids, QList<Keys::Key> valueKeys) {
+void NumberAttribute::set(QStringList ids, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     const bool difference = valueKeys.startsWith(Keys::Plus);
-    T value;
+    QVariant value;
     if (!difference) {
         bool ok;
-        value = keysToFloat(valueKeys, &ok, 0, number);
+        value = keysToNumber(valueKeys, &ok, 0, number);
         if (!ok) {
             error("Invalid value given.");
             return;
@@ -35,7 +35,7 @@ template <typename T> void NumberAttribute<T>::set(QStringList ids, QList<Keys::
             currentValueQuery.bindValue(":id", id);
             if (currentValueQuery.exec()) {
                 if (currentValueQuery.next()) {
-                    value = keysToFloat(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
+                    value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
                     if (!valueOk) {
                         error("Invalid value given for " + item.getSingular() + " " + id + ".");
                     }
@@ -77,9 +77,9 @@ template <typename T> void NumberAttribute<T>::set(QStringList ids, QList<Keys::
 
     if (!successfulIds.isEmpty()) {
         if (difference) {
-            success("Changed " + tableAttribute + " of " + item.format(successfulIds) + " by " + QString::number(value) + number.getUnit() + ".");
+            success("Changed " + tableAttribute + " of " + item.format(successfulIds) + " by " + value.toString() + number.getUnit() + ".");
         } else {
-            success("Set " + tableAttribute + " of " + item.format(successfulIds) + " to " + QString::number(value) + number.getUnit() + ".");
+            success("Set " + tableAttribute + " of " + item.format(successfulIds) + " to " + value.toString() + number.getUnit() + ".");
         }
     }
 }

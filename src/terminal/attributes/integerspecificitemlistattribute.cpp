@@ -26,12 +26,12 @@ void IntegerSpecificItemListAttribute::set(QStringList ids, QString integerId, Q
         return;
     }
     bool ok;
-    int key = numberIdParts.last().toInt(&ok);
+    QVariant key = numberIdParts.last().toInt(&ok);
     if (!ok) {
         error("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid.");
         return;
     }
-    key = Keys::keysToFloat({Keys::Plus, Keys::Zero}, &ok, key, keyNumber);
+    key = Keys::keysToNumber({Keys::Plus, Keys::Zero}, &ok, key.toInt(), keyNumber);
     if (!ok) {
         error("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid.");
         return;
@@ -123,9 +123,9 @@ void IntegerSpecificItemListAttribute::set(QStringList ids, QString integerId, Q
     }
     if (!successfulIds.isEmpty()) {
         if (removeValues) {
-            success("Removed " + name + " of " + item.format(successfulIds) + " at " + QString::number(key) + ".");
+            success("Removed " + name + " of " + item.format(successfulIds) + " at " + key.toString() + ".");
         } else {
-            success("Set " + name + " of " + item.format(successfulIds) + " at " + QString::number(key) + " to " + valueItem.format(valueItemIdStrings) + ".");
+            success("Set " + name + " of " + item.format(successfulIds) + " at " + key.toString() + " to " + valueItem.format(valueItemIdStrings) + ".");
         }
     }
 }

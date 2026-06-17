@@ -8,8 +8,8 @@
 
 #include "numbertype.h"
 
-NumberType::NumberType(const float minValue, const float maxValue, const QString numberUnit, const bool numberCyclic)
-    : min(minValue), max(maxValue), unit(numberUnit), cyclic(numberCyclic) {
+NumberType::NumberType(const float minValue, const float maxValue, const QString numberUnit, const DataType type, const bool numberCyclic)
+    : min(minValue), max(maxValue), unit(numberUnit), dataType(type), cyclic(numberCyclic) {
     Q_ASSERT(minValue <= maxValue);
 }
 
@@ -22,7 +22,7 @@ NumberType NumberType::percentage() {
 }
 
 NumberType NumberType::angle() {
-    return NumberType(0, 360, "°", true);
+    return NumberType(0, 360, "°", FLOAT, true);
 }
 
 NumberType NumberType::time() {
@@ -30,27 +30,27 @@ NumberType NumberType::time() {
 }
 
 NumberType NumberType::priority() {
-    return NumberType(0, 200);
+    return NumberType(0, 200, "", INTEGER);
 }
 
 NumberType NumberType::step() {
-    return NumberType(1, 99);
+    return NumberType(1, 99, "", INTEGER);
 }
 
 NumberType NumberType::universe() {
-    return NumberType(1, 63999);
+    return NumberType(1, 63999, "", INTEGER);
 }
 
 NumberType NumberType::address() {
-    return NumberType(0, 512);
+    return NumberType(0, 512, "", INTEGER);
 }
 
 NumberType NumberType::channel() {
-    return NumberType(1, 512);
+    return NumberType(1, 512, "", INTEGER);
 }
 
 NumberType NumberType::dmxValue() {
-    return NumberType(0, 255);
+    return NumberType(0, 255, "", INTEGER);
 }
 
 NumberType NumberType::tilt() {
@@ -77,7 +77,7 @@ NumberType NumberType::coordinate() {
     return NumberType(-1000, 1000);
 }
 
-float NumberType::format(bool* ok, float value) const {
+QVariant NumberType::format(bool* ok, float value) const {
     if (cyclic) {
         while (value < min) {
             value += max - min;
@@ -88,9 +88,13 @@ float NumberType::format(bool* ok, float value) const {
     } else {
         if ((value < min) || (value > max)) {
             (*ok) = false;
-            return value;
+            return QVariant(0);
         }
     }
     (*ok) = true;
-    return value;
+
+    if (dataType == INTEGER) {
+        return QVariant((int)value);
+    }
+    return QVariant(value);
 }

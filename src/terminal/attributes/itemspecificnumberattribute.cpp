@@ -8,7 +8,7 @@
 
 #include "itemspecificnumberattribute.h"
 
-template <typename T> ItemSpecificNumberAttribute<T>::ItemSpecificNumberAttribute(
+ItemSpecificNumberAttribute::ItemSpecificNumberAttribute(
     const ItemType item,
     const QString name,
     const ItemType attributeForeignItem,
@@ -17,15 +17,15 @@ template <typename T> ItemSpecificNumberAttribute<T>::ItemSpecificNumberAttribut
     ) : Attribute(item, name), valueTable(attributeValueTable), foreignItem(attributeForeignItem), number(numberType) {
 }
 
-template <typename T> void ItemSpecificNumberAttribute<T>::set(QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys) {
+void ItemSpecificNumberAttribute::set(QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(!foreignItemIds.isEmpty());
     const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
     const bool difference = valueKeys.startsWith(Keys::Plus);
-    T value;
+    QVariant value;
     if (!removeValues && !difference) {
         bool ok;
-        value = keysToFloat(valueKeys, &ok, 0, number);
+        value = keysToNumber(valueKeys, &ok, 0, number);
         if (!ok) {
             error("Invalid value given.");
             return;
@@ -84,9 +84,9 @@ template <typename T> void ItemSpecificNumberAttribute<T>::set(QStringList ids, 
                             currentValueQuery.bindValue(":foreign_item", foreignItemKey);
                             if (currentValueQuery.exec()) {
                                 if (currentValueQuery.next()) {
-                                    value = keysToFloat(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
+                                    value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
                                 } else {
-                                    value = keysToFloat(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
+                                    value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
                                 }
                                 if (!valueOk) {
                                     error("Invalid value given for " + item.getSingular() + " " + id + ".");
@@ -129,9 +129,9 @@ template <typename T> void ItemSpecificNumberAttribute<T>::set(QStringList ids, 
         if (removeValues) {
             success("Removed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + ".");
         } else if (difference) {
-            success("Changed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " by " + QString::number(value) + number.getUnit() + ".");
+            success("Changed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " by " + value.toString() + number.getUnit() + ".");
         } else {
-            success("Set " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " to " + QString::number(value) + number.getUnit() + ".");
+            success("Set " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " to " + value.toString() + number.getUnit() + ".");
         }
     }
 }

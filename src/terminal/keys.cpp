@@ -45,7 +45,7 @@ QString Keys::keysToString(QList<Key> keys) {
     return result.simplified();
 }
 
-float Keys::keysToFloat(QList<Key> keys, bool* ok, const float currentValue, const NumberType number) {
+QVariant Keys::keysToNumber(QList<Key> keys, bool* ok, const float currentValue, const NumberType number) {
     const bool difference = keys.startsWith(Plus);
     if (difference) {
         keys.removeFirst();
