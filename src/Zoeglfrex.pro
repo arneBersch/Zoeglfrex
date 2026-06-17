@@ -46,6 +46,7 @@ SOURCES += \
     terminal/attributes/textattribute.cpp \
     terminal/itemtype.cpp \
     terminal/keys.cpp \
+    terminal/numbertype.cpp \
     terminal/terminal.cpp
 
 HEADERS += \
@@ -83,6 +84,7 @@ HEADERS += \
     terminal/attributes/textattribute.h \
     terminal/itemtype.h \
     terminal/keys.h \
+    terminal/numbertype.h \
     terminal/terminal.h
 
 # Default rules for deployment.

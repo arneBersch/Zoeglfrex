@@ -14,19 +14,10 @@
 
 #include "keys.h"
 #include "itemtype.h"
+#include "numbertype.h"
 
 class Terminal : public QWidget {
     Q_OBJECT
-private:
-    struct NumberInfos {
-        float minValue;
-        float maxValue;
-        bool cyclic = false;
-        QString unit = QString();
-    };
-    const NumberInfos percentageInfos = {0, 100, false, "%"};
-    const NumberInfos angleInfos = {0, 360, true, "°"};
-
 public:
     Terminal(QWidget *parent = nullptr);
     void info(QString message);
@@ -47,12 +38,12 @@ private:
     void createItems(ItemType item, QStringList ids);
     void deleteItems(ItemType item, QStringList ids);
     void moveItems(ItemType item, QStringList ids, QList<Keys::Key> valueKeys);
-    template <typename T> void setNumberAttribute(ItemType item, QString attribute, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, NumberInfos number);
-    template <typename T> void setItemSpecificNumberAttribute(ItemType item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys, ItemType foreignItem, QString valueTable, NumberInfos number);
-    template <typename T> void setIntegerSpecificNumberAttribute(ItemType item, QString attributeName, QStringList ids, QString integerId, QList<Keys::Key> valueKeys, QString valueTable, NumberInfos keyInteger, NumberInfos valueNumber);
-    void setIntegerSpecificItemListAttribute(ItemType item, QString attributeName, QStringList ids, QString integerId, QList<Keys::Key> valueKeys, ItemType valueItem, QString valueTable, NumberInfos keyInteger, bool limitToOne = false);
-    template <typename T> void setItemAndIntegerSpecificNumberAttribute(ItemType item, QString attributeName, QStringList ids, QStringList foreignItemIds, QString numberId, QList<Keys::Key> valueKeys, ItemType foreignItem, QString valueTable, NumberInfos keyNumber, NumberInfos valueNumber);
-    float keysToFloat(QList<Keys::Key> keys, bool* ok, float currentValue, NumberInfos number) const;
+    template <typename T> void setNumberAttribute(ItemType item, QString attribute, QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, NumberType number);
+    template <typename T> void setItemSpecificNumberAttribute(ItemType item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys, ItemType foreignItem, QString valueTable, NumberType number);
+    template <typename T> void setIntegerSpecificNumberAttribute(ItemType item, QString attributeName, QStringList ids, QString integerId, QList<Keys::Key> valueKeys, QString valueTable, NumberType keyInteger, NumberType valueNumber);
+    void setIntegerSpecificItemListAttribute(ItemType item, QString attributeName, QStringList ids, QString integerId, QList<Keys::Key> valueKeys, ItemType valueItem, QString valueTable, NumberType keyInteger, bool limitToOne = false);
+    template <typename T> void setItemAndIntegerSpecificNumberAttribute(ItemType item, QString attributeName, QStringList ids, QStringList foreignItemIds, QString numberId, QList<Keys::Key> valueKeys, ItemType foreignItem, QString valueTable, NumberType keyNumber, NumberType valueNumber);
+    float keysToFloat(QList<Keys::Key> keys, bool* ok, float currentValue, NumberType number) const;
     QStringList keysToIds(QList<Keys::Key> keys) const;
     void writeKey(Keys::Key key);
     void backspace();
