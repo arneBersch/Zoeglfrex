@@ -13,6 +13,8 @@
 #include "attributes/itemattribute.h"
 #include "attributes/itemlistattribute.h"
 #include "attributes/itemspecificitemlistattribute.h"
+#include "attributes/numberattribute.h"
+#include "attributes/numberattribute.cpp"
 
 Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -211,13 +213,21 @@ void Terminal::execute() {
             attribute.set(ids);
             emit dbChanged();
         } else if (attribute == AttributeIds::modelPanRange) {
-            setNumberAttribute<float>(ItemType::model(), "panrange", "Pan Range", ids, valueKeys, NumberType::panRange());
+            NumberAttribute<float> attribute(ItemType::model(), "panrange", "Pan Range", NumberType::panRange());
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if (attribute == AttributeIds::modelTiltRange) {
-            setNumberAttribute<float>(ItemType::model(), "tiltrange", "Tilt Range", ids, valueKeys, NumberType::tiltRange());
+            NumberAttribute<float> attribute(ItemType::model(), "tiltrange", "Tilt Range", NumberType::tiltRange());
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if (attribute == AttributeIds::modelMinZoom) {
-            setNumberAttribute<float>(ItemType::model(), "minzoom", "Minimal Zoom", ids, valueKeys, NumberType::zoomRange());
+            NumberAttribute<float> attribute(ItemType::model(), "minzoom", "Minimal Zoom", NumberType::zoomRange());
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if (attribute == AttributeIds::modelMaxZoom) {
-            setNumberAttribute<float>(ItemType::model(), "maxzoom", "Maximal Zoom", ids, valueKeys, NumberType::zoomRange());
+            NumberAttribute<float> attribute(ItemType::model(), "maxzoom", "Maximal Zoom", NumberType::zoomRange());
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else {
             error("Unknown Model Attribute.");
         }
@@ -235,15 +245,25 @@ void Terminal::execute() {
             attribute.set(ids, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::fixtureUniverse) {
-            setNumberAttribute<int>(ItemType::fixture(), "universe", "Universe", ids, valueKeys, NumberType::universe());
+            NumberAttribute<int> attribute(ItemType::fixture(), "universe", "Universe", NumberType::universe());
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if ((attribute == AttributeIds::fixtureAddress) || !attributes.contains(Keys::Attribute)) {
-            setNumberAttribute<int>(ItemType::fixture(), "address", "Address", ids, valueKeys, NumberType::address());
+            NumberAttribute<int> attribute(ItemType::fixture(), "address", "Address", NumberType::address());
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if (attribute == AttributeIds::fixtureXPosition) {
-            setNumberAttribute<float>(ItemType::fixture(), "xposition", "X Position", ids, valueKeys, NumberType::coordinate());
+            NumberAttribute<float> attribute(ItemType::fixture(), "xposition", "X Position", NumberType::coordinate());
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if (attribute == AttributeIds::fixtureYPosition) {
-            setNumberAttribute<float>(ItemType::fixture(), "yposition", "Y Position", ids, valueKeys, NumberType::coordinate());
+            NumberAttribute<float> attribute(ItemType::fixture(), "yposition", "Y Position", NumberType::coordinate());
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if (attribute == AttributeIds::fixtureRotation) {
-            setNumberAttribute<float>(ItemType::fixture(), "rotation", "Rotation", ids, valueKeys, NumberType::angle());
+            NumberAttribute<float> attribute(ItemType::fixture(), "rotation", "Rotation", NumberType::angle());
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if (attribute == AttributeIds::fixtureInvertPan) {
             BoolAttribute attribute(ItemType::fixture(), "invertpan", "Invert Pan");
             attribute.set(ids, valueKeys);
@@ -282,7 +302,9 @@ void Terminal::execute() {
             } else if (attributes.contains(ItemType::fixture().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::intensity(), "Dimmer Fixture Exception", ids, attributes.value(ItemType::fixture().getKey()), valueKeys, ItemType::fixture(), "intensity_fixture_dimmer", NumberType::percentage());
             } else {
-                setNumberAttribute<float>(ItemType::intensity(), "dimmer", "Dimmer", ids, valueKeys, NumberType::percentage());
+                NumberAttribute<float> attribute(ItemType::intensity(), "dimmer", "Dimmer", NumberType::percentage());
+                attribute.set(ids, valueKeys);
+                emit dbChanged();
             }
         } else if (attribute == AttributeIds::intensityRaws) {
             ItemListAttribute attribute = ItemListAttribute(ItemType::intensity(), "Raws", ItemType::raw(), "intensity_raws");
@@ -306,7 +328,9 @@ void Terminal::execute() {
             } else if (attributes.contains(ItemType::fixture().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::color(), "Hue Fixture Exception", ids, attributes.value(ItemType::fixture().getKey()), valueKeys, ItemType::fixture(), "color_fixture_hue", NumberType::angle());
             } else {
-                setNumberAttribute<float>(ItemType::color(), "hue", "Hue", ids, valueKeys, NumberType::angle());
+                NumberAttribute<float> attribute(ItemType::color(), "hue", "Hue", NumberType::angle());
+                attribute.set(ids, valueKeys);
+                emit dbChanged();
             }
         } else if (attribute == AttributeIds::colorSaturation) {
             if (attributes.contains(ItemType::model().getKey())) {
@@ -314,7 +338,9 @@ void Terminal::execute() {
             } else if (attributes.contains(ItemType::fixture().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::color(), "Saturation Fixture Exception", ids, attributes.value(ItemType::fixture().getKey()), valueKeys, ItemType::fixture(), "color_fixture_saturation", NumberType::percentage());
             } else {
-                setNumberAttribute<float>(ItemType::color(), "saturation", "Saturation", ids, valueKeys, NumberType::percentage());
+                NumberAttribute<float> attribute(ItemType::color(), "saturation", "Saturation", NumberType::percentage());
+                attribute.set(ids, valueKeys);
+                emit dbChanged();
             }
         } else if (attribute == AttributeIds::colorQuality) {
             if (attributes.contains(ItemType::model().getKey())) {
@@ -322,7 +348,9 @@ void Terminal::execute() {
             } else if (attributes.contains(ItemType::fixture().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::color(), "Quality Fixture Exception", ids, attributes.value(ItemType::fixture().getKey()), valueKeys, ItemType::fixture(), "color_fixture_quality", NumberType::percentage());
             } else {
-                setNumberAttribute<float>(ItemType::color(), "quality", "Quality", ids, valueKeys, NumberType::percentage());
+                NumberAttribute<float> attribute(ItemType::color(), "quality", "Quality", NumberType::percentage());
+                attribute.set(ids, valueKeys);
+                emit dbChanged();
             }
         } else if (attribute == AttributeIds::colorRaws) {
             ItemListAttribute attribute = ItemListAttribute(ItemType::color(), "Raws", ItemType::raw(), "color_raws");
@@ -346,7 +374,9 @@ void Terminal::execute() {
             } else if (attributes.contains(ItemType::fixture().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::position(), "Pan Fixture Exception", ids, attributes.value(ItemType::fixture().getKey()), valueKeys, ItemType::fixture(), "position_fixture_pan", NumberType::angle());
             } else {
-                setNumberAttribute<float>(ItemType::position(), "pan", "Pan", ids, valueKeys, NumberType::angle());
+                NumberAttribute<float> attribute(ItemType::position(), "pan", "Pan", NumberType::angle());
+                attribute.set(ids, valueKeys);
+                emit dbChanged();
             }
         } else if (attribute == AttributeIds::positionTilt) {
             if (attributes.contains(ItemType::model().getKey())) {
@@ -354,7 +384,9 @@ void Terminal::execute() {
             } else if (attributes.contains(ItemType::fixture().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::position(), "Tilt Fixture Exception", ids, attributes.value(ItemType::fixture().getKey()), valueKeys, ItemType::fixture(), "position_fixture_tilt", NumberType::tilt());
             } else {
-                setNumberAttribute<float>(ItemType::position(), "tilt", "Tilt", ids, valueKeys, NumberType::tilt());
+                NumberAttribute<float> attribute(ItemType::position(), "tilt", "Tilt", NumberType::tilt());
+                attribute.set(ids, valueKeys);
+                emit dbChanged();
             }
         } else if (attribute == AttributeIds::positionZoom) {
             if (attributes.contains(ItemType::model().getKey())) {
@@ -362,7 +394,9 @@ void Terminal::execute() {
             } else if (attributes.contains(ItemType::fixture().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::position(), "Zoom Fixture Exception", ids, attributes.value(ItemType::fixture().getKey()), valueKeys, ItemType::fixture(), "position_fixture_zoom", NumberType::zoom());
             } else {
-                setNumberAttribute<float>(ItemType::position(), "zoom", "Zoom", ids, valueKeys, NumberType::zoom());
+                NumberAttribute<float> attribute(ItemType::position(), "zoom", "Zoom", NumberType::zoom());
+                attribute.set(ids, valueKeys);
+                emit dbChanged();
             }
         } else if (attribute == AttributeIds::positionFocus) {
             if (attributes.contains(ItemType::model().getKey())) {
@@ -370,7 +404,9 @@ void Terminal::execute() {
             } else if (attributes.contains(ItemType::fixture().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::position(), "Focus Fixture Exception", ids, attributes.value(ItemType::fixture().getKey()), valueKeys, ItemType::fixture(), "position_fixture_focus", NumberType::percentage());
             } else {
-                setNumberAttribute<float>(ItemType::position(), "focus", "Focus", ids, valueKeys, NumberType::percentage());
+                NumberAttribute<float> attribute(ItemType::position(), "focus", "Focus", NumberType::percentage());
+                attribute.set(ids, valueKeys);
+                emit dbChanged();
             }
         } else if (attribute == AttributeIds::positionRaws) {
             ItemListAttribute attribute = ItemListAttribute(ItemType::position(), "Raws", ItemType::raw(), "position_raws");
@@ -417,7 +453,9 @@ void Terminal::execute() {
             attribute.set(ids);
             emit dbChanged();
         } else if ((attribute == AttributeIds::effectSteps) || !attributes.contains(Keys::Attribute)) {
-            setNumberAttribute<int>(ItemType::effect(), "steps", "Steps", ids, valueKeys, NumberType::step());
+            NumberAttribute<int> attribute(ItemType::position(), "steps", "Steps", NumberType::step());
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if (attribute.startsWith(QString(AttributeIds::effectIntensities) + ".")) {
             setIntegerSpecificItemListAttribute(ItemType::effect(), "Intensities", ids, attribute, valueKeys, ItemType::intensity(), "effect_step_intensities", NumberType::step(), true);
         } else if (attribute.startsWith(QString(AttributeIds::effectColors) + ".")) {
@@ -427,18 +465,24 @@ void Terminal::execute() {
         } else if (attribute.startsWith(QString(AttributeIds::effectRaws) + ".")) {
             setIntegerSpecificItemListAttribute(ItemType::effect(), "Raws", ids, attribute, valueKeys, ItemType::raw(), "effect_step_raws", NumberType::step());
         } else if (attribute == AttributeIds::effectHold) {
-            setNumberAttribute<float>(ItemType::effect(), "hold", "Hold", ids, valueKeys, NumberType::time());
+            NumberAttribute<float> attribute(ItemType::position(), "hold", "Hold", NumberType::time());
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if (attribute.startsWith(QString(AttributeIds::effectHold) + ".")) {
             setIntegerSpecificNumberAttribute<float>(ItemType::effect(), "Hold", ids, attribute, valueKeys, "effect_step_hold", NumberType::step(), NumberType::time());
         } else if (attribute == AttributeIds::effectFade) {
-            setNumberAttribute<float>(ItemType::effect(), "fade", "Fade", ids, valueKeys, NumberType::time());
+            NumberAttribute<float> attribute(ItemType::position(), "fade", "Fade", NumberType::time());
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if (attribute.startsWith(QString(AttributeIds::effectFade) + ".")) {
             setIntegerSpecificNumberAttribute<float>(ItemType::effect(), "Fade", ids, attribute, valueKeys, "effect_step_fade", NumberType::step(), NumberType::time());
         } else if (attribute == AttributeIds::effectPhase) {
             if (attributes.contains(ItemType::fixture().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::effect(), "Phase", ids, attributes.value(ItemType::fixture().getKey()), valueKeys, ItemType::fixture(), "effect_fixture_phase", NumberType::angle());
             } else {
-                setNumberAttribute<float>(ItemType::effect(), "phase", "Phase", ids, valueKeys, NumberType::angle());
+                NumberAttribute<float> attribute(ItemType::effect(), "phase", "Phase", NumberType::angle());
+                attribute.set(ids, valueKeys);
+                emit dbChanged();
             }
         } else if (attribute == AttributeIds::effectSineFade) {
             BoolAttribute attribute(ItemType::effect(), "sinefade", "Sine Fade");
@@ -457,7 +501,9 @@ void Terminal::execute() {
             attribute.set(ids);
             emit dbChanged();
         } else if (attribute == AttributeIds::cuelistPriority) {
-            setNumberAttribute<int>(ItemType::cuelist(), "priority", "Priority", ids, valueKeys, NumberType::priority());
+            NumberAttribute<int> attribute(ItemType::cuelist(), "priority", "Priority", NumberType::priority());
+            attribute.set(ids, valueKeys);
+            emit dbChanged();
         } else if (attribute == AttributeIds::cuelistMoveWhileDark) {
             BoolAttribute attribute(ItemType::cuelist(), "movewhiledark", "Move while Dark");
             attribute.set(ids, valueKeys);
@@ -533,13 +579,17 @@ void Terminal::execute() {
             if (attributes.contains(ItemType::fixture().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::cue(), "Fade", ids, attributes.value(ItemType::fixture().getKey()), valueKeys, ItemType::fixture(), "cue_fixture_fade", NumberType::time());
             } else {
-                setNumberAttribute<float>(ItemType::cue(), "fade", "Fade", ids, valueKeys, NumberType::time());
+                NumberAttribute<float> attribute(ItemType::cue(), "fade", "Fade", NumberType::time());
+                attribute.set(ids, valueKeys);
+                emit dbChanged();
             }
         } else if (attribute == AttributeIds::cueDelay) {
             if (attributes.contains(ItemType::fixture().getKey())) {
                 setItemSpecificNumberAttribute<float>(ItemType::cue(), "Delay", ids, attributes.value(ItemType::fixture().getKey()), valueKeys, ItemType::fixture(), "cue_fixture_delay", NumberType::time());
             } else {
-                setNumberAttribute<float>(ItemType::cue(), "delay", "Delay", ids, valueKeys, NumberType::time());
+                NumberAttribute<float> attribute(ItemType::cue(), "delay", "Delay", NumberType::time());
+                attribute.set(ids, valueKeys);
+                emit dbChanged();
             }
         } else if (attribute == AttributeIds::cueFollow) {
             BoolAttribute attribute(ItemType::cue(), "follow", "Follow");
@@ -941,77 +991,6 @@ void Terminal::moveItems(const ItemType item, QStringList ids, QList<Keys::Key> 
         success("Set ID of " + item.format(successfulIds) + " to " + newIds.first() + ".");
     }
     updateSortingKeys(item);
-    emit dbChanged();
-}
-
-template <typename T> void Terminal::setNumberAttribute(const ItemType item, const QString attribute, const QString attributeName, QStringList ids, QList<Keys::Key> valueKeys, const NumberType number) {
-    Q_ASSERT(!ids.isEmpty());
-    const bool difference = valueKeys.startsWith(Keys::Plus);
-    T value;
-    if (!difference) {
-        bool ok;
-        value = keysToFloat(valueKeys, &ok, 0, number);
-        if (!ok) {
-            error("Invalid value given.");
-            return;
-        }
-    }
-    createItems(item, ids);
-    QStringList successfulIds;
-    for (QString id : ids) {
-        bool valueOk = true;
-        if (difference) {
-            QSqlQuery currentValueQuery;
-            currentValueQuery.prepare("SELECT " + attribute + " FROM " + item.getSelectTable() + " WHERE id = :id");
-            currentValueQuery.bindValue(":id", id);
-            if (currentValueQuery.exec()) {
-                if (currentValueQuery.next()) {
-                    value = keysToFloat(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
-                    if (!valueOk) {
-                        error("Invalid value given for " + item.getSingular() + " " + id + ".");
-                    }
-                } else {
-                    error("Failed loading the current " + attributeName + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist.");
-                    valueOk = false;
-                }
-            } else {
-                qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
-                error("Failed loading the current " + attributeName + " of " + item.getSingular() + " " + id + ".");
-                valueOk = false;
-            }
-        }
-        if (valueOk) {
-            QSqlQuery keyQuery;
-            keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-            keyQuery.bindValue(":id", id);
-            if (keyQuery.exec()) {
-                if (keyQuery.next()) {
-                    QSqlQuery updateQuery;
-                    updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + attribute + " = :value WHERE key = :key");
-                    updateQuery.bindValue(":key", keyQuery.value(0).toInt());
-                    updateQuery.bindValue(":value", value);
-                    if (updateQuery.exec()) {
-                        successfulIds.append(id);
-                    } else {
-                        qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                        error("Failed setting " + attributeName + " of " + item.getSingular() + " " + id + ".");
-                    }
-                } else {
-                    warning("Failed to set " + attributeName + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found.");
-                }
-            } else {
-                qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-                error("Failed loading " + item.getSingular() + " " + id + ".");
-            }
-        }
-    }
-    if (!successfulIds.isEmpty()) {
-        if (difference) {
-            success("Changed " + attributeName + " of " + item.format(successfulIds) + " by " + QString::number(value) + number.getUnit() + ".");
-        } else {
-            success("Set " + attributeName + " of " + item.format(successfulIds) + " to " + QString::number(value) + number.getUnit() + ".");
-        }
-    }
     emit dbChanged();
 }
 
