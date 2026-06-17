@@ -40,7 +40,6 @@ private:
     void moveItems(ItemType item, QStringList ids, QList<Keys::Key> valueKeys);
     template <typename T> void setIntegerSpecificNumberAttribute(ItemType item, QString attributeName, QStringList ids, QString integerId, QList<Keys::Key> valueKeys, QString valueTable, NumberType keyInteger, NumberType valueNumber);
     void setIntegerSpecificItemListAttribute(ItemType item, QString attributeName, QStringList ids, QString integerId, QList<Keys::Key> valueKeys, ItemType valueItem, QString valueTable, NumberType keyInteger, bool limitToOne = false);
-    template <typename T> void setItemAndIntegerSpecificNumberAttribute(ItemType item, QString attributeName, QStringList ids, QStringList foreignItemIds, QString numberId, QList<Keys::Key> valueKeys, ItemType foreignItem, QString valueTable, NumberType keyNumber, NumberType valueNumber);
     QStringList keysToIds(QList<Keys::Key> keys) const;
     void writeKey(Keys::Key key);
     void backspace();

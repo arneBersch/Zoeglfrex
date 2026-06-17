@@ -40,6 +40,7 @@ SOURCES += \
     startscreen/startscreen.cpp \
     terminal/attributes/attribute.cpp \
     terminal/attributes/boolattribute.cpp \
+    terminal/attributes/itemandintegerspecificnumberattribute.cpp \
     terminal/attributes/itemattribute.cpp \
     terminal/attributes/itemlistattribute.cpp \
     terminal/attributes/itemspecificitemlistattribute.cpp \
@@ -80,6 +81,7 @@ HEADERS += \
     startscreen/startscreen.h \
     terminal/attributes/attribute.h \
     terminal/attributes/boolattribute.h \
+    terminal/attributes/itemandintegerspecificnumberattribute.h \
     terminal/attributes/itemattribute.h \
     terminal/attributes/itemlistattribute.h \
     terminal/attributes/itemspecificitemlistattribute.h \
