@@ -38,7 +38,6 @@ private:
     void createItems(ItemType item, QStringList ids);
     void deleteItems(ItemType item, QStringList ids);
     void moveItems(ItemType item, QStringList ids, QList<Keys::Key> valueKeys);
-    template <typename T> void setIntegerSpecificNumberAttribute(ItemType item, QString attributeName, QStringList ids, QString integerId, QList<Keys::Key> valueKeys, QString valueTable, NumberType keyInteger, NumberType valueNumber);
     void setIntegerSpecificItemListAttribute(ItemType item, QString attributeName, QStringList ids, QString integerId, QList<Keys::Key> valueKeys, ItemType valueItem, QString valueTable, NumberType keyInteger, bool limitToOne = false);
     QStringList keysToIds(QList<Keys::Key> keys) const;
     void writeKey(Keys::Key key);
