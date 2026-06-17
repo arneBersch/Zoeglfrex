@@ -43,6 +43,7 @@ SOURCES += \
     terminal/attributes/itemattribute.cpp \
     terminal/attributes/itemlistattribute.cpp \
     terminal/attributes/itemspecificitemlistattribute.cpp \
+    terminal/attributes/itemspecificnumberattribute.cpp \
     terminal/attributes/numberattribute.cpp \
     terminal/attributes/textattribute.cpp \
     terminal/itemtype.cpp \
@@ -82,6 +83,7 @@ HEADERS += \
     terminal/attributes/itemattribute.h \
     terminal/attributes/itemlistattribute.h \
     terminal/attributes/itemspecificitemlistattribute.h \
+    terminal/attributes/itemspecificnumberattribute.h \
     terminal/attributes/numberattribute.h \
     terminal/attributes/textattribute.h \
     terminal/itemtype.h \
