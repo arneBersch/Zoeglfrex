@@ -873,91 +873,6 @@ void Terminal::setCueItem(const ItemType item, const QString valueTable, const Q
     emit dbChanged();
 }
 
-void Terminal::createItems(const ItemType item, QStringList ids) {
-    Q_ASSERT(!ids.isEmpty());
-    QStringList successfulIds;
-    for (QString id : ids) {
-        QSqlQuery existsQuery;
-        existsQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-        existsQuery.bindValue(":id", id);
-        if (existsQuery.exec()) {
-            if (!existsQuery.next()) {
-                QSqlQuery insertQuery;
-                insertQuery.prepare("INSERT INTO " + item.getUpdateTable() + " (id, sortkey) VALUES (:id, 0)");
-                insertQuery.bindValue(":id", id);
-                if (insertQuery.exec()) {
-                    successfulIds.append(id);
-                } else {
-                    qWarning() << Q_FUNC_INFO << insertQuery.executedQuery() << insertQuery.lastError().text();
-                    error("Failed to insert " + item.getSingular() + " " + id + ".");
-                }
-            }
-        } else {
-            qWarning() << Q_FUNC_INFO << existsQuery.executedQuery() << existsQuery.lastError().text();
-            error("Failed to check if " + item.getSingular() + " " + id + " already exists.");
-        }
-    }
-    if (!successfulIds.isEmpty()) {
-        success("Created " + item.format(successfulIds) + ".");
-    }
-    updateSortingKeys(item);
-    if (item == ItemType::cue()) {
-        for (QString id : successfulIds) {
-            QSqlQuery keyQuery;
-            keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-            keyQuery.bindValue(":id", id);
-            if (keyQuery.exec()) {
-                if (keyQuery.next()) {
-                    const int key = keyQuery.value(0).toInt();
-                    QSqlQuery previousCueQuery;
-                    previousCueQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE sortkey = (SELECT MAX(sortkey) FROM " + item.getSelectTable() + " WHERE sortkey < (SELECT sortkey FROM " + item.getSelectTable() + " WHERE key = :key))");
-                    previousCueQuery.bindValue(":key", key);
-                    if (previousCueQuery.exec()) {
-                        if (previousCueQuery.next()) {
-                            const int previousCueKey = previousCueQuery.value(0).toInt();
-                            QStringList tables;
-                            tables.append("cue_group_intensities");
-                            tables.append("cue_group_colors");
-                            tables.append("cue_group_positions");
-                            tables.append("cue_group_raws");
-                            tables.append("cue_group_effects");
-                            for (QString table : tables) {
-                                QSqlQuery valueQuery;
-                                valueQuery.prepare("SELECT foreignItem_key, valueItem_key FROM " + table + " WHERE item_key = :key");
-                                valueQuery.bindValue(":key", previousCueKey);
-                                if (valueQuery.exec()) {
-                                    while (valueQuery.next()) {
-                                        QSqlQuery updateQuery;
-                                        updateQuery.prepare("INSERT INTO " + table + " (item_key, foreignItem_key, valueItem_key) VALUES (:key, :foreignItem, :valueItem)");
-                                        updateQuery.bindValue(":key", key);
-                                        updateQuery.bindValue(":foreignItem", valueQuery.value(0).toInt());
-                                        updateQuery.bindValue(":valueItem", valueQuery.value(1).toInt());
-                                        if (!updateQuery.exec()) {
-                                            qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                                            error("Failed to copy data of the previous " + item.getSingular() + " to " + item.getSingular() + " " + id + ".");
-                                        }
-                                    }
-                                } else {
-                                    qWarning() << Q_FUNC_INFO << valueQuery.executedQuery() << valueQuery.lastError().text();
-                                    error("Failed to copy the data of the previous " + item.getSingular() + " to " + item.getSingular() + " " + id + ".");
-                                }
-                            }
-                        }
-                    } else {
-                        qWarning() << Q_FUNC_INFO << previousCueQuery.executedQuery() << previousCueQuery.lastError().text();
-                        error("Failed to get the " + item.getSingular() + " before " + item.getSingular() + " " + id + ".");
-                    }
-                } else {
-                    error(item.getSingular() + " " + id + " wasn't found.");
-                }
-            } else {
-                qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-                error("Failed to get " + item.getSingular() + " " + id + ".");
-            }
-        }
-    }
-}
-
 void Terminal::deleteItems(const ItemType item, QStringList ids) {
     Q_ASSERT(!ids.isEmpty());
     QMessageBox msgBox;
@@ -1005,10 +920,9 @@ void Terminal::moveItems(const ItemType item, QStringList ids, QList<Keys::Key> 
     valueKeys.prepend(item.getKey());
     QStringList newIds = keysToIds(valueKeys);
     if (newIds.size() != 1) {
-        error("Can't set " + item.getSingular() + " ID because an invalid ID was given.");
+        error("Can't set " + item.getSingular() + " ID because no valid ID was given.");
         return;
     }
-    createItems(item, ids);
     QStringList successfulIds;
     for (QString id : ids) {
         QSqlQuery existsQuery;

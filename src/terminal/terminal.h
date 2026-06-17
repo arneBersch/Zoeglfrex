@@ -34,7 +34,6 @@ private:
     static bool compareIds(QString idA, QString idB);
     void setCurrentItem(ItemType item, QString itemTable, QList<Keys::Key> idKeys, QString updateQueryText);
     void setCueItem(ItemType item, QString valueTable, QList<Keys::Key> idKeys, bool multipleItemsAllowed);
-    void createItems(ItemType item, QStringList ids);
     void deleteItems(ItemType item, QStringList ids);
     void moveItems(ItemType item, QStringList ids, QList<Keys::Key> valueKeys);
     QStringList keysToIds(QList<Keys::Key> keys) const;
