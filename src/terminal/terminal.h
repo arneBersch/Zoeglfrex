@@ -30,11 +30,8 @@ public slots:
     void reload();
 private:
     void execute();
-    void updateSortingKeys(ItemType item);
-    static bool compareIds(QString idA, QString idB);
     void setCurrentItem(ItemType item, QString itemTable, QList<Keys::Key> idKeys, QString updateQueryText);
     void setCueItem(ItemType item, QString valueTable, QList<Keys::Key> idKeys, bool multipleItemsAllowed);
-    void deleteItems(ItemType item, QStringList ids);
     void writeKey(Keys::Key key);
     void backspace();
     void clearPrompt();

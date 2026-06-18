@@ -19,6 +19,7 @@
 #include "attributes/integerspecificnumberattribute.h"
 #include "attributes/integerspecificitemlistattribute.h"
 #include "attributes/idattribute.h"
+#include "attributes/deleteattribute.h"
 
 Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -205,7 +206,9 @@ void Terminal::execute() {
 
     if (selectionType == ItemType::model().getKey()) {
         if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
-            deleteItems(ItemType::model(), ids);
+            DeleteAttribute attribute(ItemType::model());
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::id) {
             IDAttribute attribute(ItemType::model());
             attribute.set(ids, valueKeys);
@@ -239,7 +242,9 @@ void Terminal::execute() {
         }
     } else if (selectionType == ItemType::fixture().getKey()) {
         if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
-            deleteItems(ItemType::fixture(), ids);
+            DeleteAttribute attribute(ItemType::fixture());
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::id) {
             IDAttribute attribute(ItemType::fixture());
             attribute.set(ids, valueKeys);
@@ -281,7 +286,9 @@ void Terminal::execute() {
         }
     } else if (selectionType == ItemType::group().getKey()) {
         if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
-            deleteItems(ItemType::group(), ids);
+            DeleteAttribute attribute(ItemType::group());
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::id) {
             IDAttribute attribute(ItemType::group());
             attribute.set(ids, valueKeys);
@@ -299,7 +306,9 @@ void Terminal::execute() {
         }
     } else if (selectionType == ItemType::intensity().getKey()) {
         if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
-            deleteItems(ItemType::intensity(), ids);
+            DeleteAttribute attribute(ItemType::intensity());
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::id) {
             IDAttribute attribute(ItemType::intensity());
             attribute.set(ids, valueKeys);
@@ -331,7 +340,9 @@ void Terminal::execute() {
         }
     } else if (selectionType == ItemType::color().getKey()) {
         if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
-            deleteItems(ItemType::color(), ids);
+            DeleteAttribute attribute(ItemType::color());
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::id) {
             IDAttribute attribute(ItemType::color());
             attribute.set(ids, valueKeys);
@@ -391,7 +402,9 @@ void Terminal::execute() {
         }
     } else if (selectionType == ItemType::position().getKey()) {
         if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
-            deleteItems(ItemType::position(), ids);
+            DeleteAttribute attribute(ItemType::position());
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::id) {
             IDAttribute attribute(ItemType::position());
             attribute.set(ids, valueKeys);
@@ -465,7 +478,9 @@ void Terminal::execute() {
         }
     } else if (selectionType == ItemType::raw().getKey()) {
         if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
-            deleteItems(ItemType::raw(), ids);
+            DeleteAttribute attribute(ItemType::raw());
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::id) {
             IDAttribute attribute(ItemType::raw());
             attribute.set(ids, valueKeys);
@@ -501,7 +516,9 @@ void Terminal::execute() {
         }
     } else if (selectionType == ItemType::effect().getKey()) {
         if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
-            deleteItems(ItemType::effect(), ids);
+            DeleteAttribute attribute(ItemType::raw());
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::id) {
             IDAttribute attribute(ItemType::effect());
             attribute.set(ids, valueKeys);
@@ -565,7 +582,9 @@ void Terminal::execute() {
         }
     } else if (selectionType == ItemType::cuelist().getKey()) {
         if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
-            deleteItems(ItemType::cuelist(), ids);
+            DeleteAttribute attribute(ItemType::cuelist());
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::id) {
             IDAttribute attribute(ItemType::cuelist());
             attribute.set(ids, valueKeys);
@@ -598,7 +617,9 @@ void Terminal::execute() {
             return;
         }
         if (attributeKeys.isEmpty() && (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus)) {
-            deleteItems(ItemType::cue(), ids);
+            DeleteAttribute attribute(ItemType::cue());
+            attribute.set(ids);
+            emit dbChanged();
         } else if (attribute == AttributeIds::id) {
             IDAttribute attribute(ItemType::cue());
             attribute.set(ids, valueKeys);
@@ -687,56 +708,6 @@ void Terminal::execute() {
         error("Unknown Item type.");
         return;
     }
-}
-
-void Terminal::updateSortingKeys(const ItemType item) {
-    QSqlQuery idsQuery;
-    idsQuery.prepare("SELECT key, id, sortkey FROM " + item.getSelectTable());
-    if (idsQuery.exec()) {
-        struct IdKey {
-            int key;
-            QString id;
-            int sortkey;
-        };
-        QList<IdKey> idKeys;
-        while (idsQuery.next()) {
-            IdKey idKey;
-            idKey.key = idsQuery.value(0).toInt();
-            idKey.id = idsQuery.value(1).toString();
-            idKey.sortkey = idsQuery.value(2).toInt();
-            idKeys.append(idKey);
-        }
-        std::sort(idKeys.begin(), idKeys.end(), [] (IdKey a, IdKey b) { return compareIds(a.id, b.id); });
-        for (int index = 1; index <= idKeys.length(); index++) {
-            const IdKey idKey = idKeys.at(index - 1);
-            if (idKey.sortkey != index) {
-                QSqlQuery query;
-                query.prepare("UPDATE " + item.getUpdateTable() + " SET sortkey = :sortkey WHERE key = :key");
-                query.bindValue(":key", idKey.key);
-                query.bindValue(":sortkey", index);
-                if (!query.exec()) {
-                    qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                    error("Failed to update the sorting key of " + item.getSingular() + " " + idKey.id + ".");
-                }
-            }
-        }
-    } else {
-        qWarning() << Q_FUNC_INFO << idsQuery.executedQuery() << idsQuery.lastError().text();
-        error("Failed to update the " + item.getSingular() + " sorting keys.");
-    }
-}
-
-bool Terminal::compareIds(const QString a, const QString b) {
-    QStringList aParts = a.split(".");
-    QStringList bParts = b.split(".");
-    for (int part = 0; part < std::min(aParts.length(), bParts.length()); part++) {
-        const int aPart = aParts.at(part).toInt();
-        const int bPart = bParts.at(part).toInt();
-        if (aPart != bPart) {
-            return aPart < bPart;
-        }
-    }
-    return (aParts.length() < bParts.length());
 }
 
 void Terminal::setCurrentItem(const ItemType item, const QString itemTable, const QList<Keys::Key> idKeys, const QString updateQueryText) {
@@ -891,48 +862,6 @@ void Terminal::setCueItem(const ItemType item, const QString valueTable, const Q
             }
         }
     }
-    emit dbChanged();
-}
-
-void Terminal::deleteItems(const ItemType item, QStringList ids) {
-    Q_ASSERT(!ids.isEmpty());
-    QMessageBox msgBox;
-    msgBox.setText("Delete " + QString::number(ids.length()) + " " + item.getPlural() + "?");
-    msgBox.setInformativeText("Do you want to delete " + item.getSingular() + " " + ids.join(", ") + "?");
-    msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Yes);
-    msgBox.setDefaultButton(QMessageBox::Yes);
-    if (msgBox.exec() != QMessageBox::Yes) {
-        error("Popup canceled.");
-        return;
-    }
-    QStringList successfulIds;
-    for (QString id : ids) {
-        QSqlQuery keyQuery;
-        keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-        keyQuery.bindValue(":id", id);
-        if (keyQuery.exec()) {
-            if (keyQuery.next()) {
-                QSqlQuery deleteQuery;
-                deleteQuery.prepare("DELETE FROM " + item.getUpdateTable() + " WHERE key = :key");
-                deleteQuery.bindValue(":key", keyQuery.value(0).toInt());
-                if (deleteQuery.exec()) {
-                    successfulIds.append(id);
-                } else {
-                    qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
-                    error("Can't delete " + item.getSingular() + " because the request failed.");
-                }
-            } else {
-                warning("Can't delete " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist.");
-            }
-        } else {
-            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            error("Couldn't delete " + item.getSingular() + " " + id + ": ");
-        }
-    }
-    if (!successfulIds.isEmpty()) {
-        success("Deleted " + item.format(successfulIds) + ".");
-    }
-    updateSortingKeys(item);
     emit dbChanged();
 }
 
