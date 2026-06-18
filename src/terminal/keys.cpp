@@ -201,19 +201,25 @@ QStringList Keys::keysToIds(QList<Key> keys) {
                         if (thruParts.isEmpty() || (idParts.size() != 1)) {
                             return QStringList();
                         }
-                        for (int ending = thruParts.last().toInt(); ending <= idParts.last().toInt(); ending++) {
-                            QStringList currentIdParts = thruParts.first(thruParts.length() - 1);
-                            currentIdParts.append(QString::number(ending));
-                            QString currentId = currentIdParts.join(".");
+                        const QString idBeginning = thruParts.first(thruParts.length() - 1).join(".") + ".";
+                        const int firstEnding = thruParts.last().toInt();
+                        const int lastEnding = idParts.last().toInt();
+                        QStringList idsToAdd;
+                        for (int ending = std::min(firstEnding, lastEnding); ending <= std::max(firstEnding, lastEnding); ending++) {
+                            QString currentId = idBeginning + QString::number(ending);
                             while (currentId.endsWith(".0")) {
                                 currentId.chop(2);
                             }
                             if (!idAdding) {
                                 ids.removeAll(currentId);
                             } else if (!ids.contains(currentId)) {
-                                ids.append(currentId);
+                                idsToAdd.append(currentId);
                             }
                         }
+                        if (firstEnding > lastEnding) {
+                            std::reverse(idsToAdd.begin(), idsToAdd.end());
+                        }
+                        ids.append(idsToAdd);
                         thruParts.clear();
                         idStartsWithPeriod = false;
                     } else if (thruParts.isEmpty()) {
@@ -227,14 +233,21 @@ QStringList Keys::keysToIds(QList<Key> keys) {
                         if (!allIds.contains(id) || !allIds.contains(thruId)) {
                             return QStringList();
                         }
-                        for (int index = allIds.indexOf(thruId); index <= allIds.indexOf(id); index++) {
+                        const int firstIndex = allIds.indexOf(thruId);
+                        const int lastIndex = allIds.indexOf(id);
+                        QStringList idsToAdd;
+                        for (int index = std::min(firstIndex, lastIndex); index <= std::max(firstIndex, lastIndex); index++) {
                             const QString currentId = allIds.at(index);
                             if (!idAdding) {
-                                ids.append(currentId);
+                                ids.removeAll(currentId);
                             } else if (!ids.contains(currentId)) {
-                                ids.append(currentId);
+                                idsToAdd.append(currentId);
                             }
                         }
+                        if (firstIndex > lastIndex) {
+                            std::reverse(idsToAdd.begin(), idsToAdd.end());
+                        }
+                        ids.append(idsToAdd);
                     }
                     thruParts.clear();
                     idParts.clear();
