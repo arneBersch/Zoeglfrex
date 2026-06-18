@@ -18,7 +18,6 @@ class Attribute {
 public:
     Attribute(ItemType item, QString attributeName);
 protected:
-    static QStringList keysToIds(QList<Keys::Key> keys);
     void createItems(ItemType item, QStringList ids);
     void success(QString message);
     void warning(QString message);

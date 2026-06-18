@@ -46,6 +46,7 @@ enum Key {
 
 QString keysToString(QList<Key> keys);
 QVariant keysToNumber(QList<Keys::Key> keys, bool* ok, float currentValue, NumberType number);
+QStringList keysToIds(QList<Keys::Key> keys);
 bool isItemKey(Key key);
 
 }
