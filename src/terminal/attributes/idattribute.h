@@ -6,27 +6,15 @@
     You should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ATTRIBUTE_H
-#define ATTRIBUTE_H
+#ifndef IDATTRIBUTE_H
+#define IDATTRIBUTE_H
 
-#include <QtWidgets>
-#include <QtSql>
+#include "attribute.h"
 
-#include "../itemtype.h"
-
-class Attribute {
+class IDAttribute : public Attribute {
 public:
-    Attribute(ItemType item, QString attributeName);
-protected:
-    void createItems(ItemType item, QStringList ids);
-    void updateSortingKeys(ItemType item);
-    void success(QString message);
-    void warning(QString message);
-    void error(QString message);
-    const ItemType item;
-    const QString name;
-private:
-    static bool compareIds(QString idA, QString idB);
+    IDAttribute(ItemType item);
+    void set(QStringList ids, QList<Keys::Key> valueKeys);
 };
 
-#endif // ATTRIBUTE_H
+#endif // IDATTRIBUTE_H
