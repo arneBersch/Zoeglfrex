@@ -18,9 +18,9 @@ ItemAndIntegerSpecificNumberAttribute::ItemAndIntegerSpecificNumberAttribute(
     : Attribute(item, name), valueTable(attributeValueTable), foreignItem(attributeForeignItem), keyNumber(key), valueNumber(value) {
 }
 
-void ItemAndIntegerSpecificNumberAttribute::set(QStringList ids, QStringList foreignItemIds, QString numberId, QList<Keys::Key> valueKeys) {
+void ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
-    QList<QString> numberIdParts = numberId.split(".");
+    const QList<QString> numberIdParts = attributes.value(Keys::Attribute).first().split(".");
     if (numberIdParts.length() != 2) {
         error("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid.");
         return;
@@ -49,7 +49,7 @@ void ItemAndIntegerSpecificNumberAttribute::set(QStringList ids, QStringList for
     }
     QList<int> foreignItemKeys;
     QStringList foreignItemIdStrings;
-    for (QString foreignItemId : foreignItemIds) {
+    for (QString foreignItemId : attributes.value(foreignItem.getKey())) {
         QSqlQuery foreignItemQuery;
         foreignItemQuery.prepare("SELECT key FROM " + foreignItem.getSelectTable() + " WHERE id = :id");
         foreignItemQuery.bindValue(":id", foreignItemId);

@@ -17,6 +17,7 @@
 class Attribute {
 public:
     Attribute(ItemType item, QString attributeName);
+    virtual void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) = 0;
 protected:
     void createItems(ItemType item, QStringList ids);
     void updateSortingKeys(ItemType item);

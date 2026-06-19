@@ -10,7 +10,7 @@
 
 ItemListAttribute::ItemListAttribute(const ItemType item, const QString attributeName, const ItemType attributeForeignItem, const QString attributeValueTable) : Attribute(item, attributeName), valueTable(attributeValueTable), foreignItem(attributeForeignItem) {}
 
-void ItemListAttribute::set(QStringList ids, QList<Keys::Key> valueKeys) {
+void ItemListAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     QList<int> foreignItemKeys;
     QStringList foreignItemIdStrings;

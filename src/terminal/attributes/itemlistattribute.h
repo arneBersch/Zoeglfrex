@@ -14,7 +14,7 @@
 class ItemListAttribute : public Attribute {
 public:
     ItemListAttribute(ItemType item, QString name, ItemType foreignItem, QString valueTable);
-    void set(QStringList ids, QList<Keys::Key> valueKeys);
+    void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 private:
     const QString valueTable;
     const ItemType foreignItem;

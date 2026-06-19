@@ -18,9 +18,9 @@ IntegerSpecificItemListAttribute::IntegerSpecificItemListAttribute(
     : Attribute(item, name), valueTable(attributeValueTable), valueItem(value), keyNumber(key), allowMultiple(multiple) {
 }
 
-void IntegerSpecificItemListAttribute::set(QStringList ids, QString integerId, QList<Keys::Key> valueKeys) {
+void IntegerSpecificItemListAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
-    QList<QString> numberIdParts = integerId.split(".");
+    const QList<QString> numberIdParts = attributes.value(Keys::Attribute).first().split(".");
     if (numberIdParts.length() != 2) {
         error("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid.");
         return;

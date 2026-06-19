@@ -10,7 +10,7 @@
 
 IDAttribute::IDAttribute(const ItemType item) : Attribute(item, "ID") {}
 
-void IDAttribute::set(const QStringList ids, QList<Keys::Key> valueKeys) {
+void IDAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
 
     valueKeys.prepend(item.getKey());

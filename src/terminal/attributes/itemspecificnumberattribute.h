@@ -14,7 +14,7 @@
 class ItemSpecificNumberAttribute : public Attribute {
 public:
     ItemSpecificNumberAttribute(ItemType item, QString name, ItemType foreignItem, QString valueTable, NumberType number);
-    void set(QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys);
+    void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 private:
     const QString valueTable;
     const ItemType foreignItem;

@@ -14,7 +14,7 @@
 class IntegerSpecificNumberAttribute : public Attribute {
 public:
     IntegerSpecificNumberAttribute(ItemType item, QString name, QString valueTable, NumberType keyNumber, NumberType valueNumber);
-    void set(QStringList ids, QString integerId, QList<Keys::Key> valueKeys);
+    void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 private:
     const QString valueTable;
     const NumberType keyNumber;

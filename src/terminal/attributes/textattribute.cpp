@@ -12,7 +12,7 @@ TextAttribute::TextAttribute(const ItemType item, const QString attribute, const
     widget = attributeWidget;
 }
 
-void TextAttribute::set(QStringList ids) {
+void TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     QString textValue = QString();
     if (ids.length() == 1) {

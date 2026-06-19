@@ -17,9 +17,9 @@ ItemSpecificNumberAttribute::ItemSpecificNumberAttribute(
     ) : Attribute(item, name), valueTable(attributeValueTable), foreignItem(attributeForeignItem), number(numberType) {
 }
 
-void ItemSpecificNumberAttribute::set(QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys) {
+void ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
-    Q_ASSERT(!foreignItemIds.isEmpty());
+    Q_ASSERT(attributes.contains(foreignItem.getKey()) && !attributes.value(foreignItem.getKey()).isEmpty());
     const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
     const bool difference = valueKeys.startsWith(Keys::Plus);
     QVariant value;
@@ -33,7 +33,7 @@ void ItemSpecificNumberAttribute::set(QStringList ids, QStringList foreignItemId
     }
     QList<int> foreignItemKeys;
     QStringList foreignItemIdStrings;
-    for (QString foreignItemId : foreignItemIds) {
+    for (QString foreignItemId : attributes.value(foreignItem.getKey())) {
         QSqlQuery foreignItemQuery;
         foreignItemQuery.prepare("SELECT key FROM " + foreignItem.getSelectTable() + " WHERE id = :id");
         foreignItemQuery.bindValue(":id", foreignItemId);

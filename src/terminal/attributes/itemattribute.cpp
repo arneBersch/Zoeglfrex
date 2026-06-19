@@ -10,7 +10,7 @@
 
 ItemAttribute::ItemAttribute(const ItemType item, const QString attribute, const QString attributeName, const ItemType attributeForeignItem) : Attribute(item, attributeName), tableAttribute(attribute), foreignItem(attributeForeignItem) {}
 
-void ItemAttribute::set(QStringList ids, QList<Keys::Key> valueKeys) {
+void ItemAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     const bool removeItem = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
     QString foreignItemId;

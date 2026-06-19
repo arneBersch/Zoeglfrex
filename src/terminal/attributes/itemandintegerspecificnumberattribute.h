@@ -14,7 +14,7 @@
 class ItemAndIntegerSpecificNumberAttribute : public Attribute {
 public:
     ItemAndIntegerSpecificNumberAttribute(ItemType item, QString name, ItemType foreignItem, QString valueTable, NumberType keyNumber, NumberType valueNumber);
-    void set(QStringList ids, QStringList foreignItemIds, QString numberId, QList<Keys::Key> valueKeys);
+    void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 private:
     const QString valueTable;
     const ItemType foreignItem;

@@ -14,7 +14,7 @@
 class IDAttribute : public Attribute {
 public:
     IDAttribute(ItemType item);
-    void set(QStringList ids, QList<Keys::Key> valueKeys);
+    void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 };
 
 #endif // IDATTRIBUTE_H

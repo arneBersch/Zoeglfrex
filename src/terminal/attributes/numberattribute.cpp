@@ -11,7 +11,7 @@
 NumberAttribute::NumberAttribute(const ItemType item, const QString attribute, const QString name, const NumberType numberType)
     : Attribute(item, name), tableAttribute(attribute), number(numberType) {}
 
-void NumberAttribute::set(QStringList ids, QList<Keys::Key> valueKeys) {
+void NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     const bool difference = valueKeys.startsWith(Keys::Plus);
     QVariant value;

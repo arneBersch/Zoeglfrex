@@ -14,7 +14,7 @@
 class TextAttribute : public Attribute {
 public:
     TextAttribute(ItemType item, QString attribute, QString name, QString regex, QWidget* widget);
-    void set(QStringList ids);
+    void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 private:
     const QString tableAttribute;
     const QString regex;

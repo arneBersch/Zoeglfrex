@@ -14,7 +14,7 @@
 class IntegerSpecificItemListAttribute : public Attribute {
 public:
     IntegerSpecificItemListAttribute(ItemType item, QString name, QString valueTable, ItemType valueItem, NumberType keyNumber, bool allowMultiple);
-    void set(QStringList ids, QString integerId, QList<Keys::Key> valueKeys);
+    void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 private:
     const QString valueTable;
     const ItemType valueItem;

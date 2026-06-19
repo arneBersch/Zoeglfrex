@@ -10,7 +10,7 @@
 
 BoolAttribute::BoolAttribute(const ItemType item, const QString attribute, const QString name) : Attribute(item, name), tableAttribute(attribute) {}
 
-void BoolAttribute::set(QStringList ids, QList<Keys::Key> valueKeys) {
+void BoolAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     int value = 0;
     QString valueText = "False";

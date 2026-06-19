@@ -22,9 +22,9 @@ ItemSpecificItemListAttribute::ItemSpecificItemListAttribute(
     allowMultiple(allowMultiple) {
 }
 
-void ItemSpecificItemListAttribute::set(QStringList ids, QStringList foreignItemIds, QList<Keys::Key> valueKeys) {
+void ItemSpecificItemListAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
-    Q_ASSERT(!foreignItemIds.isEmpty());
+    Q_ASSERT(attributes.contains(foreignItem.getKey()) && !attributes.value(foreignItem.getKey()).isEmpty());
     const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
     QList<int> valueItemKeys;
     QStringList valueItemIdStrings;
@@ -66,7 +66,7 @@ void ItemSpecificItemListAttribute::set(QStringList ids, QStringList foreignItem
     }
     QList<int> foreignItemKeys;
     QStringList foreignItemIdStrings;
-    for (QString foreignItemId : foreignItemIds) {
+    for (QString foreignItemId : attributes.value(foreignItem.getKey())) {
         QSqlQuery foreignItemQuery;
         foreignItemQuery.prepare("SELECT key FROM " + foreignItem.getSelectTable() + " WHERE id = :id");
         foreignItemQuery.bindValue(":id", foreignItemId);

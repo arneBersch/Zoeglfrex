@@ -14,7 +14,7 @@
 class NumberAttribute : public Attribute {
 public:
     NumberAttribute(ItemType item, QString tableAttribute, QString name, NumberType number);
-    void set(QStringList ids, QList<Keys::Key> valueKeys);
+    void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 private:
     const QString tableAttribute;
     const NumberType number;
