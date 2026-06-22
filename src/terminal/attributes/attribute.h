@@ -12,7 +12,7 @@
 #include <QtWidgets>
 #include <QtSql>
 
-#include "../itemtype.h"
+#include "../types/itemtype.h"
 
 class Attribute {
 public:

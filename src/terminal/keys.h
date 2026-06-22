@@ -11,7 +11,7 @@
 
 #include <QtWidgets>
 
-#include "numbertype.h"
+#include "types/numbertype.h"
 
 namespace Keys {
 

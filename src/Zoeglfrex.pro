@@ -51,10 +51,10 @@ SOURCES += \
     terminal/attributes/itemspecificnumberattribute.cpp \
     terminal/attributes/numberattribute.cpp \
     terminal/attributes/textattribute.cpp \
-    terminal/itemtype.cpp \
     terminal/keys.cpp \
-    terminal/numbertype.cpp \
-    terminal/terminal.cpp
+    terminal/terminal.cpp \
+    terminal/types/itemtype.cpp \
+    terminal/types/numbertype.cpp
 
 HEADERS += \
     aboutwindow/aboutwindow.h \
@@ -96,10 +96,10 @@ HEADERS += \
     terminal/attributes/itemspecificnumberattribute.h \
     terminal/attributes/numberattribute.h \
     terminal/attributes/textattribute.h \
-    terminal/itemtype.h \
     terminal/keys.h \
-    terminal/numbertype.h \
-    terminal/terminal.h
+    terminal/terminal.h \
+    terminal/types/itemtype.h \
+    terminal/types/numbertype.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

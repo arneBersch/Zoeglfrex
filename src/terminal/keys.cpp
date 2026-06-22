@@ -8,7 +8,7 @@
 
 #include "keys.h"
 #include <QtSql>
-#include "itemtype.h"
+#include "types/itemtype.h"
 
 QString Keys::keysToString(QList<Key> keys) {
     QHash<Key, QString> keyStrings;

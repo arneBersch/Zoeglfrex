@@ -13,7 +13,7 @@
 #include <QtSql>
 
 #include "keys.h"
-#include "itemtype.h"
+#include "types/itemtype.h"
 #include "attributes/attribute.h"
 
 class Terminal : public QWidget {

@@ -11,7 +11,7 @@
 
 #include <QtWidgets>
 
-#include "keys.h"
+#include "../keys.h"
 
 class ItemType {
 public:
