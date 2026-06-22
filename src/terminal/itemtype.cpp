@@ -91,3 +91,18 @@ ItemType ItemType::cuelist() {
 ItemType ItemType::cue() {
     return ItemType("currentcuelist_cues", "cues", "Cue", "Cues", Keys::Cue);
 }
+
+QList<ItemType> ItemType::allTypes() {
+    return {
+        ItemType::model(),
+        ItemType::fixture(),
+        ItemType::group(),
+        ItemType::intensity(),
+        ItemType::color(),
+        ItemType::position(),
+        ItemType::raw(),
+        ItemType::effect(),
+        ItemType::cuelist(),
+        ItemType::cue(),
+    };
+}

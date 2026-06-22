@@ -33,6 +33,7 @@ public:
     static ItemType effect();
     static ItemType cuelist();
     static ItemType cue();
+    static QList<ItemType> allTypes();
 private:
     ItemType(QString table, QString singular, QString plural, Keys::Key key);
     ItemType(QString selectTable, QString updateTable, QString singular, QString plural, Keys::Key key);

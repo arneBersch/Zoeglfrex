@@ -14,6 +14,7 @@
 
 #include "keys.h"
 #include "itemtype.h"
+#include "attributes/attribute.h"
 
 class Terminal : public QWidget {
     Q_OBJECT
@@ -35,6 +36,7 @@ private:
     void writeKey(Keys::Key key);
     void backspace();
     void clearPrompt();
+    QSet<Attribute*> attributes;
     QList<Keys::Key> promptKeys;
     QPlainTextEdit *messages;
     QLabel* promptLabel;

@@ -16,6 +16,13 @@ bool DeleteAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QS
 
 void DeleteAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    Q_ASSERT(matches(item.getKey(), attributes));
+
+    const QList<Keys::Key> expectedValue = {Keys::Minus};
+    if (valueKeys != expectedValue) {
+        error("Can't delete " + item.getPlural() + " because an unexpected Value was given.");
+        return;
+    }
 
     QMessageBox msgBox;
     msgBox.setText("Delete " + QString::number(ids.length()) + " " + item.getPlural() + "?");
