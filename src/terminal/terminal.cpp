@@ -191,7 +191,7 @@ void Terminal::execute() {
     if (keys.isEmpty()) {
         return;
     }
-    info("> " + keysToString(keys));
+    printMessage(formatInfoMessage("> " + keysToString(keys)));
     clearPrompt();
 
     const Keys::Key selectionType = keys.first();
@@ -206,7 +206,7 @@ void Terminal::execute() {
     for (const Keys::Key key : keys) {
         if (key == Keys::Set) {
             if (valueReached) {
-                error("Can't use Set more than one time in one command.");
+                printMessage(formatErrorMessage("Can't use Set more than one time in one command."));
                 return;
             }
             valueReached = true;
@@ -252,13 +252,13 @@ void Terminal::execute() {
                 qWarning() << Q_FUNC_INFO << currentCueQuery.executedQuery() << currentCueQuery.lastError().text();
             }
         } else {
-            error("Can't select this Item type: " + Keys::keysToString({selectionType}));
+            printMessage(formatErrorMessage("Can't select this Item type: " + Keys::keysToString({selectionType})));
         }
         return;
     }
     const QStringList ids = keysToIds(selectionIdKeys);
     if (ids.isEmpty()) {
-        error("Invalid selection ID given.");
+        printMessage(formatErrorMessage("Invalid selection ID given."));
         return;
     }
     QHash<Keys::Key, QStringList> attributeIDs;
@@ -271,7 +271,7 @@ void Terminal::execute() {
                     Keys::Key currentItemType = currentItemKeys.first();
                     QStringList ids = keysToIds(currentItemKeys);
                     if (ids.isEmpty()) {
-                        error("Invalid Attribute given: " + keysToString(currentItemKeys));
+                        printMessage(formatErrorMessage("Invalid Attribute given: " + keysToString(currentItemKeys)));
                         return;
                     }
                     attributeIDs[currentItemType] = ids;
@@ -282,7 +282,7 @@ void Terminal::execute() {
         }
     }
     if (attributeIDs.value(Keys::Attribute, QStringList()).size() > 1) {
-        error("Invalid number of Attribute IDs given.");
+        printMessage(formatErrorMessage("Invalid number of Attribute IDs given."));
         return;
     }
 
@@ -295,7 +295,7 @@ void Terminal::execute() {
     }
 
     if (attribute == nullptr) {
-        error("No matching Attribute found.");
+        printMessage(formatErrorMessage("No matching Attribute found."));
         return;
     }
 
@@ -306,7 +306,7 @@ void Terminal::execute() {
 void Terminal::setCurrentItem(const ItemType item, const QString itemTable, const QList<Keys::Key> idKeys, const QString updateQueryText) {
     const QStringList ids = keysToIds(idKeys);
     if (ids.size() != 1) {
-        error("Invalid " + item.getSingular() + " selection given.");
+        printMessage(formatErrorMessage("Invalid " + item.getSingular() + " selection given."));
         return;
     }
     QSqlQuery keyQuery;
@@ -314,11 +314,11 @@ void Terminal::setCurrentItem(const ItemType item, const QString itemTable, cons
     keyQuery.bindValue(":id", ids.first());
     if (!keyQuery.exec()) {
         qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-        error("Can't select " + item.getSingular() + " because the key request for " + item.getSingular() + " " + ids.first() + " failed.");
+        printMessage(formatErrorMessage("Can't select " + item.getSingular() + " because the key request for " + item.getSingular() + " " + ids.first() + " failed."));
         return;
     }
     if (!keyQuery.next()) {
-        error("Can't select " + item.getSingular() + " " + ids.first() + ".");
+        printMessage(formatErrorMessage("Can't select " + item.getSingular() + " " + ids.first() + "."));
         return;
     }
     const int key = keyQuery.value(0).toInt();
@@ -327,7 +327,7 @@ void Terminal::setCurrentItem(const ItemType item, const QString itemTable, cons
     updateQuery.bindValue(":key", key);
     if (!updateQuery.exec()) {
         qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-        error("Failed to select " + item.getSingular() + ".");
+        printMessage(formatErrorMessage("Failed to select " + item.getSingular() + "."));
     }
     emit dbChanged();
 }
@@ -337,11 +337,11 @@ void Terminal::setCueItem(const ItemType item, const QString valueTable, const Q
     if ((idKeys.size() != 2) || !idKeys.endsWith(Keys::Minus)) {
         const QStringList ids = keysToIds(idKeys);
         if (ids.isEmpty()) {
-            error("Invalid " + item.getSingular() + " selection given.");
+            printMessage(formatErrorMessage("Invalid " + item.getSingular() + " selection given."));
             return;
         }
         if (!multipleItemsAllowed && (ids.size() > 1)) {
-            error("Can't select multiple " + item.getPlural() + ".");
+            printMessage(formatErrorMessage("Can't select multiple " + item.getPlural() + "."));
             return;
         }
         for (QString id : ids) {
@@ -352,26 +352,26 @@ void Terminal::setCueItem(const ItemType item, const QString valueTable, const Q
                 if (itemKeyQuery.next()) {
                     itemKeys.append(itemKeyQuery.value(0).toInt());
                 } else {
-                    warning("Can't select " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist.");
+                    printMessage(formatWarningMessage("Can't select " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist."));
                 }
             } else {
                 qWarning() << Q_FUNC_INFO << itemKeyQuery.executedQuery() << itemKeyQuery.lastError().text();
-                error("Can't set Cue " + item.getPlural() + " because the key request for " + item.getSingular() + " " + ids.first() + " failed.");
+                printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the key request for " + item.getSingular() + " " + ids.first() + " failed."));
             }
         }
         if (itemKeys.isEmpty()) {
-            error("No valid " + item.getPlural() + " were given.");
+            printMessage(formatErrorMessage("No valid " + item.getPlural() + " were given."));
             return;
         }
     }
     QSqlQuery groupKeyQuery;
     if (!groupKeyQuery.exec("SELECT group_key FROM currentitems WHERE group_key IS NOT NULL")) {
         qWarning() << Q_FUNC_INFO << groupKeyQuery.executedQuery() << groupKeyQuery.lastError().text();
-        error("Can't set Cue " + item.getPlural() + " because request for the current Group failed.");
+        printMessage((formatErrorMessage("Can't set Cue " + item.getPlural() + " because request for the current Group failed.")));
         return;
     }
     if (!groupKeyQuery.next()) {
-        error("Can't set Cue " + item.getPlural() + " because no Group is currently selected.");
+        printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because no Group is currently selected."));
         return;
     }
     const int groupKey = groupKeyQuery.value(0).toInt();
@@ -379,11 +379,11 @@ void Terminal::setCueItem(const ItemType item, const QString valueTable, const Q
     QSqlQuery cueKeyQuery;
     if (!cueKeyQuery.exec("SELECT key, sortkey FROM currentcue")) {
         qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
-        error("Can't set Cue " + item.getPlural() + " because the request for the current Cue failed.");
+        printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the request for the current Cue failed."));
         return;
     }
     if (!cueKeyQuery.next()) {
-        error("Can't set Cue " + item.getPlural() + " because no Cue is currently selected.");
+        printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because no Cue is currently selected."));
         return;
     }
     cueKeys.append(cueKeyQuery.value(0).toInt());
@@ -419,18 +419,18 @@ void Terminal::setCueItem(const ItemType item, const QString valueTable, const Q
                         }
                     } else {
                         qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
-                        error("Can't set Cue " + item.getPlural() + " because the Cue tracking request failed.");
+                        printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the Cue tracking request failed."));
                         return;
                     }
                 }
             } else {
                 qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
-                error("Can't set Cue " + item.getPlural() + " because the Cue tracking request failed.");
+                printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the Cue tracking request failed."));
                 return;
             }
         } else {
             qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
-            error("Can't set Cue " + item.getPlural() + " because the request for the " + item.getSingular() + " in the current Cue failed.");
+            printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the request for the " + item.getSingular() + " in the current Cue failed."));
             return;
         }
     }
@@ -441,7 +441,7 @@ void Terminal::setCueItem(const ItemType item, const QString valueTable, const Q
         deleteQuery.bindValue(":group", groupKey);
         if (!deleteQuery.exec()) {
             qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
-            error("Failed deleting Cue " + item.getPlural() + ".");
+            printMessage(formatErrorMessage("Failed deleting Cue " + item.getPlural() + "."));
         }
         for (const int key : itemKeys) {
             QSqlQuery query;
@@ -451,7 +451,7 @@ void Terminal::setCueItem(const ItemType item, const QString valueTable, const Q
             query.bindValue(":item", key);
             if (!query.exec()) {
                 qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                error("Failed inserting " + item.getSingular() + ".");
+                printMessage(formatErrorMessage("Failed inserting " + item.getSingular() + "."));
             }
         }
     }
@@ -498,22 +498,23 @@ void Terminal::clearPrompt() {
     reload();
 }
 
-void Terminal::info(QString message) {
-    messages->appendHtml("<span style=\"color: white\">" + message + "</span>");
+void Terminal::printMessage(QString message) {
+    messages->appendHtml(message);
     qInfo() << message;
 }
 
-void Terminal::success(QString message) {
-    messages->appendHtml("<span style=\"color: green\">" + message + "</span>");
-    qInfo() << message;
+QString Terminal::formatInfoMessage(const QString message) {
+    return "<span style=\"color: white\">" + message + "</span>";
 }
 
-void Terminal::warning(QString message) {
-    messages->appendHtml("<span style=\"color: yellow\">" + message + "</span>");
-    qWarning() << message;
+QString Terminal::formatSuccessMessage(const QString message) {
+    return "<span style=\"color: green\">" + message + "</span>";
 }
 
-void Terminal::error(QString message) {
-    messages->appendHtml("<span style=\"color: red\">" + message + "</span>");
-    qCritical() << message;
+QString Terminal::formatWarningMessage(const QString message) {
+    return "<span style=\"color: yellow\">" + message + "</span>";
+}
+
+QString Terminal::formatErrorMessage(const QString message) {
+    return "<span style=\"color: red\">" + message + "</span>";
 }

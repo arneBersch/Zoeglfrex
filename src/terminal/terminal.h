@@ -20,10 +20,10 @@ class Terminal : public QWidget {
     Q_OBJECT
 public:
     Terminal(QWidget *parent = nullptr);
-    void info(QString message);
-    void success(QString message);
-    void warning(QString message);
-    void error(QString message);
+    static QString formatInfoMessage(QString text);
+    static QString formatSuccessMessage(QString text);
+    static QString formatWarningMessage(QString text);
+    static QString formatErrorMessage(QString text);
 signals:
     void dbChanged();
     void itemChanged(QString itemType, QStringList ids);
@@ -34,6 +34,7 @@ private:
     void setCurrentItem(ItemType item, QString itemTable, QList<Keys::Key> idKeys, QString updateQueryText);
     void setCueItem(ItemType item, QString valueTable, QList<Keys::Key> idKeys, bool multipleItemsAllowed);
     void writeKey(Keys::Key key);
+    void printMessage(QString message);
     void backspace();
     void clearPrompt();
     QSet<Attribute*> attributes;
