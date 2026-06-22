@@ -8,8 +8,12 @@
 
 #include "numberattribute.h"
 
-NumberAttribute::NumberAttribute(const ItemType item, const QString attribute, const QString name, const NumberType numberType)
-    : Attribute(item, name), tableAttribute(attribute), number(numberType) {}
+NumberAttribute::NumberAttribute(const ItemType item, const QString id, const QString name, const QString attribute, const NumberType numberType)
+    : Attribute(item, id, name), tableAttribute(attribute), number(numberType) {}
+
+bool NumberAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+    return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
+}
 
 void NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());

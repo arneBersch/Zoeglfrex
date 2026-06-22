@@ -10,16 +10,21 @@
 
 ItemSpecificItemListAttribute::ItemSpecificItemListAttribute(
     const ItemType item,
+    const QString id,
     const QString attributeName,
     const ItemType attributeForeignItem,
     const ItemType attributeValueItem,
     const QString attributeValueTable,
     const bool allowMultiple
-) : Attribute(item, attributeName),
+) : Attribute(item, id, attributeName),
     valueTable(attributeValueTable),
     foreignItem(attributeForeignItem),
     valueItem(attributeValueItem),
     allowMultiple(allowMultiple) {
+}
+
+bool ItemSpecificItemListAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+    return Attribute::matches(itemKey, attributes) && attributes.contains(foreignItem.getKey()) && (attributes.size() == 2);
 }
 
 void ItemSpecificItemListAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {

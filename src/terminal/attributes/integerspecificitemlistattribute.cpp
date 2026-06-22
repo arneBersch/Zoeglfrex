@@ -10,12 +10,16 @@
 
 IntegerSpecificItemListAttribute::IntegerSpecificItemListAttribute(
     const ItemType item,
+    const QString id,
     const QString name,
     const QString attributeValueTable,
     const ItemType value,
     const NumberType key,
     const bool multiple)
-    : Attribute(item, name), valueTable(attributeValueTable), valueItem(value), keyNumber(key), allowMultiple(multiple) {
+    : Attribute(item, id, name), valueTable(attributeValueTable), valueItem(value), keyNumber(key), allowMultiple(multiple) {}
+
+bool IntegerSpecificItemListAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+    return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
 }
 
 void IntegerSpecificItemListAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {

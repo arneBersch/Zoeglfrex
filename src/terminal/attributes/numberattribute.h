@@ -13,7 +13,8 @@
 
 class NumberAttribute : public Attribute {
 public:
-    NumberAttribute(ItemType item, QString tableAttribute, QString name, NumberType number);
+    NumberAttribute(ItemType item, QString id, QString name, QString tableAttribute, NumberType number);
+    bool matches(Keys::Key itemKey, QHash<Keys::Key, QStringList> attributes) override;
     void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 private:
     const QString tableAttribute;

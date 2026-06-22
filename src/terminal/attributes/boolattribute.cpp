@@ -8,7 +8,11 @@
 
 #include "boolattribute.h"
 
-BoolAttribute::BoolAttribute(const ItemType item, const QString attribute, const QString name) : Attribute(item, name), tableAttribute(attribute) {}
+BoolAttribute::BoolAttribute(const ItemType item, const QString id, const QString name, const QString attribute) : Attribute(item, id, name), tableAttribute(attribute) {}
+
+bool BoolAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+    return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
+}
 
 void BoolAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());

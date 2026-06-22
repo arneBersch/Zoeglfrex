@@ -14,6 +14,7 @@
 class DeleteAttribute : public Attribute {
 public:
     DeleteAttribute(ItemType item);
+    bool matches(Keys::Key itemKey, QHash<Keys::Key, QStringList> attributes) override;
     void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 };
 

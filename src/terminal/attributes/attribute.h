@@ -16,7 +16,8 @@
 
 class Attribute {
 public:
-    Attribute(ItemType item, QString attributeName);
+    Attribute(ItemType item, QString attributeId, QString attributeName);
+    virtual bool matches(Keys::Key itemKey, QHash<Keys::Key, QStringList> attributes);
     virtual void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) = 0;
 protected:
     void createItems(ItemType item, QStringList ids);
@@ -25,6 +26,7 @@ protected:
     void warning(QString message);
     void error(QString message);
     const ItemType item;
+    const QString attributeId;
     const QString name;
 private:
     static bool compareIds(QString idA, QString idB);

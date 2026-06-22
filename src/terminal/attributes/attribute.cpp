@@ -8,13 +8,18 @@
 
 #include "attribute.h"
 
-Attribute::Attribute(const ItemType attributeItem, const QString attributeName) : item(attributeItem), name(attributeName) {}
+Attribute::Attribute(const ItemType attributeItem, const QString id, const QString attributeName) : item(attributeItem), attributeId(id), name(attributeName) {}
 
 void Attribute::success(const QString message) {}
 
 void Attribute::warning(const QString message) {}
 
 void Attribute::error(const QString message) {}
+
+bool Attribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+    const bool attributeMatches = (attributeId.isEmpty() && !attributes.contains(Keys::Attribute)) || (attributes.contains(Keys::Attribute) && (attributes.value(Keys::Attribute).size() == 1) && (attributes.value(Keys::Attribute).first() == attributeId));
+    return itemKey == item.getKey() && attributeMatches;
+}
 
 void Attribute::createItems(const ItemType item, QStringList ids) {
     Q_ASSERT(!ids.isEmpty());

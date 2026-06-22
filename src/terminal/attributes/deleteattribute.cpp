@@ -8,7 +8,11 @@
 
 #include "deleteattribute.h"
 
-DeleteAttribute::DeleteAttribute(const ItemType item) : Attribute(item, "Delete") {}
+DeleteAttribute::DeleteAttribute(const ItemType item) : Attribute(item, "", "Delete") {}
+
+bool DeleteAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+    return Attribute::matches(itemKey, attributes) && attributes.isEmpty();
+}
 
 void DeleteAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());

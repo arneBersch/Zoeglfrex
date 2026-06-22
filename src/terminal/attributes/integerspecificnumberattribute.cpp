@@ -10,11 +10,16 @@
 
 IntegerSpecificNumberAttribute::IntegerSpecificNumberAttribute(
     const ItemType item,
+    const QString id,
     const QString name,
     const QString attributeValueTable,
     const NumberType key,
     const NumberType value
-    ) : Attribute(item, name), valueTable(attributeValueTable), keyNumber(key), valueNumber(value) {
+    ) : Attribute(item, id, name), valueTable(attributeValueTable), keyNumber(key), valueNumber(value) {
+}
+
+bool IntegerSpecificNumberAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+    return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
 }
 
 void IntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {

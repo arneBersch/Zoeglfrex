@@ -8,7 +8,11 @@
 
 #include "idattribute.h"
 
-IDAttribute::IDAttribute(const ItemType item) : Attribute(item, "ID") {}
+IDAttribute::IDAttribute(const ItemType item) : Attribute(item, "0", "ID") {}
+
+bool IDAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+    return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
+}
 
 void IDAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());

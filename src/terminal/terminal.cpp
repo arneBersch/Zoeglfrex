@@ -214,27 +214,27 @@ void Terminal::execute() {
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::label) {
-            TextAttribute attribute = TextAttribute(ItemType::model(), "label", "Label", "", this);
+            TextAttribute attribute = TextAttribute(ItemType::model(), AttributeIds::label, "Label", "label", "", this);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if ((attribute == AttributeIds::modelChannels) || !attributes.contains(Keys::Attribute)) {
-            TextAttribute attribute = TextAttribute(ItemType::model(), "channels", "Channels", "^[01DdRrGgBbWwCcMmYyHhSsPpTtZzFf]+$", this);
+            TextAttribute attribute = TextAttribute(ItemType::model(), AttributeIds::modelChannels, "Channels", "channels", "^[01DdRrGgBbWwCcMmYyHhSsPpTtZzFf]+$", this);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::modelPanRange) {
-            NumberAttribute attribute(ItemType::model(), "panrange", "Pan Range", NumberType::panRange());
+            NumberAttribute attribute(ItemType::model(), AttributeIds::modelPanRange, "Pan Range", "panrange", NumberType::panRange());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::modelTiltRange) {
-            NumberAttribute attribute(ItemType::model(), "tiltrange", "Tilt Range", NumberType::tiltRange());
+            NumberAttribute attribute(ItemType::model(), AttributeIds::modelTiltRange, "Tilt Range", "tiltrange", NumberType::tiltRange());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::modelMinZoom) {
-            NumberAttribute attribute(ItemType::model(), "minzoom", "Minimal Zoom", NumberType::zoomRange());
+            NumberAttribute attribute(ItemType::model(), AttributeIds::modelMinZoom, "Minimal Zoom", "minzoom", NumberType::zoomRange());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::modelMaxZoom) {
-            NumberAttribute attribute(ItemType::model(), "maxzoom", "Maximal Zoom", NumberType::zoomRange());
+            NumberAttribute attribute(ItemType::model(), AttributeIds::modelMaxZoom, "Maximal Zoom", "maxzoom", NumberType::zoomRange());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else {
@@ -250,35 +250,35 @@ void Terminal::execute() {
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::label) {
-            TextAttribute attribute = TextAttribute(ItemType::fixture(), "label", "Label", "", this);
+            TextAttribute attribute = TextAttribute(ItemType::fixture(), AttributeIds::label, "Label", "label", "", this);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::fixtureModel) {
-            ItemAttribute attribute = ItemAttribute(ItemType::fixture(), "model_key", "Model", ItemType::model());
+            ItemAttribute attribute = ItemAttribute(ItemType::fixture(), AttributeIds::fixtureModel, "Model", "model_key", ItemType::model());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::fixtureUniverse) {
-            NumberAttribute attribute(ItemType::fixture(), "universe", "Universe", NumberType::universe());
+            NumberAttribute attribute(ItemType::fixture(), AttributeIds::fixtureUniverse, "Universe", "universe", NumberType::universe());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if ((attribute == AttributeIds::fixtureAddress) || !attributes.contains(Keys::Attribute)) {
-            NumberAttribute attribute(ItemType::fixture(), "address", "Address", NumberType::address());
+            NumberAttribute attribute(ItemType::fixture(), AttributeIds::fixtureUniverse, "Address", "address", NumberType::address());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::fixtureXPosition) {
-            NumberAttribute attribute(ItemType::fixture(), "xposition", "X Position", NumberType::coordinate());
+            NumberAttribute attribute(ItemType::fixture(), AttributeIds::fixtureXPosition, "X Position", "xposition", NumberType::coordinate());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::fixtureYPosition) {
-            NumberAttribute attribute(ItemType::fixture(), "yposition", "Y Position", NumberType::coordinate());
+            NumberAttribute attribute(ItemType::fixture(), AttributeIds::fixtureXPosition, "Y Position", "yposition", NumberType::coordinate());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::fixtureRotation) {
-            NumberAttribute attribute(ItemType::fixture(), "rotation", "Rotation", NumberType::angle());
+            NumberAttribute attribute(ItemType::fixture(), AttributeIds::fixtureRotation, "Rotation", "rotation", NumberType::angle());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::fixtureInvertPan) {
-            BoolAttribute attribute(ItemType::fixture(), "invertpan", "Invert Pan");
+            BoolAttribute attribute(ItemType::fixture(), AttributeIds::fixtureInvertPan, "Invert Pan", "invertpan");
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else {
@@ -294,11 +294,11 @@ void Terminal::execute() {
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::label) {
-            TextAttribute attribute = TextAttribute(ItemType::group(), "label", "Label", "", this);
+            TextAttribute attribute = TextAttribute(ItemType::group(), AttributeIds::label, "Label", "label", "", this);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if ((attribute == AttributeIds::groupFixtures) || !attributes.contains(Keys::Attribute)) {
-            ItemListAttribute attribute = ItemListAttribute(ItemType::group(), "Fixtures", ItemType::fixture(), "group_fixtures");
+            ItemListAttribute attribute = ItemListAttribute(ItemType::group(), AttributeIds::groupFixtures, "Fixtures", ItemType::fixture(), "group_fixtures");
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else {
@@ -314,25 +314,25 @@ void Terminal::execute() {
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::label) {
-            TextAttribute attribute = TextAttribute(ItemType::intensity(), "label", "Label", "", this);
+            TextAttribute attribute = TextAttribute(ItemType::intensity(), AttributeIds::label, "Label", "label", "", this);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if ((attribute == AttributeIds::intensityDimmer) || !attributes.contains(Keys::Attribute)) {
             if (attributes.contains(ItemType::model().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::intensity(), "Dimmer Model Exception", ItemType::model(), "intensity_model_dimmer", NumberType::percentage());
+                ItemSpecificNumberAttribute attribute(ItemType::intensity(), AttributeIds::intensityDimmer, "Dimmer Model Exception", ItemType::model(), "intensity_model_dimmer", NumberType::percentage());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else if (attributes.contains(ItemType::fixture().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::cue(), "Dimmer Fixture Exception", ItemType::fixture(), "intensity_fixture_dimmer", NumberType::percentage());
+                ItemSpecificNumberAttribute attribute(ItemType::cue(), AttributeIds::intensityDimmer, "Dimmer Fixture Exception", ItemType::fixture(), "intensity_fixture_dimmer", NumberType::percentage());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
-                NumberAttribute attribute(ItemType::intensity(), "dimmer", "Dimmer", NumberType::percentage());
+                NumberAttribute attribute(ItemType::intensity(), AttributeIds::intensityDimmer, "dimmer", "Dimmer", NumberType::percentage());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             }
         } else if (attribute == AttributeIds::intensityRaws) {
-            ItemListAttribute attribute = ItemListAttribute(ItemType::intensity(), "Raws", ItemType::raw(), "intensity_raws");
+            ItemListAttribute attribute = ItemListAttribute(ItemType::intensity(), AttributeIds::intensityRaws, "Raws", ItemType::raw(), "intensity_raws");
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else {
@@ -348,53 +348,53 @@ void Terminal::execute() {
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::label) {
-            TextAttribute attribute = TextAttribute(ItemType::color(), "label", "Label", "", this);
+            TextAttribute attribute = TextAttribute(ItemType::color(), AttributeIds::label, "Label", "label", "", this);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if ((attribute == AttributeIds::colorHue) || !attributes.contains(Keys::Attribute)) {
             if (attributes.contains(ItemType::model().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::color(), "Hue Model Exception", ItemType::model(), "color_model_hue", NumberType::angle());
+                ItemSpecificNumberAttribute attribute(ItemType::color(), AttributeIds::colorHue, "Hue Model Exception", ItemType::model(), "color_model_hue", NumberType::angle());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else if (attributes.contains(ItemType::fixture().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::color(), "Hue Fixture Exception", ItemType::fixture(), "color_fixture_hue", NumberType::angle());
+                ItemSpecificNumberAttribute attribute(ItemType::color(), AttributeIds::colorHue, "Hue Fixture Exception", ItemType::fixture(), "color_fixture_hue", NumberType::angle());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
-                NumberAttribute attribute(ItemType::color(), "hue", "Hue", NumberType::angle());
+                NumberAttribute attribute(ItemType::color(), AttributeIds::colorHue, "Hue", "hue", NumberType::angle());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             }
         } else if (attribute == AttributeIds::colorSaturation) {
             if (attributes.contains(ItemType::model().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::color(), "Saturation Model Exception", ItemType::model(), "color_model_saturation", NumberType::percentage());
+                ItemSpecificNumberAttribute attribute(ItemType::color(), AttributeIds::colorSaturation, "Saturation Model Exception", ItemType::model(), "color_model_saturation", NumberType::percentage());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else if (attributes.contains(ItemType::fixture().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::color(), "Saturation Fixture Exception", ItemType::fixture(), "color_fixture_saturation", NumberType::percentage());
+                ItemSpecificNumberAttribute attribute(ItemType::color(), AttributeIds::colorSaturation, "Saturation Fixture Exception", ItemType::fixture(), "color_fixture_saturation", NumberType::percentage());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
-                NumberAttribute attribute(ItemType::color(), "saturation", "Saturation", NumberType::percentage());
+                NumberAttribute attribute(ItemType::color(), AttributeIds::colorSaturation, "Saturation", "saturation", NumberType::percentage());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             }
         } else if (attribute == AttributeIds::colorQuality) {
             if (attributes.contains(ItemType::model().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::color(), "Quality Model Exception", ItemType::model(), "color_model_quality", NumberType::percentage());
+                ItemSpecificNumberAttribute attribute(ItemType::color(), AttributeIds::colorQuality, "Quality Model Exception", ItemType::model(), "color_model_quality", NumberType::percentage());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else if (attributes.contains(ItemType::fixture().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::color(), "Quality Fixture Exception", ItemType::fixture(), "color_fixture_quality", NumberType::percentage());
+                ItemSpecificNumberAttribute attribute(ItemType::color(), AttributeIds::colorQuality, "Quality Fixture Exception", ItemType::fixture(), "color_fixture_quality", NumberType::percentage());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
-                NumberAttribute attribute(ItemType::color(), "quality", "Quality", NumberType::percentage());
+                NumberAttribute attribute(ItemType::color(), AttributeIds::colorQuality, "quality", "Quality", NumberType::percentage());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             }
         } else if (attribute == AttributeIds::colorRaws) {
-            ItemListAttribute attribute = ItemListAttribute(ItemType::color(), "Raws", ItemType::raw(), "color_raws");
+            ItemListAttribute attribute = ItemListAttribute(ItemType::color(), AttributeIds::colorRaws, "Raws", ItemType::raw(), "color_raws");
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else {
@@ -410,67 +410,67 @@ void Terminal::execute() {
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::label) {
-            TextAttribute attribute = TextAttribute(ItemType::position(), "label", "Label", "", this);
+            TextAttribute attribute = TextAttribute(ItemType::position(), AttributeIds::label, "Label", "label", "", this);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if ((attribute == AttributeIds::positionPan) || !attributes.contains(Keys::Attribute)) {
             if (attributes.contains(ItemType::model().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::position(), "Pan Model Exception", ItemType::model(), "position_model_pan", NumberType::angle());
+                ItemSpecificNumberAttribute attribute(ItemType::position(), AttributeIds::positionPan, "Pan Model Exception", ItemType::model(), "position_model_pan", NumberType::angle());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else if (attributes.contains(ItemType::fixture().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::position(), "Pan Fixture Exception", ItemType::fixture(), "position_fixture_pan", NumberType::angle());
+                ItemSpecificNumberAttribute attribute(ItemType::position(), AttributeIds::positionPan, "Pan Fixture Exception", ItemType::fixture(), "position_fixture_pan", NumberType::angle());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
-                NumberAttribute attribute(ItemType::position(), "pan", "Pan", NumberType::angle());
+                NumberAttribute attribute(ItemType::position(), AttributeIds::positionPan, "pan", "Pan", NumberType::angle());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             }
         } else if (attribute == AttributeIds::positionTilt) {
             if (attributes.contains(ItemType::model().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::position(), "Tilt Model Exception", ItemType::model(), "position_model_tilt", NumberType::tilt());
+                ItemSpecificNumberAttribute attribute(ItemType::position(), AttributeIds::positionTilt, "Tilt Model Exception", ItemType::model(), "position_model_tilt", NumberType::tilt());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else if (attributes.contains(ItemType::fixture().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::position(), "Tilt Fixture Exception", ItemType::fixture(), "position_fixture_tilt", NumberType::tilt());
+                ItemSpecificNumberAttribute attribute(ItemType::position(), AttributeIds::positionTilt, "Tilt Fixture Exception", ItemType::fixture(), "position_fixture_tilt", NumberType::tilt());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
-                NumberAttribute attribute(ItemType::position(), "tilt", "Tilt", NumberType::tilt());
+                NumberAttribute attribute(ItemType::position(), AttributeIds::positionTilt, "Tilt", "tilt", NumberType::tilt());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             }
         } else if (attribute == AttributeIds::positionZoom) {
             if (attributes.contains(ItemType::model().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::position(), "Zoom Model Exception", ItemType::model(), "position_model_zoom", NumberType::zoom());
+                ItemSpecificNumberAttribute attribute(ItemType::position(), AttributeIds::positionZoom, "Zoom Model Exception", ItemType::model(), "position_model_zoom", NumberType::zoom());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else if (attributes.contains(ItemType::fixture().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::position(), "Zoom Fixture Exception", ItemType::fixture(), "position_fixture_zoom", NumberType::zoom());
+                ItemSpecificNumberAttribute attribute(ItemType::position(), AttributeIds::positionZoom, "Zoom Fixture Exception", ItemType::fixture(), "position_fixture_zoom", NumberType::zoom());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
-                NumberAttribute attribute(ItemType::position(), "zoom", "Zoom", NumberType::zoom());
+                NumberAttribute attribute(ItemType::position(), AttributeIds::positionZoom, "Zoom", "zoom", NumberType::zoom());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             }
         } else if (attribute == AttributeIds::positionFocus) {
             if (attributes.contains(ItemType::model().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::position(), "Focus Model Exception", ItemType::model(), "position_model_focus", NumberType::percentage());
+                ItemSpecificNumberAttribute attribute(ItemType::position(), AttributeIds::positionFocus, "Focus Model Exception", ItemType::model(), "position_model_focus", NumberType::percentage());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else if (attributes.contains(ItemType::fixture().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::position(), "Focus FixtureException", ItemType::fixture(), "position_fixture_focus", NumberType::percentage());
+                ItemSpecificNumberAttribute attribute(ItemType::position(), AttributeIds::positionFocus, "Focus FixtureException", ItemType::fixture(), "position_fixture_focus", NumberType::percentage());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
-                NumberAttribute attribute(ItemType::position(), "focus", "Focus", NumberType::percentage());
+                NumberAttribute attribute(ItemType::position(), AttributeIds::positionFocus, "Focus", "focus", NumberType::percentage());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             }
         } else if (attribute == AttributeIds::positionRaws) {
-            ItemListAttribute attribute = ItemListAttribute(ItemType::position(), "Raws", ItemType::raw(), "position_raws");
+            ItemListAttribute attribute = ItemListAttribute(ItemType::position(), AttributeIds::positionRaws, "Raws", ItemType::raw(), "position_raws");
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else {
@@ -486,29 +486,29 @@ void Terminal::execute() {
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::label) {
-            TextAttribute attribute = TextAttribute(ItemType::raw(), "label", "Label", "", this);
+            TextAttribute attribute = TextAttribute(ItemType::raw(), AttributeIds::rawChannelValues, "Label", "label", "", this);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute.startsWith(QString(AttributeIds::rawChannelValues) + ".")) {
             if (attributes.contains(ItemType::model().getKey())) {
-                ItemAndIntegerSpecificNumberAttribute attribute(ItemType::raw(), "Channel Values", ItemType::model(), "raw_model_channel_values", NumberType::channel(), NumberType::dmxValue());
+                ItemAndIntegerSpecificNumberAttribute attribute(ItemType::raw(), AttributeIds::rawChannelValues, "Channel Values", ItemType::model(), "raw_model_channel_values", NumberType::channel(), NumberType::dmxValue());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else if (attributes.contains(ItemType::fixture().getKey())) {
-                ItemAndIntegerSpecificNumberAttribute attribute(ItemType::raw(), "Channel Values", ItemType::fixture(), "raw_fixture_channel_values", NumberType::channel(), NumberType::dmxValue());
+                ItemAndIntegerSpecificNumberAttribute attribute(ItemType::raw(), AttributeIds::rawChannelValues, "Channel Values", ItemType::fixture(), "raw_fixture_channel_values", NumberType::channel(), NumberType::dmxValue());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
-                IntegerSpecificNumberAttribute attribute(ItemType::raw(), "Channel Values", "raw_channel_values", NumberType::channel(), NumberType::dmxValue());
+                IntegerSpecificNumberAttribute attribute(ItemType::raw(), AttributeIds::rawChannelValues, "Channel Values", "raw_channel_values", NumberType::channel(), NumberType::dmxValue());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             }
         } else if (attribute == AttributeIds::rawMoveWhileDark) {
-            BoolAttribute attribute(ItemType::raw(), "movewhiledark", "Move while Dark");
+            BoolAttribute attribute(ItemType::raw(), AttributeIds::rawMoveWhileDark, "movewhiledark", "Move while Dark");
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::rawFade) {
-            BoolAttribute attribute(ItemType::raw(), "fade", "Fade");
+            BoolAttribute attribute(ItemType::raw(), AttributeIds::rawFade, "Fade", "fade");
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else {
@@ -524,57 +524,57 @@ void Terminal::execute() {
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::label) {
-            TextAttribute attribute = TextAttribute(ItemType::effect(), "label", "Label", "", this);
+            TextAttribute attribute = TextAttribute(ItemType::effect(), AttributeIds::label, "Label", "label", "", this);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if ((attribute == AttributeIds::effectSteps) || !attributes.contains(Keys::Attribute)) {
-            NumberAttribute attribute(ItemType::position(), "steps", "Steps", NumberType::step());
+            NumberAttribute attribute(ItemType::position(), AttributeIds::effectSteps, "Steps", "steps", NumberType::step());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute.startsWith(QString(AttributeIds::effectIntensities) + ".")) {
-            IntegerSpecificItemListAttribute attribute(ItemType::effect(), "Intensities", "effect_step_intensities", ItemType::intensity(), NumberType::step(), false);
+            IntegerSpecificItemListAttribute attribute(ItemType::effect(), AttributeIds::effectIntensities, "Intensities", "effect_step_intensities", ItemType::intensity(), NumberType::step(), false);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute.startsWith(QString(AttributeIds::effectColors) + ".")) {
-            IntegerSpecificItemListAttribute attribute(ItemType::effect(), "Colors", "effect_step_colors", ItemType::color(), NumberType::step(), false);
+            IntegerSpecificItemListAttribute attribute(ItemType::effect(), AttributeIds::effectColors, "Colors", "effect_step_colors", ItemType::color(), NumberType::step(), false);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute.startsWith(QString(AttributeIds::effectPositions) + ".")) {
-            IntegerSpecificItemListAttribute attribute(ItemType::effect(), "Positions", "effect_step_positions", ItemType::position(), NumberType::step(), false);
+            IntegerSpecificItemListAttribute attribute(ItemType::effect(), AttributeIds::effectPositions, "Positions", "effect_step_positions", ItemType::position(), NumberType::step(), false);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute.startsWith(QString(AttributeIds::effectRaws) + ".")) {
-            IntegerSpecificItemListAttribute attribute(ItemType::effect(), "Raws", "effect_step_raws", ItemType::raw(), NumberType::step(), true);
+            IntegerSpecificItemListAttribute attribute(ItemType::effect(), AttributeIds::effectRaws, "Raws", "effect_step_raws", ItemType::raw(), NumberType::step(), true);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::effectHold) {
-            NumberAttribute attribute(ItemType::position(), "hold", "Hold", NumberType::time());
+            NumberAttribute attribute(ItemType::position(), AttributeIds::effectHold, "Hold", "hold", NumberType::time());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute.startsWith(QString(AttributeIds::effectHold) + ".")) {
-            IntegerSpecificNumberAttribute attribute(ItemType::effect(), "Hold", "effect_step_hold", NumberType::step(), NumberType::time());
+            IntegerSpecificNumberAttribute attribute(ItemType::effect(), AttributeIds::effectHold, "Hold", "effect_step_hold", NumberType::step(), NumberType::time());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::effectFade) {
-            NumberAttribute attribute(ItemType::position(), "fade", "Fade", NumberType::time());
+            NumberAttribute attribute(ItemType::position(), AttributeIds::effectFade, "Fade", "fade", NumberType::time());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute.startsWith(QString(AttributeIds::effectFade) + ".")) {
-            IntegerSpecificNumberAttribute attribute(ItemType::effect(), "Fade", "effect_step_fade", NumberType::step(), NumberType::time());
+            IntegerSpecificNumberAttribute attribute(ItemType::effect(), AttributeIds::effectFade, "Fade", "effect_step_fade", NumberType::step(), NumberType::time());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::effectPhase) {
             if (attributes.contains(ItemType::fixture().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::effect(), "Phase", ItemType::fixture(), "effect_fixture_phase", NumberType::angle());
+                ItemSpecificNumberAttribute attribute(ItemType::effect(), AttributeIds::effectPhase, "Phase", ItemType::fixture(), "effect_fixture_phase", NumberType::angle());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
-                NumberAttribute attribute(ItemType::effect(), "phase", "Phase", NumberType::angle());
+                NumberAttribute attribute(ItemType::effect(), AttributeIds::effectPhase, "Phase", "phase", NumberType::angle());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             }
         } else if (attribute == AttributeIds::effectSineFade) {
-            BoolAttribute attribute(ItemType::effect(), "sinefade", "Sine Fade");
+            BoolAttribute attribute(ItemType::effect(), AttributeIds::effectSineFade, "Sine Fade", "sinefade");
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else {
@@ -590,15 +590,15 @@ void Terminal::execute() {
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::label) {
-            TextAttribute attribute = TextAttribute(ItemType::cuelist(), "label", "Label", "", this);
+            TextAttribute attribute = TextAttribute(ItemType::cuelist(), AttributeIds::label, "Label", "label", "", this);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::cuelistPriority) {
-            NumberAttribute attribute(ItemType::cuelist(), "priority", "Priority", NumberType::priority());
+            NumberAttribute attribute(ItemType::cuelist(), AttributeIds::cuelistPriority, "Priority", "priority", NumberType::priority());
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::cuelistMoveWhileDark) {
-            BoolAttribute attribute(ItemType::cuelist(), "movewhiledark", "Move while Dark");
+            BoolAttribute attribute(ItemType::cuelist(), AttributeIds::cuelistMoveWhileDark, "Move while Dark", "movewhiledark");
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else {
@@ -625,12 +625,12 @@ void Terminal::execute() {
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::label) {
-            TextAttribute attribute = TextAttribute(ItemType::cue(), "label", "Label", "", this);
+            TextAttribute attribute = TextAttribute(ItemType::cue(), AttributeIds::label, "Label", "label", "", this);
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::cueIntensities) {
             if (attributes.contains(ItemType::group().getKey())) {
-                ItemSpecificItemListAttribute attribute = ItemSpecificItemListAttribute(ItemType::cue(), "Intensities", ItemType::group(), ItemType::intensity(), "cue_group_intensities", false);
+                ItemSpecificItemListAttribute attribute = ItemSpecificItemListAttribute(ItemType::cue(), AttributeIds::cueIntensities, "Intensities", ItemType::group(), ItemType::intensity(), "cue_group_intensities", false);
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
@@ -638,7 +638,7 @@ void Terminal::execute() {
             }
         } else if (attribute == AttributeIds::cueColors) {
             if (attributes.contains(ItemType::group().getKey())) {
-                ItemSpecificItemListAttribute attribute = ItemSpecificItemListAttribute(ItemType::cue(), "Colors", ItemType::group(), ItemType::color(), "cue_group_colors", false);
+                ItemSpecificItemListAttribute attribute = ItemSpecificItemListAttribute(ItemType::cue(), AttributeIds::cueColors, "Colors", ItemType::group(), ItemType::color(), "cue_group_colors", false);
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
@@ -646,7 +646,7 @@ void Terminal::execute() {
             }
         } else if (attribute == AttributeIds::cuePositions) {
             if (attributes.contains(ItemType::group().getKey())) {
-                ItemSpecificItemListAttribute attribute = ItemSpecificItemListAttribute(ItemType::cue(), "Positions", ItemType::group(), ItemType::position(), "cue_group_positions", false);
+                ItemSpecificItemListAttribute attribute = ItemSpecificItemListAttribute(ItemType::cue(), AttributeIds::cuePositions, "Positions", ItemType::group(), ItemType::position(), "cue_group_positions", false);
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
@@ -654,7 +654,7 @@ void Terminal::execute() {
             }
         } else if (attribute == AttributeIds::cueRaws) {
             if (attributes.contains(ItemType::group().getKey())) {
-                ItemSpecificItemListAttribute attribute = ItemSpecificItemListAttribute(ItemType::cue(), "Raws", ItemType::group(), ItemType::raw(), "cue_group_raws", true);
+                ItemSpecificItemListAttribute attribute = ItemSpecificItemListAttribute(ItemType::cue(), AttributeIds::cueRaws, "Raws", ItemType::group(), ItemType::raw(), "cue_group_raws", true);
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
@@ -662,42 +662,42 @@ void Terminal::execute() {
             }
         } else if (attribute == AttributeIds::cueEffects) {
             if (attributes.contains(ItemType::group().getKey())) {
-                ItemSpecificItemListAttribute attribute = ItemSpecificItemListAttribute(ItemType::cue(), "Effects", ItemType::group(), ItemType::effect(), "cue_group_effects", true);
+                ItemSpecificItemListAttribute attribute = ItemSpecificItemListAttribute(ItemType::cue(), AttributeIds::cueEffects, "Effects", ItemType::group(), ItemType::effect(), "cue_group_effects", true);
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
                 error("Can't set Cue Effects because no Group Attribute was provided.");
             }
         } else if (attribute == AttributeIds::cueBlock) {
-            BoolAttribute attribute(ItemType::cue(), "block", "Block");
+            BoolAttribute attribute(ItemType::cue(), AttributeIds::cueBlock, "Block", "block");
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if ((attribute == AttributeIds::cueFade) || (!attributes.contains(Keys::Attribute))) {
             if (attributes.contains(ItemType::fixture().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::cue(), "Fade", ItemType::fixture(), "cue_fixture_fade", NumberType::time());
+                ItemSpecificNumberAttribute attribute(ItemType::cue(), AttributeIds::cueBlock, "Fade", ItemType::fixture(), "cue_fixture_fade", NumberType::time());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
-                NumberAttribute attribute(ItemType::cue(), "fade", "Fade", NumberType::time());
+                NumberAttribute attribute(ItemType::cue(), AttributeIds::cueBlock, "Fade", "fade", NumberType::time());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             }
         } else if (attribute == AttributeIds::cueDelay) {
             if (attributes.contains(ItemType::fixture().getKey())) {
-                ItemSpecificNumberAttribute attribute(ItemType::cue(), "Delay", ItemType::fixture(), "cue_fixture_delay", NumberType::time());
+                ItemSpecificNumberAttribute attribute(ItemType::cue(), AttributeIds::cueDelay, "Delay", ItemType::fixture(), "cue_fixture_delay", NumberType::time());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             } else {
-                NumberAttribute attribute(ItemType::cue(), "delay", "Delay", NumberType::time());
+                NumberAttribute attribute(ItemType::cue(), AttributeIds::cueDelay, "Delay", "delay", NumberType::time());
                 attribute.set(ids, attributes, valueKeys);
                 emit dbChanged();
             }
         } else if (attribute == AttributeIds::cueFollow) {
-            BoolAttribute attribute(ItemType::cue(), "follow", "Follow");
+            BoolAttribute attribute(ItemType::cue(), AttributeIds::cueFollow, "Follow", "follow");
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else if (attribute == AttributeIds::cueSineFade) {
-            BoolAttribute attribute(ItemType::cue(), "sinefade", "Sine Fade");
+            BoolAttribute attribute(ItemType::cue(), AttributeIds::cueSineFade, "Sine Fade", "sinefade");
             attribute.set(ids, attributes, valueKeys);
             emit dbChanged();
         } else {

@@ -13,7 +13,8 @@
 
 class IntegerSpecificNumberAttribute : public Attribute {
 public:
-    IntegerSpecificNumberAttribute(ItemType item, QString name, QString valueTable, NumberType keyNumber, NumberType valueNumber);
+    IntegerSpecificNumberAttribute(ItemType item, QString id, QString name, QString valueTable, NumberType keyNumber, NumberType valueNumber);
+    bool matches(Keys::Key itemKey, QHash<Keys::Key, QStringList> attributes) override;
     void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 private:
     const QString valueTable;

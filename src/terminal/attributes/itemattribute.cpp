@@ -8,7 +8,11 @@
 
 #include "itemattribute.h"
 
-ItemAttribute::ItemAttribute(const ItemType item, const QString attribute, const QString attributeName, const ItemType attributeForeignItem) : Attribute(item, attributeName), tableAttribute(attribute), foreignItem(attributeForeignItem) {}
+ItemAttribute::ItemAttribute(const ItemType item, const QString id, const QString attributeName, const QString attribute, const ItemType attributeForeignItem) : Attribute(item, id, attributeName), tableAttribute(attribute), foreignItem(attributeForeignItem) {}
+
+bool ItemAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+    return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
+}
 
 void ItemAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());

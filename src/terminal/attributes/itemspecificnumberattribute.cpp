@@ -10,11 +10,16 @@
 
 ItemSpecificNumberAttribute::ItemSpecificNumberAttribute(
     const ItemType item,
+    const QString id,
     const QString name,
     const ItemType attributeForeignItem,
     const QString attributeValueTable,
     const NumberType numberType
-    ) : Attribute(item, name), valueTable(attributeValueTable), foreignItem(attributeForeignItem), number(numberType) {
+    ) : Attribute(item, id, name), valueTable(attributeValueTable), foreignItem(attributeForeignItem), number(numberType) {
+}
+
+bool ItemSpecificNumberAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+    return Attribute::matches(itemKey, attributes) && attributes.contains(foreignItem.getKey()) && (attributes.size() == 2);
 }
 
 void ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {

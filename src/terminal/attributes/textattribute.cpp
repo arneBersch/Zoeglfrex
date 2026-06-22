@@ -8,8 +8,12 @@
 
 #include "textattribute.h"
 
-TextAttribute::TextAttribute(const ItemType item, const QString attribute, const QString attributeName, const QString attributeRegex, QWidget* attributeWidget) : Attribute(item, attributeName), tableAttribute(attribute), regex(attributeRegex) {
+TextAttribute::TextAttribute(const ItemType item, const QString id, const QString attributeName, const QString attribute, const QString attributeRegex, QWidget* attributeWidget) : Attribute(item, id, attributeName), tableAttribute(attribute), regex(attributeRegex) {
     widget = attributeWidget;
+}
+
+bool TextAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+    return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
 }
 
 void TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
