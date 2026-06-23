@@ -7,6 +7,7 @@
 */
 
 #include "integerspecificnumberattribute.h"
+#include "terminal/terminal.h"
 
 IntegerSpecificNumberAttribute::IntegerSpecificNumberAttribute(
     const ItemType item,
@@ -18,27 +19,29 @@ IntegerSpecificNumberAttribute::IntegerSpecificNumberAttribute(
     ) : Attribute(item, id, name), valueTable(attributeValueTable), keyNumber(key), valueNumber(value) {
 }
 
-bool IntegerSpecificNumberAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+bool IntegerSpecificNumberAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
     return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
 }
 
-void IntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
+QStringList IntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    QStringList output;
+
     const QList<QString> numberIdParts = attributes.value(Keys::Attribute).first().split(".");
     if (numberIdParts.length() != 2) {
-        error("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid.");
-        return;
+        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid."));
+        return output;
     }
     bool ok;
     QVariant key = numberIdParts.last().toInt(&ok);
     if (!ok) {
-        error("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid.");
-        return;
+        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid."));
+        return output;
     }
     key = Keys::keysToNumber({Keys::Plus, Keys::Zero}, &ok, key.toFloat(), keyNumber);
     if (!ok) {
-        error("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid.");
-        return;
+        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid."));
+        return output;
     }
     const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
     const bool difference = valueKeys.startsWith(Keys::Plus);
@@ -47,8 +50,8 @@ void IntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys
         bool ok;
         value = keysToNumber(valueKeys, &ok, 0, valueNumber);
         if (!ok) {
-            error("Invalid value given.");
-            return;
+            output.append(Terminal::formatErrorMessage("Invalid value given."));
+            return output;
         }
     }
     createItems(item, ids);
@@ -69,7 +72,7 @@ void IntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys
                         successfulIds.append(id);
                     } else {
                         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                        error("Failed removing the " + name + " of " + item.getSingular() + " " + id + ".");
+                        output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
                     }
                 } else {
                     bool valueOk = true;
@@ -85,11 +88,11 @@ void IntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys
                                 value = keysToNumber(valueKeys, &valueOk, 0, valueNumber);
                             }
                             if (!valueOk) {
-                                error("Invalid value given for " + item.getSingular() + " " + id + ".");
+                                output.append(Terminal::formatErrorMessage("Invalid value given for " + item.getSingular() + " " + id + "."));
                             }
                         } else {
                             qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
-                            error("Failed loading the current " + name + " of " + item.getSingular() + " " + id + ".");
+                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
                             valueOk = false;
                         }
                     }
@@ -103,25 +106,26 @@ void IntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys
                             successfulIds.append(id);
                         } else {
                             qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                            error("Failed removing the " + name + " of " + item.getSingular() + " " + id + ".");
+                            output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
                         }
                     }
                 }
             } else {
-                error("Failed loading " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found.");
+                output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found."));
             }
         } else {
             qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            error("Failed loading " + item.getSingular() + " " + id + ".");
+            output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
         }
     }
     if (!successfulIds.isEmpty()) {
         if (removeValues) {
-            success("Removed " + name + " of " + item.format(successfulIds) + " at " + key.toString() + ".");
+            output.append(Terminal::formatSuccessMessage("Removed " + name + " of " + item.format(successfulIds) + " at " + key.toString() + "."));
         } else if (difference) {
-            success("Changed " + name + " of " + item.format(successfulIds) + " at " + key.toString() + keyNumber.getUnit() + " by " + value.toString() + valueNumber.getUnit() + ".");
+            output.append(Terminal::formatSuccessMessage("Changed " + name + " of " + item.format(successfulIds) + " at " + key.toString() + keyNumber.getUnit() + " by " + value.toString() + valueNumber.getUnit() + "."));
         } else {
-            success("Set " + name + " of " + item.format(successfulIds) + " at " + key.toString() + keyNumber.getUnit() + " to " + value.toString() + valueNumber.getUnit() + ".");
+            output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " at " + key.toString() + keyNumber.getUnit() + " to " + value.toString() + valueNumber.getUnit() + "."));
         }
     }
+    return output;
 }

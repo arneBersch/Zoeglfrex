@@ -7,17 +7,27 @@
 */
 
 #include "textattribute.h"
+#include "terminal/terminal.h"
 
-TextAttribute::TextAttribute(const ItemType item, const QString id, const QString attributeName, const QString attribute, const QString attributeRegex, QWidget* attributeWidget) : Attribute(item, id, attributeName), tableAttribute(attribute), regex(attributeRegex) {
+TextAttribute::TextAttribute(
+    const ItemType item,
+    const QString id,
+    const QString attributeName,
+    const QString attribute,
+    const QString attributeRegex,
+    QWidget* attributeWidget
+    ) : Attribute(item, id, attributeName), tableAttribute(attribute), regex(attributeRegex) {
     widget = attributeWidget;
 }
 
-bool TextAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+bool TextAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
     return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
 }
 
-void TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
+QStringList TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    QStringList output;
+
     QString textValue = QString();
     if (ids.length() == 1) {
         QSqlQuery query;
@@ -25,8 +35,8 @@ void TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringLis
         query.bindValue(":id", ids.first());
         if (!query.exec()) {
             qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-            error("Failed to load current " + name + " of " + item.getSingular() + " " + ids.first() + ".");
-            return;
+            output.append(Terminal::formatErrorMessage("Failed to load current " + name + " of " + item.getSingular() + " " + ids.first() + "."));
+            return output;
         }
         while (query.next()) {
             textValue = query.value(0).toString();
@@ -35,12 +45,12 @@ void TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringLis
     bool ok;
     textValue = QInputDialog::getText(widget, QString(), (item.getSingular()+ " " + name), QLineEdit::Normal, textValue, &ok);
     if (!ok) {
-        error("Popup canceled.");
-        return;
+        output.append(Terminal::formatErrorMessage("Popup canceled."));
+        return output;
     }
     if (!regex.isEmpty() && !textValue.contains(QRegularExpression(regex))) {
-        error("Can't set " + item.getSingular() + " " + name + " because the given value \"" + textValue + "\" is not valid.");
-        return;
+        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given value \"" + textValue + "\" is not valid."));
+        return output;
     }
     createItems(item, ids);
     QStringList successfulIds;
@@ -58,17 +68,18 @@ void TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringLis
                     successfulIds.append(id);
                 } else {
                     qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                    error("Failed setting " + name + " of " + item.getSingular() + " " + id + ".");
+                    output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + id + "."));
                 }
             } else {
-                warning("Failed to set " + name + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found.");
+                output.append(Terminal::formatWarningMessage("Failed to set " + name + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found."));
             }
         } else {
             qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            error("Failed loading " + item.getSingular() + " " + id + ".");
+            output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
         }
     }
     if (!successfulIds.isEmpty()) {
-        success("Set " + name + " of " + item.format(successfulIds) + " to \"" + textValue + "\".");
+        output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " to \"" + textValue + "\"."));
     }
+    return output;
 }

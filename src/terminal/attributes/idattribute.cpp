@@ -7,21 +7,23 @@
 */
 
 #include "idattribute.h"
+#include "terminal/terminal.h"
 
 IDAttribute::IDAttribute(const ItemType item) : Attribute(item, "0", "ID") {}
 
-bool IDAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+bool IDAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
     return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
 }
 
-void IDAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) {
+QStringList IDAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    QStringList output;
 
     valueKeys.prepend(item.getKey());
     QStringList newIds = keysToIds(valueKeys);
     if (newIds.size() != 1) {
-        error("Can't set " + item.getSingular() + " ID because no valid ID was given.");
-        return;
+        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " ID because no valid ID was given."));
+        return output;
     }
 
     createItems(item, ids);
@@ -33,7 +35,7 @@ void IDAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList>
         existsQuery.bindValue(":id", newIds.first());
         if (existsQuery.exec()) {
             if (existsQuery.next()) {
-                warning("Can't set ID of " + item.getSingular() + " to " + newIds.first() + " because this " + item.getSingular() + " ID is already used.");
+                output.append(Terminal::formatWarningMessage("Can't set ID of " + item.getSingular() + " to " + newIds.first() + " because this " + item.getSingular() + " ID is already used."));
             } else {
                 QSqlQuery keyQuery;
                 keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
@@ -48,25 +50,26 @@ void IDAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList>
                             successfulIds.append(id);
                         } else {
                             qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                            error("Failed to update ID of " + item.getSingular() + " " + id + " because the request failed.");
+                            output.append(Terminal::formatErrorMessage("Failed to update ID of " + item.getSingular() + " " + id + " because the request failed."));
                         }
                     } else {
-                        warning("Can't set ID of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist.");
+                        output.append(Terminal::formatWarningMessage("Can't set ID of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist."));
                     }
                 } else {
                     qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-                    error("Failed loading " + item.getSingular() + " " + id + ".");
+                    output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
                 }
             }
         } else {
             qWarning() << Q_FUNC_INFO << existsQuery.executedQuery() << existsQuery.lastError().text();
-            error("Error executing check if " + item.getSingular() + " " + newIds.first() + " exists.");
+            output.append(Terminal::formatErrorMessage("Error executing check if " + item.getSingular() + " " + newIds.first() + " exists."));
         }
     }
 
     if (!successfulIds.isEmpty()) {
-        success("Set ID of " + item.format(successfulIds) + " to " + newIds.first() + ".");
+        output.append(Terminal::formatSuccessMessage("Set ID of " + item.format(successfulIds) + " to " + newIds.first() + "."));
     }
 
-    updateSortingKeys(item);
+    output.append(updateSortingKeys(item));
+    return output;
 }

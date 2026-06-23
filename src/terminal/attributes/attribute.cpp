@@ -7,22 +7,19 @@
 */
 
 #include "attribute.h"
+#include "terminal/terminal.h"
 
 Attribute::Attribute(const ItemType attributeItem, const QString id, const QString attributeName) : item(attributeItem), attributeId(id), name(attributeName) {}
 
-void Attribute::success(const QString message) {}
-
-void Attribute::warning(const QString message) {}
-
-void Attribute::error(const QString message) {}
-
-bool Attribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+bool Attribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
     const bool attributeMatches = (attributeId.isEmpty() && !attributes.contains(Keys::Attribute)) || (attributes.contains(Keys::Attribute) && (attributes.value(Keys::Attribute).size() == 1) && (attributes.value(Keys::Attribute).first() == attributeId));
     return itemKey == item.getKey() && attributeMatches;
 }
 
-void Attribute::createItems(const ItemType item, QStringList ids) {
+QStringList Attribute::createItems(const ItemType item, QStringList ids) {
     Q_ASSERT(!ids.isEmpty());
+    QStringList output;
+
     QStringList successfulIds;
     for (QString id : ids) {
         QSqlQuery existsQuery;
@@ -37,18 +34,22 @@ void Attribute::createItems(const ItemType item, QStringList ids) {
                     successfulIds.append(id);
                 } else {
                     qWarning() << Q_FUNC_INFO << insertQuery.executedQuery() << insertQuery.lastError().text();
-                    error("Failed to insert " + item.getSingular() + " " + id + ".");
+                    output.append(Terminal::formatErrorMessage("Failed to insert " + item.getSingular() + " " + id + "."));
+                    return output;
                 }
             }
         } else {
             qWarning() << Q_FUNC_INFO << existsQuery.executedQuery() << existsQuery.lastError().text();
-            error("Failed to check if " + item.getSingular() + " " + id + " already exists.");
+            output.append(Terminal::formatErrorMessage("Failed to check if " + item.getSingular() + " " + id + " already exists."));
+            return output;
         }
     }
     if (!successfulIds.isEmpty()) {
-        success("Created " + item.format(successfulIds) + ".");
+        output.append(Terminal::formatSuccessMessage("Created " + item.format(successfulIds) + "."));
     }
-    updateSortingKeys(item);
+
+    output.append(updateSortingKeys(item));
+
     if (item == ItemType::cue()) {
         for (QString id : successfulIds) {
             QSqlQuery keyQuery;
@@ -82,31 +83,33 @@ void Attribute::createItems(const ItemType item, QStringList ids) {
                                         updateQuery.bindValue(":valueItem", valueQuery.value(1).toInt());
                                         if (!updateQuery.exec()) {
                                             qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                                            error("Failed to copy data of the previous " + item.getSingular() + " to " + item.getSingular() + " " + id + ".");
+                                            output.append(Terminal::formatErrorMessage("Failed to copy data of the previous " + item.getSingular() + " to " + item.getSingular() + " " + id + "."));
                                         }
                                     }
                                 } else {
                                     qWarning() << Q_FUNC_INFO << valueQuery.executedQuery() << valueQuery.lastError().text();
-                                    error("Failed to copy the data of the previous " + item.getSingular() + " to " + item.getSingular() + " " + id + ".");
+                                    output.append(Terminal::formatErrorMessage("Failed to copy the data of the previous " + item.getSingular() + " to " + item.getSingular() + " " + id + "."));
                                 }
                             }
                         }
                     } else {
                         qWarning() << Q_FUNC_INFO << previousCueQuery.executedQuery() << previousCueQuery.lastError().text();
-                        error("Failed to get the " + item.getSingular() + " before " + item.getSingular() + " " + id + ".");
+                        output.append(Terminal::formatErrorMessage("Failed to get the " + item.getSingular() + " before " + item.getSingular() + " " + id + "."));
                     }
                 } else {
-                    error(item.getSingular() + " " + id + " wasn't found.");
+                    output.append(Terminal::formatErrorMessage(item.getSingular() + " " + id + " wasn't found."));
                 }
             } else {
                 qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-                error("Failed to get " + item.getSingular() + " " + id + ".");
+                output.append(Terminal::formatErrorMessage("Failed to get " + item.getSingular() + " " + id + "."));
             }
         }
     }
+    return output;
 }
 
-void Attribute::updateSortingKeys(const ItemType item) {
+QStringList Attribute::updateSortingKeys(const ItemType item) {
+    QStringList output;
     QSqlQuery idsQuery;
     idsQuery.prepare("SELECT key, id, sortkey FROM " + item.getSelectTable());
     if (idsQuery.exec()) {
@@ -133,14 +136,15 @@ void Attribute::updateSortingKeys(const ItemType item) {
                 query.bindValue(":sortkey", index);
                 if (!query.exec()) {
                     qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                    error("Failed to update the sorting key of " + item.getSingular() + " " + idKey.id + ".");
+                    output.append(Terminal::formatErrorMessage("Failed to update the sorting key of " + item.getSingular() + " " + idKey.id + "."));
                 }
             }
         }
     } else {
         qWarning() << Q_FUNC_INFO << idsQuery.executedQuery() << idsQuery.lastError().text();
-        error("Failed to update the " + item.getSingular() + " sorting keys.");
+        output.append(Terminal::formatErrorMessage("Failed to update the " + item.getSingular() + " sorting keys."));
     }
+    return output;
 }
 
 bool Attribute::compareIds(const QString a, const QString b) {

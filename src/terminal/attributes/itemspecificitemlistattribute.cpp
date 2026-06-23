@@ -7,6 +7,7 @@
 */
 
 #include "itemspecificitemlistattribute.h"
+#include "terminal/terminal.h"
 
 ItemSpecificItemListAttribute::ItemSpecificItemListAttribute(
     const ItemType item,
@@ -23,29 +24,31 @@ ItemSpecificItemListAttribute::ItemSpecificItemListAttribute(
     allowMultiple(allowMultiple) {
 }
 
-bool ItemSpecificItemListAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+bool ItemSpecificItemListAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
     return Attribute::matches(itemKey, attributes) && attributes.contains(foreignItem.getKey()) && (attributes.size() == 2);
 }
 
-void ItemSpecificItemListAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
+QStringList ItemSpecificItemListAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(attributes.contains(foreignItem.getKey()) && !attributes.value(foreignItem.getKey()).isEmpty());
+    QStringList output;
+
     const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
     QList<int> valueItemKeys;
     QStringList valueItemIdStrings;
     if (!removeValues) {
         if (!valueKeys.startsWith(valueItem.getKey())) {
-            error("Can't set " + item.getSingular() + " " + name + " because no " + valueItem.getPlural() + " were given.");
-            return;
+            output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because no " + valueItem.getPlural() + " were given."));
+            return output;
         }
         const QStringList valueItemIds = keysToIds(valueKeys);
         if (valueItemIds.isEmpty()) {
-            error("Can't set " + item.getSingular() + " " + name + " because the given " + valueItem.getSingular() + " IDs are invalid.");
-            return;
+            output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given " + valueItem.getSingular() + " IDs are invalid."));
+            return output;
         }
         if (!allowMultiple && (valueItemIds.size() != 1)) {
-            error("Can't set " + item.getSingular() + " " + name + " because this Attribute only accepts one " + valueItem.getSingular() + " as a value.");
-            return;
+            output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because this Attribute only accepts one " + valueItem.getSingular() + " as a value."));
+            return output;
         }
         for (QString valueItemId : valueItemIds) {
             QSqlQuery valueItemQuery;
@@ -56,17 +59,17 @@ void ItemSpecificItemListAttribute::set(const QStringList ids, const QHash<Keys:
                     valueItemKeys.append(valueItemQuery.value(0).toInt());
                     valueItemIdStrings.append(valueItemId);
                 } else {
-                    warning("Can't add " + valueItem.getSingular() + " " + valueItemId + " to " + item.getSingular() + " " + name + " because this " + valueItem.getSingular() + " doesn't exist.");
+                    output.append(Terminal::formatWarningMessage("Can't add " + valueItem.getSingular() + " " + valueItemId + " to " + item.getSingular() + " " + name + " because this " + valueItem.getSingular() + " doesn't exist."));
                 }
             } else {
                 qWarning() << Q_FUNC_INFO << valueItemQuery.executedQuery() << valueItemQuery.lastError().text();
-                error("Failed to execute check if " + valueItem.getSingular() + " " + valueItemId + " exists.");
+                output.append(Terminal::formatErrorMessage("Failed to execute check if " + valueItem.getSingular() + " " + valueItemId + " exists."));
             }
         }
         Q_ASSERT(valueItemKeys.length() == valueItemIdStrings.length());
         if (valueItemKeys.isEmpty()) {
-            error("Can't set " + item.getSingular() + " " + name + " because no valid " + valueItem.getPlural() + " were given.");
-            return;
+            output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because no valid " + valueItem.getPlural() + " were given."));
+            return output;
         }
     }
     QList<int> foreignItemKeys;
@@ -80,17 +83,17 @@ void ItemSpecificItemListAttribute::set(const QStringList ids, const QHash<Keys:
                 foreignItemKeys.append(foreignItemQuery.value(0).toInt());
                 foreignItemIdStrings.append(foreignItemId);
             } else {
-                warning("Can't set " + name + " for " + foreignItem.getSingular() + " " + foreignItemId + " because this " + foreignItem.getSingular() + " doesn't exist.");
+                output.append(Terminal::formatWarningMessage("Can't set " + name + " for " + foreignItem.getSingular() + " " + foreignItemId + " because this " + foreignItem.getSingular() + " doesn't exist."));
             }
         } else {
             qWarning() << Q_FUNC_INFO << foreignItemQuery.executedQuery() << foreignItemQuery.lastError().text();
-            error("Failed to execute check if " + foreignItem.getSingular() + " " + foreignItemId + " exists.");
+            output.append(Terminal::formatErrorMessage("Failed to execute check if " + foreignItem.getSingular() + " " + foreignItemId + " exists."));
         }
     }
     Q_ASSERT(foreignItemKeys.size() == foreignItemIdStrings.size());
     if (foreignItemKeys.isEmpty()) {
-        error("No valid " + foreignItem.getPlural() + " were found.");
-        return;
+        output.append(Terminal::formatErrorMessage("No valid " + foreignItem.getPlural() + " were found."));
+        return output;
     }
     createItems(item, ids);
     QStringList successfulIds;
@@ -110,7 +113,7 @@ void ItemSpecificItemListAttribute::set(const QStringList ids, const QHash<Keys:
                     if (!deleteQuery.exec()) {
                         allQueriesSuccessful = false;
                         qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
-                        error("Failed deleting old " + name + " of " + item.getSingular() + " " + id + ".");
+                        output.append(Terminal::formatErrorMessage("Failed deleting old " + name + " of " + item.getSingular() + " " + id + "."));
                     }
                     for (const int valueItemKey : valueItemKeys) {
                         QSqlQuery insertQuery;
@@ -121,7 +124,7 @@ void ItemSpecificItemListAttribute::set(const QStringList ids, const QHash<Keys:
                         if (!insertQuery.exec()) {
                             allQueriesSuccessful = false;
                             qWarning() << Q_FUNC_INFO << insertQuery.executedQuery() << insertQuery.lastError().text();
-                            error("Failed to insert a " + foreignItem.getSingular() + " into " + item.getSingular() + " " + id + ".");
+                            output.append(Terminal::formatErrorMessage("Failed to insert a " + foreignItem.getSingular() + " into " + item.getSingular() + " " + id + "."));
                         }
                     }
                 }
@@ -129,18 +132,19 @@ void ItemSpecificItemListAttribute::set(const QStringList ids, const QHash<Keys:
                     successfulIds.append(id);
                 }
             } else {
-                error("Failed loading " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found.");
+                output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found."));
             }
         } else {
             qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            error("Failed loading " + item.getSingular() + " " + id + ".");
+            output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
         }
     }
     if (!successfulIds.isEmpty()) {
         if (removeValues) {
-            success("Removed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + ".");
+            output.append(Terminal::formatSuccessMessage("Removed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + "."));
         } else {
-            success("Set " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " to " + valueItem.format(valueItemIdStrings) + ".");
+            output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " to " + valueItem.format(valueItemIdStrings) + "."));
         }
     }
+    return output;
 }

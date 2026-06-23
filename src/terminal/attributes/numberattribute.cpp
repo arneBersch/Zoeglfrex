@@ -7,24 +7,27 @@
 */
 
 #include "numberattribute.h"
+#include "terminal/terminal.h"
 
 NumberAttribute::NumberAttribute(const ItemType item, const QString id, const QString name, const QString attribute, const NumberType numberType)
     : Attribute(item, id, name), tableAttribute(attribute), number(numberType) {}
 
-bool NumberAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+bool NumberAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
     return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
 }
 
-void NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
+QStringList NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    QStringList output;
+
     const bool difference = valueKeys.startsWith(Keys::Plus);
     QVariant value;
     if (!difference) {
         bool ok;
         value = keysToNumber(valueKeys, &ok, 0, number);
         if (!ok) {
-            error("Invalid value given.");
-            return;
+            output.append(Terminal::formatErrorMessage("Invalid value given."));
+            return output;
         }
     }
 
@@ -41,15 +44,15 @@ void NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringL
                 if (currentValueQuery.next()) {
                     value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
                     if (!valueOk) {
-                        error("Invalid value given for " + item.getSingular() + " " + id + ".");
+                        output.append(Terminal::formatErrorMessage("Invalid value given for " + item.getSingular() + " " + id + "."));
                     }
                 } else {
-                    error("Failed loading the current " + tableAttribute + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist.");
+                    output.append(Terminal::formatErrorMessage("Failed loading the current " + tableAttribute + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist."));
                     valueOk = false;
                 }
             } else {
                 qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
-                error("Failed loading the current " + tableAttribute + " of " + item.getSingular() + " " + id + ".");
+                output.append(Terminal::formatErrorMessage("Failed loading the current " + tableAttribute + " of " + item.getSingular() + " " + id + "."));
                 valueOk = false;
             }
         }
@@ -67,23 +70,24 @@ void NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringL
                         successfulIds.append(id);
                     } else {
                         qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                        error("Failed setting " + name + " of " + item.getSingular() + " " + id + ".");
+                        output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + id + "."));
                     }
                 } else {
-                    warning("Failed to set " + name + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found.");
+                    output.append(Terminal::formatWarningMessage("Failed to set " + name + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found."));
                 }
             } else {
                 qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-                error("Failed loading " + item.getSingular() + " " + id + ".");
+                output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
             }
         }
     }
 
     if (!successfulIds.isEmpty()) {
         if (difference) {
-            success("Changed " + tableAttribute + " of " + item.format(successfulIds) + " by " + value.toString() + number.getUnit() + ".");
+            output.append(Terminal::formatSuccessMessage("Changed " + tableAttribute + " of " + item.format(successfulIds) + " by " + value.toString() + number.getUnit() + "."));
         } else {
-            success("Set " + tableAttribute + " of " + item.format(successfulIds) + " to " + value.toString() + number.getUnit() + ".");
+            output.append(Terminal::formatSuccessMessage("Set " + tableAttribute + " of " + item.format(successfulIds) + " to " + value.toString() + number.getUnit() + "."));
         }
     }
+    return output;
 }

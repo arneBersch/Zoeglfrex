@@ -7,15 +7,18 @@
 */
 
 #include "boolattribute.h"
+#include "terminal/terminal.h"
 
 BoolAttribute::BoolAttribute(const ItemType item, const QString id, const QString name, const QString attribute) : Attribute(item, id, name), tableAttribute(attribute) {}
 
-bool BoolAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+bool BoolAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
     return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
 }
 
-void BoolAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
+QStringList BoolAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    QStringList output;
+
     int value = 0;
     QString valueText = "False";
     if ((valueKeys.size() == 1) && valueKeys.startsWith(Keys::Zero)) {
@@ -23,11 +26,11 @@ void BoolAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringLis
         value = 1;
         valueText = "True";
     } else {
-        error("Can't set " + item.getSingular() + " " + name + " because no valid value was given.");
-        return;
+        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because no valid value was given."));
+        return output;
     }
 
-    createItems(item, ids);
+    output.append(createItems(item, ids));
 
     QStringList successfulIds;
     for (QString id : ids) {
@@ -44,17 +47,18 @@ void BoolAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringLis
                     successfulIds.append(id);
                 } else {
                     qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                    error("Failed setting " + name + " of " + item.getSingular() + " " + id + ".");
+                    output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + id + "."));
                 }
             } else {
-                warning("Failed to set " + name + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found.");
+                output.append(Terminal::formatWarningMessage("Failed to set " + name + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found."));
             }
         } else {
             qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            error("Failed loading " + item.getSingular() + " " + id + ".");
+            output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
         }
     }
     if (!successfulIds.isEmpty()) {
-        success("Set " + name + " of " + item.format(successfulIds) + " to " + valueText + ".");
+        output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " to " + valueText + "."));
     }
+    return output;
 }

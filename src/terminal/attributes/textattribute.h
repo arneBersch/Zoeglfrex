@@ -14,8 +14,8 @@
 class TextAttribute : public Attribute {
 public:
     TextAttribute(ItemType item, QString id, QString name, QString attribute, QString regex, QWidget* widget);
-    bool matches(Keys::Key itemKey, QHash<Keys::Key, QStringList> attributes) override;
-    void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
+    bool matches(Keys::Key itemKey, QHash<Keys::Key, QStringList> attributes) const override;
+    QStringList set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 private:
     const QString tableAttribute;
     const QString regex;

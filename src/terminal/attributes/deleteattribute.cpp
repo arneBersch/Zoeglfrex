@@ -7,21 +7,22 @@
 */
 
 #include "deleteattribute.h"
+#include "terminal/terminal.h"
 
 DeleteAttribute::DeleteAttribute(const ItemType item) : Attribute(item, "", "Delete") {}
 
-bool DeleteAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) {
+bool DeleteAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
     return Attribute::matches(itemKey, attributes) && attributes.isEmpty();
 }
 
-void DeleteAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
+QStringList DeleteAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
-    Q_ASSERT(matches(item.getKey(), attributes));
+    QStringList output;
 
     const QList<Keys::Key> expectedValue = {Keys::Minus};
     if (valueKeys != expectedValue) {
-        error("Can't delete " + item.getPlural() + " because an unexpected Value was given.");
-        return;
+        output.append(Terminal::formatErrorMessage("Can't delete " + item.getPlural() + " because an unexpected Value was given."));
+        return output;
     }
 
     QMessageBox msgBox;
@@ -30,8 +31,8 @@ void DeleteAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringL
     msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Yes);
     msgBox.setDefaultButton(QMessageBox::Yes);
     if (msgBox.exec() != QMessageBox::Yes) {
-        error("Popup canceled.");
-        return;
+        output.append(Terminal::formatErrorMessage("Popup canceled."));
+        return output;
     }
 
     QStringList successfulIds;
@@ -48,20 +49,21 @@ void DeleteAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringL
                     successfulIds.append(id);
                 } else {
                     qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
-                    error("Can't delete " + item.getSingular() + " " + id + " because the request failed.");
+                    output.append(Terminal::formatErrorMessage("Can't delete " + item.getSingular() + " " + id + " because the request failed."));
                 }
             } else {
-                warning("Can't delete " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist.");
+                output.append(Terminal::formatWarningMessage("Can't delete " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist."));
             }
         } else {
             qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            error("Couldn't delete " + item.getSingular() + " " + id + ": ");
+            output.append(Terminal::formatErrorMessage("Couldn't delete " + item.getSingular() + " " + id + ": "));
         }
     }
 
     if (!successfulIds.isEmpty()) {
-        success("Deleted " + item.format(successfulIds) + ".");
+        output.append(Terminal::formatSuccessMessage("Deleted " + item.format(successfulIds) + "."));
     }
 
-    updateSortingKeys(item);
+    output.append(updateSortingKeys(item));
+    return output;
 }

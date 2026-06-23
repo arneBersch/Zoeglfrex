@@ -14,8 +14,8 @@
 class ItemSpecificItemListAttribute : public Attribute {
 public:
     ItemSpecificItemListAttribute(ItemType item, QString id, QString name, ItemType foreignItem, ItemType valueItem, QString valueTable, bool allowMultiple);
-    bool matches(Keys::Key itemKey, QHash<Keys::Key, QStringList> attributes) override;
-    void set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
+    bool matches(Keys::Key itemKey, QHash<Keys::Key, QStringList> attributes) const override;
+    QStringList set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 private:
     const QString valueTable;
     const ItemType foreignItem;

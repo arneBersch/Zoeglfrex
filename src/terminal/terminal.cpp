@@ -299,7 +299,10 @@ void Terminal::execute() {
         return;
     }
 
-    attribute->set(ids, attributeIDs, valueKeys);
+    const QStringList output = attribute->set(ids, attributeIDs, valueKeys);
+    for (QString line : output) {
+        printMessage(line);
+    }
     emit dbChanged();
 }
 
