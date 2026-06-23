@@ -11,8 +11,8 @@
 
 ItemAttribute::ItemAttribute(const ItemType item, const QString id, const QString attributeName, const QString attribute, const ItemType attributeForeignItem) : Attribute(item, id, attributeName), tableAttribute(attribute), foreignItem(attributeForeignItem) {}
 
-bool ItemAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
-    return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
+bool ItemAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {
+    return Attribute::matches(itemType, attributes) && (attributes.size() == 1);
 }
 
 QStringList ItemAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {

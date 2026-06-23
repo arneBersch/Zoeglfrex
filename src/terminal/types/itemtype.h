@@ -22,6 +22,8 @@ public:
     QString getPlural() const;
     Keys::Key getKey() const;
     QString format(QStringList ids) const;
+    QStringList selectItems(QStringList ids) const;
+    QStringList deselectItems() const;
     QStringList createItems(QStringList ids) const;
     QStringList deleteItems(QStringList ids) const;
     QStringList updateSortingKeys() const;
@@ -47,6 +49,8 @@ private:
     QString plural;
     Keys::Key key;
     static bool compareIds(QString idA, QString idB);
+    QStringList setCurrentItem(QStringList ids, QString itemTable, QString updateQueryText) const;
+    QStringList setCueItem(QStringList ids, QString valueTable, bool multipleItemsAllowed) const;
 };
 
 #endif // ITEMTYPE_H

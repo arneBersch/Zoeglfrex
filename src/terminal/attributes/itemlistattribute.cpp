@@ -17,8 +17,8 @@ ItemListAttribute::ItemListAttribute(
     const QString attributeValueTable
     ) : Attribute(item, id, attributeName), valueTable(attributeValueTable), foreignItem(attributeForeignItem) {}
 
-bool ItemListAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
-    return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
+bool ItemListAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {
+    return Attribute::matches(itemType, attributes) && (attributes.size() == 1);
 }
 
 QStringList ItemListAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {

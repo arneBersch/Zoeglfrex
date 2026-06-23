@@ -20,8 +20,8 @@ TextAttribute::TextAttribute(
     widget = attributeWidget;
 }
 
-bool TextAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
-    return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
+bool TextAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {
+    return Attribute::matches(itemType, attributes) && (attributes.size() == 1);
 }
 
 QStringList TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {

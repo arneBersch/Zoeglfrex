@@ -19,8 +19,8 @@ ItemSpecificNumberAttribute::ItemSpecificNumberAttribute(
     ) : Attribute(item, id, name), valueTable(attributeValueTable), foreignItem(attributeForeignItem), number(numberType) {
 }
 
-bool ItemSpecificNumberAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
-    return Attribute::matches(itemKey, attributes) && attributes.contains(foreignItem.getKey()) && (attributes.size() == 2);
+bool ItemSpecificNumberAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {
+    return Attribute::matches(itemType, attributes) && attributes.contains(foreignItem.getKey()) && (attributes.size() == 2);
 }
 
 QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {

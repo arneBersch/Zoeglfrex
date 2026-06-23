@@ -11,8 +11,8 @@
 
 BoolAttribute::BoolAttribute(const ItemType item, const QString id, const QString name, const QString attribute) : Attribute(item, id, name), tableAttribute(attribute) {}
 
-bool BoolAttribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
-    return Attribute::matches(itemKey, attributes) && (attributes.size() == 1);
+bool BoolAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {
+    return Attribute::matches(itemType, attributes) && (attributes.size() == 1);
 }
 
 QStringList BoolAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {

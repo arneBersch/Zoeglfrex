@@ -13,7 +13,6 @@
 #include <QtSql>
 
 #include "keys.h"
-#include "types/itemtype.h"
 #include "attributes/attribute.h"
 
 class Terminal : public QWidget {
@@ -31,8 +30,6 @@ public slots:
     void reload();
 private:
     void execute();
-    QStringList setCurrentItem(ItemType item, QString itemTable, QList<Keys::Key> idKeys, QString updateQueryText) const;
-    QStringList setCueItem(ItemType item, QString valueTable, QList<Keys::Key> idKeys, bool multipleItemsAllowed) const;
     void writeKey(Keys::Key key);
     void printMessage(QString message);
     void backspace();

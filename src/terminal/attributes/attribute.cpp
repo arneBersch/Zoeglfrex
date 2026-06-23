@@ -10,7 +10,7 @@
 
 Attribute::Attribute(const ItemType attributeItem, const QString id, const QString attributeName) : item(attributeItem), attributeId(id), name(attributeName) {}
 
-bool Attribute::matches(const Keys::Key itemKey, const QHash<Keys::Key, QStringList> attributes) const {
+bool Attribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {
     const bool attributeMatches = (attributeId.isEmpty() && !attributes.contains(Keys::Attribute)) || (attributes.contains(Keys::Attribute) && (attributes.value(Keys::Attribute).size() == 1) && (attributes.value(Keys::Attribute).first() == attributeId));
-    return itemKey == item.getKey() && attributeMatches;
+    return itemType == item && attributeMatches;
 }

@@ -139,7 +139,7 @@ QStringList ItemType::createItems(const QStringList ids) const {
 
     output.append(updateSortingKeys());
 
-    if (*this == ItemType::cue()) {
+    if (*this == cue()) {
         QStringList tables;
         tables.append("cue_group_intensities");
         tables.append("cue_group_colors");
@@ -296,4 +296,224 @@ bool ItemType::compareIds(const QString a, const QString b) {
         }
     }
     return (aParts.length() < bParts.length());
+}
+
+QStringList ItemType::selectItems(const QStringList ids) const {
+    QStringList output;
+
+    if (*this == fixture()) {
+        output = setCurrentItem(ids, "currentgroup_fixtures", "UPDATE currentitems SET fixture_key = :key");
+    } else if (*this == group()) {
+        output = setCurrentItem(ids, selectTable, "UPDATE currentitems SET group_key = :key");
+    } else if (*this == intensity()) {
+        output = setCueItem(ids, "cue_group_intensities", false);
+    } else if (*this == color()) {
+        output = setCueItem(ids, "cue_group_colors", false);
+    } else if (*this == position()) {
+        output = setCueItem(ids, "cue_group_positions", false);
+    } else if (*this == raw()) {
+        output = setCueItem(ids, "cue_group_raws", true);
+    } else if (*this == effect()) {
+        output = setCueItem(ids, "cue_group_effects", true);
+    } else if (*this == cuelist()) {
+        output = setCurrentItem(ids, selectTable, "UPDATE currentitems SET cuelist_key = :key");
+    } else if (*this == cue()) {
+        QSqlQuery blindQuery;
+        if (blindQuery.exec("SELECT cue_key FROM currentitems WHERE cue_key IS NOT NULL")) {
+            if (blindQuery.next()) {
+                output = setCurrentItem(ids, selectTable, "UPDATE currentitems SET cue_key = :key");
+            } else {
+                output = setCurrentItem(ids, selectTable, "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)");
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << blindQuery.executedQuery() << blindQuery.lastError().text();
+            output.append(Terminal::formatErrorMessage("Can't select " + singular + " because the Blind Request failed."));
+        }
+    } else {
+        output.append(Terminal::formatErrorMessage("Can't select the given " + plural + "."));
+    }
+
+    return output;
+}
+
+QStringList ItemType::deselectItems() const {
+    QStringList output;
+
+    if (*this == intensity()) {
+        output = setCueItem(QStringList(), "cue_group_intensities", false);
+    } else if (*this == color()) {
+        output = setCueItem(QStringList(), "cue_group_colors", false);
+    } else if (*this == position()) {
+        output = setCueItem(QStringList(), "cue_group_positions", false);
+    } else if (*this == raw()) {
+        output = setCueItem(QStringList(), "cue_group_raws", true);
+    } else if (*this == effect()) {
+        output = setCueItem(QStringList(), "cue_group_effects", true);
+    } else {
+        output.append(Terminal::formatErrorMessage("Can't deselect the current " + plural + "."));
+    }
+
+    return output;
+}
+
+QStringList ItemType::setCurrentItem(const QStringList ids, const QString itemTable, const QString updateQueryText) const {
+    QStringList output;
+
+    if (ids.length() != 1) {
+        output.append(Terminal::formatErrorMessage("Can't select " + singular + " because no valid ID was given."));
+        return output;
+    }
+    const QString id = ids.first();
+
+    QSqlQuery keyQuery;
+    keyQuery.prepare("SELECT key FROM " + itemTable + " WHERE id = :id");
+    keyQuery.bindValue(":id", id);
+    if (!keyQuery.exec()) {
+        qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
+        output.append(Terminal::formatErrorMessage("Can't select " + singular + " because the key request for " + singular + " " + id + " failed."));
+        return output;
+    }
+    if (!keyQuery.next()) {
+        output.append(Terminal::formatErrorMessage("Can't select " + singular + " " + id + " because this " + singular + " was not found."));
+        return output;
+    }
+    const int key = keyQuery.value(0).toInt();
+
+    QSqlQuery updateQuery;
+    updateQuery.prepare(updateQueryText);
+    updateQuery.bindValue(":key", key);
+    if (!updateQuery.exec()) {
+        qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
+        output.append(Terminal::formatErrorMessage("Failed to select " + singular + "."));
+    }
+
+    return output;
+}
+
+QStringList ItemType::setCueItem(const QStringList ids, const QString valueTable, const bool multipleItemsAllowed) const {
+    QStringList output;
+
+    if (!multipleItemsAllowed && (ids.size() > 1)) {
+        output.append(Terminal::formatErrorMessage("Can't select multiple " + plural + "."));
+        return output;
+    }
+
+    QList<int> itemKeys;
+    for (QString id : ids) {
+        QSqlQuery itemKeyQuery;
+        itemKeyQuery.prepare("SELECT key FROM " + selectTable + " WHERE id = :id");
+        itemKeyQuery.bindValue(":id", id);
+        if (itemKeyQuery.exec()) {
+            if (itemKeyQuery.next()) {
+                itemKeys.append(itemKeyQuery.value(0).toInt());
+            } else {
+                output.append(Terminal::formatWarningMessage("Can't select " + singular + " " + id + " because this " + singular + " doesn't exist."));
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << itemKeyQuery.executedQuery() << itemKeyQuery.lastError().text();
+            output.append(Terminal::formatErrorMessage("Can't set Cue " + plural + " because the key request for " + singular + " " + ids.first() + " failed."));
+        }
+    }
+    if (itemKeys.isEmpty() && !ids.isEmpty()) {
+        output.append(Terminal::formatErrorMessage("No valid " + plural + " were given."));
+        return output;
+    }
+
+    QSqlQuery groupKeyQuery;
+    if (!groupKeyQuery.exec("SELECT group_key FROM currentitems WHERE group_key IS NOT NULL")) {
+        qWarning() << Q_FUNC_INFO << groupKeyQuery.executedQuery() << groupKeyQuery.lastError().text();
+        output.append(Terminal::formatErrorMessage("Can't set Cue " + plural + " because request for the current Group failed."));
+        return output;
+    }
+    if (!groupKeyQuery.next()) {
+        output.append(Terminal::formatErrorMessage("Can't set Cue " + plural + " because no Group is currently selected."));
+        return output;
+    }
+    const int groupKey = groupKeyQuery.value(0).toInt();
+
+    QSqlQuery cueKeyQuery;
+    if (!cueKeyQuery.exec("SELECT key, sortkey FROM currentcue")) {
+        qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
+        output.append(Terminal::formatErrorMessage("Can't set Cue " + plural + " because the request for the current Cue failed."));
+        return output;
+    }
+    if (!cueKeyQuery.next()) {
+        output.append(Terminal::formatErrorMessage("Can't set Cue " + plural + " because no Cue is currently selected."));
+        return output;
+    }
+    QList<int> cueKeys;
+    cueKeys.append(cueKeyQuery.value(0).toInt());
+
+    if (QSettings().value("terminal/tracking", false).toBool()) {
+        QSqlQuery currentCueValueQuery;
+        currentCueValueQuery.prepare("SELECT valueitem_key FROM " + valueTable + " WHERE item_key = :cue AND foreignitem_key = :group");
+        currentCueValueQuery.bindValue(":cue", cueKeys.first());
+        currentCueValueQuery.bindValue(":group", groupKey);
+        if (currentCueValueQuery.exec()) {
+            QSet<int> currentCueValueKeys;
+            while (currentCueValueQuery.next()) {
+                currentCueValueKeys.insert(currentCueValueQuery.value(0).toInt());
+            }
+
+            QSqlQuery cueTrackingKeyQuery;
+            cueTrackingKeyQuery.prepare("SELECT key, block FROM currentcuelist_cues WHERE sortkey > :sortkey ORDER BY sortkey");
+            cueTrackingKeyQuery.bindValue(":sortkey", cueKeyQuery.value(1).toInt());
+            if (cueTrackingKeyQuery.exec()) {
+                bool sameValue = true;
+                while (cueTrackingKeyQuery.next() && (cueTrackingKeyQuery.value(1).toInt() == 0) && sameValue) {
+                    const int cueKey = cueTrackingKeyQuery.value(0).toInt();
+                    QSqlQuery cueValueQuery;
+                    cueValueQuery.prepare("SELECT valueitem_key FROM " + valueTable + " WHERE item_key = :cue AND foreignitem_key = :group");
+                    cueValueQuery.bindValue(":cue", cueKey);
+                    cueValueQuery.bindValue(":group", groupKey);
+                    if (cueValueQuery.exec()) {
+                        QSet<int> cueValueKeys;
+                        while (cueValueQuery.next()) {
+                            cueValueKeys.insert(cueValueQuery.value(0).toInt());
+                        }
+                        sameValue = cueValueKeys == currentCueValueKeys;
+                        if (sameValue) {
+                            cueKeys.append(cueKey);
+                        }
+                    } else {
+                        qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
+                        output.append(Terminal::formatErrorMessage("Can't set Cue " + plural + " because the Cue tracking request failed."));
+                        return output;
+                    }
+                }
+            } else {
+                qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
+                output.append(Terminal::formatErrorMessage("Can't set Cue " + plural + " because the Cue tracking request failed."));
+                return output;
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
+            output.append(Terminal::formatErrorMessage("Can't set Cue " + plural + " because the request for the " + singular + " in the current Cue failed."));
+            return output;
+        }
+    }
+
+    for (const int cueKey : cueKeys) {
+        QSqlQuery deleteQuery;
+        deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key = :cue AND foreignitem_key = :group");
+        deleteQuery.bindValue(":cue", cueKey);
+        deleteQuery.bindValue(":group", groupKey);
+        if (!deleteQuery.exec()) {
+            qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
+            output.append(Terminal::formatErrorMessage("Failed deleting Cue " + plural + "."));
+        }
+
+        for (const int key : itemKeys) {
+            QSqlQuery query;
+            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, valueitem_key) VALUES (:cue, :group, :item)");
+            query.bindValue(":cue", cueKey);
+            query.bindValue(":group", groupKey);
+            query.bindValue(":item", key);
+            if (!query.exec()) {
+                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                output.append(Terminal::formatErrorMessage("Failed inserting " + singular + "."));
+            }
+        }
+    }
+    return output;
 }

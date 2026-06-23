@@ -17,7 +17,7 @@
 class Attribute {
 public:
     Attribute(ItemType item, QString attributeId, QString attributeName);
-    virtual bool matches(Keys::Key itemKey, QHash<Keys::Key, QStringList> attributes) const;
+    virtual bool matches(ItemType itemType, QHash<Keys::Key, QStringList> attributes) const;
     virtual QStringList set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) = 0;
 protected:
     const ItemType item;
