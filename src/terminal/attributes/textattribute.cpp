@@ -52,7 +52,9 @@ QStringList TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QSt
         output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given value \"" + textValue + "\" is not valid."));
         return output;
     }
-    createItems(item, ids);
+
+    output.append(item.createItems(ids));
+
     QStringList successfulIds;
     for (QString id : ids) {
         QSqlQuery keyQuery;
@@ -78,8 +80,10 @@ QStringList TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QSt
             output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
         }
     }
+
     if (!successfulIds.isEmpty()) {
         output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " to \"" + textValue + "\"."));
     }
+
     return output;
 }

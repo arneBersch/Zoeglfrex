@@ -54,7 +54,9 @@ QStringList IntegerSpecificNumberAttribute::set(const QStringList ids, const QHa
             return output;
         }
     }
-    createItems(item, ids);
+
+    output.append(item.createItems(ids));
+
     QStringList successfulIds;
     for (QString id : ids) {
         QSqlQuery keyQuery;
@@ -118,6 +120,7 @@ QStringList IntegerSpecificNumberAttribute::set(const QStringList ids, const QHa
             output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
         }
     }
+
     if (!successfulIds.isEmpty()) {
         if (removeValues) {
             output.append(Terminal::formatSuccessMessage("Removed " + name + " of " + item.format(successfulIds) + " at " + key.toString() + "."));
@@ -127,5 +130,6 @@ QStringList IntegerSpecificNumberAttribute::set(const QStringList ids, const QHa
             output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " at " + key.toString() + keyNumber.getUnit() + " to " + value.toString() + valueNumber.getUnit() + "."));
         }
     }
+
     return output;
 }

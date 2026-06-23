@@ -20,13 +20,9 @@ public:
     virtual bool matches(Keys::Key itemKey, QHash<Keys::Key, QStringList> attributes) const;
     virtual QStringList set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) = 0;
 protected:
-    QStringList createItems(ItemType item, QStringList ids);
-    QStringList updateSortingKeys(ItemType item);
     const ItemType item;
     const QString attributeId;
     const QString name;
-private:
-    static bool compareIds(QString idA, QString idB);
 };
 
 #endif // ATTRIBUTE_H

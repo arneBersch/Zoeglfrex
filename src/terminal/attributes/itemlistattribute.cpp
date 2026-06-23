@@ -60,7 +60,7 @@ QStringList ItemListAttribute::set(const QStringList ids, const QHash<Keys::Key,
         }
     }
 
-    createItems(item, ids);
+    output.append(item.createItems(ids));
 
     QStringList successfulIds;
     for (QString id : ids) {
@@ -102,8 +102,10 @@ QStringList ItemListAttribute::set(const QStringList ids, const QHash<Keys::Key,
             output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
         }
     }
+
     if (!successfulIds.isEmpty()) {
         output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " to " + foreignItem.format(foreignItemIdStrings) + "."));
     }
+
     return output;
 }

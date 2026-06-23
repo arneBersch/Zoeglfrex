@@ -10,6 +10,7 @@
 #define ITEMTYPE_H
 
 #include <QtWidgets>
+#include <QtSql>
 
 #include "../keys.h"
 
@@ -21,6 +22,9 @@ public:
     QString getPlural() const;
     Keys::Key getKey() const;
     QString format(QStringList ids) const;
+    QStringList createItems(QStringList ids) const;
+    QStringList deleteItems(QStringList ids) const;
+    QStringList updateSortingKeys() const;
     bool operator==(ItemType item) const;
 
     static ItemType model();
@@ -42,6 +46,7 @@ private:
     QString singular;
     QString plural;
     Keys::Key key;
+    static bool compareIds(QString idA, QString idB);
 };
 
 #endif // ITEMTYPE_H

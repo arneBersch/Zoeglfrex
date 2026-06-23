@@ -31,7 +31,7 @@ QStringList NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, Q
         }
     }
 
-    createItems(item, ids);
+    output.append(item.createItems(ids));
 
     QStringList successfulIds;
     for (QString id : ids) {
@@ -89,5 +89,6 @@ QStringList NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, Q
             output.append(Terminal::formatSuccessMessage("Set " + tableAttribute + " of " + item.format(successfulIds) + " to " + value.toString() + number.getUnit() + "."));
         }
     }
+
     return output;
 }

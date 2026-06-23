@@ -95,7 +95,8 @@ QStringList ItemSpecificItemListAttribute::set(const QStringList ids, const QHas
         output.append(Terminal::formatErrorMessage("No valid " + foreignItem.getPlural() + " were found."));
         return output;
     }
-    createItems(item, ids);
+    output.append(item.createItems(ids));
+
     QStringList successfulIds;
     for (QString id : ids) {
         QSqlQuery keyQuery;
@@ -139,6 +140,7 @@ QStringList ItemSpecificItemListAttribute::set(const QStringList ids, const QHas
             output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
         }
     }
+
     if (!successfulIds.isEmpty()) {
         if (removeValues) {
             output.append(Terminal::formatSuccessMessage("Removed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + "."));
@@ -146,5 +148,6 @@ QStringList ItemSpecificItemListAttribute::set(const QStringList ids, const QHas
             output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " to " + valueItem.format(valueItemIdStrings) + "."));
         }
     }
+
     return output;
 }

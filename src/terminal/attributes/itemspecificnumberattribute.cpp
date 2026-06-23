@@ -62,7 +62,9 @@ QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<
         output.append(Terminal::formatErrorMessage("No valid " + foreignItem.getPlural() + " were found."));
         return output;
     }
-    createItems(item, ids);
+
+    output.append(item.createItems(ids));
+
     QStringList successfulIds;
     for (QString id : ids) {
         QSqlQuery keyQuery;
@@ -142,5 +144,6 @@ QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<
             output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " to " + value.toString() + number.getUnit() + "."));
         }
     }
+
     return output;
 }

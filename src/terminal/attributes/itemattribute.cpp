@@ -48,7 +48,7 @@ QStringList ItemAttribute::set(const QStringList ids, const QHash<Keys::Key, QSt
         foreignItemKey = foreignItemQuery.value(0).toInt();
     }
 
-    createItems(item, ids);
+    output.append(item.createItems(ids));
 
     for (QString id : ids) {
         QSqlQuery keyQuery;
@@ -86,5 +86,6 @@ QStringList ItemAttribute::set(const QStringList ids, const QHash<Keys::Key, QSt
             output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " to " + foreignItem.getSingular() + " " + foreignItemId + "."));
         }
     }
+
     return output;
 }

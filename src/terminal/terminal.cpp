@@ -19,7 +19,6 @@
 #include "attributes/integerspecificnumberattribute.h"
 #include "attributes/integerspecificitemlistattribute.h"
 #include "attributes/idattribute.h"
-#include "attributes/deleteattribute.h"
 
 Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -99,7 +98,6 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     new QShortcut(Qt::SHIFT | Qt::Key_T, this, [this] { trackingButton->click(); }, Qt::ApplicationShortcut);
 
     for (ItemType type : ItemType::allTypes()) {
-        attributes.insert(new DeleteAttribute(type));
         attributes.insert(new IDAttribute(type));
         attributes.insert(new TextAttribute(type, AttributeIds::label, "Label", "label", "", this));
     }
@@ -283,6 +281,17 @@ void Terminal::execute() {
     }
     if (attributeIDs.value(Keys::Attribute, QStringList()).size() > 1) {
         printMessage(formatErrorMessage("Invalid number of Attribute IDs given."));
+        return;
+    }
+
+    if (!attributeIDs.contains(Keys::Attribute) && valueKeys == QList<Keys::Key>({Keys::Minus})) {
+        for (ItemType type : ItemType::allTypes()) {
+            if (type.getKey() == selectionType) {
+                for (QString line : type.deleteItems(ids)) {
+                    printMessage(line);
+                }
+            }
+        }
         return;
     }
 

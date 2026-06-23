@@ -30,7 +30,7 @@ QStringList BoolAttribute::set(const QStringList ids, const QHash<Keys::Key, QSt
         return output;
     }
 
-    output.append(createItems(item, ids));
+    output.append(item.createItems(ids));
 
     QStringList successfulIds;
     for (QString id : ids) {

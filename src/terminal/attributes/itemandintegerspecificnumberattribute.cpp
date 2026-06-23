@@ -79,7 +79,7 @@ QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, co
         return output;
     }
 
-    createItems(item, ids);
+    output.append(item.createItems(ids));
 
     QStringList successfulIds;
     for (QString id : ids) {
@@ -151,6 +151,7 @@ QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, co
             output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
         }
     }
+
     if (!successfulIds.isEmpty()) {
         if (removeValues) {
             output.append(Terminal::formatSuccessMessage("Removed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " and " + key.toString() + keyNumber.getUnit() + "."));
@@ -160,5 +161,6 @@ QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, co
             output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " and " + key.toString() + keyNumber.getUnit() + " to " + value.toString() + valueNumber.getUnit() + "."));
         }
     }
+
     return output;
 }

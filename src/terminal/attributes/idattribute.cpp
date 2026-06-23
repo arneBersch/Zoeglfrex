@@ -26,7 +26,7 @@ QStringList IDAttribute::set(const QStringList ids, const QHash<Keys::Key, QStri
         return output;
     }
 
-    createItems(item, ids);
+    output.append(item.createItems(ids));
 
     QStringList successfulIds;
     for (QString id : ids) {
@@ -70,6 +70,6 @@ QStringList IDAttribute::set(const QStringList ids, const QHash<Keys::Key, QStri
         output.append(Terminal::formatSuccessMessage("Set ID of " + item.format(successfulIds) + " to " + newIds.first() + "."));
     }
 
-    output.append(updateSortingKeys(item));
+    output.append(item.updateSortingKeys());
     return output;
 }
