@@ -292,6 +292,7 @@ void Terminal::execute() {
                 }
             }
         }
+        emit dbChanged();
         return;
     }
 

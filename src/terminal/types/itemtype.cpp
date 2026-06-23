@@ -46,7 +46,7 @@ QString ItemType::format(const QStringList ids) const {
     if (ids.length() == 1) {
         return singular + " " + ids.first();
     }
-    return plural + ids.join(", ");
+    return plural + " " + ids.join(", ");
 }
 
 bool ItemType::operator==(ItemType item) const {
@@ -108,8 +108,7 @@ QList<ItemType> ItemType::allTypes() {
     };
 }
 
-QStringList ItemType::createItems(QStringList ids) const {
-    Q_ASSERT(!ids.isEmpty());
+QStringList ItemType::createItems(const QStringList ids) const {
     QStringList output;
 
     QStringList successfulIds;
@@ -127,13 +126,11 @@ QStringList ItemType::createItems(QStringList ids) const {
                 } else {
                     qWarning() << Q_FUNC_INFO << insertQuery.executedQuery() << insertQuery.lastError().text();
                     output.append(Terminal::formatErrorMessage("Failed to insert " + singular + " " + id + "."));
-                    return output;
                 }
             }
         } else {
             qWarning() << Q_FUNC_INFO << existsQuery.executedQuery() << existsQuery.lastError().text();
             output.append(Terminal::formatErrorMessage("Failed to check if " + singular + " " + id + " already exists."));
-            return output;
         }
     }
     if (!successfulIds.isEmpty()) {
@@ -143,25 +140,26 @@ QStringList ItemType::createItems(QStringList ids) const {
     output.append(updateSortingKeys());
 
     if (*this == ItemType::cue()) {
+        QStringList tables;
+        tables.append("cue_group_intensities");
+        tables.append("cue_group_colors");
+        tables.append("cue_group_positions");
+        tables.append("cue_group_raws");
+        tables.append("cue_group_effects");
         for (QString id : successfulIds) {
             QSqlQuery keyQuery;
-            keyQuery.prepare("SELECT key FROM " + selectTable + " WHERE id = :id");
+            keyQuery.prepare("SELECT key, sortkey FROM " + selectTable + " WHERE id = :id");
             keyQuery.bindValue(":id", id);
             if (keyQuery.exec()) {
                 if (keyQuery.next()) {
                     const int key = keyQuery.value(0).toInt();
+                    const int sortkey = keyQuery.value(1).toInt();
                     QSqlQuery previousCueQuery;
-                    previousCueQuery.prepare("SELECT key FROM " + selectTable + " WHERE sortkey = (SELECT MAX(sortkey) FROM " + selectTable + " WHERE sortkey < (SELECT sortkey FROM " + selectTable + " WHERE key = :key))");
-                    previousCueQuery.bindValue(":key", key);
+                    previousCueQuery.prepare("SELECT key FROM " + selectTable + " WHERE sortkey = (SELECT MAX(sortkey) FROM " + selectTable + " WHERE sortkey < :sort)");
+                    previousCueQuery.bindValue(":sort", sortkey);
                     if (previousCueQuery.exec()) {
                         if (previousCueQuery.next()) {
                             const int previousCueKey = previousCueQuery.value(0).toInt();
-                            QStringList tables;
-                            tables.append("cue_group_intensities");
-                            tables.append("cue_group_colors");
-                            tables.append("cue_group_positions");
-                            tables.append("cue_group_raws");
-                            tables.append("cue_group_effects");
                             for (QString table : tables) {
                                 QSqlQuery valueQuery;
                                 valueQuery.prepare("SELECT foreignItem_key, valueItem_key FROM " + table + " WHERE item_key = :key");
@@ -197,16 +195,16 @@ QStringList ItemType::createItems(QStringList ids) const {
             }
         }
     }
+
     return output;
 }
 
 QStringList ItemType::deleteItems(QStringList ids) const {
-    Q_ASSERT(!ids.isEmpty());
     QStringList output;
 
     QMessageBox msgBox;
     msgBox.setText("Delete " + QString::number(ids.length()) + " " + plural + "?");
-    msgBox.setInformativeText("Do you want to delete " + singular + " " + ids.join(", ") + "?");
+    msgBox.setInformativeText("Do you want to delete " + format(ids) + "?");
     msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Yes);
     msgBox.setDefaultButton(QMessageBox::Yes);
     if (msgBox.exec() != QMessageBox::Yes) {
@@ -235,7 +233,7 @@ QStringList ItemType::deleteItems(QStringList ids) const {
             }
         } else {
             qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            output.append(Terminal::formatErrorMessage("Couldn't delete " + singular + " " + id + ": "));
+            output.append(Terminal::formatErrorMessage("Couldn't delete " + singular + " " + id + "."));
         }
     }
 
@@ -249,6 +247,7 @@ QStringList ItemType::deleteItems(QStringList ids) const {
 
 QStringList ItemType::updateSortingKeys() const {
     QStringList output;
+
     QSqlQuery idsQuery;
     idsQuery.prepare("SELECT key, id, sortkey FROM " + selectTable);
     if (idsQuery.exec()) {
