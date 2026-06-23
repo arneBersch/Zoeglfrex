@@ -108,7 +108,7 @@ QStringList ItemSpecificItemListAttribute::set(const QStringList ids, const QHas
                 bool allQueriesSuccessful = true;
                 for (const int foreignItemKey : foreignItemKeys) {
                     QSqlQuery deleteQuery;
-                    deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key =  :item AND foreignItem_key = :foreign_item");
+                    deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key =  :item AND foreignitem_key = :foreign_item");
                     deleteQuery.bindValue(":item", itemKey);
                     deleteQuery.bindValue(":foreign_item", foreignItemKey);
                     if (!deleteQuery.exec()) {
@@ -118,7 +118,7 @@ QStringList ItemSpecificItemListAttribute::set(const QStringList ids, const QHas
                     }
                     for (const int valueItemKey : valueItemKeys) {
                         QSqlQuery insertQuery;
-                        insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, foreignItem_key, valueItem_key) VALUES (:item, :foreign_item, :value_item)");
+                        insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, foreignitem_key, valueitem_key) VALUES (:item, :foreign_item, :value_item)");
                         insertQuery.bindValue(":item", itemKey);
                         insertQuery.bindValue(":foreign_item", foreignItemKey);
                         insertQuery.bindValue(":value_item", valueItemKey);

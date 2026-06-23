@@ -77,7 +77,7 @@ QStringList ItemListAttribute::set(const QStringList ids, const QHash<Keys::Key,
                 if (deleteQuery.exec()) {
                     for (const int foreignItemKey : foreignItemKeys) {
                         QSqlQuery insertQuery;
-                        insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, valueItem_key) VALUES (:item, :foreign_item)");
+                        insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, valueitem_key) VALUES (:item, :foreign_item)");
                         insertQuery.bindValue(":item", itemKey);
                         insertQuery.bindValue(":foreign_item", foreignItemKey);
                         if (!insertQuery.exec()) {

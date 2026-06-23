@@ -93,7 +93,7 @@ QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, co
                 for (const int foreignItemKey : foreignItemKeys) {
                     if (removeValues) {
                         QSqlQuery query;
-                        query.prepare("DELETE FROM " + valueTable + " WHERE item_key = :item AND foreignItem_key = :foreign_item AND key = :key");
+                        query.prepare("DELETE FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item AND key = :key");
                         query.bindValue(":item", itemKey);
                         query.bindValue(":foreign_item", foreignItemKey);
                         query.bindValue(":key", key);
@@ -106,7 +106,7 @@ QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, co
                         bool valueOk = true;
                         if (difference) {
                             QSqlQuery currentValueQuery;
-                            currentValueQuery.prepare("SELECT value FROM " + valueTable + " WHERE item_key = :item AND foreignItem_key = :foreign_item AND key = :key");
+                            currentValueQuery.prepare("SELECT value FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item AND key = :key");
                             currentValueQuery.bindValue(":item", itemKey);
                             currentValueQuery.bindValue(":foreign_item", foreignItemKey);
                             currentValueQuery.bindValue(":key", key);
@@ -127,7 +127,7 @@ QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, co
                         }
                         if (valueOk) {
                             QSqlQuery query;
-                            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignItem_key, key, value) VALUES (:item, :foreign_item, :key, :value)");
+                            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, key, value) VALUES (:item, :foreign_item, :key, :value)");
                             query.bindValue(":item", itemKey);
                             query.bindValue(":foreign_item", foreignItemKey);
                             query.bindValue(":key", key);

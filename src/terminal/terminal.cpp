@@ -222,35 +222,40 @@ void Terminal::execute() {
         }
     }
     if (!attributeReached && !valueReached) {
+        QStringList output;
         if (selectionType == ItemType::fixture().getKey()) {
-            setCurrentItem(ItemType::fixture(), "currentgroup_fixtures", selectionIdKeys, "UPDATE currentitems SET fixture_key = :key");
+            output = setCurrentItem(ItemType::fixture(), "currentgroup_fixtures", selectionIdKeys, "UPDATE currentitems SET fixture_key = :key");
         } else if (selectionType == ItemType::group().getKey()) {
-            setCurrentItem(ItemType::group(), ItemType::group().getSelectTable(), selectionIdKeys, "UPDATE currentitems SET group_key = :key");
+            output = setCurrentItem(ItemType::group(), ItemType::group().getSelectTable(), selectionIdKeys, "UPDATE currentitems SET group_key = :key");
         } else if (selectionType == ItemType::intensity().getKey()) {
-            setCueItem(ItemType::intensity(), "cue_group_intensities", selectionIdKeys, false);
+            output = setCueItem(ItemType::intensity(), "cue_group_intensities", selectionIdKeys, false);
         } else if (selectionType == ItemType::color().getKey()) {
-            setCueItem(ItemType::color(), "cue_group_colors", selectionIdKeys, false);
+            output = setCueItem(ItemType::color(), "cue_group_colors", selectionIdKeys, false);
         } else if (selectionType == ItemType::position().getKey()) {
-            setCueItem(ItemType::position(), "cue_group_positions", selectionIdKeys, false);
+            output = setCueItem(ItemType::position(), "cue_group_positions", selectionIdKeys, false);
         } else if (selectionType == ItemType::raw().getKey()) {
-            setCueItem(ItemType::raw(), "cue_group_raws", selectionIdKeys, true);
+            output = setCueItem(ItemType::raw(), "cue_group_raws", selectionIdKeys, true);
         } else if (selectionType == ItemType::effect().getKey()) {
-            setCueItem(ItemType::effect(), "cue_group_effects", selectionIdKeys, true);
+            output = setCueItem(ItemType::effect(), "cue_group_effects", selectionIdKeys, true);
         } else if (selectionType == ItemType::cuelist().getKey()) {
-            setCurrentItem(ItemType::cuelist(), ItemType::cuelist().getSelectTable(), selectionIdKeys, "UPDATE currentitems SET cuelist_key = :key");
+            output = setCurrentItem(ItemType::cuelist(), ItemType::cuelist().getSelectTable(), selectionIdKeys, "UPDATE currentitems SET cuelist_key = :key");
         } else if (selectionType == ItemType::cue().getKey()) {
             QSqlQuery currentCueQuery;
             if (currentCueQuery.exec("SELECT cue_key FROM currentitems WHERE cue_key IS NOT NULL")) {
                 if (currentCueQuery.next()) {
-                    setCurrentItem(ItemType::cue(), ItemType::cue().getSelectTable(), selectionIdKeys, "UPDATE currentitems SET cue_key = :key");
+                    output = setCurrentItem(ItemType::cue(), ItemType::cue().getSelectTable(), selectionIdKeys, "UPDATE currentitems SET cue_key = :key");
                 } else {
-                    setCurrentItem(ItemType::cue(), ItemType::cue().getSelectTable(), selectionIdKeys, "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)");
+                    output = setCurrentItem(ItemType::cue(), ItemType::cue().getSelectTable(), selectionIdKeys, "UPDATE cuelists SET currentcue_key = :key WHERE key = (SELECT cuelist_key FROM currentitems)");
                 }
             } else {
                 qWarning() << Q_FUNC_INFO << currentCueQuery.executedQuery() << currentCueQuery.lastError().text();
             }
         } else {
-            printMessage(formatErrorMessage("Can't select this Item type: " + Keys::keysToString({selectionType})));
+            output.append(formatErrorMessage("Can't select this Item type: " + Keys::keysToString({selectionType})));
+        }
+        emit dbChanged();
+        for (QString line : output) {
+            printMessage(line);
         }
         return;
     }
@@ -316,47 +321,56 @@ void Terminal::execute() {
     emit dbChanged();
 }
 
-void Terminal::setCurrentItem(const ItemType item, const QString itemTable, const QList<Keys::Key> idKeys, const QString updateQueryText) {
+QStringList Terminal::setCurrentItem(const ItemType item, const QString itemTable, const QList<Keys::Key> idKeys, const QString updateQueryText) const {
+    QStringList output;
+
     const QStringList ids = keysToIds(idKeys);
     if (ids.size() != 1) {
-        printMessage(formatErrorMessage("Invalid " + item.getSingular() + " selection given."));
-        return;
+        output.append(formatErrorMessage("Invalid " + item.getSingular() + " selection given."));
+        return output;
     }
+
     QSqlQuery keyQuery;
     keyQuery.prepare("SELECT key FROM " + itemTable + " WHERE id = :id");
     keyQuery.bindValue(":id", ids.first());
     if (!keyQuery.exec()) {
         qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-        printMessage(formatErrorMessage("Can't select " + item.getSingular() + " because the key request for " + item.getSingular() + " " + ids.first() + " failed."));
-        return;
+        output.append(formatErrorMessage("Can't select " + item.getSingular() + " because the key request for " + item.getSingular() + " " + ids.first() + " failed."));
+        return output;
     }
     if (!keyQuery.next()) {
-        printMessage(formatErrorMessage("Can't select " + item.getSingular() + " " + ids.first() + "."));
-        return;
+        output.append(formatErrorMessage("Can't select " + item.getSingular() + " " + ids.first() + "."));
+        return output;
     }
     const int key = keyQuery.value(0).toInt();
+
     QSqlQuery updateQuery;
     updateQuery.prepare(updateQueryText);
     updateQuery.bindValue(":key", key);
     if (!updateQuery.exec()) {
         qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-        printMessage(formatErrorMessage("Failed to select " + item.getSingular() + "."));
+        output.append(formatErrorMessage("Failed to select " + item.getSingular() + "."));
     }
-    emit dbChanged();
+
+    return output;
 }
 
-void Terminal::setCueItem(const ItemType item, const QString valueTable, const QList<Keys::Key> idKeys, const bool multipleItemsAllowed) {
+QStringList Terminal::setCueItem(const ItemType item, const QString valueTable, const QList<Keys::Key> idKeys, const bool multipleItemsAllowed) const {
+    QStringList output;
+
     QList<int> itemKeys;
     if ((idKeys.size() != 2) || !idKeys.endsWith(Keys::Minus)) {
         const QStringList ids = keysToIds(idKeys);
         if (ids.isEmpty()) {
-            printMessage(formatErrorMessage("Invalid " + item.getSingular() + " selection given."));
-            return;
+            output.append(formatErrorMessage("Invalid " + item.getSingular() + " selection given."));
+            return output;
         }
+
         if (!multipleItemsAllowed && (ids.size() > 1)) {
-            printMessage(formatErrorMessage("Can't select multiple " + item.getPlural() + "."));
-            return;
+            output.append(formatErrorMessage("Can't select multiple " + item.getPlural() + "."));
+            return output;
         }
+
         for (QString id : ids) {
             QSqlQuery itemKeyQuery;
             itemKeyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
@@ -365,44 +379,47 @@ void Terminal::setCueItem(const ItemType item, const QString valueTable, const Q
                 if (itemKeyQuery.next()) {
                     itemKeys.append(itemKeyQuery.value(0).toInt());
                 } else {
-                    printMessage(formatWarningMessage("Can't select " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist."));
+                    output.append(formatWarningMessage("Can't select " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist."));
                 }
             } else {
                 qWarning() << Q_FUNC_INFO << itemKeyQuery.executedQuery() << itemKeyQuery.lastError().text();
-                printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the key request for " + item.getSingular() + " " + ids.first() + " failed."));
+                output.append(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the key request for " + item.getSingular() + " " + ids.first() + " failed."));
             }
         }
         if (itemKeys.isEmpty()) {
-            printMessage(formatErrorMessage("No valid " + item.getPlural() + " were given."));
-            return;
+            output.append(formatErrorMessage("No valid " + item.getPlural() + " were given."));
+            return output;
         }
     }
+
     QSqlQuery groupKeyQuery;
     if (!groupKeyQuery.exec("SELECT group_key FROM currentitems WHERE group_key IS NOT NULL")) {
         qWarning() << Q_FUNC_INFO << groupKeyQuery.executedQuery() << groupKeyQuery.lastError().text();
-        printMessage((formatErrorMessage("Can't set Cue " + item.getPlural() + " because request for the current Group failed.")));
-        return;
+        output.append(formatErrorMessage("Can't set Cue " + item.getPlural() + " because request for the current Group failed."));
+        return output;
     }
     if (!groupKeyQuery.next()) {
-        printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because no Group is currently selected."));
-        return;
+        output.append(formatErrorMessage("Can't set Cue " + item.getPlural() + " because no Group is currently selected."));
+        return output;
     }
     const int groupKey = groupKeyQuery.value(0).toInt();
-    QList<int> cueKeys;
+
     QSqlQuery cueKeyQuery;
     if (!cueKeyQuery.exec("SELECT key, sortkey FROM currentcue")) {
         qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
-        printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the request for the current Cue failed."));
-        return;
+        output.append(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the request for the current Cue failed."));
+        return output;
     }
     if (!cueKeyQuery.next()) {
-        printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because no Cue is currently selected."));
-        return;
+        output.append(formatErrorMessage("Can't set Cue " + item.getPlural() + " because no Cue is currently selected."));
+        return output;
     }
+    QList<int> cueKeys;
     cueKeys.append(cueKeyQuery.value(0).toInt());
+
     if (trackingButton->isChecked()) {
         QSqlQuery currentCueValueQuery;
-        currentCueValueQuery.prepare("SELECT valueItem_key FROM " + valueTable + " WHERE item_key = :cue AND foreignItem_key = :group");
+        currentCueValueQuery.prepare("SELECT valueitem_key FROM " + valueTable + " WHERE item_key = :cue AND foreignitem_key = :group");
         currentCueValueQuery.bindValue(":cue", cueKeys.first());
         currentCueValueQuery.bindValue(":group", groupKey);
         if (currentCueValueQuery.exec()) {
@@ -410,6 +427,7 @@ void Terminal::setCueItem(const ItemType item, const QString valueTable, const Q
             while (currentCueValueQuery.next()) {
                 currentCueValueKeys.insert(currentCueValueQuery.value(0).toInt());
             }
+
             QSqlQuery cueTrackingKeyQuery;
             cueTrackingKeyQuery.prepare("SELECT key, block FROM currentcuelist_cues WHERE sortkey > :sortkey ORDER BY sortkey");
             cueTrackingKeyQuery.bindValue(":sortkey", cueKeyQuery.value(1).toInt());
@@ -418,7 +436,7 @@ void Terminal::setCueItem(const ItemType item, const QString valueTable, const Q
                 while (cueTrackingKeyQuery.next() && (cueTrackingKeyQuery.value(1).toInt() == 0) && sameValue) {
                     const int cueKey = cueTrackingKeyQuery.value(0).toInt();
                     QSqlQuery cueValueQuery;
-                    cueValueQuery.prepare("SELECT valueItem_key FROM " + valueTable + " WHERE item_key = :cue AND foreignItem_key = :group");
+                    cueValueQuery.prepare("SELECT valueitem_key FROM " + valueTable + " WHERE item_key = :cue AND foreignitem_key = :group");
                     cueValueQuery.bindValue(":cue", cueKey);
                     cueValueQuery.bindValue(":group", groupKey);
                     if (cueValueQuery.exec()) {
@@ -432,43 +450,45 @@ void Terminal::setCueItem(const ItemType item, const QString valueTable, const Q
                         }
                     } else {
                         qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
-                        printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the Cue tracking request failed."));
-                        return;
+                        output.append(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the Cue tracking request failed."));
+                        return output;
                     }
                 }
             } else {
                 qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
-                printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the Cue tracking request failed."));
-                return;
+                output.append(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the Cue tracking request failed."));
+                return output;
             }
         } else {
             qWarning() << Q_FUNC_INFO << cueKeyQuery.executedQuery() << cueKeyQuery.lastError().text();
-            printMessage(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the request for the " + item.getSingular() + " in the current Cue failed."));
-            return;
+            output.append(formatErrorMessage("Can't set Cue " + item.getPlural() + " because the request for the " + item.getSingular() + " in the current Cue failed."));
+            return output;
         }
     }
+
     for (const int cueKey : cueKeys) {
         QSqlQuery deleteQuery;
-        deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key = :cue AND foreignItem_key = :group");
+        deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key = :cue AND foreignitem_key = :group");
         deleteQuery.bindValue(":cue", cueKey);
         deleteQuery.bindValue(":group", groupKey);
         if (!deleteQuery.exec()) {
             qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
-            printMessage(formatErrorMessage("Failed deleting Cue " + item.getPlural() + "."));
+            output.append(formatErrorMessage("Failed deleting Cue " + item.getPlural() + "."));
         }
+
         for (const int key : itemKeys) {
             QSqlQuery query;
-            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignItem_key, valueItem_key) VALUES (:cue, :group, :item)");
+            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, valueitem_key) VALUES (:cue, :group, :item)");
             query.bindValue(":cue", cueKey);
             query.bindValue(":group", groupKey);
             query.bindValue(":item", key);
             if (!query.exec()) {
                 qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                printMessage(formatErrorMessage("Failed inserting " + item.getSingular() + "."));
+                output.append(formatErrorMessage("Failed inserting " + item.getSingular() + "."));
             }
         }
     }
-    emit dbChanged();
+    return output;
 }
 
 void Terminal::reload() {
@@ -485,7 +505,9 @@ void Terminal::reload() {
             idKeys.append(key);
         }
     }
+
     promptLabel->setText(keysToString(promptKeys));
+
     if (idKeys.isEmpty()) {
         emit itemChanged(QString(), QStringList());
     } else {

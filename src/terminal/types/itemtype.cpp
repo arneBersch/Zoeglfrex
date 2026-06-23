@@ -162,12 +162,12 @@ QStringList ItemType::createItems(const QStringList ids) const {
                             const int previousCueKey = previousCueQuery.value(0).toInt();
                             for (QString table : tables) {
                                 QSqlQuery valueQuery;
-                                valueQuery.prepare("SELECT foreignItem_key, valueItem_key FROM " + table + " WHERE item_key = :key");
+                                valueQuery.prepare("SELECT foreignitem_key, valueitem_key FROM " + table + " WHERE item_key = :key");
                                 valueQuery.bindValue(":key", previousCueKey);
                                 if (valueQuery.exec()) {
                                     while (valueQuery.next()) {
                                         QSqlQuery updateQuery;
-                                        updateQuery.prepare("INSERT INTO " + table + " (item_key, foreignItem_key, valueItem_key) VALUES (:key, :foreignItem, :valueItem)");
+                                        updateQuery.prepare("INSERT INTO " + table + " (item_key, foreignitem_key, valueitem_key) VALUES (:key, :foreignItem, :valueItem)");
                                         updateQuery.bindValue(":key", key);
                                         updateQuery.bindValue(":foreignItem", valueQuery.value(0).toInt());
                                         updateQuery.bindValue(":valueItem", valueQuery.value(1).toInt());

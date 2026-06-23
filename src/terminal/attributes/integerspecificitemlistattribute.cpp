@@ -109,7 +109,7 @@ QStringList IntegerSpecificItemListAttribute::set(const QStringList ids, const Q
                 }
                 for (const int valueItemKey : valueItemKeys) {
                     QSqlQuery insertQuery;
-                    insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, key, valueItem_key) VALUES (:item, :key, :value_item)");
+                    insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, key, valueitem_key) VALUES (:item, :key, :value_item)");
                     insertQuery.bindValue(":item", itemKey);
                     insertQuery.bindValue(":key", key);
                     insertQuery.bindValue(":value_item", valueItemKey);

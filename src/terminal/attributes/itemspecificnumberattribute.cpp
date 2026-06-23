@@ -77,7 +77,7 @@ QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<
                 for (const int foreignItemKey : foreignItemKeys) {
                     if (removeValues) {
                         QSqlQuery query;
-                        query.prepare("DELETE FROM " + valueTable + " WHERE item_key = :item AND foreignItem_key = :foreign_item");
+                        query.prepare("DELETE FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item");
                         query.bindValue(":item", itemKey);
                         query.bindValue(":foreign_item", foreignItemKey);
                         if (!query.exec()) {
@@ -89,7 +89,7 @@ QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<
                         bool valueOk = true;
                         if (difference) {
                             QSqlQuery currentValueQuery;
-                            currentValueQuery.prepare("SELECT value FROM " + valueTable + " WHERE item_key = :item AND foreignItem_key = :foreign_item");
+                            currentValueQuery.prepare("SELECT value FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item");
                             currentValueQuery.bindValue(":item", itemKey);
                             currentValueQuery.bindValue(":foreign_item", foreignItemKey);
                             if (currentValueQuery.exec()) {
@@ -109,7 +109,7 @@ QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<
                         }
                         if (valueOk) {
                             QSqlQuery query;
-                            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignItem_key, value) VALUES (:item, :foreign_item, :value)");
+                            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, value) VALUES (:item, :foreign_item, :value)");
                             query.bindValue(":item", itemKey);
                             query.bindValue(":foreign_item", foreignItemKey);
                             query.bindValue(":value", value);

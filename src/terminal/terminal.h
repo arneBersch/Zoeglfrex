@@ -31,8 +31,8 @@ public slots:
     void reload();
 private:
     void execute();
-    void setCurrentItem(ItemType item, QString itemTable, QList<Keys::Key> idKeys, QString updateQueryText);
-    void setCueItem(ItemType item, QString valueTable, QList<Keys::Key> idKeys, bool multipleItemsAllowed);
+    QStringList setCurrentItem(ItemType item, QString itemTable, QList<Keys::Key> idKeys, QString updateQueryText) const;
+    QStringList setCueItem(ItemType item, QString valueTable, QList<Keys::Key> idKeys, bool multipleItemsAllowed) const;
     void writeKey(Keys::Key key);
     void printMessage(QString message);
     void backspace();
