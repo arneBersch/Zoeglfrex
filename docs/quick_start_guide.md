@@ -5,11 +5,7 @@ In this guide, we will build a simple project in order to show you how to use it
 
 ## Creating a Project File
 First of all, you need to create a Project File.
-Therefore, you need to execute Zöglfrex from the Command Line:
-
-```
-Zoeglfrex.AppImage path/to/directory/myTestFile.zfr
-```
+Therefore, you need to run the Zöglfrex AppImage, click the *New File* Button and select the File Location.
 
 > [!CAUTION]
 > Please note that Zöglfrex files always have to end with .zfr
@@ -64,9 +60,9 @@ Luckily, you don't have to type every letter into the Terminal, instead, just pr
 4. 2
 5. S
 
-You can find all possible keys and their usage in the Zöglfrex reference.
+You can find all possible keys and their usage in the [Zöglfrex reference](reference.md).
 
-After inserting the command, you have to execute it by pressung the return key.
+After inserting the command, you have to execute it by pressing the return key.
 When you do this, a popup window will open asking you to insert the Model's channels.
 Insert "D" and press the return key again.
 The popup should close.
@@ -232,6 +228,7 @@ We can manually set channels which are not supported (yet) using **Raws**, just 
 Raw 1 Attribute 2.4 Model 3 Set 157
 ```
 You can call this Raw "Gobo".
+When you set this Raw for a moving head Fixture, it will set Channel 4 (the Gobo channel) to the DMX value 157.
 
 ## Adding Cues
 ### Adding Cues
@@ -307,9 +304,9 @@ Raw 1
 ```
 
 ## Activate DMX
-In order to activate DMX Output, you have to select your sACN network Interface in the DMX Output Settings.
+In order to activate DMX output, you have to select your sACN network interface in the *DMX Output Settings*.
 After that, you're ready to go.
 
 ## Final words
 This are the most important concepts and commands of Zöglfrex.
-For more information, I recommend the [Zöglfrex Reference](reference.md).
+For more information, I recommend the [Zöglfrex reference](reference.md).
