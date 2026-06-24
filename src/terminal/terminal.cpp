@@ -232,18 +232,16 @@ void Terminal::execute() {
         } else if ((Keys::isItemKey(key) || (key == Keys::Attribute)) && !valueReached) {
             attributeKeys.append(key);
             attributeReached = true;
+        } else if (valueReached) {
+            valueKeys.append(key);
+        } else if (attributeReached) {
+            attributeKeys.append(key);
         } else {
-            if (valueReached) {
-                valueKeys.append(key);
-            } else if (attributeReached) {
-                attributeKeys.append(key);
-            } else {
-                selectionIdKeys.append(key);
-            }
+            selectionIdKeys.append(key);
         }
     }
 
-    if (!attributeReached && !valueReached && selectionIdKeys == QList<Keys::Key>({Keys::Minus})) {
+    if (!attributeReached && !valueReached && (selectionIdKeys == QList<Keys::Key>({Keys::Minus}))) {
         for (QString line : selectionType.deselectItems()) {
             printMessage(line);
         }
@@ -272,8 +270,8 @@ void Terminal::execute() {
         for (const Keys::Key key : attributeKeys) {
             if (Keys::isItemKey(key) || (key == Keys::Attribute)) {
                 if (!currentItemKeys.isEmpty()) {
-                    Keys::Key currentItemType = currentItemKeys.first();
-                    QStringList ids = keysToIds(currentItemKeys);
+                    const Keys::Key currentItemType = currentItemKeys.first();
+                    const QStringList ids = keysToIds(currentItemKeys);
                     if (ids.isEmpty()) {
                         printMessage(formatErrorMessage("Invalid Attribute given: " + keysToString(currentItemKeys)));
                         return;
@@ -285,12 +283,47 @@ void Terminal::execute() {
             currentItemKeys.append(key);
         }
     }
-    if (attributeIDs.value(Keys::Attribute, QStringList()).size() > 1) {
+
+    if (!attributeIDs.contains(Keys::Attribute)) {
+        if (valueKeys.isEmpty()) {
+            attributeIDs[Keys::Attribute] = { AttributeIds::label };
+        } else if (selectionType == ItemType::fixture()) {
+            if (valueKeys.startsWith(Keys::Model)) {
+                attributeIDs[Keys::Attribute] = { AttributeIds::fixtureModel };
+            } else {
+                attributeIDs[Keys::Attribute] = { AttributeIds::fixtureAddress };
+            }
+        } else if (selectionType == ItemType::group()) {
+            attributeIDs[Keys::Attribute] = { AttributeIds::groupFixtures };
+        } else if (selectionType == ItemType::intensity()) {
+            if (valueKeys.startsWith(Keys::Raw)) {
+                attributeIDs[Keys::Attribute] = { AttributeIds::intensityRaws };
+            } else {
+                attributeIDs[Keys::Attribute] = { AttributeIds::intensityDimmer };
+            }
+        } else if (selectionType == ItemType::color()) {
+            if (valueKeys.startsWith(Keys::Raw)) {
+                attributeIDs[Keys::Attribute] = { AttributeIds::colorRaws };
+            } else {
+                attributeIDs[Keys::Attribute] = { AttributeIds::colorHue };
+            }
+        } else if (selectionType == ItemType::position()) {
+            if (valueKeys.startsWith(Keys::Raw)) {
+                attributeIDs[Keys::Attribute] = { AttributeIds::positionRaws };
+            } else {
+                attributeIDs[Keys::Attribute] = { AttributeIds::positionPan };
+            }
+        } else if (selectionType == ItemType::effect()) {
+            attributeIDs[Keys::Attribute] = { AttributeIds::effectSteps };
+        } else if (selectionType == ItemType::cue()) {
+            attributeIDs[Keys::Attribute] = { AttributeIds::cueFade };
+        }
+    } else if (attributeIDs.value(Keys::Attribute).size() > 1) {
         printMessage(formatErrorMessage("Invalid number of Attribute IDs given."));
         return;
     }
 
-    if (!attributeIDs.contains(Keys::Attribute) && valueKeys == QList<Keys::Key>({Keys::Minus})) {
+    if (!attributeIDs.contains(Keys::Attribute) && (valueKeys == QList<Keys::Key>({Keys::Minus}))) {
         for (QString line : selectionType.deleteItems(ids)) {
             printMessage(line);
         }
