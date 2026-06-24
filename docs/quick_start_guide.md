@@ -5,7 +5,7 @@ In this guide, we will build a simple project in order to show you how to use it
 
 ## Creating a Project File
 First of all, you need to create a Project File.
-Therefore, you need to run the Zöglfrex AppImage, click the *New File* Button and select the File Location.
+Therefore, you need to run the Zöglfrex AppImage, click the *New File* button and select the location of the file.
 
 > [!CAUTION]
 > Please note that Zöglfrex files always have to end with .zfr
@@ -35,7 +35,7 @@ However, in Zöglfrex they are created quite different.
 
 Every Model can be accessed by an unique **ID**.
 We first want to create a Model for our dimmers.
-Therefore, we need to type a **command** into the Terminal.
+Therefore, we need to type a command into the Terminal.
 Every command consists of several parts:
 - The **Item type**:
     In our case, this will be Model.
