@@ -215,6 +215,7 @@ void Terminal::execute() {
         printMessage(formatErrorMessage("Invalid Item Type given."));
         return;
     }
+    keys.removeFirst();
 
     QList<Keys::Key> selectionIdKeys;
     selectionIdKeys.append(selectionType.getKey());
@@ -284,7 +285,13 @@ void Terminal::execute() {
         }
     }
 
-    if (!attributeIDs.contains(Keys::Attribute)) {
+    if (!attributeIDs.contains(Keys::Attribute) && (valueKeys == QList<Keys::Key>({Keys::Minus}))) {
+        for (QString line : selectionType.deleteItems(ids)) {
+            printMessage(line);
+        }
+        emit dbChanged();
+        return;
+    } else if (!attributeIDs.contains(Keys::Attribute)) {
         if (valueKeys.isEmpty()) {
             attributeIDs[Keys::Attribute] = { AttributeIds::label };
         } else if (selectionType == ItemType::fixture()) {
@@ -320,14 +327,6 @@ void Terminal::execute() {
         }
     } else if (attributeIDs.value(Keys::Attribute).size() > 1) {
         printMessage(formatErrorMessage("Invalid number of Attribute IDs given."));
-        return;
-    }
-
-    if (!attributeIDs.contains(Keys::Attribute) && (valueKeys == QList<Keys::Key>({Keys::Minus}))) {
-        for (QString line : selectionType.deleteItems(ids)) {
-            printMessage(line);
-        }
-        emit dbChanged();
         return;
     }
 
