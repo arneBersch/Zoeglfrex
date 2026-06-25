@@ -79,15 +79,18 @@ QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<
                         currentValueQuery.prepare("SELECT value FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item");
                         currentValueQuery.bindValue(":item", key);
                         currentValueQuery.bindValue(":foreign_item", foreignItemKey);
-                        if (currentValueQuery.exec() && currentValueQuery.next()) {
+                        if (!currentValueQuery.exec()) {
+                            qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
+                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
+                            valueOk = false;
+                        } else if (!currentValueQuery.next()) {
+                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
+                            valueOk = false;
+                        } else {
                             value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
                             if (!valueOk) {
                                 output.append(Terminal::formatErrorMessage("Invalid value given for " + item.getSingular() + " " + id + "."));
                             }
-                        } else {
-                            qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
-                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
-                            valueOk = false;
                         }
                     }
 

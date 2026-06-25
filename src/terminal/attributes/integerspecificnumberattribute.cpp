@@ -25,6 +25,8 @@ bool IntegerSpecificNumberAttribute::matches(const ItemType itemType, const QHas
 
 QStringList IntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    Q_ASSERT(matches(item, attributes));
+
     QStringList output;
 
     const QList<QString> numberIdParts = attributes.value(Keys::Attribute).first().split(".");
@@ -57,65 +59,54 @@ QStringList IntegerSpecificNumberAttribute::set(const QStringList ids, const QHa
 
     QStringList successfulIds;
     for (QString id : ids) {
-        QSqlQuery keyQuery;
-        keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-        keyQuery.bindValue(":id", id);
-        if (keyQuery.exec()) {
-            if (keyQuery.next()) {
-                const int itemKey = keyQuery.value(0).toInt();
-                if (removeValues) {
+        const int itemKey = item.getItemKey(id, &output);
+        if (itemKey >= 0) {
+            if (removeValues) {
+                QSqlQuery query;
+                query.prepare("DELETE FROM " + valueTable + " WHERE item_key = :item AND key = :key");
+                query.bindValue(":item", itemKey);
+                query.bindValue(":key", key);
+                if (query.exec()) {
+                    successfulIds.append(id);
+                } else {
+                    qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                    output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
+                }
+            } else {
+                bool valueOk = true;
+                if (difference) {
+                    QSqlQuery currentValueQuery;
+                    currentValueQuery.prepare("SELECT value FROM " + valueTable + " WHERE item_key = :item AND key = :key");
+                    currentValueQuery.bindValue(":item", itemKey);
+                    currentValueQuery.bindValue(":key", key);
+                    if (!currentValueQuery.exec()) {
+                        qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
+                        output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
+                        valueOk = false;
+                    } else if (!currentValueQuery.next()) {
+                        output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
+                        valueOk = false;
+                    } else {
+                        value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), valueNumber);
+                        if (!valueOk) {
+                            output.append(Terminal::formatErrorMessage("Invalid value given for " + item.getSingular() + " " + id + "."));
+                        }
+                    }
+                }
+                if (valueOk) {
                     QSqlQuery query;
-                    query.prepare("DELETE FROM " + valueTable + " WHERE item_key = :item AND key = :key");
+                    query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, key, value) VALUES (:item, :key, :value)");
                     query.bindValue(":item", itemKey);
                     query.bindValue(":key", key);
+                    query.bindValue(":value", value);
                     if (query.exec()) {
                         successfulIds.append(id);
                     } else {
                         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
                         output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
                     }
-                } else {
-                    bool valueOk = true;
-                    if (difference) {
-                        QSqlQuery currentValueQuery;
-                        currentValueQuery.prepare("SELECT value FROM " + valueTable + " WHERE item_key = :item AND key = :key");
-                        currentValueQuery.bindValue(":item", itemKey);
-                        currentValueQuery.bindValue(":key", key);
-                        if (currentValueQuery.exec()) {
-                            if (currentValueQuery.next()) {
-                                value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), valueNumber);
-                            } else {
-                                value = keysToNumber(valueKeys, &valueOk, 0, valueNumber);
-                            }
-                            if (!valueOk) {
-                                output.append(Terminal::formatErrorMessage("Invalid value given for " + item.getSingular() + " " + id + "."));
-                            }
-                        } else {
-                            qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
-                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
-                            valueOk = false;
-                        }
-                    }
-                    if (valueOk) {
-                        QSqlQuery query;
-                        query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, key, value) VALUES (:item, :key, :value)");
-                        query.bindValue(":item", itemKey);
-                        query.bindValue(":key", key);
-                        query.bindValue(":value", value);
-                        if (query.exec()) {
-                            successfulIds.append(id);
-                        } else {
-                            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                            output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
-                        }
-                    }
                 }
-            } else {
-                output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found."));
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
         }
     }
 
