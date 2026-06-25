@@ -285,45 +285,53 @@ void Terminal::execute() {
         }
     }
 
-    if (!attributeIDs.contains(Keys::Attribute) && (valueKeys == QList<Keys::Key>({Keys::Minus}))) {
-        for (QString line : selectionType.deleteItems(ids)) {
-            printMessage(line);
-        }
-        emit dbChanged();
-        return;
-    } else if (!attributeIDs.contains(Keys::Attribute)) {
-        if (valueKeys.isEmpty()) {
-            attributeIDs[Keys::Attribute] = { AttributeIds::label };
-        } else if (selectionType == ItemType::fixture()) {
-            if (valueKeys.startsWith(Keys::Model)) {
-                attributeIDs[Keys::Attribute] = { AttributeIds::fixtureModel };
-            } else {
-                attributeIDs[Keys::Attribute] = { AttributeIds::fixtureAddress };
+    if (!attributeIDs.contains(Keys::Attribute)) {
+        if (valueKeys == QList<Keys::Key>({Keys::Plus})) {
+            for (QString line : selectionType.createItems(ids)) {
+                printMessage(line);
             }
-        } else if (selectionType == ItemType::group()) {
-            attributeIDs[Keys::Attribute] = { AttributeIds::groupFixtures };
-        } else if (selectionType == ItemType::intensity()) {
-            if (valueKeys.startsWith(Keys::Raw)) {
-                attributeIDs[Keys::Attribute] = { AttributeIds::intensityRaws };
-            } else {
-                attributeIDs[Keys::Attribute] = { AttributeIds::intensityDimmer };
+            emit dbChanged();
+            return;
+        } else if (valueKeys == QList<Keys::Key>({Keys::Minus})) {
+            for (QString line : selectionType.deleteItems(ids)) {
+                printMessage(line);
             }
-        } else if (selectionType == ItemType::color()) {
-            if (valueKeys.startsWith(Keys::Raw)) {
-                attributeIDs[Keys::Attribute] = { AttributeIds::colorRaws };
-            } else {
-                attributeIDs[Keys::Attribute] = { AttributeIds::colorHue };
+            emit dbChanged();
+            return;
+        } else {
+            if (valueKeys.isEmpty()) {
+                attributeIDs[Keys::Attribute] = { AttributeIds::label };
+            } else if (selectionType == ItemType::fixture()) {
+                if (valueKeys.startsWith(Keys::Model)) {
+                    attributeIDs[Keys::Attribute] = { AttributeIds::fixtureModel };
+                } else {
+                    attributeIDs[Keys::Attribute] = { AttributeIds::fixtureAddress };
+                }
+            } else if (selectionType == ItemType::group()) {
+                attributeIDs[Keys::Attribute] = { AttributeIds::groupFixtures };
+            } else if (selectionType == ItemType::intensity()) {
+                if (valueKeys.startsWith(Keys::Raw)) {
+                    attributeIDs[Keys::Attribute] = { AttributeIds::intensityRaws };
+                } else {
+                    attributeIDs[Keys::Attribute] = { AttributeIds::intensityDimmer };
+                }
+            } else if (selectionType == ItemType::color()) {
+                if (valueKeys.startsWith(Keys::Raw)) {
+                    attributeIDs[Keys::Attribute] = { AttributeIds::colorRaws };
+                } else {
+                    attributeIDs[Keys::Attribute] = { AttributeIds::colorHue };
+                }
+            } else if (selectionType == ItemType::position()) {
+                if (valueKeys.startsWith(Keys::Raw)) {
+                    attributeIDs[Keys::Attribute] = { AttributeIds::positionRaws };
+                } else {
+                    attributeIDs[Keys::Attribute] = { AttributeIds::positionPan };
+                }
+            } else if (selectionType == ItemType::effect()) {
+                attributeIDs[Keys::Attribute] = { AttributeIds::effectSteps };
+            } else if (selectionType == ItemType::cue()) {
+                attributeIDs[Keys::Attribute] = { AttributeIds::cueFade };
             }
-        } else if (selectionType == ItemType::position()) {
-            if (valueKeys.startsWith(Keys::Raw)) {
-                attributeIDs[Keys::Attribute] = { AttributeIds::positionRaws };
-            } else {
-                attributeIDs[Keys::Attribute] = { AttributeIds::positionPan };
-            }
-        } else if (selectionType == ItemType::effect()) {
-            attributeIDs[Keys::Attribute] = { AttributeIds::effectSteps };
-        } else if (selectionType == ItemType::cue()) {
-            attributeIDs[Keys::Attribute] = { AttributeIds::cueFade };
         }
     } else if (attributeIDs.value(Keys::Attribute).size() > 1) {
         printMessage(formatErrorMessage("Invalid number of Attribute IDs given."));

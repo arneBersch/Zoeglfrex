@@ -117,7 +117,9 @@ QStringList ItemType::createItems(const QStringList ids) const {
         existsQuery.prepare("SELECT key FROM " + selectTable + " WHERE id = :id");
         existsQuery.bindValue(":id", id);
         if (existsQuery.exec()) {
-            if (!existsQuery.next()) {
+            if (existsQuery.next()) {
+                output.append(Terminal::formatWarningMessage("Can't create " + singular + " " + id + " because this " + singular + " already exists."));
+            } else {
                 QSqlQuery insertQuery;
                 insertQuery.prepare("INSERT INTO " + updateTable + " (id, sortkey) VALUES (:id, 0)");
                 insertQuery.bindValue(":id", id);
@@ -125,7 +127,7 @@ QStringList ItemType::createItems(const QStringList ids) const {
                     successfulIds.append(id);
                 } else {
                     qWarning() << Q_FUNC_INFO << insertQuery.executedQuery() << insertQuery.lastError().text();
-                    output.append(Terminal::formatErrorMessage("Failed to insert " + singular + " " + id + "."));
+                    output.append(Terminal::formatErrorMessage("Failed to create " + singular + " " + id + "."));
                 }
             }
         } else {
@@ -133,6 +135,7 @@ QStringList ItemType::createItems(const QStringList ids) const {
             output.append(Terminal::formatErrorMessage("Failed to check if " + singular + " " + id + " already exists."));
         }
     }
+
     if (!successfulIds.isEmpty()) {
         output.append(Terminal::formatSuccessMessage("Created " + format(successfulIds) + "."));
     }
@@ -204,7 +207,7 @@ QStringList ItemType::deleteItems(QStringList ids) const {
 
     QMessageBox msgBox;
     msgBox.setText("Delete " + QString::number(ids.length()) + " " + plural + "?");
-    msgBox.setInformativeText("Do you want to delete " + format(ids) + "?");
+    msgBox.setInformativeText("Do you really want to delete " + format(ids) + "?");
     msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Yes);
     msgBox.setDefaultButton(QMessageBox::Yes);
     if (msgBox.exec() != QMessageBox::Yes) {

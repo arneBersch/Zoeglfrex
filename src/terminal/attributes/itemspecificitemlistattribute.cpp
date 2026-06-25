@@ -95,7 +95,6 @@ QStringList ItemSpecificItemListAttribute::set(const QStringList ids, const QHas
         output.append(Terminal::formatErrorMessage("No valid " + foreignItem.getPlural() + " were found."));
         return output;
     }
-    output.append(item.createItems(ids));
 
     QStringList successfulIds;
     for (QString id : ids) {

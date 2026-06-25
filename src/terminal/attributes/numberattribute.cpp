@@ -31,8 +31,6 @@ QStringList NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, Q
         }
     }
 
-    output.append(item.createItems(ids));
-
     QStringList successfulIds;
     for (QString id : ids) {
         bool valueOk = true;

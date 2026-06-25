@@ -87,8 +87,6 @@ QStringList IntegerSpecificItemListAttribute::set(const QStringList ids, const Q
         }
     }
 
-    output.append(item.createItems(ids));
-
     QStringList successfulIds;
     for (QString id : ids) {
         QSqlQuery keyQuery;

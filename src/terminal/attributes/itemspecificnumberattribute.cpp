@@ -63,8 +63,6 @@ QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<
         return output;
     }
 
-    output.append(item.createItems(ids));
-
     QStringList successfulIds;
     for (QString id : ids) {
         QSqlQuery keyQuery;

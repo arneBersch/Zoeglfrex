@@ -48,8 +48,6 @@ QStringList ItemAttribute::set(const QStringList ids, const QHash<Keys::Key, QSt
         foreignItemKey = foreignItemQuery.value(0).toInt();
     }
 
-    output.append(item.createItems(ids));
-
     for (QString id : ids) {
         QSqlQuery keyQuery;
         keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");

@@ -26,8 +26,6 @@ QStringList IDAttribute::set(const QStringList ids, const QHash<Keys::Key, QStri
         return output;
     }
 
-    output.append(item.createItems(ids));
-
     QStringList successfulIds;
     for (QString id : ids) {
         QSqlQuery existsQuery;
