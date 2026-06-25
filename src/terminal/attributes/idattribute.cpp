@@ -23,27 +23,44 @@ QStringList IDAttribute::set(const QStringList ids, const QHash<Keys::Key, QStri
 
     valueKeys.prepend(item.getKey());
     QStringList newIds = keysToIds(valueKeys);
+    newIds.removeDuplicates();
     if (newIds.length() != ids.length()) {
         output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " ID because no valid IDs were given."));
         return output;
     }
 
-    for (int i = 0; i < ids.length(); i++) {
-        const int newKey = item.getItemKey(newIds[i]);
+    QList<int> itemKeys;
+    QStringList existingIds;
+    for (int i = ids.length() - 1; i >= 0; i--) {
         const int key = item.getItemKey(ids[i], &output);
-        if (newKey >= 0) {
-            output.append(Terminal::formatWarningMessage("Can't set ID of " + item.getSingular() + " to " + newIds[i] + " because this " + item.getSingular() + " ID is already used."));
-        } else if (key >= 0) {
-            QSqlQuery updateQuery;
-            updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET id = :newId WHERE key = :key");
-            updateQuery.bindValue(":key", key);
-            updateQuery.bindValue(":newId", newIds[i]);
-            if (updateQuery.exec()) {
-                output.append(Terminal::formatSuccessMessage("Set ID of " + item.getSingular() + " " + ids[i] + " to " + newIds[i] + "."));
-            } else {
-                qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                output.append(Terminal::formatErrorMessage("Couldn't update the ID of " + item.getSingular() + " " + ids[i] + " because the request failed."));
-            }
+        if (key >= 0) {
+            itemKeys.append(key);
+            existingIds.append(ids[i]);
+        } else {
+            newIds.removeAt(i);
+        }
+    }
+    Q_ASSERT(itemKeys.length() == existingIds.length());
+    Q_ASSERT(itemKeys.length() == newIds.length());
+
+    for (int i = 0; i < itemKeys.length(); i++) {
+        const int newKey = item.getItemKey(newIds[i]);
+        if ((newKey >= 0) && !itemKeys.contains(newKey)) {
+            output.append("Can't set " + item.getSingular() + " IDs because the ID " + newIds[i] + " would be used twice.");
+            return output;
+        }
+    }
+
+    for (int i = 0; i < itemKeys.length(); i++) {
+        QSqlQuery updateQuery;
+        updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET id = :newId WHERE key = :key");
+        updateQuery.bindValue(":key", itemKeys[i]);
+        updateQuery.bindValue(":newId", newIds[i]);
+        if (updateQuery.exec()) {
+            output.append(Terminal::formatSuccessMessage("Set ID of " + item.getSingular() + " " + ids[i] + " to " + newIds[i] + "."));
+        } else {
+            qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
+            output.append(Terminal::formatErrorMessage("Couldn't update the ID of " + item.getSingular() + " " + ids[i] + " because the request failed. Your file could be damaged!"));
         }
     }
 
