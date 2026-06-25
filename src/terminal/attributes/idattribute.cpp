@@ -17,6 +17,7 @@ bool IDAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStrin
 
 QStringList IDAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    Q_ASSERT(matches(item, attributes));
     QStringList output;
 
     valueKeys.prepend(item.getKey());

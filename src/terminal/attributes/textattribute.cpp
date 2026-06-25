@@ -27,9 +27,14 @@ bool TextAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStr
 QStringList TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(matches(item, attributes));
-    Q_ASSERT(valueKeys.isEmpty());
 
     QStringList output;
+
+    if (!valueKeys.isEmpty()) {
+        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because an unknown value was given."));
+        return output;
+    }
+
     QList<int> keys = item.getItemKeys(ids, &output);
 
     QString textValue = QString();
