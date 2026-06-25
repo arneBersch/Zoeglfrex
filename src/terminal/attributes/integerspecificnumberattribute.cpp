@@ -29,22 +29,13 @@ QStringList IntegerSpecificNumberAttribute::set(const QStringList ids, const QHa
 
     QStringList output;
 
-    const QList<QString> numberIdParts = attributes.value(Keys::Attribute).first().split(".");
-    if (numberIdParts.length() != 2) {
-        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid."));
-        return output;
-    }
     bool ok;
-    QVariant key = numberIdParts.last().toInt(&ok);
+    QVariant key = processKeyAttribute(attributes.value(Keys::Attribute).first(), keyNumber, &ok);
     if (!ok) {
         output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid."));
         return output;
     }
-    key = keyNumber.format(&ok, key.toInt());
-    if (!ok) {
-        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid."));
-        return output;
-    }
+
     const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
     const bool difference = valueKeys.startsWith(Keys::Plus);
     QVariant value;

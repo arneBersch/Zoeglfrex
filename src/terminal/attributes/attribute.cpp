@@ -18,3 +18,22 @@ bool Attribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringL
     const bool attributeMatches = attributes.contains(Keys::Attribute) && (attributes.value(Keys::Attribute).size() == 1) && (attributes.value(Keys::Attribute).contains(idRegex));
     return (itemType == item) && attributeMatches;
 }
+
+QVariant Attribute::processKeyAttribute(const QString attribute, const NumberType keyNumber, bool* ok) {
+    const QList<QString> numberIdParts = attribute.split(".");
+    if (numberIdParts.length() != (idRegex.pattern().count("\\.") + 1)) {
+        return -1;
+    }
+
+    QVariant key = numberIdParts.last().toInt(ok);
+    if (!ok) {
+        return -1;
+    }
+
+    key = keyNumber.format(ok, key.toInt());
+    if (!ok) {
+        return -1;
+    }
+
+    return key;
+}

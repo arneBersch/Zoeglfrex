@@ -22,6 +22,7 @@ public:
 protected:
     const ItemType item;
     const QString name;
+    QVariant processKeyAttribute(QString attribute, NumberType keyNumber, bool* ok);
 private:
     QRegularExpression idRegex;
 };
