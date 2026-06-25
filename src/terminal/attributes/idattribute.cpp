@@ -10,13 +10,13 @@
 #include "terminal/terminal.h"
 #include "constants.h"
 
-IDAttribute::IDAttribute(const ItemType item) : Attribute(item, AttributeIds::id, "ID") {}
+IdAttribute::IdAttribute(const ItemType item) : Attribute(item, AttributeIds::id, "ID") {}
 
-bool IDAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {
+bool IdAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {
     return Attribute::matches(itemType, attributes) && (attributes.size() == 1);
 }
 
-QStringList IDAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) {
+QStringList IdAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(matches(item, attributes));
     QStringList output;

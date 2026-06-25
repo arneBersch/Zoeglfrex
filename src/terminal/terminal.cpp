@@ -98,7 +98,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     new QShortcut(Qt::SHIFT | Qt::Key_T, this, [this] { trackingButton->click(); }, Qt::ApplicationShortcut);
 
     for (ItemType type : ItemType::allTypes()) {
-        attributes.insert(new IDAttribute(type));
+        attributes.insert(new IdAttribute(type));
         attributes.insert(new TextAttribute(type, AttributeIds::label, "Label", "label", "", this));
     }
 
