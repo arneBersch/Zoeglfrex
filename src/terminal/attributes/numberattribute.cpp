@@ -18,6 +18,8 @@ bool NumberAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QS
 
 QStringList NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    Q_ASSERT(matches(item, attributes));
+
     QStringList output;
 
     const bool difference = valueKeys.startsWith(Keys::Plus);
@@ -26,7 +28,7 @@ QStringList NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, Q
         bool ok;
         value = keysToNumber(valueKeys, &ok, 0, number);
         if (!ok) {
-            output.append(Terminal::formatErrorMessage("Invalid value given."));
+            output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because an invalid value was given."));
             return output;
         }
     }
@@ -55,27 +57,18 @@ QStringList NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, Q
             }
         }
         if (valueOk) {
-            QSqlQuery keyQuery;
-            keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-            keyQuery.bindValue(":id", id);
-            if (keyQuery.exec()) {
-                if (keyQuery.next()) {
-                    QSqlQuery updateQuery;
-                    updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + tableAttribute + " = :value WHERE key = :key");
-                    updateQuery.bindValue(":key", keyQuery.value(0).toInt());
-                    updateQuery.bindValue(":value", value);
-                    if (updateQuery.exec()) {
-                        successfulIds.append(id);
-                    } else {
-                        qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                        output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + id + "."));
-                    }
+            const int key = item.getItemKey(id, &output);
+            if (key >= 0) {
+                QSqlQuery updateQuery;
+                updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + tableAttribute + " = :value WHERE key = :key");
+                updateQuery.bindValue(":key", key);
+                updateQuery.bindValue(":value", value);
+                if (updateQuery.exec()) {
+                    successfulIds.append(id);
                 } else {
-                    output.append(Terminal::formatWarningMessage("Failed to set " + name + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found."));
+                    qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
+                    output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + id + "."));
                 }
-            } else {
-                qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-                output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
             }
         }
     }

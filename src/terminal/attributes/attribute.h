@@ -21,8 +21,9 @@ public:
     virtual QStringList set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) = 0;
 protected:
     const ItemType item;
-    const QString attributeId;
     const QString name;
+private:
+    const QString attributeId;
 };
 
 #endif // ATTRIBUTE_H
