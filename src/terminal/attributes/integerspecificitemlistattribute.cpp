@@ -40,7 +40,7 @@ QStringList IntegerSpecificItemListAttribute::set(const QStringList ids, const Q
         output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid."));
         return output;
     }
-    key = Keys::keysToNumber({Keys::Plus, Keys::Zero}, &ok, key.toInt(), keyNumber);
+    key = keyNumber.format(&ok, key.toInt());
     if (!ok) {
         output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid."));
         return output;
