@@ -31,19 +31,19 @@ QStringList BoolAttribute::set(const QStringList ids, const QHash<Keys::Key, QSt
         return output;
     }
 
-    QList<int> keys = item.getItemKeys(ids, &output);
     QStringList successfulIds;
-    for (int i = 0; i < keys.length(); i++) {
-        if (keys[i] >= 0) {
+    for (QString id : ids) {
+        const int key = item.getItemKey(id, &output);
+        if (key >= 0) {
             QSqlQuery updateQuery;
             updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + tableAttribute + " = :value WHERE key = :key");
-            updateQuery.bindValue(":key", keys[i]);
+            updateQuery.bindValue(":key", key);
             updateQuery.bindValue(":value", value);
             if (updateQuery.exec()) {
-                successfulIds.append(ids[i]);
+                successfulIds.append(id);
             } else {
                 qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + ids[i] + "."));
+                output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + id + "."));
             }
         }
     }

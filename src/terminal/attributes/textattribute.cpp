@@ -35,17 +35,14 @@ QStringList TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QSt
         return output;
     }
 
-    QList<int> keys = item.getItemKeys(ids, &output);
-
     QString textValue = QString();
-    if ((keys.length() == 1) && (keys.first() >= 0)) {
+    if (ids.length() == 1) {
         QSqlQuery query;
-        query.prepare("SELECT " + tableAttribute + " FROM " + item.getSelectTable() + " WHERE key = :key");
-        query.bindValue(":key", keys.first());
+        query.prepare("SELECT " + tableAttribute + " FROM " + item.getSelectTable() + " WHERE id = :id");
+        query.bindValue(":id", ids.first());
         if (!query.exec()) {
             qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-        }
-        if (query.next()) {
+        } else if (query.next()) {
             textValue = query.value(0).toString();
         }
     }
@@ -63,17 +60,18 @@ QStringList TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QSt
     }
 
     QStringList successfulIds;
-    for (int i = 0; i < keys.length(); i++) {
-        if (keys[i] >= 0) {
+    for (QString id : ids) {
+        const int key = item.getItemKey(id, &output);
+        if (key >= 0) {
             QSqlQuery updateQuery;
             updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + tableAttribute + " = :value WHERE key = :key");
-            updateQuery.bindValue(":key", keys[i]);
+            updateQuery.bindValue(":key", key);
             updateQuery.bindValue(":value", textValue);
             if (updateQuery.exec()) {
-                successfulIds.append(ids[i]);
+                successfulIds.append(id);
             } else {
                 qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + ids[i] + "."));
+                output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + id + "."));
             }
         }
     }

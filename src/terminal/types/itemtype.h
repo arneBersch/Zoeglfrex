@@ -27,7 +27,7 @@ public:
     QStringList createItems(QStringList ids) const;
     QStringList deleteItems(QStringList ids) const;
     QStringList updateSortingKeys() const;
-    QList<int> getItemKeys(QStringList ids, QStringList* output) const;
+    int getItemKey(QString id, QStringList* output = nullptr) const;
     bool operator==(ItemType item) const;
 
     static ItemType model();
