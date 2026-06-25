@@ -26,6 +26,8 @@ bool ItemAndIntegerSpecificNumberAttribute::matches(const ItemType itemType, con
 
 QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    Q_ASSERT(matches(item, attributes));
+
     QStringList output;
 
     const QList<QString> numberIdParts = attributes.value(Keys::Attribute).first().split(".");
@@ -44,6 +46,7 @@ QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, co
         output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid."));
         return output;
     }
+
     const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
     const bool difference = valueKeys.startsWith(Keys::Plus);
     QVariant value;
@@ -55,22 +58,14 @@ QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, co
             return output;
         }
     }
+
     QList<int> foreignItemKeys;
     QStringList foreignItemIdStrings;
     for (QString foreignItemId : attributes.value(foreignItem.getKey())) {
-        QSqlQuery foreignItemQuery;
-        foreignItemQuery.prepare("SELECT key FROM " + foreignItem.getSelectTable() + " WHERE id = :id");
-        foreignItemQuery.bindValue(":id", foreignItemId);
-        if (foreignItemQuery.exec()) {
-            if (foreignItemQuery.next()) {
-                foreignItemKeys.append(foreignItemQuery.value(0).toInt());
-                foreignItemIdStrings.append(foreignItemId);
-            } else {
-                output.append(Terminal::formatWarningMessage("Can't set " + name + " for " + foreignItem.getSingular() + " " + foreignItemId + " because this " + foreignItem.getSingular() + " doesn't exist."));
-            }
-        } else {
-            qWarning() << Q_FUNC_INFO << foreignItemQuery.executedQuery() << foreignItemQuery.lastError().text();
-            output.append(Terminal::formatErrorMessage("Failed to execute check if " + foreignItem.getSingular() + " " + foreignItemId + " exists."));
+        const int foreignItemKey = foreignItem.getItemKey(foreignItemId, &output);
+        if (foreignItemKey >= 0) {
+            foreignItemKeys.append(foreignItemKey);
+            foreignItemIdStrings.append(foreignItemId);
         }
     }
     Q_ASSERT(foreignItemKeys.length() == foreignItemIdStrings.length());
@@ -81,72 +76,61 @@ QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, co
 
     QStringList successfulIds;
     for (QString id : ids) {
-        QSqlQuery keyQuery;
-        keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-        keyQuery.bindValue(":id", id);
-        if (keyQuery.exec()) {
-            if (keyQuery.next()) {
-                const int itemKey = keyQuery.value(0).toInt();
-                bool allQueriesSuccessful = true;
-                for (const int foreignItemKey : foreignItemKeys) {
-                    if (removeValues) {
+        const int itemKey = item.getItemKey(id, &output);
+        if (itemKey >= 0) {
+            bool allQueriesSuccessful = true;
+            for (const int foreignItemKey : foreignItemKeys) {
+                if (removeValues) {
+                    QSqlQuery query;
+                    query.prepare("DELETE FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item AND key = :key");
+                    query.bindValue(":item", itemKey);
+                    query.bindValue(":foreign_item", foreignItemKey);
+                    query.bindValue(":key", key);
+                    if (!query.exec()) {
+                        allQueriesSuccessful = false;
+                        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                        output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
+                    }
+                } else {
+                    bool valueOk = true;
+                    if (difference) {
+                        QSqlQuery currentValueQuery;
+                        currentValueQuery.prepare("SELECT value FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item AND key = :key");
+                        currentValueQuery.bindValue(":item", itemKey);
+                        currentValueQuery.bindValue(":foreign_item", foreignItemKey);
+                        currentValueQuery.bindValue(":key", key);
+                        if (!currentValueQuery.exec()) {
+                            qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
+                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
+                            valueOk = false;
+                        } else if (!currentValueQuery.next()) {
+                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
+                            valueOk = false;
+                        } else {
+                            value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), valueNumber);
+                            if (!valueOk) {
+                                output.append(Terminal::formatErrorMessage("Invalid value given for " + item.getSingular() + " " + id + "."));
+                            }
+                        }
+                    }
+                    if (valueOk) {
                         QSqlQuery query;
-                        query.prepare("DELETE FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item AND key = :key");
+                        query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, key, value) VALUES (:item, :foreign_item, :key, :value)");
                         query.bindValue(":item", itemKey);
                         query.bindValue(":foreign_item", foreignItemKey);
                         query.bindValue(":key", key);
+                        query.bindValue(":value", value);
                         if (!query.exec()) {
                             allQueriesSuccessful = false;
                             qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
                             output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
                         }
-                    } else {
-                        bool valueOk = true;
-                        if (difference) {
-                            QSqlQuery currentValueQuery;
-                            currentValueQuery.prepare("SELECT value FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item AND key = :key");
-                            currentValueQuery.bindValue(":item", itemKey);
-                            currentValueQuery.bindValue(":foreign_item", foreignItemKey);
-                            currentValueQuery.bindValue(":key", key);
-                            if (currentValueQuery.exec()) {
-                                if (currentValueQuery.next()) {
-                                    value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), valueNumber);
-                                } else {
-                                    value = keysToNumber(valueKeys, &valueOk, 0, valueNumber);
-                                }
-                                if (!valueOk) {
-                                    output.append(Terminal::formatErrorMessage("Invalid value given for " + item.getSingular() + " " + id + "."));
-                                }
-                            } else {
-                                qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
-                                output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
-                                valueOk = false;
-                            }
-                        }
-                        if (valueOk) {
-                            QSqlQuery query;
-                            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, key, value) VALUES (:item, :foreign_item, :key, :value)");
-                            query.bindValue(":item", itemKey);
-                            query.bindValue(":foreign_item", foreignItemKey);
-                            query.bindValue(":key", key);
-                            query.bindValue(":value", value);
-                            if (!query.exec()) {
-                                allQueriesSuccessful = false;
-                                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                                output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
-                            }
-                        }
                     }
                 }
-                if (allQueriesSuccessful) {
-                    successfulIds.append(id);
-                }
-            } else {
-                output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found."));
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
+            if (allQueriesSuccessful) {
+                successfulIds.append(id);
+            }
         }
     }
 
