@@ -32,6 +32,7 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     connect(terminal, &Terminal::dbChanged, this, &MainWindow::reload);
     connect(terminal, &Terminal::itemChanged, inspector, &Inspector::loadItems);
     connect(playbackMonitor, &PlaybackMonitor::dbChanged, this, &MainWindow::reload);
+    connect(oscServer, &OscServer::dbChanged, this, &MainWindow::reload);
     connect(controlPanel, &ControlPanel::dbChanged, this, [this] {
         terminal->reload();
         controlPanel->reload();

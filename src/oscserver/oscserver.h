@@ -16,17 +16,20 @@ class OscServer : public QWidget {
     Q_OBJECT
 public:
     OscServer(QWidget* parent = nullptr);
+signals:
+    void dbChanged();
 private slots:
     void setInterface(int index);
-    void setProtocol(int index);
     void setPort(int port);
 private:
     void reloadSocket();
     void reloadNetworkInterfaces();
-    QAbstractSocket* socket = nullptr;
+    void readPendingDatagrams();
+    QString processDatagram(QByteArray data);
+    QUdpSocket* socket = nullptr;
     QComboBox* networkInterfaceComboBox;
-    QComboBox* protocolComboBox;
     QSpinBox* portSpinBox;
+    QPlainTextEdit *messages;
     QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();
     QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
 };
