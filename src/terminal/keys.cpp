@@ -201,12 +201,13 @@ QStringList Keys::keysToIds(QList<Key> keys) {
                         if (thruParts.isEmpty() || (idParts.size() != 1)) {
                             return QStringList();
                         }
-                        const QString idBeginning = thruParts.first(thruParts.length() - 1).join(".") + ".";
                         const int firstEnding = thruParts.last().toInt();
                         const int lastEnding = idParts.last().toInt();
                         QStringList idsToAdd;
                         for (int ending = std::min(firstEnding, lastEnding); ending <= std::max(firstEnding, lastEnding); ending++) {
-                            QString currentId = idBeginning + QString::number(ending);
+                            QStringList currentIdParts = thruParts.first(thruParts.length() - 1);
+                            currentIdParts.append(QString::number(ending));
+                            QString currentId = currentIdParts.join(".");
                             while (currentId.endsWith(".0")) {
                                 currentId.chop(2);
                             }
