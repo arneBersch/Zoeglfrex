@@ -61,7 +61,11 @@ QStringList ItemListAttribute::set(const QStringList ids, const QHash<Keys::Key,
             QSqlQuery deleteQuery;
             deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key =  :key");
             deleteQuery.bindValue(":key", key);
-            if (deleteQuery.exec()) {
+            if (!deleteQuery.exec()) {
+                allQueriesSuccessful = false;
+                qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
+                output.append(Terminal::formatErrorMessage("Failed deleting old " + name + " of " + item.getSingular() + " " + id + "."));
+            } else {
                 for (const int foreignItemKey : foreignItemKeys) {
                     QSqlQuery insertQuery;
                     insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, valueitem_key) VALUES (:item, :foreign_item)");
@@ -73,10 +77,6 @@ QStringList ItemListAttribute::set(const QStringList ids, const QHash<Keys::Key,
                         output.append(Terminal::formatErrorMessage("Failed to insert a " + foreignItem.getSingular() + " into " + item.getSingular() + " " + id + "."));
                     }
                 }
-            } else {
-                allQueriesSuccessful = false;
-                qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
-                output.append(Terminal::formatErrorMessage("Failed deleting old " + name + " of " + item.getSingular() + " " + id + "."));
             }
             if (allQueriesSuccessful) {
                 successfulIds.append(id);
