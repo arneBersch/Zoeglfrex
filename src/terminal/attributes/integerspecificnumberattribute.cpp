@@ -16,7 +16,7 @@ IntegerSpecificNumberAttribute::IntegerSpecificNumberAttribute(
     const QString attributeValueTable,
     const NumberType key,
     const NumberType value
-    ) : Attribute(item, id, name), valueTable(attributeValueTable), keyNumber(key), valueNumber(value) {
+    ) : Attribute(item, id + ".*", name), valueTable(attributeValueTable), keyNumber(key), valueNumber(value) {
 }
 
 bool IntegerSpecificNumberAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {

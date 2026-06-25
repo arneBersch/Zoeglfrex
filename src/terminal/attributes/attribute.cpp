@@ -8,9 +8,13 @@
 
 #include "attribute.h"
 
-Attribute::Attribute(const ItemType attributeItem, const QString id, const QString attributeName) : item(attributeItem), attributeId(id), name(attributeName) {}
+Attribute::Attribute(const ItemType attributeItem, QString id, const QString attributeName) : item(attributeItem), name(attributeName) {
+    id.replace(".", "\\.");
+    id.replace("*", ".*");
+    idRegex = QRegularExpression(id);
+}
 
 bool Attribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {
-    const bool attributeMatches = (attributeId.isEmpty() && !attributes.contains(Keys::Attribute)) || (attributes.contains(Keys::Attribute) && (attributes.value(Keys::Attribute).size() == 1) && (attributes.value(Keys::Attribute).first() == attributeId));
-    return itemType == item && attributeMatches;
+    const bool attributeMatches = attributes.contains(Keys::Attribute) && (attributes.value(Keys::Attribute).size() == 1) && (attributes.value(Keys::Attribute).contains(idRegex));
+    return (itemType == item) && attributeMatches;
 }

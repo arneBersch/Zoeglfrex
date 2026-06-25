@@ -8,8 +8,9 @@
 
 #include "idattribute.h"
 #include "terminal/terminal.h"
+#include "constants.h"
 
-IDAttribute::IDAttribute(const ItemType item) : Attribute(item, "0", "ID") {}
+IDAttribute::IDAttribute(const ItemType item) : Attribute(item, AttributeIds::id, "ID") {}
 
 bool IDAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {
     return Attribute::matches(itemType, attributes) && (attributes.size() == 1);

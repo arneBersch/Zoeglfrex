@@ -17,7 +17,7 @@ IntegerSpecificItemListAttribute::IntegerSpecificItemListAttribute(
     const ItemType value,
     const NumberType key,
     const bool multiple)
-    : Attribute(item, id, name), valueTable(attributeValueTable), valueItem(value), keyNumber(key), allowMultiple(multiple) {}
+    : Attribute(item, id + ".*", name), valueTable(attributeValueTable), valueItem(value), keyNumber(key), allowMultiple(multiple) {}
 
 bool IntegerSpecificItemListAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {
     return Attribute::matches(itemType, attributes) && (attributes.size() == 1);

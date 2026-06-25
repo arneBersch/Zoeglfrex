@@ -23,7 +23,7 @@ protected:
     const ItemType item;
     const QString name;
 private:
-    const QString attributeId;
+    QRegularExpression idRegex;
 };
 
 #endif // ATTRIBUTE_H

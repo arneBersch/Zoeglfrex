@@ -17,7 +17,7 @@ ItemAndIntegerSpecificNumberAttribute::ItemAndIntegerSpecificNumberAttribute(
     const QString attributeValueTable,
     const NumberType key,
     const NumberType value)
-    : Attribute(item, id, name), valueTable(attributeValueTable), foreignItem(attributeForeignItem), keyNumber(key), valueNumber(value) {
+    : Attribute(item, id + ".*", name), valueTable(attributeValueTable), foreignItem(attributeForeignItem), keyNumber(key), valueNumber(value) {
 }
 
 bool ItemAndIntegerSpecificNumberAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {
