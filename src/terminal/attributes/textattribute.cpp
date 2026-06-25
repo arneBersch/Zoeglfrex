@@ -70,8 +70,6 @@ QStringList TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QSt
                 qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
                 output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + ids[i] + "."));
             }
-        } else {
-            output.append(Terminal::formatWarningMessage("Failed to set " + name + " of " + item.getSingular() + " " + ids[i] + " because this " + item.getSingular() + " wasn't found."));
         }
     }
 
