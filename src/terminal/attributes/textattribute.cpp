@@ -26,56 +26,52 @@ bool TextAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStr
 
 QStringList TextAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    Q_ASSERT(matches(item, attributes));
+    Q_ASSERT(valueKeys.isEmpty());
+
     QStringList output;
+    QList<int> keys = item.getItemKeys(ids, &output);
 
     QString textValue = QString();
-    if (ids.length() == 1) {
+    if ((keys.length() == 1) && (keys.first() >= 0)) {
         QSqlQuery query;
-        query.prepare("SELECT " + tableAttribute + " FROM " + item.getSelectTable() + " WHERE id = :id");
-        query.bindValue(":id", ids.first());
+        query.prepare("SELECT " + tableAttribute + " FROM " + item.getSelectTable() + " WHERE key = :key");
+        query.bindValue(":key", keys.first());
         if (!query.exec()) {
             qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-            output.append(Terminal::formatErrorMessage("Failed to load current " + name + " of " + item.getSingular() + " " + ids.first() + "."));
-            return output;
         }
-        while (query.next()) {
+        if (query.next()) {
             textValue = query.value(0).toString();
         }
     }
+
     bool ok;
     textValue = QInputDialog::getText(widget, QString(), (item.getSingular()+ " " + name), QLineEdit::Normal, textValue, &ok);
     if (!ok) {
         output.append(Terminal::formatErrorMessage("Popup canceled."));
         return output;
     }
+
     if (!regex.isEmpty() && !textValue.contains(QRegularExpression(regex))) {
         output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given value \"" + textValue + "\" is not valid."));
         return output;
     }
 
     QStringList successfulIds;
-    for (QString id : ids) {
-        QSqlQuery keyQuery;
-        keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-        keyQuery.bindValue(":id", id);
-        if (keyQuery.exec()) {
-            if (keyQuery.next()) {
-                QSqlQuery updateQuery;
-                updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + tableAttribute + " = :value WHERE key = :key");
-                updateQuery.bindValue(":key", keyQuery.value(0).toInt());
-                updateQuery.bindValue(":value", textValue);
-                if (updateQuery.exec()) {
-                    successfulIds.append(id);
-                } else {
-                    qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                    output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + id + "."));
-                }
+    for (int i = 0; i < keys.length(); i++) {
+        if (keys[i] >= 0) {
+            QSqlQuery updateQuery;
+            updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + tableAttribute + " = :value WHERE key = :key");
+            updateQuery.bindValue(":key", keys[i]);
+            updateQuery.bindValue(":value", textValue);
+            if (updateQuery.exec()) {
+                successfulIds.append(ids[i]);
             } else {
-                output.append(Terminal::formatWarningMessage("Failed to set " + name + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found."));
+                qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
+                output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + ids[i] + "."));
             }
         } else {
-            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
+            output.append(Terminal::formatWarningMessage("Failed to set " + name + " of " + item.getSingular() + " " + ids[i] + " because this " + item.getSingular() + " wasn't found."));
         }
     }
 
