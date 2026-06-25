@@ -12,7 +12,6 @@
 #include <QtWidgets>
 #include <QtSql>
 
-#include "aboutwindow/aboutwindow.h"
 #include "dmxengine/dmxengine.h"
 #include "preview2d/preview2d.h"
 #include "cuelistview/cuelistview.h"
@@ -20,6 +19,7 @@
 #include "inspector/inspector.h"
 #include "playbackmonitor/playbackmonitor.h"
 #include "sacnserver/sacnserver.h"
+#include "oscserver/oscserver.h"
 #include "controlpanel/controlpanel.h"
 
 class MainWindow : public QMainWindow {
@@ -33,14 +33,15 @@ private:
     QString COPYRIGHT;
     void about();
     void closeEvent(QCloseEvent *event) override;
-    DmxEngine* dmxEngine = new DmxEngine(this);
-    Preview2d* preview2d = new Preview2d(this);
-    CuelistView* cuelistView = new CuelistView(this);
-    Terminal* terminal = new Terminal(this);
-    Inspector* inspector = new Inspector(this);
-    PlaybackMonitor* playbackMonitor = new PlaybackMonitor(this);
-    SacnServer* sacnServer = new SacnServer(this);
-    ControlPanel* controlPanel = new ControlPanel(this);
+    DmxEngine* dmxEngine;
+    Preview2d* preview2d;
+    CuelistView* cuelistView;
+    Terminal* terminal;
+    Inspector* inspector;
+    PlaybackMonitor* playbackMonitor;
+    SacnServer* sacnServer;
+    OscServer* oscServer;
+    ControlPanel* controlPanel;
 };
 
 #endif // MAINWINDOW_H

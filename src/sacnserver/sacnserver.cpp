@@ -9,9 +9,10 @@
 #include "sacnserver.h"
 
 SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
+    setWindowTitle("Zöglfrex sACN Settings");
+
     QGridLayout* layout = new QGridLayout();
     setLayout(layout);
-    setWindowTitle("Zöglfrex sACN Settings");
 
     QLabel* networkInterfaceLabel = new QLabel("Network Interface");
     layout->addWidget(networkInterfaceLabel, 0, 0);

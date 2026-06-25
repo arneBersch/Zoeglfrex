@@ -33,6 +33,7 @@ SOURCES += \
     inspector/itemtablemodel.cpp \
     main.cpp \
     mainwindow/mainwindow.cpp \
+    oscserver/oscserver.cpp \
     playbackmonitor/playbackmonitor.cpp \
     preview2d/fixturegraphicsitem.cpp \
     preview2d/preview2d.cpp \
@@ -77,6 +78,7 @@ HEADERS += \
     inspector/inspector.h \
     inspector/itemtablemodel.h \
     mainwindow/mainwindow.h \
+    oscserver/oscserver.h \
     playbackmonitor/playbackmonitor.h \
     preview2d/fixturegraphicsitem.h \
     preview2d/preview2d.h \

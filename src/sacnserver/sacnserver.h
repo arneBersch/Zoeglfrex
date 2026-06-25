@@ -16,13 +16,10 @@ class SacnServer : public QWidget {
     Q_OBJECT
 public:
     SacnServer(QWidget* parent = nullptr);
-
 public slots:
     void sendUniverses(QHash<int, QByteArray> universeData);
-
 private slots:
     void loadSocket(int socketIndex);
-
 private:
     const int MIN_PRIORITY = 0;
     const int MAX_PRIORITY = 200;
