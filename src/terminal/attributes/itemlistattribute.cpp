@@ -23,11 +23,13 @@ bool ItemListAttribute::matches(const ItemType itemType, const QHash<Keys::Key, 
 
 QStringList ItemListAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    Q_ASSERT(matches(item, attributes));
+
     QStringList output;
 
     QList<int> foreignItemKeys;
     QStringList foreignItemIdStrings;
-    if ((valueKeys.size() != 1) || !valueKeys.startsWith(Keys::Minus)) {
+    if (valueKeys != QList<Keys::Key>({ Keys::Minus })) {
         if (!valueKeys.startsWith(foreignItem.getKey())) {
             output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because no " + foreignItem.getPlural() + " were given."));
             return output;
@@ -38,19 +40,10 @@ QStringList ItemListAttribute::set(const QStringList ids, const QHash<Keys::Key,
             return output;
         }
         for (QString foreignItemId : foreignItemIds) {
-            QSqlQuery foreignItemQuery;
-            foreignItemQuery.prepare("SELECT key FROM " + foreignItem.getSelectTable() + " WHERE id = :id");
-            foreignItemQuery.bindValue(":id", foreignItemId);
-            if (foreignItemQuery.exec()) {
-                if (foreignItemQuery.next()) {
-                    foreignItemKeys.append(foreignItemQuery.value(0).toInt());
-                    foreignItemIdStrings.append(foreignItemId);
-                } else {
-                    output.append(Terminal::formatWarningMessage("Can't add " + foreignItem.getSingular() + " " + foreignItemId + " to " + item.getSingular() + " " + name + " because this " + foreignItem.getSingular() + " doesn't exist."));
-                }
-            } else {
-                qWarning() << Q_FUNC_INFO << foreignItemQuery.executedQuery() << foreignItemQuery.lastError().text();
-                output.append(Terminal::formatErrorMessage("Failed to execute check if " + foreignItem.getSingular() + " " + foreignItemId + " exists."));
+            const int key = foreignItem.getItemKey(foreignItemId, &output);
+            if (key >= 0) {
+                foreignItemKeys.append(key);
+                foreignItemIdStrings.append(foreignItemId);
             }
         }
         Q_ASSERT(foreignItemKeys.length() == foreignItemIdStrings.length());
@@ -62,42 +55,32 @@ QStringList ItemListAttribute::set(const QStringList ids, const QHash<Keys::Key,
 
     QStringList successfulIds;
     for (QString id : ids) {
-        QSqlQuery keyQuery;
-        keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-        keyQuery.bindValue(":id", id);
-        if (keyQuery.exec()) {
-            if (keyQuery.next()) {
-                const int itemKey = keyQuery.value(0).toInt();
-                bool allQueriesSuccessful = true;
-                QSqlQuery deleteQuery;
-                deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key =  :key");
-                deleteQuery.bindValue(":key", itemKey);
-                if (deleteQuery.exec()) {
-                    for (const int foreignItemKey : foreignItemKeys) {
-                        QSqlQuery insertQuery;
-                        insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, valueitem_key) VALUES (:item, :foreign_item)");
-                        insertQuery.bindValue(":item", itemKey);
-                        insertQuery.bindValue(":foreign_item", foreignItemKey);
-                        if (!insertQuery.exec()) {
-                            allQueriesSuccessful = false;
-                            qWarning() << Q_FUNC_INFO << insertQuery.executedQuery() << insertQuery.lastError().text();
-                            output.append(Terminal::formatErrorMessage("Failed to insert a " + foreignItem.getSingular() + " into " + item.getSingular() + " " + id + "."));
-                        }
+        const int key = item.getItemKey(id, &output);
+        if (key >= 0) {
+            bool allQueriesSuccessful = true;
+            QSqlQuery deleteQuery;
+            deleteQuery.prepare("DELETE FROM " + valueTable + " WHERE item_key =  :key");
+            deleteQuery.bindValue(":key", key);
+            if (deleteQuery.exec()) {
+                for (const int foreignItemKey : foreignItemKeys) {
+                    QSqlQuery insertQuery;
+                    insertQuery.prepare("INSERT INTO " + valueTable + " (item_key, valueitem_key) VALUES (:item, :foreign_item)");
+                    insertQuery.bindValue(":item", key);
+                    insertQuery.bindValue(":foreign_item", foreignItemKey);
+                    if (!insertQuery.exec()) {
+                        allQueriesSuccessful = false;
+                        qWarning() << Q_FUNC_INFO << insertQuery.executedQuery() << insertQuery.lastError().text();
+                        output.append(Terminal::formatErrorMessage("Failed to insert a " + foreignItem.getSingular() + " into " + item.getSingular() + " " + id + "."));
                     }
-                } else {
-                    allQueriesSuccessful = false;
-                    qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
-                    output.append(Terminal::formatErrorMessage("Failed deleting old " + name + " of " + item.getSingular() + " " + id + "."));
-                }
-                if (allQueriesSuccessful) {
-                    successfulIds.append(id);
                 }
             } else {
-                output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found."));
+                allQueriesSuccessful = false;
+                qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
+                output.append(Terminal::formatErrorMessage("Failed deleting old " + name + " of " + item.getSingular() + " " + id + "."));
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
+            if (allQueriesSuccessful) {
+                successfulIds.append(id);
+            }
         }
     }
 
