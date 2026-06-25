@@ -23,53 +23,31 @@ QStringList IDAttribute::set(const QStringList ids, const QHash<Keys::Key, QStri
 
     valueKeys.prepend(item.getKey());
     QStringList newIds = keysToIds(valueKeys);
-    if (newIds.size() != 1) {
-        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " ID because no valid ID was given."));
+    if (newIds.length() != ids.length()) {
+        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " ID because no valid IDs were given."));
         return output;
     }
 
-    QStringList successfulIds;
-    for (QString id : ids) {
-        QSqlQuery existsQuery;
-        existsQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-        existsQuery.bindValue(":id", newIds.first());
-        if (existsQuery.exec()) {
-            if (existsQuery.next()) {
-                output.append(Terminal::formatWarningMessage("Can't set ID of " + item.getSingular() + " to " + newIds.first() + " because this " + item.getSingular() + " ID is already used."));
+    for (int i = 0; i < ids.length(); i++) {
+        const int newKey = item.getItemKey(newIds[i]);
+        const int key = item.getItemKey(ids[i], &output);
+        if (newKey >= 0) {
+            output.append(Terminal::formatWarningMessage("Can't set ID of " + item.getSingular() + " to " + newIds[i] + " because this " + item.getSingular() + " ID is already used."));
+        } else if (key >= 0) {
+            QSqlQuery updateQuery;
+            updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET id = :newId WHERE key = :key");
+            updateQuery.bindValue(":key", key);
+            updateQuery.bindValue(":newId", newIds[i]);
+            if (updateQuery.exec()) {
+                output.append(Terminal::formatSuccessMessage("Set ID of " + item.getSingular() + " " + ids[i] + " to " + newIds[i] + "."));
             } else {
-                QSqlQuery keyQuery;
-                keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-                keyQuery.bindValue(":id", id);
-                if (keyQuery.exec()) {
-                    if (keyQuery.next()) {
-                        QSqlQuery updateQuery;
-                        updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET id = :newId WHERE key = :key");
-                        updateQuery.bindValue(":key", keyQuery.value(0).toInt());
-                        updateQuery.bindValue(":newId", newIds.first());
-                        if (updateQuery.exec()) {
-                            successfulIds.append(id);
-                        } else {
-                            qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                            output.append(Terminal::formatErrorMessage("Failed to update ID of " + item.getSingular() + " " + id + " because the request failed."));
-                        }
-                    } else {
-                        output.append(Terminal::formatWarningMessage("Can't set ID of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist."));
-                    }
-                } else {
-                    qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-                    output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
-                }
+                qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
+                output.append(Terminal::formatErrorMessage("Couldn't update the ID of " + item.getSingular() + " " + ids[i] + " because the request failed."));
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << existsQuery.executedQuery() << existsQuery.lastError().text();
-            output.append(Terminal::formatErrorMessage("Error executing check if " + item.getSingular() + " " + newIds.first() + " exists."));
         }
     }
 
-    if (!successfulIds.isEmpty()) {
-        output.append(Terminal::formatSuccessMessage("Set ID of " + item.format(successfulIds) + " to " + newIds.first() + "."));
-    }
-
     output.append(item.updateSortingKeys());
+
     return output;
 }
