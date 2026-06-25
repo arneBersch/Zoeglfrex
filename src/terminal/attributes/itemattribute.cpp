@@ -17,9 +17,11 @@ bool ItemAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStr
 
 QStringList ItemAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
+    Q_ASSERT(matches(item, attributes));
+
     QStringList output;
 
-    const bool removeItem = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
+    const bool removeItem = valueKeys == QList<Keys::Key>({ Keys::Minus });
     QString foreignItemId;
     int foreignItemKey;
     QStringList successfulIds;
@@ -33,47 +35,31 @@ QStringList ItemAttribute::set(const QStringList ids, const QHash<Keys::Key, QSt
             output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given " + foreignItem.getSingular() + " ID is invalid."));
             return output;
         }
-        QSqlQuery foreignItemQuery;
-        foreignItemQuery.prepare("SELECT key FROM " + foreignItem.getSelectTable() + " WHERE id = :id");
-        foreignItemQuery.bindValue(":id", foreignItemIds.first());
-        if (!foreignItemQuery.exec()) {
-            qWarning() << Q_FUNC_INFO << foreignItemQuery.executedQuery() << foreignItemQuery.lastError().text();
-            output.append(Terminal::formatErrorMessage("Failed to execute check if " + foreignItem.getSingular() + " exists."));
-            return output;
-        }
-        if (!foreignItemQuery.next()) {
+        foreignItemId = foreignItemIds.first();
+        foreignItemKey = foreignItem.getItemKey(foreignItemId);
+        if (foreignItemKey < 0) {
             output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because " + foreignItem.getSingular() + " " + foreignItemIds.first() + " doesn't exist."));
             return output;
         }
-        foreignItemKey = foreignItemQuery.value(0).toInt();
     }
 
     for (QString id : ids) {
-        QSqlQuery keyQuery;
-        keyQuery.prepare("SELECT key FROM " + item.getSelectTable() + " WHERE id = :id");
-        keyQuery.bindValue(":id", id);
-        if (keyQuery.exec()) {
-            if (keyQuery.next()) {
-                QSqlQuery updateQuery;
-                if (removeItem) {
-                    updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + name + " = NULL WHERE key = :key");
-                } else {
-                    updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + name + " = :item WHERE key = :key");
-                    updateQuery.bindValue(":item", foreignItemKey);
-                }
-                updateQuery.bindValue(":key", keyQuery.value(0).toInt());
-                if (updateQuery.exec()) {
-                    successfulIds.append(id);
-                } else {
-                    qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                    output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + id + "."));
-                }
+        const int key = item.getItemKey(id, &output);
+        if (key >= 0) {
+            QSqlQuery updateQuery;
+            if (removeItem) {
+                updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + tableAttribute + " = NULL WHERE key = :key");
             } else {
-                output.append(Terminal::formatWarningMessage("Failed to set " + name + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " wasn't found."));
+                updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + tableAttribute + " = :item WHERE key = :key");
+                updateQuery.bindValue(":item", foreignItemKey);
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            output.append(Terminal::formatErrorMessage("Failed loading " + item.getSingular() + " " + id + "."));
+            updateQuery.bindValue(":key", key);
+            if (updateQuery.exec()) {
+                successfulIds.append(id);
+            } else {
+                qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
+                output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + id + "."));
+            }
         }
     }
 
