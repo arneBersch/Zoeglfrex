@@ -108,6 +108,31 @@ QList<ItemType> ItemType::allTypes() {
     };
 }
 
+QList<int> ItemType::getItemKeys(const QStringList ids, QStringList* output) const {
+    QList<int> keys;
+
+    for (QString id : ids) {
+        QSqlQuery query;
+        query.prepare("SELECT key FROM " + selectTable + " WHERE id = :id");
+        query.bindValue(":id", id);
+        if (query.exec()) {
+            if (query.next()) {
+                keys.append(query.value(0).toInt());
+            } else {
+                output->append(Terminal::formatWarningMessage(singular + " " + id + " doesn't exist."));
+                keys.append(-1);
+            }
+        } else {
+            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+            output->append(Terminal::formatErrorMessage("Couldn't find " + singular + " " + id + " because the request failed."));
+            keys.append(-1);
+        }
+    }
+
+    Q_ASSERT(keys.length() == ids.length());
+    return keys;
+}
+
 QStringList ItemType::createItems(const QStringList ids) const {
     QStringList output;
 
@@ -215,28 +240,19 @@ QStringList ItemType::deleteItems(QStringList ids) const {
         return output;
     }
 
+    QList<int> keys = getItemKeys(ids, &output);
     QStringList successfulIds;
-    for (QString id : ids) {
-        QSqlQuery keyQuery;
-        keyQuery.prepare("SELECT key FROM " + selectTable + " WHERE id = :id");
-        keyQuery.bindValue(":id", id);
-        if (keyQuery.exec()) {
-            if (keyQuery.next()) {
-                QSqlQuery deleteQuery;
-                deleteQuery.prepare("DELETE FROM " + updateTable + " WHERE key = :key");
-                deleteQuery.bindValue(":key", keyQuery.value(0).toInt());
-                if (deleteQuery.exec()) {
-                    successfulIds.append(id);
-                } else {
-                    qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
-                    output.append(Terminal::formatErrorMessage("Can't delete " + singular + " " + id + " because the request failed."));
-                }
+    for (int i = 0; i < ids.length(); i++) {
+        if (keys[i] >= 0) {
+            QSqlQuery deleteQuery;
+            deleteQuery.prepare("DELETE FROM " + updateTable + " WHERE key = :key");
+            deleteQuery.bindValue(":key", keys[i]);
+            if (deleteQuery.exec()) {
+                successfulIds.append(ids[i]);
             } else {
-                output.append(Terminal::formatWarningMessage("Can't delete " + singular + " " + id + " because this " + singular + " doesn't exist."));
+                qWarning() << Q_FUNC_INFO << deleteQuery.executedQuery() << deleteQuery.lastError().text();
+                output.append(Terminal::formatErrorMessage("Can't delete " + singular + " " + ids[i] + " because the delete request failed."));
             }
-        } else {
-            qWarning() << Q_FUNC_INFO << keyQuery.executedQuery() << keyQuery.lastError().text();
-            output.append(Terminal::formatErrorMessage("Couldn't delete " + singular + " " + id + "."));
         }
     }
 
@@ -401,23 +417,14 @@ QStringList ItemType::setCueItem(const QStringList ids, const QString valueTable
         return output;
     }
 
-    QList<int> itemKeys;
-    for (QString id : ids) {
-        QSqlQuery itemKeyQuery;
-        itemKeyQuery.prepare("SELECT key FROM " + selectTable + " WHERE id = :id");
-        itemKeyQuery.bindValue(":id", id);
-        if (itemKeyQuery.exec()) {
-            if (itemKeyQuery.next()) {
-                itemKeys.append(itemKeyQuery.value(0).toInt());
-            } else {
-                output.append(Terminal::formatWarningMessage("Can't select " + singular + " " + id + " because this " + singular + " doesn't exist."));
-            }
-        } else {
-            qWarning() << Q_FUNC_INFO << itemKeyQuery.executedQuery() << itemKeyQuery.lastError().text();
-            output.append(Terminal::formatErrorMessage("Can't set Cue " + plural + " because the key request for " + singular + " " + ids.first() + " failed."));
+    QList<int> allKeys = getItemKeys(ids, &output);
+    QList<int> keys;
+    for (const int key : allKeys) {
+        if (key >= 0) {
+            keys.append(key);
         }
     }
-    if (itemKeys.isEmpty() && !ids.isEmpty()) {
+    if (keys.isEmpty() && !ids.isEmpty()) {
         output.append(Terminal::formatErrorMessage("No valid " + plural + " were given."));
         return output;
     }
@@ -506,7 +513,7 @@ QStringList ItemType::setCueItem(const QStringList ids, const QString valueTable
             output.append(Terminal::formatErrorMessage("Failed deleting Cue " + plural + "."));
         }
 
-        for (const int key : itemKeys) {
+        for (const int key : keys) {
             QSqlQuery query;
             query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, valueitem_key) VALUES (:cue, :group, :item)");
             query.bindValue(":cue", cueKey);
