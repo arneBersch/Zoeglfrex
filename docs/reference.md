@@ -796,7 +796,7 @@ Here, you can also add and remove values and exceptions by clicking the exceptio
 In Zöglfrex, it is possible to control playback using OSC.
 
 > [!IMPORTANT]
-> Please note that Zöglfrex currently only supports UDP as a protocol.
+> Please note that Zöglfrex currently only supports UDP as an OSC protocol.
 > Additionally, Zöglfrex doesn't support OSC packages.
 
 You can find the OSC Settings in the Output menu.
