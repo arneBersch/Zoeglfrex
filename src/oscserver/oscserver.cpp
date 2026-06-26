@@ -143,7 +143,7 @@ QString OscServer::processDatagram(const QByteArray data) {
             arguments.removeLast();
         }
         cueKeyQuery.prepare("SELECT key, id FROM cues WHERE cuelist_key = :cuelist AND id = :id");
-        cueKeyQuery.bindValue(":id", arguments);
+        cueKeyQuery.bindValue(":id", (QString)arguments);
     } else {
         return "The given OSC Address Pattern does not match any command";
     }
