@@ -19,19 +19,16 @@ public:
 signals:
     void dbChanged();
 private slots:
-    void setInterface(int index);
+    void setEnabled();
     void setPort(int port);
 private:
     void reloadSocket();
-    void reloadNetworkInterfaces();
     void readPendingDatagrams();
     QString processDatagram(QByteArray data);
-    QUdpSocket* socket = nullptr;
-    QComboBox* networkInterfaceComboBox;
+    QUdpSocket* socket = new QUdpSocket();;
+    QCheckBox* enableCheckBox;
     QSpinBox* portSpinBox;
     QPlainTextEdit *messages;
-    QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();
-    QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
 };
 
 #endif // OSCSERVER_H
