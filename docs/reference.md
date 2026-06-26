@@ -791,3 +791,36 @@ Here, you can also add and remove values and exceptions by clicking the exceptio
 > [!CAUTION]
 > Please note that the precision of the dials cannot be smaller than 1.
 > When you need a more precise control, you can of course still set the values with the Terminal.
+
+## OSC Control
+In Zöglfrex, it is possible to control playback using OSC.
+
+> [!IMPORTANT]
+> Please note that Zöglfrex currently only supports UDP as a protocol.
+> Additionally, Zöglfrex doesn't support OSC packages.
+
+You can find the OSC Settings in the Output menu.
+
+### The `go` command
+This command doesn't accept any arguments.
+
+For example, for selecting the next Cue of Cuelist 17.1 using OSC, you would need to send this command:
+```
+/zfr/17.1/go
+```
+
+### The `goback` command
+This command doesn't accept any arguments.
+
+For example, for selecting the previous Cue of Cuelist 17.1 using OSC, you would need to send this command:
+```
+/zfr/17.1/goback
+```
+
+### The `goto` command
+This command requires a string argument which is the Cue ID.
+
+For example, for selecting Cue 23 of Cuelist 17.1 using OSC, you would need to send this command with the string attribute 23:
+```
+/zfr/17.1/goto
+```
