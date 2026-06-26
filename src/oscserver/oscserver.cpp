@@ -11,7 +11,7 @@
 
 OscServer::OscServer(QWidget* parent) : QWidget(parent, Qt::Window) {
     setWindowTitle("Zöglfrex OSC Settings");
-    resize(500, 400);
+    resize(700, 400);
 
     QVBoxLayout* layout = new QVBoxLayout();
     setLayout(layout);
@@ -63,9 +63,11 @@ void OscServer::reloadSocket() {
 void OscServer::readPendingDatagrams() {
     while (socket->hasPendingDatagrams()) {
         const QNetworkDatagram datagram = socket->receiveDatagram();
-        QByteArray message = datagram.data();
-        message.replace('\0', ' ');
-        messages->appendPlainText(QTime::currentTime().toString() + " - " + datagram.senderAddress().toString() + " : " + processDatagram(datagram.data()) + " (" + message + ")");
+        QByteArray data = datagram.data();
+        data.replace('\0', ' ');
+        const QString message = QTime::currentTime().toString() + " - " + data + " (" + datagram.senderAddress().toString() + ") : " + processDatagram(datagram.data());
+        messages->appendPlainText(message);
+        qInfo() << message;
     }
 }
 
@@ -114,23 +116,34 @@ QString OscServer::processDatagram(const QByteArray data) {
     }
     const int cuelistKey = cuelistKeyQuery.value(0).toInt();
 
+    QByteArray command = addressPatternParts[3];
+    while (command.endsWith('\0')) {
+        command.removeLast();
+    }
+    while (typeTag.endsWith('\0')) {
+        typeTag.removeLast();
+    }
+
     QSqlQuery cueKeyQuery;
-    if (addressPatternParts[3] == "go") {
-        if ((typeTag != ",\0\0\0") || !arguments.isEmpty()) {
+    if (command == "go") {
+        if ((typeTag != ",") || !arguments.isEmpty()) {
             return "The Go command does not expect any arguments";
         }
         cueKeyQuery.prepare("SELECT key, id FROM cues WHERE cuelist_key = :cuelist AND sortkey = (SELECT MIN(sortkey) FROM cues WHERE sortkey > (SELECT sortkey FROM cues WHERE key = (SELECT currentcue_key FROM cuelists WHERE cuelist_key = :cuelist)))");
-    } else if (addressPatternParts[3] == "goback") {
-        if ((typeTag != ",\0\0\0") || !arguments.isEmpty()) {
+    } else if (command == "goback") {
+        if ((typeTag != ",") || !arguments.isEmpty()) {
             return "The Go Back command does not expect any arguments";
         }
         cueKeyQuery.prepare("SELECT key, id FROM cues WHERE cuelist_key = :cuelist AND sortkey = (SELECT MAX(sortkey) FROM cues WHERE sortkey < (SELECT sortkey FROM cues WHERE key = (SELECT currentcue_key FROM cuelists WHERE cuelist_key = :cuelist)))");
-    } else if (addressPatternParts[3] == "goto") {
-        if (typeTag != ",s\0\0") {
+    } else if (command == "goto") {
+        if (typeTag != ",s") {
             return "The Go To command expects a Cue ID as an argument";
         }
+        while (arguments.endsWith('\0')) {
+            arguments.removeLast();
+        }
         cueKeyQuery.prepare("SELECT key, id FROM cues WHERE cuelist_key = :cuelist AND id = :id");
-        cueKeyQuery.bindValue(":id", arguments.trimmed());
+        cueKeyQuery.bindValue(":id", arguments);
     } else {
         return "The given OSC Address Pattern does not match any command";
     }
