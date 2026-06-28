@@ -29,7 +29,7 @@ public:
     static NumberType zoomRange();
     static NumberType coordinate();
     QString getUnit() const;
-    QVariant format(bool* ok, float value) const;
+    QVariant format(float value) const;
 private:
     enum DataType {
         INTEGER,

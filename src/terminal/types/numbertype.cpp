@@ -77,7 +77,7 @@ NumberType NumberType::coordinate() {
     return NumberType(-1000, 1000);
 }
 
-QVariant NumberType::format(bool* ok, float value) const {
+QVariant NumberType::format(float value) const {
     if (cyclic) {
         while (value < min) {
             value += max - min;
@@ -87,11 +87,9 @@ QVariant NumberType::format(bool* ok, float value) const {
         }
     } else {
         if ((value < min) || (value > max)) {
-            (*ok) = false;
-            return QVariant(0);
+            return QVariant();
         }
     }
-    (*ok) = true;
 
     if (dataType == INTEGER) {
         return QVariant((int)value);

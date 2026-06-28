@@ -24,43 +24,42 @@ bool ItemAndIntegerSpecificNumberAttribute::matches(const ItemType itemType, con
     return Attribute::matches(itemType, attributes) && attributes.contains(foreignItem.getKey()) && (attributes.size() == 2);
 }
 
-QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
+QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(matches(item, attributes));
 
     QStringList output;
 
     bool ok;
-    QVariant key = processKeyAttribute(attributes.value(Keys::Attribute).first(), keyNumber, &ok);
-    if (!ok) {
+    QVariant key = processKeyAttribute(attributes.value(Keys::Attribute).first(), keyNumber);
+    if (!key.isValid()) {
         output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid."));
+        return output;
+    }
+
+    QList<int> foreignItemKeys;
+    QStringList foreignItemIds;
+    for (QString foreignItemId : attributes.value(foreignItem.getKey())) {
+        const int foreignItemKey = foreignItem.getItemKey(foreignItemId, &output);
+        if (foreignItemKey >= 0) {
+            foreignItemKeys.append(foreignItemKey);
+            foreignItemIds.append(foreignItemId);
+        }
+    }
+    Q_ASSERT(foreignItemKeys.length() == foreignItemIds.length());
+    if (foreignItemKeys.isEmpty()) {
+        output.append(Terminal::formatErrorMessage("No valid " + foreignItem.getPlural() + " were found."));
         return output;
     }
 
     const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
     const bool difference = valueKeys.startsWith(Keys::Plus);
-    QVariant value;
-    if (!removeValues && !difference) {
-        bool ok;
-        value = keysToNumber(valueKeys, &ok, 0, valueNumber);
-        if (!ok) {
-            output.append(Terminal::formatErrorMessage("Invalid value given."));
-            return output;
-        }
+    if (difference) {
+        valueKeys.removeFirst();
     }
-
-    QList<int> foreignItemKeys;
-    QStringList foreignItemIdStrings;
-    for (QString foreignItemId : attributes.value(foreignItem.getKey())) {
-        const int foreignItemKey = foreignItem.getItemKey(foreignItemId, &output);
-        if (foreignItemKey >= 0) {
-            foreignItemKeys.append(foreignItemKey);
-            foreignItemIdStrings.append(foreignItemId);
-        }
-    }
-    Q_ASSERT(foreignItemKeys.length() == foreignItemIdStrings.length());
-    if (foreignItemKeys.isEmpty()) {
-        output.append(Terminal::formatErrorMessage("No valid " + foreignItem.getPlural() + " were found."));
+    const QList<float> values = Keys::keysToNumbers(valueKeys, foreignItemKeys.length());
+    if (values.isEmpty()) {
+        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because an invalid value was given."));
         return output;
     }
 
@@ -69,7 +68,9 @@ QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, co
         const int itemKey = item.getItemKey(id, &output);
         if (itemKey >= 0) {
             bool allQueriesSuccessful = true;
-            for (const int foreignItemKey : foreignItemKeys) {
+            for (int foreignItemIndex = 0; foreignItemIndex < foreignItemKeys.length(); foreignItemIndex++) {
+                const int foreignItemKey = foreignItemKeys[foreignItemIndex];
+                const QString foreignItemId = foreignItemIds[foreignItemIndex];
                 if (removeValues) {
                     QSqlQuery query;
                     query.prepare("DELETE FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item AND key = :key");
@@ -79,9 +80,10 @@ QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, co
                     if (!query.exec()) {
                         allQueriesSuccessful = false;
                         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                        output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
+                        output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + " and " + foreignItem.getSingular() + " " + foreignItemId + "."));
                     }
                 } else {
+                    float value = values[foreignItemIndex];
                     bool valueOk = true;
                     if (difference) {
                         QSqlQuery currentValueQuery;
@@ -91,33 +93,39 @@ QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, co
                         currentValueQuery.bindValue(":key", key);
                         if (!currentValueQuery.exec()) {
                             qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
-                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
+                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + " and " + foreignItem.getSingular() + " " + foreignItemId + "."));
                             valueOk = false;
                         } else if (!currentValueQuery.next()) {
-                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
+                            output.append(Terminal::formatWarningMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + " and " + foreignItem.getSingular() + " " + foreignItemId + "."));
                             valueOk = false;
                         } else {
-                            value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), valueNumber);
-                            if (!valueOk) {
-                                output.append(Terminal::formatErrorMessage("Invalid value given for " + item.getSingular() + " " + id + "."));
-                            }
+                            value += currentValueQuery.value(0).toFloat();
                         }
                     }
+
                     if (valueOk) {
-                        QSqlQuery query;
-                        query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, key, value) VALUES (:item, :foreign_item, :key, :value)");
-                        query.bindValue(":item", itemKey);
-                        query.bindValue(":foreign_item", foreignItemKey);
-                        query.bindValue(":key", key);
-                        query.bindValue(":value", value);
-                        if (!query.exec()) {
-                            allQueriesSuccessful = false;
-                            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                            output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
+                        const QVariant formattedValue = keyNumber.format(value);
+                        if (formattedValue.isValid()) {
+                            QSqlQuery query;
+                            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, key, value) VALUES (:item, :foreign_item, :key, :value)");
+                            query.bindValue(":item", itemKey);
+                            query.bindValue(":foreign_item", foreignItemKey);
+                            query.bindValue(":key", key);
+                            query.bindValue(":value", formattedValue);
+                            if (!query.exec()) {
+                                allQueriesSuccessful = false;
+                                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                                output.append(Terminal::formatErrorMessage("Failed updating the " + name + " of " + item.getSingular() + " " + id + " and " + foreignItem.getSingular() + " " + foreignItemId + "."));
+                            }
+                        } else {
+                            output.append(Terminal::formatErrorMessage("Invalid value given for " + item.getSingular() + " " + id + " and " + foreignItem.getSingular() + " " + foreignItemId + "."));
                         }
+                    } else {
+                        allQueriesSuccessful = false;
                     }
                 }
             }
+
             if (allQueriesSuccessful) {
                 successfulIds.append(id);
             }
@@ -126,11 +134,11 @@ QStringList ItemAndIntegerSpecificNumberAttribute::set(const QStringList ids, co
 
     if (!successfulIds.isEmpty()) {
         if (removeValues) {
-            output.append(Terminal::formatSuccessMessage("Removed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " and " + key.toString() + keyNumber.getUnit() + "."));
+            output.append(Terminal::formatSuccessMessage("Removed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIds) + " and " + key.toString() + keyNumber.getUnit() + "."));
         } else if (difference) {
-            output.append(Terminal::formatSuccessMessage("Changed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " and " + key.toString() + keyNumber.getUnit() + " by " + value.toString() + valueNumber.getUnit() + "."));
+            output.append(Terminal::formatSuccessMessage("Changed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIds) + " and " + key.toString() + keyNumber.getUnit() + " by " + Keys::keysToString(valueKeys) + valueNumber.getUnit() + "."));
         } else {
-            output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " and " + key.toString() + keyNumber.getUnit() + " to " + value.toString() + valueNumber.getUnit() + "."));
+            output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIds) + " and " + key.toString() + keyNumber.getUnit() + " to " + Keys::keysToString(valueKeys) + valueNumber.getUnit() + "."));
         }
     }
 

@@ -16,38 +16,36 @@ bool NumberAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QS
     return Attribute::matches(itemType, attributes) && (attributes.size() == 1);
 }
 
-QStringList NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
+QStringList NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(matches(item, attributes));
 
     QStringList output;
 
     const bool difference = valueKeys.startsWith(Keys::Plus);
-    QVariant value;
-    if (!difference) {
-        bool ok;
-        value = keysToNumber(valueKeys, &ok, 0, number);
-        if (!ok) {
-            output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because an invalid value was given."));
-            return output;
-        }
+    if (difference) {
+        valueKeys.removeFirst();
+    }
+    const QList<float> values = Keys::keysToNumbers(valueKeys, ids.length());
+    if (values.isEmpty()) {
+        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because an invalid value was given."));
+        return output;
     }
 
     QStringList successfulIds;
-    for (QString id : ids) {
+    for (int itemIndex = 0; itemIndex < ids.length(); itemIndex++) {
+        const QString id = ids[itemIndex];
         bool valueOk = true;
+        float value = values[itemIndex];
         if (difference) {
             QSqlQuery currentValueQuery;
             currentValueQuery.prepare("SELECT " + tableAttribute + " FROM " + item.getSelectTable() + " WHERE id = :id");
             currentValueQuery.bindValue(":id", id);
             if (currentValueQuery.exec()) {
                 if (currentValueQuery.next()) {
-                    value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
-                    if (!valueOk) {
-                        output.append(Terminal::formatErrorMessage("Invalid value given for " + item.getSingular() + " " + id + "."));
-                    }
+                    value += currentValueQuery.value(0).toFloat();
                 } else {
-                    output.append(Terminal::formatErrorMessage("Failed loading the current " + tableAttribute + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist."));
+                    output.append(Terminal::formatWarningMessage("Failed loading the current " + tableAttribute + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist."));
                     valueOk = false;
                 }
             } else {
@@ -57,27 +55,32 @@ QStringList NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, Q
             }
         }
         if (valueOk) {
-            const int key = item.getItemKey(id, &output);
-            if (key >= 0) {
-                QSqlQuery updateQuery;
-                updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + tableAttribute + " = :value WHERE key = :key");
-                updateQuery.bindValue(":key", key);
-                updateQuery.bindValue(":value", value);
-                if (updateQuery.exec()) {
-                    successfulIds.append(id);
-                } else {
-                    qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
-                    output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + id + "."));
+            const QVariant formattedValue = number.format(value);
+            if (formattedValue.isValid()) {
+                const int key = item.getItemKey(id, &output);
+                if (key >= 0) {
+                    QSqlQuery updateQuery;
+                    updateQuery.prepare("UPDATE " + item.getUpdateTable() + " SET " + tableAttribute + " = :value WHERE key = :key");
+                    updateQuery.bindValue(":key", key);
+                    updateQuery.bindValue(":value", formattedValue);
+                    if (updateQuery.exec()) {
+                        successfulIds.append(id);
+                    } else {
+                        qWarning() << Q_FUNC_INFO << updateQuery.executedQuery() << updateQuery.lastError().text();
+                        output.append(Terminal::formatErrorMessage("Failed setting " + name + " of " + item.getSingular() + " " + id + "."));
+                    }
                 }
+            } else {
+                output.append(Terminal::formatWarningMessage("Invalid value given for " + item.getSingular() + " " + id + "."));
             }
         }
     }
 
     if (!successfulIds.isEmpty()) {
         if (difference) {
-            output.append(Terminal::formatSuccessMessage("Changed " + tableAttribute + " of " + item.format(successfulIds) + " by " + value.toString() + number.getUnit() + "."));
+            output.append(Terminal::formatSuccessMessage("Changed " + tableAttribute + " of " + item.format(successfulIds) + " by " + Keys::keysToString(valueKeys) + number.getUnit() + "."));
         } else {
-            output.append(Terminal::formatSuccessMessage("Set " + tableAttribute + " of " + item.format(successfulIds) + " to " + value.toString() + number.getUnit() + "."));
+            output.append(Terminal::formatSuccessMessage("Set " + tableAttribute + " of " + item.format(successfulIds) + " to " + Keys::keysToString(valueKeys) + number.getUnit() + "."));
         }
     }
 

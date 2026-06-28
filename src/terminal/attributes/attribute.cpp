@@ -19,21 +19,17 @@ bool Attribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringL
     return (itemType == item) && attributeMatches;
 }
 
-QVariant Attribute::processKeyAttribute(const QString attribute, const NumberType keyNumber, bool* ok) {
+QVariant Attribute::processKeyAttribute(const QString attribute, const NumberType keyNumber) {
     const QList<QString> numberIdParts = attribute.split(".");
     if (numberIdParts.length() != (idRegex.pattern().count("\\.") + 1)) {
-        return -1;
+        return QVariant();
     }
 
-    QVariant key = numberIdParts.last().toInt(ok);
+    bool ok;
+    const int key = numberIdParts.last().toInt(&ok);
     if (!ok) {
-        return -1;
+        return QVariant();
     }
 
-    key = keyNumber.format(ok, key.toInt());
-    if (!ok) {
-        return -1;
-    }
-
-    return key;
+    return keyNumber.format(key);
 }

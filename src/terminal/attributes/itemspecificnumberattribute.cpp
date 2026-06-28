@@ -23,36 +23,35 @@ bool ItemSpecificNumberAttribute::matches(const ItemType itemType, const QHash<K
     return Attribute::matches(itemType, attributes) && attributes.contains(foreignItem.getKey()) && (attributes.size() == 2);
 }
 
-QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
+QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(matches(item, attributes));
 
     QStringList output;
 
-    const bool removeValues = valueKeys == QList<Keys::Key>({ Keys::Minus });
-    const bool difference = valueKeys.startsWith(Keys::Plus);
-    QVariant value;
-    if (!removeValues && !difference) {
-        bool ok;
-        value = keysToNumber(valueKeys, &ok, 0, number);
-        if (!ok) {
-            output.append(Terminal::formatErrorMessage("Invalid value given."));
-            return output;
-        }
-    }
-
     QList<int> foreignItemKeys;
-    QStringList foreignItemIdStrings;
+    QStringList foreignItemIds;
     for (QString foreignItemId : attributes.value(foreignItem.getKey())) {
         const int foreignItemKey = foreignItem.getItemKey(foreignItemId, &output);
         if (foreignItemKey >= 0) {
             foreignItemKeys.append(foreignItemKey);
-            foreignItemIdStrings.append(foreignItemId);
+            foreignItemIds.append(foreignItemId);
         }
     }
-    Q_ASSERT(foreignItemKeys.length() == foreignItemIdStrings.length());
+    Q_ASSERT(foreignItemKeys.length() == foreignItemIds.length());
     if (foreignItemKeys.isEmpty()) {
         output.append(Terminal::formatErrorMessage("No valid " + foreignItem.getPlural() + " were found."));
+        return output;
+    }
+
+    const bool removeValues = valueKeys == QList<Keys::Key>({ Keys::Minus });
+    const bool difference = valueKeys.startsWith(Keys::Plus);
+    if (difference) {
+        valueKeys.removeFirst();
+    }
+    const QList<float> values = Keys::keysToNumbers(valueKeys, foreignItemKeys.length());
+    if (!removeValues && values.isEmpty()) {
+        output.append(Terminal::formatErrorMessage("Invalid value given."));
         return output;
     }
 
@@ -61,7 +60,9 @@ QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<
         const int key = item.getItemKey(id, &output);
         if (key >= 0) {
             bool allQueriesSuccessful = true;
-            for (const int foreignItemKey : foreignItemKeys) {
+            for (int foreignItemIndex = 0; foreignItemIndex < foreignItemKeys.length(); foreignItemIndex++) {
+                const int foreignItemKey = foreignItemKeys[foreignItemIndex];
+                const QString foreignItemId = foreignItemIds[foreignItemIndex];
                 if (removeValues) {
                     QSqlQuery query;
                     query.prepare("DELETE FROM " + valueTable + " WHERE item_key = :item AND foreignitem_key = :foreign_item");
@@ -70,9 +71,10 @@ QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<
                     if (!query.exec()) {
                         allQueriesSuccessful = false;
                         qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                        output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
+                        output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + " and " + foreignItem.getSingular() + " " + foreignItemId + "."));
                     }
                 } else {
+                    float value = values[foreignItemIndex];
                     bool valueOk = true;
                     if (difference) {
                         QSqlQuery currentValueQuery;
@@ -81,29 +83,32 @@ QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<
                         currentValueQuery.bindValue(":foreign_item", foreignItemKey);
                         if (!currentValueQuery.exec()) {
                             qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
-                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
+                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + " and " + foreignItem.getSingular() + " " + foreignItemId + "."));
                             valueOk = false;
                         } else if (!currentValueQuery.next()) {
-                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
+                            output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + " and " + foreignItem.getSingular() + " " + foreignItemId + "."));
                             valueOk = false;
                         } else {
-                            value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), number);
-                            if (!valueOk) {
-                                output.append(Terminal::formatErrorMessage("Invalid value given for " + item.getSingular() + " " + id + "."));
-                            }
+                            value += currentValueQuery.value(0).toFloat();
                         }
                     }
 
                     if (valueOk) {
-                        QSqlQuery query;
-                        query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, value) VALUES (:item, :foreign_item, :value)");
-                        query.bindValue(":item", key);
-                        query.bindValue(":foreign_item", foreignItemKey);
-                        query.bindValue(":value", value);
-                        if (!query.exec()) {
-                            allQueriesSuccessful = false;
-                            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                            output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
+                        const QVariant formattedValue = number.format(value);
+                        if (formattedValue.isValid()) {
+                            QVariant value;
+                            QSqlQuery query;
+                            query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, foreignitem_key, value) VALUES (:item, :foreign_item, :value)");
+                            query.bindValue(":item", key);
+                            query.bindValue(":foreign_item", foreignItemKey);
+                            query.bindValue(":value", formattedValue);
+                            if (!query.exec()) {
+                                allQueriesSuccessful = false;
+                                qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                                output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + " and " + foreignItem.getSingular() + " " + foreignItemId + "."));
+                            }
+                        } else {
+                            output.append(Terminal::formatErrorMessage("Invalid value given for " + item.getSingular() + " " + id + " and " + foreignItem.getSingular() + " " + foreignItemId + "."));
                         }
                     } else {
                         allQueriesSuccessful = false;
@@ -118,11 +123,11 @@ QStringList ItemSpecificNumberAttribute::set(const QStringList ids, const QHash<
 
     if (!successfulIds.isEmpty()) {
         if (removeValues) {
-            output.append(Terminal::formatSuccessMessage("Removed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + "."));
+            output.append(Terminal::formatSuccessMessage("Removed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIds) + "."));
         } else if (difference) {
-            output.append(Terminal::formatSuccessMessage("Changed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " by " + value.toString() + number.getUnit() + "."));
+            output.append(Terminal::formatSuccessMessage("Changed " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIds) + " by " + Keys::keysToString(valueKeys) + number.getUnit() + "."));
         } else {
-            output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIdStrings) + " to " + value.toString() + number.getUnit() + "."));
+            output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " at " + foreignItem.format(foreignItemIds) + " to " + Keys::keysToString(valueKeys) + number.getUnit() + "."));
         }
     }
 

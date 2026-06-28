@@ -29,9 +29,8 @@ QStringList IntegerSpecificItemListAttribute::set(const QStringList ids, const Q
 
     QStringList output;
 
-    bool ok;
-    QVariant key = processKeyAttribute(attributes.value(Keys::Attribute).first(), keyNumber, &ok);
-    if (!ok) {
+    QVariant key = processKeyAttribute(attributes.value(Keys::Attribute).first(), keyNumber);
+    if (!key.isValid()) {
         output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid."));
         return output;
     }

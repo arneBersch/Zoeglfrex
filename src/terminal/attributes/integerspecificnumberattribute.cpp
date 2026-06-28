@@ -23,33 +23,32 @@ bool IntegerSpecificNumberAttribute::matches(const ItemType itemType, const QHas
     return Attribute::matches(itemType, attributes) && (attributes.size() == 1);
 }
 
-QStringList IntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, const QList<Keys::Key> valueKeys) {
+QStringList IntegerSpecificNumberAttribute::set(const QStringList ids, const QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) {
     Q_ASSERT(!ids.isEmpty());
     Q_ASSERT(matches(item, attributes));
 
     QStringList output;
 
-    bool ok;
-    QVariant key = processKeyAttribute(attributes.value(Keys::Attribute).first(), keyNumber, &ok);
-    if (!ok) {
+    QVariant key = processKeyAttribute(attributes.value(Keys::Attribute).first(), keyNumber);
+    if (!key.isValid()) {
         output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because the given Attribute is not valid."));
         return output;
     }
 
-    const bool removeValues = (valueKeys.size() == 1) && valueKeys.startsWith(Keys::Minus);
+    const bool removeValues = valueKeys == QList<Keys::Key>({ Keys::Minus });
     const bool difference = valueKeys.startsWith(Keys::Plus);
-    QVariant value;
-    if (!removeValues && !difference) {
-        bool ok;
-        value = keysToNumber(valueKeys, &ok, 0, valueNumber);
-        if (!ok) {
-            output.append(Terminal::formatErrorMessage("Invalid value given."));
-            return output;
-        }
+    if (difference) {
+        valueKeys.removeFirst();
+    }
+    const QList<float> values = Keys::keysToNumbers(valueKeys, ids.length());
+    if (!removeValues && values.isEmpty()) {
+        output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " " + name + " because an invalid value was given."));
+        return output;
     }
 
     QStringList successfulIds;
-    for (QString id : ids) {
+    for (int itemIndex = 0; itemIndex < ids.length(); itemIndex++) {
+        const QString id = ids[itemIndex];
         const int itemKey = item.getItemKey(id, &output);
         if (itemKey >= 0) {
             if (removeValues) {
@@ -64,6 +63,7 @@ QStringList IntegerSpecificNumberAttribute::set(const QStringList ids, const QHa
                     output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
                 }
             } else {
+                float value = values[itemIndex];
                 bool valueOk = true;
                 if (difference) {
                     QSqlQuery currentValueQuery;
@@ -78,23 +78,26 @@ QStringList IntegerSpecificNumberAttribute::set(const QStringList ids, const QHa
                         output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
                         valueOk = false;
                     } else {
-                        value = keysToNumber(valueKeys, &valueOk, currentValueQuery.value(0).toFloat(), valueNumber);
-                        if (!valueOk) {
-                            output.append(Terminal::formatErrorMessage("Invalid value given for " + item.getSingular() + " " + id + "."));
-                        }
+                        value += currentValueQuery.value(0).toFloat();
                     }
                 }
+
                 if (valueOk) {
-                    QSqlQuery query;
-                    query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, key, value) VALUES (:item, :key, :value)");
-                    query.bindValue(":item", itemKey);
-                    query.bindValue(":key", key);
-                    query.bindValue(":value", value);
-                    if (query.exec()) {
-                        successfulIds.append(id);
+                    const QVariant formattedValue = valueNumber.format(value);
+                    if (formattedValue.isValid()) {
+                        QSqlQuery query;
+                        query.prepare("INSERT OR REPLACE INTO " + valueTable + " (item_key, key, value) VALUES (:item, :key, :value)");
+                        query.bindValue(":item", itemKey);
+                        query.bindValue(":key", key);
+                        query.bindValue(":value", formattedValue);
+                        if (query.exec()) {
+                            successfulIds.append(id);
+                        } else {
+                            qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+                            output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
+                        }
                     } else {
-                        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-                        output.append(Terminal::formatErrorMessage("Failed removing the " + name + " of " + item.getSingular() + " " + id + "."));
+                        output.append(Terminal::formatWarningMessage("Invalid value given for " + item.getSingular() + " " + id + "."));
                     }
                 }
             }
@@ -105,9 +108,9 @@ QStringList IntegerSpecificNumberAttribute::set(const QStringList ids, const QHa
         if (removeValues) {
             output.append(Terminal::formatSuccessMessage("Removed " + name + " of " + item.format(successfulIds) + " at " + key.toString() + "."));
         } else if (difference) {
-            output.append(Terminal::formatSuccessMessage("Changed " + name + " of " + item.format(successfulIds) + " at " + key.toString() + keyNumber.getUnit() + " by " + value.toString() + valueNumber.getUnit() + "."));
+            output.append(Terminal::formatSuccessMessage("Changed " + name + " of " + item.format(successfulIds) + " at " + key.toString() + keyNumber.getUnit() + " by " + Keys::keysToString(valueKeys) + valueNumber.getUnit() + "."));
         } else {
-            output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " at " + key.toString() + keyNumber.getUnit() + " to " + value.toString() + valueNumber.getUnit() + "."));
+            output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " at " + key.toString() + keyNumber.getUnit() + " to " + Keys::keysToString(valueKeys) + valueNumber.getUnit() + "."));
         }
     }
 

@@ -47,19 +47,34 @@ QString Keys::keysToString(QList<Key> keys) {
     return result.simplified();
 }
 
-QVariant Keys::keysToNumber(QList<Key> keys, bool* ok, const float currentValue, const NumberType number) {
-    const bool difference = keys.startsWith(Plus);
-    if (difference) {
-        keys.removeFirst();
+QList<float> Keys::keysToNumbers(QList<Key> keys, const int amount) {
+    QList<float> values;
+    QList<Key> buffer;
+    keys.append(Thru);
+    for (const Key key : keys) {
+        if (key == Thru) {
+            bool ok;
+            const float value = keysToString(buffer).replace(" ", "").toFloat(&ok);
+            if (!ok) {
+                return QList<float>();
+            }
+            values.append(value);
+            buffer.clear();
+        } else {
+            buffer.append(key);
+        }
     }
-    float value = keysToString(keys).replace(" ", "").toFloat(ok);
-    if (!(*ok)) {
-        return value;
+
+    QList<float> results;
+    for (int i = 0; i < amount; i++) {
+        const float valueIndex = (values.length() - 1) * i / (float)(amount - 1);
+        const float lastValue = values[std::floor(valueIndex)];
+        const float nextValue = values[std::ceil(valueIndex)];
+        results.append(lastValue + ((nextValue - lastValue) * std::fmod(valueIndex, 1)));
     }
-    if (difference) {
-        value += currentValue;
-    }
-    return number.format(ok, value);
+
+    Q_ASSERT(results.length() == amount);
+    return results;
 }
 
 QStringList Keys::keysToIds(QList<Key> keys) {
