@@ -7,12 +7,12 @@
 */
 
 #include "dmxengine.h"
-
 #include "valuedata/intensitydata.h"
 #include "valuedata/colordata.h"
 #include "valuedata/positiondata.h"
 #include "valuedata/effectdata.h"
 #include "valuedata/cuedata.h"
+#include "startscreen/startscreen.h"
 
 DmxEngine::DmxEngine(QWidget* parent) : QWidget(parent) {
     QHBoxLayout* layout = new QHBoxLayout();
@@ -21,18 +21,18 @@ DmxEngine::DmxEngine(QWidget* parent) : QWidget(parent) {
     highlightButton = new QPushButton("Highlight");
     highlightButton->setCheckable(true);
     connect(highlightButton, &QPushButton::clicked, this, [this] {
-        QSettings().setValue("dmxengine/highlight", highlightButton->isChecked());
+        StartScreen::setFileSetting("highlight", highlightButton->isChecked());
     });
-    highlightButton->setChecked(QSettings().value("dmxengine/highlight", false).toBool());
+    highlightButton->setChecked(StartScreen::getFileSetting("highlight", false).toBool());
     new QShortcut(Qt::SHIFT | Qt::Key_H, this, [this] { highlightButton->click(); }, Qt::ApplicationShortcut);
     layout->addWidget(highlightButton);
 
     soloButton = new QPushButton("Solo");
     soloButton->setCheckable(true);
     connect(soloButton, &QPushButton::clicked, this, [this] {
-        QSettings().setValue("dmxengine/solo", soloButton->isChecked());
+        StartScreen::setFileSetting("solo", soloButton->isChecked());
     });
-    soloButton->setChecked(QSettings().value("dmxengine/solo", false).toBool());
+    soloButton->setChecked(StartScreen::getFileSetting("solo", false).toBool());
     new QShortcut(Qt::SHIFT | Qt::Key_S, this, [this] { soloButton->click(); }, Qt::ApplicationShortcut);
     layout->addWidget(soloButton);
 
@@ -44,18 +44,18 @@ DmxEngine::DmxEngine(QWidget* parent) : QWidget(parent) {
     skipFadeButton = new QPushButton("Skip Fade");
     skipFadeButton->setCheckable(true);
     connect(skipFadeButton, &QPushButton::clicked, this, [this] {
-        QSettings().setValue("dmxengine/skipfade", skipFadeButton->isChecked());
+        StartScreen::setFileSetting("skipfade", skipFadeButton->isChecked());
     });
-    skipFadeButton->setChecked(QSettings().value("dmxengine/skipfade", false).toBool());
+    skipFadeButton->setChecked(StartScreen::getFileSetting("skipfade", false).toBool());
     new QShortcut(Qt::SHIFT | Qt::Key_F, this, [this] { skipFadeButton->click(); }, Qt::ApplicationShortcut);
     layout->addWidget(skipFadeButton);
 
     smoothDimButton = new QPushButton("Smooth Dim");
     smoothDimButton->setCheckable(true);
     connect(smoothDimButton, &QPushButton::clicked, this, [this] {
-        QSettings().setValue("dmxengine/smoothdim", smoothDimButton->isChecked());
+        StartScreen::setFileSetting("smoothdim", smoothDimButton->isChecked());
     });
-    smoothDimButton->setChecked(QSettings().value("dmxengine/smoothdim", false).toBool());
+    smoothDimButton->setChecked(StartScreen::getFileSetting("smoothdim", false).toBool());
     new QShortcut(Qt::SHIFT | Qt::Key_D, this, [this] { smoothDimButton->click(); }, Qt::ApplicationShortcut);
     layout->addWidget(smoothDimButton);
 

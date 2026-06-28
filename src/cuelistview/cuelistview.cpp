@@ -7,6 +7,7 @@
 */
 
 #include "cuelistview.h"
+#include "startscreen/startscreen.h"
 
 CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
     model = new CuelistTableModel();
@@ -37,9 +38,9 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
         } else if (index == 1) {
             model->setMode(CuelistTableModel::GroupMode);
         }
-        QSettings().setValue("cuelistview/mode", index);
+        StartScreen::setFileSetting("cuelistview-mode", index);
     });
-    modeComboBox->setCurrentIndex(QSettings().value("cuelistview/mode", 0).toInt());
+    modeComboBox->setCurrentIndex(StartScreen::getFileSetting("cuelistview-mode", 0).toInt());
     buttonHeader->addWidget(modeComboBox);
 
     filterComboBox = new QComboBox();
@@ -54,9 +55,9 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
         } else if (index == 2) {
             model->setRowFilter(CuelistTableModel::ChangedRows);
         }
-        QSettings().setValue("cuelistview/filter", index);
+        StartScreen::setFileSetting("cuelistview-filter", index);
     });
-    filterComboBox->setCurrentIndex(QSettings().value("cuelistview/filter", 0).toInt());
+    filterComboBox->setCurrentIndex(StartScreen::getFileSetting("cuelistview-filter", 0).toInt());
     buttonHeader->addWidget(filterComboBox);
 
     cuelistTableView = new QTableView();

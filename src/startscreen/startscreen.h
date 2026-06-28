@@ -14,11 +14,13 @@
 
 class StartScreen : public QWidget {
 public:
-    StartScreen(QString version, QString copyright, QString fileVersion, QWidget *parent = nullptr);
-    void openFile(QString fileName, QString version, QString copyright, QString fileVersion);
+    StartScreen(QWidget *parent = nullptr);
+    static void setFileSetting(QString key, QVariant value);
+    static QVariant getFileSetting(QString key, QVariant defaultValue);
 private:
+    void openFile(QString fileName);
     const QString FILENAME_FILTER = "zfr Files (*.zfr)";
-    static QList<QString> getCreateFileQueries(QString fileVersion);
+    static QList<QString> getCreateFileQueries();
     static QString getCreateTableQuery(QString tableName, QStringList fields, QStringList primaryKeys);
     static QString getCreateItemListTableQuery(QString tableName, QString itemTable, QString foreignItemTable);
     static QString getCreateItemSpecificNumberTableQuery(QString tableName, QString itemTable, QString foreignItemTable, QString valueType);

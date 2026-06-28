@@ -9,10 +9,7 @@
 #include "mainwindow.h"
 #include "aboutwindow/aboutwindow.h"
 
-MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QMainWindow(parent) {
-    VERSION = version;
-    COPYRIGHT = copyright;
-
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     resize(1200, 800);
 
     dmxEngine = new DmxEngine(this);
@@ -110,8 +107,7 @@ void MainWindow::reload() {
 }
 
 void MainWindow::about() {
-    AboutWindow about(VERSION, COPYRIGHT);
-    about.exec();
+    AboutWindow().exec();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {

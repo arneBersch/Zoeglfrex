@@ -8,6 +8,7 @@
 
 #include "oscserver.h"
 #include <QtSql>
+#include "startscreen/startscreen.h"
 
 OscServer::OscServer(QWidget* parent) : QWidget(parent, Qt::Window) {
     setWindowTitle("Zöglfrex OSC Settings");
@@ -33,22 +34,22 @@ OscServer::OscServer(QWidget* parent) : QWidget(parent, Qt::Window) {
     connect(clearMessagesButton, &QPushButton::clicked, messages, &QPlainTextEdit::clear);
     layout->addWidget(clearMessagesButton);
 
-    enableCheckBox->setChecked(QSettings().value("osc/enabled", false).toBool());
+    enableCheckBox->setChecked(StartScreen::getFileSetting("osc-enabled", false).toBool());
     setEnabled();
     connect(enableCheckBox, &QCheckBox::checkStateChanged, this, &OscServer::setEnabled);
 
-    portSpinBox->setValue(QSettings().value("osc/port", 8000).toInt());
+    portSpinBox->setValue(StartScreen::getFileSetting("osc-port", 8000).toInt());
     setPort(portSpinBox->value());
     connect(portSpinBox, &QSpinBox::valueChanged, this, &OscServer::setPort);
 }
 
 void OscServer::setPort(const int port) {
-    QSettings().setValue("osc/port", port);
+    StartScreen::setFileSetting("osc-port", port);
     reloadSocket();
 }
 
 void OscServer::setEnabled() {
-    QSettings().setValue("osc/enabled", enableCheckBox->isChecked());
+    StartScreen::setFileSetting("osc-enabled", enableCheckBox->isChecked());
     reloadSocket();
 }
 

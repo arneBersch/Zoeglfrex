@@ -8,6 +8,7 @@
 
 #include "itemtype.h"
 #include "terminal/terminal.h"
+#include "startscreen/startscreen.h"
 
 ItemType::ItemType(QString table, QString singular, QString plural, Keys::Key key) : ItemType(table, table, singular, plural, key) {}
 
@@ -442,7 +443,7 @@ QStringList ItemType::setCueItem(const QStringList ids, const QString valueTable
     QList<int> cueKeys;
     cueKeys.append(cueKeyQuery.value(0).toInt());
 
-    if (QSettings().value("terminal/tracking", false).toBool()) {
+    if (StartScreen::getFileSetting("tracking", false).toBool()) {
         QSqlQuery currentCueValueQuery;
         currentCueValueQuery.prepare("SELECT valueitem_key FROM " + valueTable + " WHERE item_key = :cue AND foreignitem_key = :group");
         currentCueValueQuery.bindValue(":cue", cueKeys.first());

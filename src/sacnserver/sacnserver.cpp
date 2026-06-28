@@ -7,6 +7,7 @@
 */
 
 #include "sacnserver.h"
+#include "startscreen/startscreen.h"
 
 SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
     setWindowTitle("Zöglfrex sACN Settings");
@@ -32,9 +33,9 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
     QSpinBox* prioritySpinBox = new QSpinBox();
     prioritySpinBox->setMinimum(MIN_PRIORITY);
     prioritySpinBox->setMaximum(MAX_PRIORITY);
-    prioritySpinBox->setValue(QSettings().value("sacn/priority", DEFAULT_PRIORITY).toInt());
+    prioritySpinBox->setValue(StartScreen::getFileSetting("sacn-priority", DEFAULT_PRIORITY).toInt());
     connect(prioritySpinBox, &QSpinBox::valueChanged, this, [](int port) {
-        QSettings().setValue("sacn/priority", port);
+        StartScreen::setFileSetting("sacn-priority", port);
     });
     layout->addWidget(prioritySpinBox, 2, 1);
 
@@ -44,6 +45,9 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
 }
 
 void SacnServer::reloadNetworkInterfaces() {
+    const QString lastInterface = StartScreen::getFileSetting("sacn-interface", QString()).toString();
+    const QString lastAddress = StartScreen::getFileSetting("sacn-address", QString()).toString();
+
     networkInterfaceComboBox->clear();
     networkInterfaces.clear();
     networkAddresses.clear();
@@ -55,7 +59,7 @@ void SacnServer::reloadNetworkInterfaces() {
                 networkInterfaceComboBox->addItem(interface.name() + " (" + address.ip().toString() + ")");
                 networkInterfaces.append(interface);
                 networkAddresses.append(address);
-                if ((QSettings().value("sacn/interface") == interface.name()) && (QSettings().value("sacn/address") == address.ip().toString())) {
+                if ((lastInterface == interface.name()) && (lastAddress == address.ip().toString())) {
                     interfaceIndex = networkInterfaces.length();
                 }
             }
@@ -72,11 +76,11 @@ void SacnServer::loadSocket(int index) {
         socket = new QUdpSocket();
         socket->bind(networkAddresses.at(index).ip());
         socket->setMulticastInterface(networkInterfaces.at(index));
-        QSettings().setValue("sacn/interface", networkInterfaces.at(index).name());
-        QSettings().setValue("sacn/address", networkAddresses.at(index).ip().toString());
+        StartScreen::setFileSetting("sacn-interface", networkInterfaces.at(index).name());
+        StartScreen::setFileSetting("sacn-address", networkAddresses.at(index).ip().toString());
     } else {
-        QSettings().setValue("sacn/interface", "none");
-        QSettings().setValue("sacn/address", "none");
+        StartScreen::setFileSetting("sacn-interface", "none");
+        StartScreen::setFileSetting("sacn-address", "none");
     }
 }
 
@@ -113,7 +117,7 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         packet.append(source);
 
         // Priority (Octet 108)
-        packet.append((char)QSettings().value("sacn/priority", DEFAULT_PRIORITY).toInt());
+        packet.append((char)StartScreen::getFileSetting("sacn-priority", DEFAULT_PRIORITY).toInt());
 
         // Synchronization Address (Octet 109-110)
         packet.append((char)0x00);

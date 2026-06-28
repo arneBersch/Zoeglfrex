@@ -7,8 +7,9 @@
 */
 
 #include "aboutwindow.h"
+#include "constants.h"
 
-AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : QDialog(parent) {
+AboutWindow::AboutWindow(QWidget *parent) : QDialog(parent) {
     QVBoxLayout *layout = new QVBoxLayout();
     setLayout(layout);
 
@@ -21,11 +22,11 @@ AboutWindow::AboutWindow(QString version, QString copyright, QWidget *parent) : 
     icon->setPixmap(iconPixmap.scaled(200, 200));
     headerLayout->addWidget(icon);
 
-    QLabel *headerLabel = new QLabel("Zöglfrex " + version);
+    QLabel *headerLabel = new QLabel("Zöglfrex " + VERSION);
     headerLabel->setStyleSheet("font-size: 50px");
     headerLayout->addWidget(headerLabel);
 
-    QLabel *copyrightNotice = new QLabel(copyright);
+    QLabel *copyrightNotice = new QLabel(COPYRIGHT);
     layout->addWidget(copyrightNotice);
 
     QLabel *licenseNotice = new QLabel("This application is licensed under the terms of the GNU General Public License.");

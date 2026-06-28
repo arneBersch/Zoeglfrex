@@ -9,7 +9,7 @@
 #include "startscreen.h"
 #include "mainwindow/mainwindow.h"
 
-StartScreen::StartScreen(const QString version, const QString copyright, const QString fileVersion, QWidget* parent) : QWidget(parent) {
+StartScreen::StartScreen(QWidget* parent) : QWidget(parent) {
     setAttribute(Qt::WA_DeleteOnClose, true);
 
     QVBoxLayout* layout = new QVBoxLayout();
@@ -22,51 +22,55 @@ StartScreen::StartScreen(const QString version, const QString copyright, const Q
     icon->setAlignment(Qt::AlignCenter);
     layout->addWidget(icon);
 
-    QLabel* headerLabel = new QLabel("Zöglfrex " + version);
+    QLabel* headerLabel = new QLabel("Zöglfrex " + VERSION);
     headerLabel->setStyleSheet("font-size: 50px");
     layout->addWidget(headerLabel);
 
-    QLabel* copyrightNotice = new QLabel(copyright);
-    layout->addWidget(copyrightNotice);
+    QLabel* copyrightLabel = new QLabel(COPYRIGHT);
+    layout->addWidget(copyrightLabel);
+
+    QLabel* licenseLabel = new QLabel(LICENSE_HEADER);
+    licenseLabel->setWordWrap(true);
+    layout->addWidget(licenseLabel);
 
     QPushButton* newFileButton = new QPushButton("New File");
-    connect(newFileButton, &QPushButton::clicked, this, [this, version, copyright, fileVersion] {
+    connect(newFileButton, &QPushButton::clicked, this, [this] {
         QString fileName = QFileDialog::getSaveFileName(this, "New File", QString(), FILENAME_FILTER);
         if (!fileName.isEmpty()) {
             if (!fileName.endsWith(".zfr")) {
                 fileName += ".zfr";
             }
-            openFile(fileName, version, copyright, fileVersion);
+            openFile(fileName);
         }
     });
     layout->addWidget(newFileButton);
 
     QPushButton* openFileButton = new QPushButton("Open File");
-    connect(openFileButton, &QPushButton::clicked, this, [this, version, copyright, fileVersion]{
+    connect(openFileButton, &QPushButton::clicked, this, [this]{
         const QString fileName = QFileDialog::getOpenFileName(this, "Open File", QString(), FILENAME_FILTER);
         if (!fileName.isEmpty()) {
-            openFile(fileName, version, copyright, fileVersion);
+            openFile(fileName);
         }
     });
     layout->addWidget(openFileButton);
 
     QPushButton* lastFileButton = new QPushButton("Open Last File");
-    QString lastFile = QSettings().value("file/lastfile", QString()).toString();
+    QString lastFile = QSettings("zoeglfrex").value("lastfile", QString()).toString();
     if (lastFile.isEmpty()) {
         lastFileButton->setDisabled(true);
     } else {
         lastFileButton->setText("Open Last File:\n" + lastFile);
-        connect(lastFileButton, &QPushButton::clicked, this, [this, lastFile, version, copyright, fileVersion]{
-            openFile(lastFile, version, copyright, fileVersion);
+        connect(lastFileButton, &QPushButton::clicked, this, [this, lastFile]{
+            openFile(lastFile);
         });
     }
     layout->addWidget(lastFileButton);
 
-    resize(600, 300);
+    resize(800, 600);
     show();
 }
 
-void StartScreen::openFile(const QString fileName, const QString version, const QString copyright, const QString fileVersion) {
+void StartScreen::openFile(const QString fileName) {
     const bool fileExists = QFile(fileName).exists();
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
@@ -80,23 +84,14 @@ void StartScreen::openFile(const QString fileName, const QString version, const 
     queries.append("PRAGMA foreign_keys = ON");
 
     if (fileExists) {
-        QSqlQuery versionQuery;
-        if (!versionQuery.exec("SELECT version FROM about")) {
-            qWarning() << Q_FUNC_INFO << versionQuery.executedQuery() << versionQuery.lastError().text();
-            qFatal() << "Failed to check the version of the Zöglfrex file.";
-            return;
-        }
-        if (!versionQuery.next()) {
-            qFatal("Failed because no version was found in this Zöglfrex file.");
-            return;
-        }
-        if (versionQuery.value(0).toString() != fileVersion) {
-            qFatal() << "Can't load this Zöglfrex file because its file version (" << versionQuery.value(0).toString() << ") isn't compatible with this version of Zöglfrex.";
+        const QString fileVersion = getFileSetting("fileversion", QString()).toString();
+        if (fileVersion != FILEVERSION) {
+            qFatal() << "Can't load this Zöglfrex file because its file version () isn't compatible with this version of Zöglfrex.";
             return;
         }
         queries.append("UPDATE currentitems SET cue_key = NULL"); // reset Blind
     } else {
-        queries.append(getCreateFileQueries(fileVersion));
+        queries.append(getCreateFileQueries());
     }
 
     for (QString queryText : queries) {
@@ -107,14 +102,14 @@ void StartScreen::openFile(const QString fileName, const QString version, const 
             return;
         }
     }
-
-    QSettings().setValue("file/lastfile", fileName);
+    setFileSetting("fileversion", FILEVERSION);
+    QSettings("zoeglfrex").setValue("lastfile", fileName);
 
     close();    
-    new MainWindow(version, copyright);
+    new MainWindow();
 }
 
-QList<QString> StartScreen::getCreateFileQueries(QString fileVersion) {
+QList<QString> StartScreen::getCreateFileQueries() {
     QList<QString> queries;
 
     queries.append(getCreateTableQuery(
@@ -314,8 +309,7 @@ QList<QString> StartScreen::getCreateFileQueries(QString fileVersion) {
     ));
     queries.append("INSERT INTO currentitems (group_key, fixture_key, cuelist_key, cue_key) VALUES (NULL, NULL, NULL, NULL)");
 
-    queries.append("CREATE TABLE about (version TEXT PRIMARY KEY)");
-    queries.append("INSERT INTO about (version) VALUES ('" + fileVersion + "')");
+    queries.append("CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)");
 
     queries.append("CREATE VIEW currentgroup_fixtures AS SELECT fixtures.* FROM fixtures, group_fixtures, currentitems WHERE group_fixtures.item_key = currentitems.group_key AND fixtures.key = group_fixtures.valueitem_key");
     queries.append("CREATE VIEW currentfixtures AS SELECT fixtures.* FROM fixtures, currentitems, group_fixtures WHERE currentitems.fixture_key = fixtures.key OR (currentitems.fixture_key IS NULL AND group_fixtures.item_key = currentitems.group_key AND fixtures.key = group_fixtures.valueitem_key)");
@@ -441,4 +435,28 @@ QString StartScreen::getCreateItemAndIntegerSpecificNumberTableQuery(QString tab
         },
         {"item_key", "foreignitem_key", "key"}
     );
+}
+
+void StartScreen::setFileSetting(const QString key, const QVariant value) {
+    QSqlQuery query;
+    query.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (:key, :value)");
+    query.bindValue(":key", key);
+    query.bindValue(":value", value);
+    if (!query.exec()) {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+    }
+}
+
+QVariant StartScreen::getFileSetting(const QString key, const QVariant defaultValue) {
+    QSqlQuery query;
+    query.prepare("SELECT value FROM settings WHERE key = :key");
+    query.bindValue(":key", key);
+    if (!query.exec()) {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+        return defaultValue;
+    }
+    if (!query.next()) {
+        return defaultValue;
+    }
+    return query.value(0);
 }
