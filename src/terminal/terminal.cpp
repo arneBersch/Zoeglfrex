@@ -127,7 +127,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
 
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::intensity(), AttributeIds::intensityDimmer, "Dimmer Model Exception", ItemType::model(), "intensity_model_dimmer", NumberType::percentage()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::intensity(), AttributeIds::intensityDimmer, "Dimmer Fixture Exception", ItemType::fixture(), "intensity_fixture_dimmer", NumberType::percentage()));
-    attributes.insert(new NumberAttribute(ItemType::intensity(), AttributeIds::intensityDimmer, "dimmer", "Dimmer", NumberType::percentage()));
+    attributes.insert(new NumberAttribute(ItemType::intensity(), AttributeIds::intensityDimmer, "Dimmer", "dimmer", NumberType::percentage()));
     attributes.insert(new ItemListAttribute(ItemType::intensity(), AttributeIds::intensityRaws, "Raws", ItemType::raw(), "intensity_raws"));
 
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::color(), AttributeIds::colorHue, "Hue Model Exception", ItemType::model(), "color_model_hue", NumberType::angle()));
@@ -138,12 +138,12 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     attributes.insert(new NumberAttribute(ItemType::color(), AttributeIds::colorSaturation, "Saturation", "saturation", NumberType::percentage()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::color(), AttributeIds::colorQuality, "Quality Model Exception", ItemType::model(), "color_model_quality", NumberType::percentage()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::color(), AttributeIds::colorQuality, "Quality Fixture Exception", ItemType::fixture(), "color_fixture_quality", NumberType::percentage()));
-    attributes.insert(new NumberAttribute(ItemType::color(), AttributeIds::colorQuality, "quality", "Quality", NumberType::percentage()));
+    attributes.insert(new NumberAttribute(ItemType::color(), AttributeIds::colorQuality, "Quality", "quality", NumberType::percentage()));
     attributes.insert(new ItemListAttribute(ItemType::color(), AttributeIds::colorRaws, "Raws", ItemType::raw(), "color_raws"));
 
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::position(), AttributeIds::positionPan, "Pan Model Exception", ItemType::model(), "position_model_pan", NumberType::angle()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::position(), AttributeIds::positionPan, "Pan Fixture Exception", ItemType::fixture(), "position_fixture_pan", NumberType::angle()));
-    attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::positionPan, "pan", "Pan", NumberType::angle()));
+    attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::positionPan, "Pan", "pan", NumberType::angle()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::position(), AttributeIds::positionTilt, "Tilt Model Exception", ItemType::model(), "position_model_tilt", NumberType::tilt()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::position(), AttributeIds::positionTilt, "Tilt Fixture Exception", ItemType::fixture(), "position_fixture_tilt", NumberType::tilt()));
     attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::positionTilt, "Tilt", "tilt", NumberType::tilt()));
@@ -158,7 +158,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     attributes.insert(new ItemAndIntegerSpecificNumberAttribute(ItemType::raw(), AttributeIds::rawChannelValues, "Channel Values", ItemType::model(), "raw_model_channel_values", NumberType::channel(), NumberType::dmxValue()));
     attributes.insert(new ItemAndIntegerSpecificNumberAttribute(ItemType::raw(), AttributeIds::rawChannelValues, "Channel Values", ItemType::fixture(), "raw_fixture_channel_values", NumberType::channel(), NumberType::dmxValue()));
     attributes.insert(new IntegerSpecificNumberAttribute(ItemType::raw(), AttributeIds::rawChannelValues, "Channel Values", "raw_channel_values", NumberType::channel(), NumberType::dmxValue()));
-    attributes.insert(new BoolAttribute(ItemType::raw(), AttributeIds::rawMoveWhileDark, "movewhiledark", "Move while Dark"));
+    attributes.insert(new BoolAttribute(ItemType::raw(), AttributeIds::rawMoveWhileDark, "Move while Dark", "movewhiledark"));
     attributes.insert(new BoolAttribute(ItemType::raw(), AttributeIds::rawFade, "Fade", "fade"));
 
     attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::effectSteps, "Steps", "steps", NumberType::step()));

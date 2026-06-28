@@ -9,7 +9,8 @@
 #include "itemattribute.h"
 #include "terminal/terminal.h"
 
-ItemAttribute::ItemAttribute(const ItemType item, const QString id, const QString attributeName, const QString attribute, const ItemType attributeForeignItem) : Attribute(item, id, attributeName), tableAttribute(attribute), foreignItem(attributeForeignItem) {}
+ItemAttribute::ItemAttribute(const ItemType item, const QString id, const QString attributeName, const QString attribute, const ItemType attributeForeignItem)
+    : Attribute(item, id, attributeName), tableAttribute(attribute), foreignItem(attributeForeignItem) {}
 
 bool ItemAttribute::matches(const ItemType itemType, const QHash<Keys::Key, QStringList> attributes) const {
     return Attribute::matches(itemType, attributes) && (attributes.size() == 1);

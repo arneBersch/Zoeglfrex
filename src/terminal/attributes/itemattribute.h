@@ -13,7 +13,7 @@
 
 class ItemAttribute : public Attribute {
 public:
-    ItemAttribute(ItemType item, QString id, QString attributeName, QString tableAttribute, ItemType foreignItem);
+    ItemAttribute(ItemType item, QString id, QString name, QString tableAttribute, ItemType foreignItem);
     bool matches(ItemType itemType, QHash<Keys::Key, QStringList> attributes) const override;
     QStringList set(QStringList ids, QHash<Keys::Key, QStringList> attributes, QList<Keys::Key> valueKeys) override;
 private:
