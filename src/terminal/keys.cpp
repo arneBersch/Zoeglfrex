@@ -66,11 +66,15 @@ QList<float> Keys::keysToNumbers(QList<Key> keys, const int amount) {
     }
 
     QList<float> results;
-    for (int i = 0; i < amount; i++) {
-        const float valueIndex = (values.length() - 1) * i / (float)(amount - 1);
-        const float lastValue = values[std::floor(valueIndex)];
-        const float nextValue = values[std::ceil(valueIndex)];
-        results.append(lastValue + ((nextValue - lastValue) * std::fmod(valueIndex, 1)));
+    if (amount == 1) {
+        results.append(values.first());
+    } else {
+        for (int i = 0; i < amount; i++) {
+            const float valueIndex = (values.length() - 1) * i / (float)(amount - 1);
+            const float lastValue = values[std::floor(valueIndex)];
+            const float nextValue = values[std::ceil(valueIndex)];
+            results.append(lastValue + ((nextValue - lastValue) * std::fmod(valueIndex, 1)));
+        }
     }
 
     Q_ASSERT(results.length() == amount);
