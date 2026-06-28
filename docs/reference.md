@@ -49,8 +49,9 @@
 - Toggle Solo: Shift + S
 - Toggle Skip Fade: Shift + F
 - Toggle Tracking: Shift + T
-- Scroll through the Modes of the Cuelist View: Shift + M
-- Scroll through the Row filters of the Cuelist View: Shift + R
+- Toggle Smooth Fade: Shift + S
+- Scroll through the modes of the Cuelist View: Shift + M
+- Scroll through the row filters of the Cuelist View: Shift + R
 
 - Quit Zöglfrex: Ctrl + Q
 
@@ -202,8 +203,17 @@ This command sets the DMX address of the selected Fixtures.
 ### Fixture Attribute 4.1 Set (X Position)
 This command sets the X Position of the Fixture in the 2D View.
 
+> [!TIP]
+> For this Attribute, you can fan values like this:
+> ```
+> Fixture 1.1 Thru .5 Set -1 Thru 1
+> ```
+
 ### Fixture Attribute 4.2 Set (Y Position)
 This command sets the Y Position of the Fixture in the 2D View.
+
+> [!TIP]
+> For this Attribute, you can also fan values, just like with Fixture Attribute 4.1.
 
 ### Fixture Attribute 5.1 Set (Rotation)
 This command sets the Rotation of the Fixture.
