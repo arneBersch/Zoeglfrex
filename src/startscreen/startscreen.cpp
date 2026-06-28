@@ -96,7 +96,6 @@ void StartScreen::openFile(const QString fileName) {
             messageBox.exec();
             return;
         }
-        queries.append("UPDATE currentitems SET cue_key = NULL"); // reset Blind
     } else {
         queries.append(getCreateFileQueries());
     }

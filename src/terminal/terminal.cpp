@@ -46,6 +46,12 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
         }
         emit dbChanged();
     });
+    QSqlQuery blindQuery;
+    if (blindQuery.exec("SELECT cue_key FROM currentitems WHERE cue_key IS NOT NULL")) {
+        blindButton->setChecked(blindQuery.next());
+    } else {
+        qWarning() << Q_FUNC_INFO << blindQuery.executedQuery() << blindQuery.lastError().text();
+    }
     promptLayout->addWidget(blindButton);
 
     trackingButton = new QPushButton("Tracking");
