@@ -119,7 +119,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     attributes.insert(new NumberAttribute(ItemType::fixture(), AttributeIds::fixtureUniverse, "Universe", "universe", NumberType::universe()));
     attributes.insert(new NumberAttribute(ItemType::fixture(), AttributeIds::fixtureUniverse, "Address", "address", NumberType::address()));
     attributes.insert(new NumberAttribute(ItemType::fixture(), AttributeIds::fixtureXPosition, "X Position", "xposition", NumberType::coordinate()));
-    attributes.insert(new NumberAttribute(ItemType::fixture(), AttributeIds::fixtureXPosition, "Y Position", "yposition", NumberType::coordinate()));
+    attributes.insert(new NumberAttribute(ItemType::fixture(), AttributeIds::fixtureYPosition, "Y Position", "yposition", NumberType::coordinate()));
     attributes.insert(new NumberAttribute(ItemType::fixture(), AttributeIds::fixtureRotation, "Rotation", "rotation", NumberType::angle()));
     attributes.insert(new BoolAttribute(ItemType::fixture(), AttributeIds::fixtureInvertPan, "Invert Pan", "invertpan"));
 
@@ -259,7 +259,7 @@ void Terminal::execute() {
 
     const QStringList ids = keysToIds(selectionIdKeys);
     if (ids.isEmpty()) {
-        printMessage(formatErrorMessage("Invalid selection ID given."));
+        printMessage(formatErrorMessage("Invalid selection IDs given."));
         return;
     }
 
