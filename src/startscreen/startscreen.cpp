@@ -76,7 +76,11 @@ void StartScreen::openFile(const QString fileName) {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(fileName);
     if (!db.open()) {
-        qFatal() << "Failed to establish a database connection." << db.lastError().text();
+        QMessageBox messageBox;
+        messageBox.setText("Failed to establish a database connection.");
+        messageBox.setInformativeText("This should not have happened!");
+        messageBox.setDetailedText(db.lastError().text());
+        messageBox.exec();
         return;
     }
 
@@ -86,7 +90,10 @@ void StartScreen::openFile(const QString fileName) {
     if (fileExists) {
         const QString fileVersion = getFileSetting("fileversion", QString()).toString();
         if (fileVersion != FILEVERSION) {
-            qFatal() << "Can't load this Zöglfrex file because its file version () isn't compatible with this version of Zöglfrex.";
+            QMessageBox messageBox;
+            messageBox.setText("Can't load this Zöglfrex file because its file version isn't compatible with this version of Zöglfrex.");
+            messageBox.setDetailedText("Expected \"" + FILEVERSION + "\" but got \"" + fileVersion + "\".");
+            messageBox.exec();
             return;
         }
         queries.append("UPDATE currentitems SET cue_key = NULL"); // reset Blind
@@ -98,7 +105,11 @@ void StartScreen::openFile(const QString fileName) {
         QSqlQuery query;
         if (!query.exec(queryText)) {
             qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
-            qFatal() << "Failed to create or modify table.";
+            QMessageBox messageBox;
+            messageBox.setText("Failed to create or modify table.");
+            messageBox.setInformativeText("This should not have happened!");
+            messageBox.setDetailedText(query.lastError().text());
+            messageBox.exec();
             return;
         }
     }
