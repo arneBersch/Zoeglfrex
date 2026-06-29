@@ -92,7 +92,7 @@ QStringList Keys::keysToIds(QList<Key> keys) {
     if (keys.isEmpty()) {
         QSqlQuery query;
         if (itemType == ItemType::model().getKey()) {
-            query.prepare("SELECT models.id FROM models, currentfixtures WHERE currentfixtures.model_key = models.key ORDER BY models.sortkey");
+            query.prepare("SELECT DISTINCT models.id FROM models, currentfixtures WHERE currentfixtures.model_key = models.key ORDER BY models.sortkey");
         } else if (itemType == ItemType::fixture().getKey()) {
             query.prepare("SELECT fixtures.id FROM fixtures, currentfixtures WHERE currentfixtures.key = fixtures.key ORDER BY fixtures.sortkey");
         } else if (itemType == ItemType::group().getKey()) {
