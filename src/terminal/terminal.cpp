@@ -117,7 +117,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
 
     attributes.insert(new ItemAttribute(ItemType::fixture(), AttributeIds::fixtureModel, "Model", "model_key", ItemType::model()));
     attributes.insert(new NumberAttribute(ItemType::fixture(), AttributeIds::fixtureUniverse, "Universe", "universe", NumberType::universe()));
-    attributes.insert(new NumberAttribute(ItemType::fixture(), AttributeIds::fixtureUniverse, "Address", "address", NumberType::address()));
+    attributes.insert(new NumberAttribute(ItemType::fixture(), AttributeIds::fixtureAddress, "Address", "address", NumberType::address()));
     attributes.insert(new NumberAttribute(ItemType::fixture(), AttributeIds::fixtureXPosition, "X Position", "xposition", NumberType::coordinate()));
     attributes.insert(new NumberAttribute(ItemType::fixture(), AttributeIds::fixtureYPosition, "Y Position", "yposition", NumberType::coordinate()));
     attributes.insert(new NumberAttribute(ItemType::fixture(), AttributeIds::fixtureRotation, "Rotation", "rotation", NumberType::angle()));
@@ -125,39 +125,39 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
 
     attributes.insert(new ItemListAttribute(ItemType::group(), AttributeIds::groupFixtures, "Fixtures", ItemType::fixture(), "group_fixtures"));
 
+    attributes.insert(new NumberAttribute(ItemType::intensity(), AttributeIds::intensityDimmer, "Dimmer", "dimmer", NumberType::percentage()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::intensity(), AttributeIds::intensityDimmer, "Dimmer Model Exception", ItemType::model(), "intensity_model_dimmer", NumberType::percentage()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::intensity(), AttributeIds::intensityDimmer, "Dimmer Fixture Exception", ItemType::fixture(), "intensity_fixture_dimmer", NumberType::percentage()));
-    attributes.insert(new NumberAttribute(ItemType::intensity(), AttributeIds::intensityDimmer, "Dimmer", "dimmer", NumberType::percentage()));
     attributes.insert(new ItemListAttribute(ItemType::intensity(), AttributeIds::intensityRaws, "Raws", ItemType::raw(), "intensity_raws"));
 
+    attributes.insert(new NumberAttribute(ItemType::color(), AttributeIds::colorHue, "Hue", "hue", NumberType::angle()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::color(), AttributeIds::colorHue, "Hue Model Exception", ItemType::model(), "color_model_hue", NumberType::angle()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::color(), AttributeIds::colorHue, "Hue Fixture Exception", ItemType::fixture(), "color_fixture_hue", NumberType::angle()));
-    attributes.insert(new NumberAttribute(ItemType::color(), AttributeIds::colorHue, "Hue", "hue", NumberType::angle()));
+    attributes.insert(new NumberAttribute(ItemType::color(), AttributeIds::colorSaturation, "Saturation", "saturation", NumberType::percentage()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::color(), AttributeIds::colorSaturation, "Saturation Model Exception", ItemType::model(), "color_model_saturation", NumberType::percentage()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::color(), AttributeIds::colorSaturation, "Saturation Fixture Exception", ItemType::fixture(), "color_fixture_saturation", NumberType::percentage()));
-    attributes.insert(new NumberAttribute(ItemType::color(), AttributeIds::colorSaturation, "Saturation", "saturation", NumberType::percentage()));
+    attributes.insert(new NumberAttribute(ItemType::color(), AttributeIds::colorQuality, "Quality", "quality", NumberType::percentage()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::color(), AttributeIds::colorQuality, "Quality Model Exception", ItemType::model(), "color_model_quality", NumberType::percentage()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::color(), AttributeIds::colorQuality, "Quality Fixture Exception", ItemType::fixture(), "color_fixture_quality", NumberType::percentage()));
-    attributes.insert(new NumberAttribute(ItemType::color(), AttributeIds::colorQuality, "Quality", "quality", NumberType::percentage()));
     attributes.insert(new ItemListAttribute(ItemType::color(), AttributeIds::colorRaws, "Raws", ItemType::raw(), "color_raws"));
 
+    attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::positionPan, "Pan", "pan", NumberType::angle()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::position(), AttributeIds::positionPan, "Pan Model Exception", ItemType::model(), "position_model_pan", NumberType::angle()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::position(), AttributeIds::positionPan, "Pan Fixture Exception", ItemType::fixture(), "position_fixture_pan", NumberType::angle()));
-    attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::positionPan, "Pan", "pan", NumberType::angle()));
+    attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::positionTilt, "Tilt", "tilt", NumberType::tilt()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::position(), AttributeIds::positionTilt, "Tilt Model Exception", ItemType::model(), "position_model_tilt", NumberType::tilt()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::position(), AttributeIds::positionTilt, "Tilt Fixture Exception", ItemType::fixture(), "position_fixture_tilt", NumberType::tilt()));
-    attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::positionTilt, "Tilt", "tilt", NumberType::tilt()));
+    attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::positionZoom, "Zoom", "zoom", NumberType::zoom()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::position(), AttributeIds::positionZoom, "Zoom Model Exception", ItemType::model(), "position_model_zoom", NumberType::zoom()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::position(), AttributeIds::positionZoom, "Zoom Fixture Exception", ItemType::fixture(), "position_fixture_zoom", NumberType::zoom()));
-    attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::positionZoom, "Zoom", "zoom", NumberType::zoom()));
+    attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::positionFocus, "Focus", "focus", NumberType::percentage()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::position(), AttributeIds::positionFocus, "Focus Model Exception", ItemType::model(), "position_model_focus", NumberType::percentage()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::position(), AttributeIds::positionFocus, "Focus FixtureException", ItemType::fixture(), "position_fixture_focus", NumberType::percentage()));
-    attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::positionFocus, "Focus", "focus", NumberType::percentage()));
     attributes.insert(new ItemListAttribute(ItemType::position(), AttributeIds::positionRaws, "Raws", ItemType::raw(), "position_raws"));
 
+    attributes.insert(new IntegerSpecificNumberAttribute(ItemType::raw(), AttributeIds::rawChannelValues, "Channel Values", "raw_channel_values", NumberType::channel(), NumberType::dmxValue()));
     attributes.insert(new ItemAndIntegerSpecificNumberAttribute(ItemType::raw(), AttributeIds::rawChannelValues, "Channel Values", ItemType::model(), "raw_model_channel_values", NumberType::channel(), NumberType::dmxValue()));
     attributes.insert(new ItemAndIntegerSpecificNumberAttribute(ItemType::raw(), AttributeIds::rawChannelValues, "Channel Values", ItemType::fixture(), "raw_fixture_channel_values", NumberType::channel(), NumberType::dmxValue()));
-    attributes.insert(new IntegerSpecificNumberAttribute(ItemType::raw(), AttributeIds::rawChannelValues, "Channel Values", "raw_channel_values", NumberType::channel(), NumberType::dmxValue()));
     attributes.insert(new BoolAttribute(ItemType::raw(), AttributeIds::rawMoveWhileDark, "Move while Dark", "movewhiledark"));
     attributes.insert(new BoolAttribute(ItemType::raw(), AttributeIds::rawFade, "Fade", "fade"));
 
@@ -170,8 +170,8 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     attributes.insert(new IntegerSpecificNumberAttribute(ItemType::effect(), AttributeIds::effectHold, "Hold", "effect_step_hold", NumberType::step(), NumberType::time()));
     attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::effectFade, "Fade", "fade", NumberType::time()));
     attributes.insert(new IntegerSpecificNumberAttribute(ItemType::effect(), AttributeIds::effectFade, "Fade", "effect_step_fade", NumberType::step(), NumberType::time()));
-    attributes.insert(new ItemSpecificNumberAttribute(ItemType::effect(), AttributeIds::effectPhase, "Phase", ItemType::fixture(), "effect_fixture_phase", NumberType::angle()));
     attributes.insert(new NumberAttribute(ItemType::effect(), AttributeIds::effectPhase, "Phase", "phase", NumberType::angle()));
+    attributes.insert(new ItemSpecificNumberAttribute(ItemType::effect(), AttributeIds::effectPhase, "Phase", ItemType::fixture(), "effect_fixture_phase", NumberType::angle()));
     attributes.insert(new BoolAttribute(ItemType::effect(), AttributeIds::effectSineFade, "Sine Fade", "sinefade"));
 
     attributes.insert(new NumberAttribute(ItemType::cuelist(), AttributeIds::cuelistPriority, "Priority", "priority", NumberType::priority()));
@@ -183,10 +183,10 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     attributes.insert(new ItemSpecificItemListAttribute(ItemType::cue(), AttributeIds::cueRaws, "Raws", ItemType::group(), ItemType::raw(), "cue_group_raws", true));
     attributes.insert(new ItemSpecificItemListAttribute(ItemType::cue(), AttributeIds::cueEffects, "Effects", ItemType::group(), ItemType::effect(), "cue_group_effects", true));
     attributes.insert(new BoolAttribute(ItemType::cue(), AttributeIds::cueBlock, "Block", "block"));
-    attributes.insert(new ItemSpecificNumberAttribute(ItemType::cue(), AttributeIds::cueBlock, "Fade", ItemType::fixture(), "cue_fixture_fade", NumberType::time()));
-    attributes.insert(new NumberAttribute(ItemType::cue(), AttributeIds::cueBlock, "Fade", "fade", NumberType::time()));
-    attributes.insert(new ItemSpecificNumberAttribute(ItemType::cue(), AttributeIds::cueDelay, "Delay", ItemType::fixture(), "cue_fixture_delay", NumberType::time()));
+    attributes.insert(new NumberAttribute(ItemType::cue(), AttributeIds::cueFade, "Fade", "fade", NumberType::time()));
+    attributes.insert(new ItemSpecificNumberAttribute(ItemType::cue(), AttributeIds::cueFade, "Fade", ItemType::fixture(), "cue_fixture_fade", NumberType::time()));
     attributes.insert(new NumberAttribute(ItemType::cue(), AttributeIds::cueDelay, "Delay", "delay", NumberType::time()));
+    attributes.insert(new ItemSpecificNumberAttribute(ItemType::cue(), AttributeIds::cueDelay, "Delay", ItemType::fixture(), "cue_fixture_delay", NumberType::time()));
     attributes.insert(new BoolAttribute(ItemType::cue(), AttributeIds::cueFollow, "Follow", "follow"));
     attributes.insert(new BoolAttribute(ItemType::cue(), AttributeIds::cueSineFade, "Sine Fade", "sinefade"));
 }
