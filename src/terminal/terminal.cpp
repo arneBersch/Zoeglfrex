@@ -249,7 +249,7 @@ void Terminal::execute() {
         }
     }
 
-    if (!attributeReached && !valueReached && (selectionIdKeys == QList<Keys::Key>({Keys::Minus}))) {
+    if (!attributeReached && !valueReached && (selectionIdKeys == QList<Keys::Key>({ selectionType.getKey(), Keys::Minus}))) {
         for (QString line : selectionType.deselectItems()) {
             printMessage(line);
         }
