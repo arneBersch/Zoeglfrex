@@ -60,6 +60,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
         StartScreen::setFileSetting("tracking", trackingButton->isChecked());
     });
     trackingButton->setChecked(StartScreen::getFileSetting("tracking", true).toBool());
+    StartScreen::setFileSetting("tracking", trackingButton->isChecked());
     promptLayout->addWidget(trackingButton);
 
     messages = new QPlainTextEdit();

@@ -38,6 +38,7 @@ private:
     void addRootLayerData(QByteArray* data, char vectorSuffix);
     QUdpSocket* socket = nullptr;
     QComboBox* networkInterfaceComboBox;
+    QSpinBox* prioritySpinBox;
     QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();
     QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
     uint8_t sequence = 0;

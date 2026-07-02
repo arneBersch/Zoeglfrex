@@ -30,7 +30,7 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
 
     QLabel* priorityLabel = new QLabel("Priority");
     layout->addWidget(priorityLabel, 2, 0);
-    QSpinBox* prioritySpinBox = new QSpinBox();
+    prioritySpinBox = new QSpinBox();
     prioritySpinBox->setMinimum(MIN_PRIORITY);
     prioritySpinBox->setMaximum(MAX_PRIORITY);
     prioritySpinBox->setValue(StartScreen::getFileSetting("sacn-priority", DEFAULT_PRIORITY).toInt());
@@ -117,7 +117,7 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         packet.append(source);
 
         // Priority (Octet 108)
-        packet.append((char)StartScreen::getFileSetting("sacn-priority", DEFAULT_PRIORITY).toInt());
+        packet.append((char)prioritySpinBox->value());
 
         // Synchronization Address (Octet 109-110)
         packet.append((char)0x00);
