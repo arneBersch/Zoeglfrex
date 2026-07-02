@@ -322,16 +322,16 @@ QList<QString> StartScreen::getCreateFileQueries() {
     queries.append("CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)");
 
     queries.append("CREATE VIEW currentgroup_fixtures AS SELECT fixtures.* FROM fixtures, group_fixtures, currentitems WHERE group_fixtures.item_key = currentitems.group_key AND fixtures.key = group_fixtures.valueitem_key");
-    queries.append("CREATE VIEW currentfixtures AS SELECT fixtures.* FROM fixtures, currentitems, group_fixtures WHERE currentitems.fixture_key = fixtures.key OR (currentitems.fixture_key IS NULL AND group_fixtures.item_key = currentitems.group_key AND fixtures.key = group_fixtures.valueitem_key)");
+    queries.append("CREATE VIEW currentfixtures AS SELECT DISTINCT fixtures.* FROM fixtures, currentitems, group_fixtures WHERE currentitems.fixture_key = fixtures.key OR (currentitems.fixture_key IS NULL AND group_fixtures.item_key = currentitems.group_key AND fixtures.key = group_fixtures.valueitem_key)");
     queries.append("CREATE VIEW currentcuelist_cues AS SELECT cues.* FROM cues, currentitems WHERE cues.cuelist_key = currentitems.cuelist_key");
     queries.append("CREATE VIEW currentcue AS SELECT cues.* FROM cues, currentitems, cuelists WHERE currentitems.cue_key = cues.key OR (currentitems.cue_key IS NULL AND currentitems.cuelist_key = cuelists.key AND cuelists.currentcue_key = cues.key)");
 
-    queries.append("CREATE TRIGGER resetfixture_trigger AFTER UPDATE OF group_key ON currentitems BEGIN UPDATE currentitems SET fixture_key = NULL; END");
-    queries.append("CREATE TRIGGER creategroup_trigger AFTER INSERT ON groups BEGIN UPDATE currentitems SET group_key = NEW.key WHERE group_key IS NULL; END");
-    queries.append("CREATE TRIGGER createcuelist_trigger AFTER INSERT ON cuelists BEGIN UPDATE currentitems SET cuelist_key = NEW.key WHERE cuelist_key IS NULL; END");
-    queries.append("CREATE TRIGGER resetcue_trigger AFTER UPDATE OF cuelist_key ON currentitems BEGIN UPDATE currentitems SET cue_key = NULL; END");
-    queries.append("CREATE TRIGGER createcues_trigger AFTER INSERT ON cues BEGIN UPDATE cues SET cuelist_key = (SELECT cuelist_key FROM currentitems) WHERE id = NEW.id AND cuelist_key IS NULL; END");
-    queries.append("CREATE TRIGGER updatelastcue_trigger AFTER UPDATE OF currentcue_key ON cuelists BEGIN UPDATE cuelists SET lastcue_key = OLD.currentcue_key WHERE key = OLD.key AND OLD.currentcue_key != NEW.currentcue_key; END");
+    queries.append("CREATE TRIGGER reset_fixture_trigger AFTER UPDATE OF group_key ON currentitems BEGIN UPDATE currentitems SET fixture_key = NULL; END");
+    queries.append("CREATE TRIGGER create_group_trigger AFTER INSERT ON groups BEGIN UPDATE currentitems SET group_key = NEW.key WHERE group_key IS NULL; END");
+    queries.append("CREATE TRIGGER create_cuelist_trigger AFTER INSERT ON cuelists BEGIN UPDATE currentitems SET cuelist_key = NEW.key WHERE cuelist_key IS NULL; END");
+    queries.append("CREATE TRIGGER reset_cue_trigger AFTER UPDATE OF cuelist_key ON currentitems BEGIN UPDATE currentitems SET cue_key = NULL; END");
+    queries.append("CREATE TRIGGER create_cues_trigger AFTER INSERT ON cues BEGIN UPDATE cues SET cuelist_key = (SELECT cuelist_key FROM currentitems) WHERE id = NEW.id AND cuelist_key IS NULL; END");
+    queries.append("CREATE TRIGGER update_last_cue_trigger AFTER UPDATE OF currentcue_key ON cuelists BEGIN UPDATE cuelists SET lastcue_key = OLD.currentcue_key WHERE key = OLD.key AND OLD.currentcue_key != NEW.currentcue_key; END");
 
     queries.append("CREATE INDEX models_sortkey_index ON models (sortkey)");
     queries.append("CREATE INDEX fixtures_sortkey_index ON fixtures (sortkey)");
