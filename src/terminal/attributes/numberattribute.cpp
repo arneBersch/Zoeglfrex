@@ -45,12 +45,12 @@ QStringList NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, Q
                 if (currentValueQuery.next()) {
                     value += currentValueQuery.value(0).toFloat();
                 } else {
-                    output.append(Terminal::formatWarningMessage("Failed loading the current " + tableAttribute + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist."));
+                    output.append(Terminal::formatWarningMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + " because this " + item.getSingular() + " doesn't exist."));
                     valueOk = false;
                 }
             } else {
                 qWarning() << Q_FUNC_INFO << currentValueQuery.executedQuery() << currentValueQuery.lastError().text();
-                output.append(Terminal::formatErrorMessage("Failed loading the current " + tableAttribute + " of " + item.getSingular() + " " + id + "."));
+                output.append(Terminal::formatErrorMessage("Failed loading the current " + name + " of " + item.getSingular() + " " + id + "."));
                 valueOk = false;
             }
         }
@@ -78,9 +78,9 @@ QStringList NumberAttribute::set(const QStringList ids, const QHash<Keys::Key, Q
 
     if (!successfulIds.isEmpty()) {
         if (difference) {
-            output.append(Terminal::formatSuccessMessage("Changed " + tableAttribute + " of " + item.format(successfulIds) + " by " + Keys::keysToString(valueKeys) + number.getUnit() + "."));
+            output.append(Terminal::formatSuccessMessage("Changed " + name + " of " + item.format(successfulIds) + " by " + Keys::keysToString(valueKeys) + number.getUnit() + "."));
         } else {
-            output.append(Terminal::formatSuccessMessage("Set " + tableAttribute + " of " + item.format(successfulIds) + " to " + Keys::keysToString(valueKeys) + number.getUnit() + "."));
+            output.append(Terminal::formatSuccessMessage("Set " + name + " of " + item.format(successfulIds) + " to " + Keys::keysToString(valueKeys) + number.getUnit() + "."));
         }
     }
 

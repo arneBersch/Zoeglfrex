@@ -48,6 +48,8 @@ QString Keys::keysToString(QList<Key> keys) {
 }
 
 QList<float> Keys::keysToNumbers(QList<Key> keys, const int amount) {
+    Q_ASSERT(amount > 0);
+
     QList<float> values;
     QList<Key> buffer;
     keys.append(Thru);
@@ -66,15 +68,17 @@ QList<float> Keys::keysToNumbers(QList<Key> keys, const int amount) {
     }
 
     QList<float> results;
-    if (amount == 1) {
-        results.append(values.first());
-    } else {
+    if (amount > 1) {
         for (int i = 0; i < amount; i++) {
             const float valueIndex = (values.length() - 1) * i / (float)(amount - 1);
             const float lastValue = values[std::floor(valueIndex)];
             const float nextValue = values[std::ceil(valueIndex)];
             results.append(lastValue + ((nextValue - lastValue) * std::fmod(valueIndex, 1)));
         }
+    } else if (values.length() == 1) {
+        results.append(values.first());
+    } else {
+        return QList<float>();
     }
 
     Q_ASSERT(results.length() == amount);
