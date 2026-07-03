@@ -46,7 +46,7 @@ QStringList IdAttribute::set(const QStringList ids, const QHash<Keys::Key, QStri
     for (int i = 0; i < itemKeys.length(); i++) {
         const int newKey = item.getItemKey(newIds[i]);
         if ((newKey >= 0) && !itemKeys.contains(newKey)) {
-            output.append("Can't set " + item.getSingular() + " IDs because the ID " + newIds[i] + " would be used twice.");
+            output.append(Terminal::formatErrorMessage("Can't set " + item.getSingular() + " IDs because the ID " + newIds[i] + " would be used twice."));
             return output;
         }
     }
