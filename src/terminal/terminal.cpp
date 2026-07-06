@@ -162,14 +162,14 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     attributes.insert(new BoolAttribute(ItemType::raw(), AttributeIds::rawMoveWhileDark, "Move while Dark", "movewhiledark"));
     attributes.insert(new BoolAttribute(ItemType::raw(), AttributeIds::rawFade, "Fade", "fade"));
 
-    attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::effectSteps, "Steps", "steps", NumberType::step()));
+    attributes.insert(new NumberAttribute(ItemType::effect(), AttributeIds::effectSteps, "Steps", "steps", NumberType::step()));
     attributes.insert(new IntegerSpecificItemListAttribute(ItemType::effect(), AttributeIds::effectIntensities, "Intensities", "effect_step_intensities", ItemType::intensity(), NumberType::step(), false));
     attributes.insert(new IntegerSpecificItemListAttribute(ItemType::effect(), AttributeIds::effectColors, "Colors", "effect_step_colors", ItemType::color(), NumberType::step(), false));
     attributes.insert(new IntegerSpecificItemListAttribute(ItemType::effect(), AttributeIds::effectPositions, "Positions", "effect_step_positions", ItemType::position(), NumberType::step(), false));
     attributes.insert(new IntegerSpecificItemListAttribute(ItemType::effect(), AttributeIds::effectRaws, "Raws", "effect_step_raws", ItemType::raw(), NumberType::step(), true));
-    attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::effectHold, "Hold", "hold", NumberType::time()));
+    attributes.insert(new NumberAttribute(ItemType::effect(), AttributeIds::effectHold, "Hold", "hold", NumberType::time()));
     attributes.insert(new IntegerSpecificNumberAttribute(ItemType::effect(), AttributeIds::effectHold, "Hold", "effect_step_hold", NumberType::step(), NumberType::time()));
-    attributes.insert(new NumberAttribute(ItemType::position(), AttributeIds::effectFade, "Fade", "fade", NumberType::time()));
+    attributes.insert(new NumberAttribute(ItemType::effect(), AttributeIds::effectFade, "Fade", "fade", NumberType::time()));
     attributes.insert(new IntegerSpecificNumberAttribute(ItemType::effect(), AttributeIds::effectFade, "Fade", "effect_step_fade", NumberType::step(), NumberType::time()));
     attributes.insert(new NumberAttribute(ItemType::effect(), AttributeIds::effectPhase, "Phase", "phase", NumberType::angle()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::effect(), AttributeIds::effectPhase, "Phase", ItemType::fixture(), "effect_fixture_phase", NumberType::angle()));
