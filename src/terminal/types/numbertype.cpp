@@ -54,11 +54,11 @@ NumberType NumberType::dmxValue() {
 }
 
 NumberType NumberType::tilt() {
-    return NumberType(0, 180, "°");
+    return NumberType(-180, 180, "°");
 }
 
 NumberType NumberType::zoom() {
-    return NumberType(-180, 180, "°");
+    return NumberType(0, 180, "°");
 }
 
 NumberType NumberType::panRange() {
