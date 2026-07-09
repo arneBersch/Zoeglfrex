@@ -34,8 +34,8 @@ QStringList IdAttribute::set(const QStringList ids, const QHash<Keys::Key, QStri
     for (int i = ids.length() - 1; i >= 0; i--) {
         const int key = item.getItemKey(ids[i], &output);
         if (key >= 0) {
-            itemKeys.append(key);
-            existingIds.append(ids[i]);
+            itemKeys.prepend(key);
+            existingIds.prepend(ids[i]);
         } else {
             newIds.removeAt(i);
         }
