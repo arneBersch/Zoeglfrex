@@ -70,12 +70,15 @@ void SacnServer::reloadNetworkInterfaces() {
 
 void SacnServer::loadSocket(int index) {
     index--;
+
     delete socket;
     socket = nullptr;
+
     if (index >= 0) {
         socket = new QUdpSocket();
         socket->bind(networkAddresses.at(index).ip());
         socket->setMulticastInterface(networkInterfaces.at(index));
+
         StartScreen::setFileSetting("sacn-interface", networkInterfaces.at(index).name());
         StartScreen::setFileSetting("sacn-address", networkAddresses.at(index).ip().toString());
     } else {
@@ -86,9 +89,11 @@ void SacnServer::loadSocket(int index) {
 
 void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
     universes = universeData.keys();
+
     if (socket == nullptr) {
         return;
     }
+
     for (const int universe : universeData.keys()) {
         const QByteArray data = universeData.value(universe);
         Q_ASSERT(data.size() <= 512);
@@ -166,7 +171,7 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         updateFlagsAndLength(&packet, 38);
         updateFlagsAndLength(&packet, 115);
 
-        const QString address = DATA_ADDRESS_FORMAT.arg(universe / 256, universe % 256);
+        const QString address = DATA_ADDRESS_FORMAT.arg(universe / 256).arg(universe % 256);
         const qint64 result = socket->writeDatagram(packet, QHostAddress(address), PORT);
         if (result < 0) {
             qWarning() << Q_FUNC_INFO << socket->error() << socket->errorString();
@@ -179,6 +184,7 @@ void SacnServer::sendUniverseList() {
     if (socket == nullptr) {
         return;
     }
+
     std::sort(universes.begin(), universes.end());
 
     QList<QList<int>> universePages;
