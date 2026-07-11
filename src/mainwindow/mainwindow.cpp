@@ -10,8 +10,6 @@
 #include "aboutwindow/aboutwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-    resize(1200, 800);
-
     dmxEngine = new DmxEngine(this);
     preview2d = new Preview2d(this);
     cuelistView = new CuelistView(this);
@@ -96,7 +94,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setCentralWidget(mainColumns);
 
     setWindowTitle("Zöglfrex");
+    resize(1200, 800);
     show();
+    raise();
 }
 
 void MainWindow::reload() {
