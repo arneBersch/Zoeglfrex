@@ -96,7 +96,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle("Zöglfrex");
     resize(1200, 800);
     show();
-    raise();
 }
 
 void MainWindow::reload() {

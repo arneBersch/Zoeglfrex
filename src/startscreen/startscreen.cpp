@@ -86,7 +86,6 @@ void StartScreen::openFile(const QString fileName) {
 
     QList<QString> queries;
     queries.append("PRAGMA foreign_keys = ON");
-
     if (fileExists) {
         const QString fileVersion = getFileSetting("fileversion", QString()).toString();
         if (fileVersion != FILEVERSION) {
@@ -99,6 +98,7 @@ void StartScreen::openFile(const QString fileName) {
     } else {
         queries.append(getCreateFileQueries());
     }
+    queries.append("UPDATE cuelists SET lastcue_key = NULL");
 
     for (QString queryText : queries) {
         QSqlQuery query;
