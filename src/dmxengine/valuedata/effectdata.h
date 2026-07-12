@@ -38,6 +38,7 @@ private:
     PositionData position;
     bool rawsGiven = false;
     RawData raws;
+    static QHash<int, int> getStepTimeFrames(int effectKey, int stepAmount, QString table);
     static int getStepKey(int step, int effectKey, QString table);
     static QList<int> getStepRawKeys(int step, int effectKey);
 };
