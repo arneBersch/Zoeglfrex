@@ -54,11 +54,11 @@ float PositionData::getPan(const int fixtureKey, const float panRange, const flo
         resultingAngle += 360;
     }
 
-    float pan = panAngle / panRange;
+    float pan = resultingAngle / panRange;
 
     const float lastFramePan = oldFixturePan.value(fixtureKey, 0);
 
-    for (float angle = panAngle; angle <= panRange; angle += 360) {
+    for (float angle = resultingAngle; angle <= panRange; angle += 360) {
         const float anglePan = angle / panRange;
 
         if (std::abs(lastFramePan - anglePan) < std::abs(lastFramePan - pan)) {
