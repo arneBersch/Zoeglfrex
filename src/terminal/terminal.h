@@ -12,73 +12,17 @@
 #include <QtWidgets>
 #include <QtSql>
 
-#include "constants.h"
+#include "keys.h"
+#include "attributes/attribute.h"
 
 class Terminal : public QWidget {
     Q_OBJECT
-private:
-    enum Key {
-        Zero, // 0
-        One, // 1
-        Two, // 2
-        Three, // 3
-        Four, // 4
-        Five, // 5
-        Six, // 6
-        Seven, // 7
-        Eight, // 8
-        Nine, // 9
-        Plus, // +
-        Minus, // -
-        Thru, // T
-        Period, // .
-        Set, // S
-        Attribute, // A
-        Model, // M
-        Fixture, // F
-        Group, // G
-        Intensity, // I
-        Color, // C
-        Position, // P
-        Raw, // R
-        Effect, // E
-        Cuelist, // L
-        Cue, // Q
-    };
-    struct ItemInfos {
-        QString selectTable;
-        QString updateTable;
-        QString singular;
-        QString plural;
-        Key key;
-    };
-    const ItemInfos modelInfos = {"models", "models", "Model", "Models", Model};
-    const ItemInfos fixtureInfos = {"fixtures", "fixtures", "Fixture", "Fixtures", Fixture};
-    const ItemInfos groupInfos = {"groups", "groups", "Group", "Groups", Group};
-    const ItemInfos intensityInfos = {"intensities", "intensities", "Intensity", "Intensities", Intensity};
-    const ItemInfos colorInfos = {"colors", "colors", "Color", "Colors", Color};
-    const ItemInfos positionInfos = {"positions", "positions", "Position", "Positions", Position};
-    const ItemInfos rawInfos = {"raws", "raws", "Raw", "Raws", Raw};
-    const ItemInfos effectInfos = {"effects", "effects", "Effect", "Effects", Effect};
-    const ItemInfos cuelistInfos = {"cuelists", "cuelists", "Cuelist", "Cuelists", Cuelist};
-    const ItemInfos cueInfos = {"currentcuelist_cues", "cues", "Cue", "Cues", Cue};
-    const QList<Key> itemKeys = {Model, Fixture, Group, Intensity, Color, Position, Raw, Effect, Cuelist, Cue};
-
-    struct NumberInfos {
-        float minValue;
-        float maxValue;
-        bool cyclic = false;
-        QString unit = QString();
-    };
-    const NumberInfos percentageInfos = {0, 100, false, "%"};
-    const NumberInfos angleInfos = {0, 360, true, "°"};
-
 public:
     Terminal(QWidget *parent = nullptr);
-    void info(QString message);
-    void success(QString message);
-    void warning(QString message);
-    void error(QString message);
+    static QString formatInfoMessage(QString text);
+    static QString formatSuccessMessage(QString text);
+    static QString formatWarningMessage(QString text);
+    static QString formatErrorMessage(QString text);
 signals:
     void dbChanged();
     void itemChanged(QString itemType, QStringList ids);
@@ -86,36 +30,16 @@ public slots:
     void reload();
 private:
     void execute();
-    void updateSortingKeys(ItemInfos item);
-    static bool compareIds(QString idA, QString idB);
-    void setCurrentItem(ItemInfos item, QString itemTable, QList<Key> idKeys, QString updateQueryText);
-    void setCueItem(ItemInfos item, QString valueTable, QList<Key> idKeys, bool multipleItemsAllowed);
-    void createItems(ItemInfos item, QStringList ids);
-    void deleteItems(ItemInfos item, QStringList ids);
-    void moveItems(ItemInfos item, QStringList ids, QList<Key> valueKeys);
-    void setBoolAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QList<Key> valueKeys);
-    void setTextAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QString regex);
-    template <typename T> void setNumberAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QList<Key> valueKeys, NumberInfos number);
-    void setItemAttribute(ItemInfos item, QString attribute, QString attributeName, QStringList ids, QList<Key> valueKeys, ItemInfos foreignItem);
-    void setItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QList<Key> valueKeys, ItemInfos foreignItem, QString valueTable);
-    template <typename T> void setItemSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, QString valueTable, NumberInfos number);
-    void setItemSpecificItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QList<Key> valueKeys, ItemInfos foreignItem, ItemInfos valueItem, QString valueTable, bool limitToOne = false);
-    template <typename T> void setIntegerSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QString integerId, QList<Key> valueKeys, QString valueTable, NumberInfos keyInteger, NumberInfos valueNumber);
-    void setIntegerSpecificItemListAttribute(ItemInfos item, QString attributeName, QStringList ids, QString integerId, QList<Key> valueKeys, ItemInfos valueItem, QString valueTable, NumberInfos keyInteger, bool limitToOne = false);
-    template <typename T> void setItemAndIntegerSpecificNumberAttribute(ItemInfos item, QString attributeName, QStringList ids, QStringList foreignItemIds, QString numberId, QList<Key> valueKeys, ItemInfos foreignItem, QString valueTable, NumberInfos keyNumber, NumberInfos valueNumber);
-    float keysToFloat(QList<Key> keys, bool* ok, float currentValue, NumberInfos number) const;
-    QStringList keysToIds(QList<Key> keys) const;
-    QString keysToString(QList<Key> keys) const;
-    void writeKey(Key key);
+    void writeKey(Keys::Key key);
+    void printMessage(QString message);
     void backspace();
     void clearPrompt();
-    QSettings* settings;
-    QList<Key> promptKeys;
+    QSet<Attribute*> attributes;
+    QList<Keys::Key> promptKeys;
     QPlainTextEdit *messages;
     QLabel* promptLabel;
     QPushButton* blindButton;
     QPushButton* trackingButton;
-    QHash<Key, QString> keyStrings;
 };
 
 #endif // TERMINAL_H

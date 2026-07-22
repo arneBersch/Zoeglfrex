@@ -84,7 +84,7 @@ void FixtureChannelModel::setRawKey(const int raw) {
         QChar channelChar = channelsString.at(i);
         ChannelData channel;
         channel.title = QString::number(i + 1) + ". ";
-        const bool fine = (channelChar != channelChar.toUpper());
+        const bool fine = channelChar != channelChar.toUpper();
         channelChar = channelChar.toUpper();
         if (channelChar == QChar('D')) {
             channel.title.append("Dimmer");
@@ -102,6 +102,10 @@ void FixtureChannelModel::setRawKey(const int raw) {
             channel.title.append("Magenta");
         } else if (channelChar == QChar('Y')) {
             channel.title.append("Yellow");
+        } else if (channelChar == QChar('H')) {
+            channel.title.append("Hue");
+        } else if (channelChar == QChar('S')) {
+            channel.title.append("Saturation");
         } else if (channelChar == QChar('P')) {
             channel.title.append("Pan");
         } else if (channelChar == QChar('T')) {

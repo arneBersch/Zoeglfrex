@@ -7,12 +7,18 @@
 */
 
 #include "mainwindow.h"
+#include "aboutwindow/aboutwindow.h"
 
-MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QMainWindow(parent) {
-    VERSION = version;
-    COPYRIGHT = copyright;
-
-    resize(1200, 800);
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+    dmxEngine = new DmxEngine(this);
+    preview2d = new Preview2d(this);
+    cuelistView = new CuelistView(this);
+    terminal = new Terminal(this);
+    inspector = new Inspector(this);
+    playbackMonitor = new PlaybackMonitor(this);
+    sacnServer = new SacnServer(this);
+    oscServer = new OscServer(this);
+    controlPanel = new ControlPanel(this);
 
     connect(dmxEngine, &DmxEngine::sendUniverses, sacnServer, &SacnServer::sendUniverses);
     connect(dmxEngine, &DmxEngine::updatePreviewFixtures, preview2d, &Preview2d::setFixtures);
@@ -21,7 +27,11 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     connect(terminal, &Terminal::dbChanged, this, &MainWindow::reload);
     connect(terminal, &Terminal::itemChanged, inspector, &Inspector::loadItems);
     connect(playbackMonitor, &PlaybackMonitor::dbChanged, this, &MainWindow::reload);
-    connect(controlPanel, &ControlPanel::dbChanged, this, &MainWindow::reload);
+    connect(oscServer, &OscServer::dbChanged, this, &MainWindow::reload);
+    connect(controlPanel, &ControlPanel::dbChanged, this, [this] {
+        terminal->reload();
+        controlPanel->reload();
+    });
     reload();
 
     new QShortcut(Qt::CTRL | Qt::Key_Q, this, [this] { close(); }, Qt::ApplicationShortcut);
@@ -44,6 +54,9 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     QAction* sacnSettingsAction = new QAction("sACN Settings");
     outputMenu->addAction(sacnSettingsAction);
     connect(sacnSettingsAction, &QAction::triggered, sacnServer, &SacnServer::show);
+    QAction* oscSettingsAction = new QAction("OSC Settings");
+    outputMenu->addAction(oscSettingsAction);
+    connect(oscSettingsAction, &QAction::triggered, oscServer, &SacnServer::show);
 
     QMenu* helpMenu = menuBar()->addMenu("Help");
     QAction* aboutAction = new QAction("About Zöglfrex");
@@ -71,15 +84,17 @@ MainWindow::MainWindow(QString version, QString copyright, QWidget *parent) : QM
     leftColumn->setChildrenCollapsible(false);
     leftColumn->addWidget(cuelistView);
     leftColumn->addWidget(terminalWidget);
-    leftColumn->setSizes(QList<int>() << 300 << 100);
+    leftColumn->setSizes(QList<int>({ 300, 100 }));
 
     QSplitter* mainColumns = new QSplitter();
     mainColumns->setChildrenCollapsible(false);
     mainColumns->addWidget(leftColumn);
     mainColumns->addWidget(inspector);
-    mainColumns->setSizes(QList<int>() << 1000 << 500);
+    mainColumns->setSizes(QList<int>({ 1000, 500 }));
     setCentralWidget(mainColumns);
 
+    setWindowTitle("Zöglfrex");
+    resize(1200, 800);
     show();
 }
 
@@ -91,8 +106,7 @@ void MainWindow::reload() {
 }
 
 void MainWindow::about() {
-    AboutWindow about(VERSION, COPYRIGHT);
-    about.exec();
+    AboutWindow().exec();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {

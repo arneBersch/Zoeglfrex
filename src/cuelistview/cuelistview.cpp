@@ -7,10 +7,9 @@
 */
 
 #include "cuelistview.h"
+#include "startscreen/startscreen.h"
 
 CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
-    settings = new QSettings("Zoeglfrex");
-
     model = new CuelistTableModel();
 
     QVBoxLayout *layout = new QVBoxLayout();
@@ -39,9 +38,9 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
         } else if (index == 1) {
             model->setMode(CuelistTableModel::GroupMode);
         }
-        settings->setValue("cuelistview/mode", index);
+        StartScreen::setFileSetting("cuelistview-mode", index);
     });
-    modeComboBox->setCurrentIndex(settings->value("cuelistview/mode", 0).toInt());
+    modeComboBox->setCurrentIndex(StartScreen::getFileSetting("cuelistview-mode", 0).toInt());
     buttonHeader->addWidget(modeComboBox);
 
     filterComboBox = new QComboBox();
@@ -56,9 +55,9 @@ CuelistView::CuelistView(QWidget *parent) : QWidget(parent) {
         } else if (index == 2) {
             model->setRowFilter(CuelistTableModel::ChangedRows);
         }
-        settings->setValue("cuelistview/filter", index);
+        StartScreen::setFileSetting("cuelistview-filter", index);
     });
-    filterComboBox->setCurrentIndex(settings->value("cuelistview/filter", 0).toInt());
+    filterComboBox->setCurrentIndex(StartScreen::getFileSetting("cuelistview-filter", 0).toInt());
     buttonHeader->addWidget(filterComboBox);
 
     cuelistTableView = new QTableView();

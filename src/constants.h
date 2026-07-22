@@ -11,6 +11,16 @@
 
 #include <QString>
 
+const QString VERSION = "1.1.0";
+const QString FILEVERSION = "1.1.0";
+const QString COPYRIGHT = "Copyright (c) 2026 Arne Bersch (zoeglfrex-dmx@web.de)";
+const QString LICENSE_HEADER = QString(
+    "Zöglfrex is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
+    "\nZöglfrex is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    "\nSee the GNU General Public License for more details."
+    "\nYou should have received a copy of the GNU General Public License along with Zöglfrex. If not, see <https://www.gnu.org/licenses/>."
+);
+
 namespace AttributeIds {
 const char* const id = "0";
 const char* const label = "1";

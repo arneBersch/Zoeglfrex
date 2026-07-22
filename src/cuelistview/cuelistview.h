@@ -26,7 +26,6 @@ private:
     void selectItem(QString table, QString currentSortkeyQueryText, QString updateQueryText, bool next);
     void deselectItem(QString currentItemsTableKey);
     void setCurrentItemLabel(QString queryText, QString itemName, QLabel* label);
-    QSettings* settings;
     CuelistTableModel* model;
     QTableView *cuelistTableView;
     QLabel* fixtureLabel;

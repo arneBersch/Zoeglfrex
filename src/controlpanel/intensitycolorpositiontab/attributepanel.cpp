@@ -48,7 +48,7 @@ void AttributePanel::reload(const int item, const int model, const int fixture) 
     itemKey = item;
     modelKey = model;
     fixtureKey = fixture;
-    const bool itemGiven = (itemKey >= 0);
+    const bool itemGiven = itemKey >= 0;
 
     valueButton->setEnabled(itemGiven);
     valueButton->setChecked(itemGiven);
@@ -120,8 +120,8 @@ void AttributePanel::setException(const int exceptionItemKey, const bool excepti
 }
 
 void AttributePanel::setExceptionButton(const int exceptionItemKey, QPushButton* button, float* value, const QString table) {
-    const bool itemGiven = (itemKey >= 0);
-    const bool exceptionItemGiven = (exceptionItemKey >= 0);
+    const bool itemGiven = itemKey >= 0;
+    const bool exceptionItemGiven = exceptionItemKey >= 0;
     button->setEnabled(itemGiven && exceptionItemGiven);
     bool valueGiven = false;
     if (itemGiven && exceptionItemGiven) {

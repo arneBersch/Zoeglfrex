@@ -16,13 +16,10 @@ class SacnServer : public QWidget {
     Q_OBJECT
 public:
     SacnServer(QWidget* parent = nullptr);
-
 public slots:
     void sendUniverses(QHash<int, QByteArray> universeData);
-
 private slots:
     void loadSocket(int socketIndex);
-
 private:
     const int MIN_PRIORITY = 0;
     const int MAX_PRIORITY = 200;
@@ -39,9 +36,9 @@ private:
     void reloadNetworkInterfaces();
     void updateFlagsAndLength(QByteArray* data, int index);
     void addRootLayerData(QByteArray* data, char vectorSuffix);
-    QSettings* settings;
     QUdpSocket* socket = nullptr;
     QComboBox* networkInterfaceComboBox;
+    QSpinBox* prioritySpinBox;
     QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();
     QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
     uint8_t sequence = 0;

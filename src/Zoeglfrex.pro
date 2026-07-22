@@ -21,15 +21,40 @@ SOURCES += \
     cuelistview/cuelisttablemodel.cpp \
     cuelistview/cuelistview.cpp \
     dmxengine/dmxengine.cpp \
+    dmxengine/mwdmanager.cpp \
+    dmxengine/valuedata/colordata.cpp \
+    dmxengine/valuedata/cuedata.cpp \
+    dmxengine/valuedata/effectdata.cpp \
+    dmxengine/valuedata/intensitydata.cpp \
+    dmxengine/valuedata/positiondata.cpp \
+    dmxengine/valuedata/rawdata.cpp \
+    dmxengine/valuedata/valuedata.cpp \
     inspector/inspector.cpp \
     inspector/itemtablemodel.cpp \
     main.cpp \
     mainwindow/mainwindow.cpp \
+    oscserver/oscserver.cpp \
     playbackmonitor/playbackmonitor.cpp \
     preview2d/fixturegraphicsitem.cpp \
     preview2d/preview2d.cpp \
     sacnserver/sacnserver.cpp \
-    terminal/terminal.cpp
+    startscreen/startscreen.cpp \
+    terminal/attributes/attribute.cpp \
+    terminal/attributes/boolattribute.cpp \
+    terminal/attributes/idattribute.cpp \
+    terminal/attributes/integerspecificitemlistattribute.cpp \
+    terminal/attributes/integerspecificnumberattribute.cpp \
+    terminal/attributes/itemandintegerspecificnumberattribute.cpp \
+    terminal/attributes/itemattribute.cpp \
+    terminal/attributes/itemlistattribute.cpp \
+    terminal/attributes/itemspecificitemlistattribute.cpp \
+    terminal/attributes/itemspecificnumberattribute.cpp \
+    terminal/attributes/numberattribute.cpp \
+    terminal/attributes/textattribute.cpp \
+    terminal/keys.cpp \
+    terminal/terminal.cpp \
+    terminal/types/itemtype.cpp \
+    terminal/types/numbertype.cpp
 
 HEADERS += \
     aboutwindow/aboutwindow.h \
@@ -42,14 +67,39 @@ HEADERS += \
     cuelistview/cuelisttablemodel.h \
     cuelistview/cuelistview.h \
     dmxengine/dmxengine.h \
+    dmxengine/mwdmanager.h \
+    dmxengine/valuedata/colordata.h \
+    dmxengine/valuedata/cuedata.h \
+    dmxengine/valuedata/effectdata.h \
+    dmxengine/valuedata/intensitydata.h \
+    dmxengine/valuedata/positiondata.h \
+    dmxengine/valuedata/rawdata.h \
+    dmxengine/valuedata/valuedata.h \
     inspector/inspector.h \
     inspector/itemtablemodel.h \
     mainwindow/mainwindow.h \
+    oscserver/oscserver.h \
     playbackmonitor/playbackmonitor.h \
     preview2d/fixturegraphicsitem.h \
     preview2d/preview2d.h \
     sacnserver/sacnserver.h \
-    terminal/terminal.h
+    startscreen/startscreen.h \
+    terminal/attributes/attribute.h \
+    terminal/attributes/boolattribute.h \
+    terminal/attributes/idattribute.h \
+    terminal/attributes/integerspecificitemlistattribute.h \
+    terminal/attributes/integerspecificnumberattribute.h \
+    terminal/attributes/itemandintegerspecificnumberattribute.h \
+    terminal/attributes/itemattribute.h \
+    terminal/attributes/itemlistattribute.h \
+    terminal/attributes/itemspecificitemlistattribute.h \
+    terminal/attributes/itemspecificnumberattribute.h \
+    terminal/attributes/numberattribute.h \
+    terminal/attributes/textattribute.h \
+    terminal/keys.h \
+    terminal/terminal.h \
+    terminal/types/itemtype.h \
+    terminal/types/numbertype.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

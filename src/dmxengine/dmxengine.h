@@ -13,52 +13,26 @@
 #include <QtSql>
 
 #include "preview2d/preview2d.h"
+#include "mwdmanager.h"
 
 class DmxEngine : public QWidget {
     Q_OBJECT
 public:
     DmxEngine(QWidget* parent = nullptr);
-private:
-    struct ColorData {
-        float red = 100;
-        float green = 100;
-        float blue = 100;
-        float quality = 100;
-    };
-    struct PositionData {
-        float pan = 0;
-        float tilt = 0;
-        float zoom = 15;
-        float focus = 0;
-    };
-    struct RawChannelData {
-        uint8_t value = 0;
-        bool fading = false;
-        bool moveWhileDark = false;
-    };
 signals:
     void sendUniverses(QHash<int, QByteArray> universes);
     void updatePreviewFixtures(QHash<int, Preview2d::PreviewData> fixtures);
     void dbChanged();
 private:
     void generateDmx();
-    void renderCue(int cueKey, QList<int> groupKeys, QHash<int, QSet<int>> groupFixtureKeys, QHash<int, QHash<int, int>> oldGroupEffectFrames, QHash<int, float>* fixtureIntensities, QHash<int, ColorData>* fixtureColors, QHash<int, PositionData>* fixturePositions, QHash<int, QHash<int, RawChannelData>>* fixtureRaws);
-    float getFixtureIntensity(int fixtureKey, int intensityKey);
-    ColorData getFixtureColor(int fixtureKey, int colorKey);
-    PositionData getFixturePosition(int fixtureKey, int positionKey);
-    QHash<int, RawChannelData> getFixtureRaws(int fixtureKey, QList<int> rawKeys);
-    void getFixtureEffects(int fixtureKey, QList<int> effectKeys, QHash<int, int> effectFrames, bool* intensityInformation, float* intensity, bool* colorInformation, ColorData* color, bool* PositionInformation, PositionData* position, QHash<int, RawChannelData>* raws);
-    float getFixtureValue(int fixtureKey, int itemKey, QString itemTable, QString itemTableAttribute, QString modelExceptionTable, QString fixtureExceptionTable);
-    QSettings* settings;
+    void checkFollow();
     QPushButton* highlightButton;
     QPushButton* soloButton;
     QProgressBar* fadeProgressBar;
     QPushButton* skipFadeButton;
+    QPushButton* smoothDimButton;
 
-    QHash<int, float> fixturePan;
-
-    QHash<int, QHash<int, int>> groupEffectFrames;
-
+    QHash<int, float> fixtureDimmer;
     QHash<int, int> cuelistCurrentCueKeys;
     QHash<int, int> cuelistFadeFrames;
     QHash<int, QHash<int, int>> cuelistFixtureFadeFrames;
@@ -68,7 +42,9 @@ private:
     QHash<int, int> cuelistRemainingTransitionFrames;
     QHash<int, bool> cuelistSineFade;
 
-    const int FRAMEDURATION = 25;
+    MwDManager mwdManager;
 };
+
+const int FRAMEDURATION = 25;
 
 #endif // DMXENGINE_H

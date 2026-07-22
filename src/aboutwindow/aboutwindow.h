@@ -14,7 +14,7 @@
 class AboutWindow : public QDialog {
     Q_OBJECT
 public:
-    AboutWindow(QString version, QString copyright, QWidget *parent = nullptr);
+    AboutWindow(QWidget *parent = nullptr);
 };
 
 #endif // ABOUTWINDOW_H
