@@ -11,7 +11,7 @@
 FixtureGraphicsItem::FixtureGraphicsItem() {}
 
 QRectF FixtureGraphicsItem::boundingRect() const {
-    return QRectF(-ellipseWidth / 2, -ellipseWidth / 2, ellipseWidth, ellipseWidth);
+    return QRectF(-textWidth / 2, -ellipseWidth / 2, textWidth, ellipseWidth + textOffset + textHeight);
 }
 
 void FixtureGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) {

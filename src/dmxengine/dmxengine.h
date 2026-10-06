@@ -26,6 +26,7 @@ signals:
 private:
     void generateDmx();
     void checkFollow();
+    int secondsToFrames(float seconds);
     QPushButton* highlightButton;
     QPushButton* soloButton;
     QProgressBar* fadeProgressBar;

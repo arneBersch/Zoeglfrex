@@ -114,8 +114,8 @@ void DmxEngine::generateDmx() {
                 transitionQuery.bindValue(":key", currentCueKey);
                 if (transitionQuery.exec()) {
                     if (transitionQuery.next()) {
-                        const int standardFadeFrames = transitionQuery.value(0).toFloat() * 1000 / FRAMEDURATION;
-                        const int standardDelayFrames = transitionQuery.value(1).toFloat() * 1000 / FRAMEDURATION;
+                        const int standardFadeFrames = secondsToFrames(transitionQuery.value(0).toFloat());
+                        const int standardDelayFrames = secondsToFrames(transitionQuery.value(1).toFloat());
                         const bool sineFade = transitionQuery.value(2).toInt() == 1;
 
                         QHash<int, int> fixtureFadeFrames;
@@ -126,7 +126,7 @@ void DmxEngine::generateDmx() {
                         if (groupFadeQuery.exec()) {
                             while (groupFadeQuery.next()) {
                                 const int groupKey = groupFadeQuery.value(0).toInt();
-                                const int fadeFrames = groupFadeQuery.value(1).toFloat() * 1000 / FRAMEDURATION;
+                                const int fadeFrames = secondsToFrames(groupFadeQuery.value(1).toFloat());
                                 for (int fixtureKey : groupFixtureKeys.value(groupKey, QSet<int>())) {
                                     fixtureFadeFrames[fixtureKey] = fadeFrames;
                                 }
@@ -141,7 +141,7 @@ void DmxEngine::generateDmx() {
                         if (fixtureFadeQuery.exec()) {
                             while (fixtureFadeQuery.next()) {
                                 const int fixtureKey = fixtureFadeQuery.value(0).toInt();
-                                const int fadeFrames = fixtureFadeQuery.value(1).toFloat() * 1000 / FRAMEDURATION;
+                                const int fadeFrames = secondsToFrames(fixtureFadeQuery.value(1).toFloat());
                                 fixtureFadeFrames[fixtureKey] = fadeFrames;
                                 maxFadeFrames = std::max(fadeFrames, maxFadeFrames);
                             }
@@ -157,7 +157,7 @@ void DmxEngine::generateDmx() {
                         if (groupDelayQuery.exec()) {
                             while (groupDelayQuery.next()) {
                                 const int groupKey = groupDelayQuery.value(0).toInt();
-                                const int delayFrames = groupDelayQuery.value(1).toFloat() * 1000 / FRAMEDURATION;
+                                const int delayFrames = secondsToFrames(groupDelayQuery.value(1).toFloat());
                                 for (int fixtureKey : groupFixtureKeys.value(groupKey, QSet<int>())) {
                                     fixtureDelayFrames[fixtureKey] = delayFrames;
                                 }
@@ -172,7 +172,7 @@ void DmxEngine::generateDmx() {
                         if (fixtureDelayQuery.exec()) {
                             while (fixtureDelayQuery.next()) {
                                 const int fixtureKey = fixtureDelayQuery.value(0).toInt();
-                                const int delayFrames = fixtureDelayQuery.value(1).toFloat() * 1000 / FRAMEDURATION;
+                                const int delayFrames = secondsToFrames(fixtureDelayQuery.value(1).toFloat());
                                 fixtureDelayFrames[fixtureKey] = delayFrames;
                                 maxDelayFrames = std::max(delayFrames, maxDelayFrames);
                             }
@@ -444,4 +444,8 @@ void DmxEngine::checkFollow() {
     } else {
         qWarning() << Q_FUNC_INFO << cuelistQuery.executedQuery() << cuelistQuery.lastError().text();
     }
+}
+
+int DmxEngine::secondsToFrames(const float seconds) {
+    return seconds * 1000 / FRAMEDURATION;
 }

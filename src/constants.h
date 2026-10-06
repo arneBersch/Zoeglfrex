@@ -11,7 +11,7 @@
 
 #include <QString>
 
-const QString VERSION = "1.1.0";
+const QString VERSION = "1.1.1";
 const QString FILEVERSION = "1.1.1";
 const QString COPYRIGHT = "Copyright (c) 2026 Arne Bersch (zoeglfrex-dmx@web.de)";
 const QString LICENSE_HEADER = QString(
