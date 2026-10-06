@@ -302,7 +302,9 @@ QList<QString> StartScreen::getCreateFileQueries() {
     queries.append(getCreateItemSpecificItemListTableQuery("cue_group_raws", "cues", "groups", "raws"));
     queries.append(getCreateItemSpecificItemListTableQuery("cue_group_effects", "cues", "groups", "effects"));
     queries.append(getCreateItemSpecificNumberTableQuery("cue_fixture_fade", "cues", "fixtures", "REAL"));
+    queries.append(getCreateItemSpecificNumberTableQuery("cue_group_fade", "cues", "groups", "REAL"));
     queries.append(getCreateItemSpecificNumberTableQuery("cue_fixture_delay", "cues", "fixtures", "REAL"));
+    queries.append(getCreateItemSpecificNumberTableQuery("cue_group_delay", "cues", "groups", "REAL"));
 
     queries.append("ALTER TABLE cuelists ADD COLUMN currentcue_key INTEGER REFERENCES cues (key) ON DELETE SET NULL");
     queries.append("ALTER TABLE cuelists ADD COLUMN lastcue_key INTEGER REFERENCES cues (key) ON DELETE SET NULL");

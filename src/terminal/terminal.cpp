@@ -186,8 +186,10 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     attributes.insert(new BoolAttribute(ItemType::cue(), AttributeIds::cueBlock, "Block", "block"));
     attributes.insert(new NumberAttribute(ItemType::cue(), AttributeIds::cueFade, "Fade", "fade", NumberType::time()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::cue(), AttributeIds::cueFade, "Fade", ItemType::fixture(), "cue_fixture_fade", NumberType::time()));
+    attributes.insert(new ItemSpecificNumberAttribute(ItemType::cue(), AttributeIds::cueFade, "Fade", ItemType::group(), "cue_group_fade", NumberType::time()));
     attributes.insert(new NumberAttribute(ItemType::cue(), AttributeIds::cueDelay, "Delay", "delay", NumberType::time()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::cue(), AttributeIds::cueDelay, "Delay", ItemType::fixture(), "cue_fixture_delay", NumberType::time()));
+    attributes.insert(new ItemSpecificNumberAttribute(ItemType::cue(), AttributeIds::cueDelay, "Delay", ItemType::group(), "cue_group_delay", NumberType::time()));
     attributes.insert(new BoolAttribute(ItemType::cue(), AttributeIds::cueFollow, "Follow", "follow"));
     attributes.insert(new BoolAttribute(ItemType::cue(), AttributeIds::cueSineFade, "Sine Fade", "sinefade"));
 }

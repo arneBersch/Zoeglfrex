@@ -12,7 +12,7 @@
 #include <QString>
 
 const QString VERSION = "1.1.0";
-const QString FILEVERSION = "1.1.0";
+const QString FILEVERSION = "1.1.1";
 const QString COPYRIGHT = "Copyright (c) 2026 Arne Bersch (zoeglfrex-dmx@web.de)";
 const QString LICENSE_HEADER = QString(
     "Zöglfrex is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."

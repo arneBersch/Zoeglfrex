@@ -120,6 +120,21 @@ void DmxEngine::generateDmx() {
 
                         QHash<int, int> fixtureFadeFrames;
                         int maxFadeFrames = standardFadeFrames;
+                        QSqlQuery groupFadeQuery;
+                        groupFadeQuery.prepare("SELECT foreignitem_key, value FROM cue_group_fade WHERE item_key = :cue");
+                        groupFadeQuery.bindValue(":cue", currentCueKey);
+                        if (groupFadeQuery.exec()) {
+                            while (groupFadeQuery.next()) {
+                                const int groupKey = groupFadeQuery.value(0).toInt();
+                                const int fadeFrames = groupFadeQuery.value(1).toFloat() * 1000 / FRAMEDURATION;
+                                for (int fixtureKey : groupFixtureKeys.value(groupKey, QSet<int>())) {
+                                    fixtureFadeFrames[fixtureKey] = fadeFrames;
+                                }
+                                maxFadeFrames = std::max(fadeFrames, maxFadeFrames);
+                            }
+                        } else {
+                            qWarning() << Q_FUNC_INFO << groupFadeQuery.executedQuery() << groupFadeQuery.lastError().text();
+                        }
                         QSqlQuery fixtureFadeQuery;
                         fixtureFadeQuery.prepare("SELECT foreignitem_key, value FROM cue_fixture_fade WHERE item_key = :cue");
                         fixtureFadeQuery.bindValue(":cue", currentCueKey);
@@ -136,6 +151,21 @@ void DmxEngine::generateDmx() {
 
                         QHash<int, int> fixtureDelayFrames;
                         int maxDelayFrames = standardDelayFrames;
+                        QSqlQuery groupDelayQuery;
+                        groupDelayQuery.prepare("SELECT foreignitem_key, value FROM cue_group_delay WHERE item_key = :cue");
+                        groupDelayQuery.bindValue(":cue", currentCueKey);
+                        if (groupDelayQuery.exec()) {
+                            while (groupDelayQuery.next()) {
+                                const int groupKey = groupDelayQuery.value(0).toInt();
+                                const int delayFrames = groupDelayQuery.value(1).toFloat() * 1000 / FRAMEDURATION;
+                                for (int fixtureKey : groupFixtureKeys.value(groupKey, QSet<int>())) {
+                                    fixtureDelayFrames[fixtureKey] = delayFrames;
+                                }
+                                maxDelayFrames = std::max(delayFrames, maxDelayFrames);
+                            }
+                        } else {
+                            qWarning() << Q_FUNC_INFO << groupDelayQuery.executedQuery() << groupDelayQuery.lastError().text();
+                        }
                         QSqlQuery fixtureDelayQuery;
                         fixtureDelayQuery.prepare("SELECT foreignitem_key, value FROM cue_fixture_delay WHERE item_key = :cue");
                         fixtureDelayQuery.bindValue(":cue", currentCueKey);

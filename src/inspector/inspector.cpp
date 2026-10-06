@@ -167,8 +167,10 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                         infos.append(QString(AttributeIds::cueBlock) + " Block: " + getBoolAttribute(table, "block", key));
                         infos.append(QString(AttributeIds::cueFade) + " Fade: " + getNumberAttribute(table, "fade", key, "s"));
                         infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "cue_fixture_fade", "s", key));
+                        infos.append("   Group Exceptions: " + getItemSpecificNumberAttribute("groups", "cue_group_fade", "s", key));
                         infos.append(QString(AttributeIds::cueDelay) + " Delay: " + getNumberAttribute(table, "delay", key, "s"));
                         infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "cue_fixture_delay", "s", key));
+                        infos.append("   Group Exceptions: " + getItemSpecificNumberAttribute("groups", "cue_group_delay", "s", key));
                         infos.append(QString(AttributeIds::cueFollow) + " Follow: " + getBoolAttribute(table, "follow", key));
                         infos.append(QString(AttributeIds::cueSineFade) + " Sine Fade: " + getBoolAttribute(table, "sinefade", key));
                     } else {
