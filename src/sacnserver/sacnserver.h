@@ -43,6 +43,7 @@ private:
     QPushButton* setUnicastAddressButton;
     QSpinBox* prioritySpinBox;
     QHostAddress unicastAddress;
+    bool ipv6Interface = true;
     QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();
     QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
     uint8_t sequence = 0;

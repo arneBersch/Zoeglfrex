@@ -46,7 +46,7 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
 
     QLabel* unicastAddressLabel = new QLabel("Unicast Address");
     layout->addWidget(unicastAddressLabel, 3, 0);
-    setUnicastAddressButton = new QPushButton("No Address set.");
+    setUnicastAddressButton = new QPushButton("No Address set");
     layout->addWidget(setUnicastAddressButton, 3, 1);
     if (unicastAddress.setAddress(StartScreen::getFileSetting("sacn-unicastaddress", "").toString())) {
         setUnicastAddressButton -> setText(unicastAddress.toString());
@@ -80,7 +80,7 @@ void SacnServer::reloadNetworkInterfaces() {
     int interfaceIndex = 0;
     for (QNetworkInterface interface : QNetworkInterface::allInterfaces()) {
         for (QNetworkAddressEntry address : interface.addressEntries()) {
-            if (address.ip().protocol() == QAbstractSocket::IPv4Protocol) {
+            if (address.ip().protocol() == QAbstractSocket::IPv4Protocol || address.ip().protocol() == QAbstractSocket::IPv6Protocol) {
                 networkInterfaceComboBox->addItem(interface.name() + " (" + address.ip().toString() + ")");
                 networkInterfaces.append(interface);
                 networkAddresses.append(address);
@@ -109,6 +109,7 @@ void SacnServer::loadSocket(int index) {
 
     if (index >= 0) {
         socket = new QUdpSocket();
+        ipv6Interface = networkAddresses.at(index).ip().protocol() == QAbstractSocket::IPv6Protocol;
         socket->bind(networkAddresses.at(index).ip());
         socket->setMulticastInterface(networkInterfaces.at(index));
 
@@ -346,5 +347,11 @@ void SacnServer::updateFlagsAndLength(QByteArray* packet, const int index) {
 }
 
 QHostAddress SacnServer::generateHostAddress(const int universe) {
-    return QHostAddress(QString("239.255.%1.%2").arg(universe / 256).arg(universe % 256));
+    QString addressFormat = "239.255.%1.%2";
+    int base = 10;
+    if (ipv6Interface) {
+        addressFormat = "FF18::83:00:%1:%2";
+        base = 16;
+    }
+    return QHostAddress(addressFormat.arg(universe / 256, base).arg(universe % 256, base));
 }
