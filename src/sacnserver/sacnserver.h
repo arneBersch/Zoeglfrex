@@ -34,11 +34,15 @@ private:
 
     void sendUniverseList();
     void reloadNetworkInterfaces();
+    void setUnicastAddress();
     void updateFlagsAndLength(QByteArray* data, int index);
     void addRootLayerData(QByteArray* data, char vectorSuffix);
     QUdpSocket* socket = nullptr;
     QComboBox* networkInterfaceComboBox;
+    QComboBox* modeComboBox;
+    QPushButton* setUnicastAddressButton;
     QSpinBox* prioritySpinBox;
+    QHostAddress unicastAddress;
     QList<QNetworkInterface> networkInterfaces = QList<QNetworkInterface>();
     QList<QNetworkAddressEntry> networkAddresses = QList<QNetworkAddressEntry>();
     uint8_t sequence = 0;

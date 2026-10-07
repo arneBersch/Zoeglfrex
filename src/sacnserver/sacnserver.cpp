@@ -18,18 +18,37 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
     QLabel* networkInterfaceLabel = new QLabel("Network Interface");
     layout->addWidget(networkInterfaceLabel, 0, 0);
     networkInterfaceComboBox = new QComboBox();
+    layout->addWidget(networkInterfaceComboBox, 0, 1);
     reloadNetworkInterfaces();
-
     loadSocket(networkInterfaceComboBox->currentIndex());
     connect(networkInterfaceComboBox, &QComboBox::currentIndexChanged, this, &SacnServer::loadSocket);
-    layout->addWidget(networkInterfaceComboBox, 0, 1);
 
     QPushButton* reloadNetworkInterfaceButton = new QPushButton("Reload Network Interfaces");
     connect(reloadNetworkInterfaceButton, &QPushButton::clicked, this, &SacnServer::reloadNetworkInterfaces);
-    layout->addWidget(reloadNetworkInterfaceButton, 1, 0);
+    layout->addWidget(reloadNetworkInterfaceButton, 1, 0, 1, 2);
+
+    QLabel* modeLabel = new QLabel("Mode");
+    layout->addWidget(modeLabel, 2, 0);
+    modeComboBox = new QComboBox();
+    modeComboBox->addItem("Multicast");
+    modeComboBox->addItem("Unicast");
+    layout->addWidget(modeComboBox, 2, 1);
+    modeComboBox->setCurrentIndex(StartScreen::getFileSetting("sacn-mode", 0).toInt());
+    connect(modeComboBox, &QComboBox::currentIndexChanged, this, [](const int index) {
+        StartScreen::setFileSetting("sacn-mode", index);
+    });
+
+    QLabel* unicastAddressLabel = new QLabel("Unicast Address");
+    layout->addWidget(unicastAddressLabel, 3, 0);
+    setUnicastAddressButton = new QPushButton("No Address set.");
+    layout->addWidget(setUnicastAddressButton, 3, 1);
+    if (unicastAddress.setAddress(StartScreen::getFileSetting("sacn-unicastaddress", "").toString())) {
+        setUnicastAddressButton -> setText(unicastAddress.toString());
+    }
+    connect(setUnicastAddressButton, &QPushButton::clicked, this, &SacnServer::setUnicastAddress);
 
     QLabel* priorityLabel = new QLabel("Priority");
-    layout->addWidget(priorityLabel, 2, 0);
+    layout->addWidget(priorityLabel, 4, 0);
     prioritySpinBox = new QSpinBox();
     prioritySpinBox->setMinimum(MIN_PRIORITY);
     prioritySpinBox->setMaximum(MAX_PRIORITY);
@@ -37,7 +56,7 @@ SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
     connect(prioritySpinBox, &QSpinBox::valueChanged, this, [](int port) {
         StartScreen::setFileSetting("sacn-priority", port);
     });
-    layout->addWidget(prioritySpinBox, 2, 1);
+    layout->addWidget(prioritySpinBox, 4, 1);
 
     QTimer* universeListTimer = new QTimer();
     connect(universeListTimer, &QTimer::timeout, this, &SacnServer::sendUniverseList);
@@ -68,6 +87,14 @@ void SacnServer::reloadNetworkInterfaces() {
     networkInterfaceComboBox->setCurrentIndex(interfaceIndex);
 }
 
+void SacnServer::setUnicastAddress() {
+    const QString text = QInputDialog::getText(this, "Set Unicast Address", "sACN Unicast Address");
+    if (unicastAddress.setAddress(text)) {
+        StartScreen::setFileSetting("sacn-unicastaddress", unicastAddress.toString());
+        setUnicastAddressButton->setText(unicastAddress.toString());
+    }
+}
+
 void SacnServer::loadSocket(int index) {
     index--;
 
@@ -90,7 +117,7 @@ void SacnServer::loadSocket(int index) {
 void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
     universes = universeData.keys();
 
-    if (socket == nullptr) {
+    if (socket == nullptr || (modeComboBox->currentIndex() == 1 && unicastAddress.isNull())) {
         return;
     }
 
@@ -171,8 +198,11 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         updateFlagsAndLength(&packet, 38);
         updateFlagsAndLength(&packet, 115);
 
-        const QString address = DATA_ADDRESS_FORMAT.arg(universe / 256).arg(universe % 256);
-        const qint64 result = socket->writeDatagram(packet, QHostAddress(address), PORT);
+        QHostAddress address = QHostAddress(DATA_ADDRESS_FORMAT.arg(universe / 256).arg(universe % 256));
+        if (modeComboBox->currentIndex() == 1) {
+            address = unicastAddress;
+        }
+        const qint64 result = socket->writeDatagram(packet, address, PORT);
         if (result < 0) {
             qWarning() << Q_FUNC_INFO << socket->error() << socket->errorString();
         }
@@ -181,7 +211,7 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
 }
 
 void SacnServer::sendUniverseList() {
-    if (socket == nullptr) {
+    if (socket == nullptr || modeComboBox->currentIndex() != 0) { // only send the Universe List in Multicast Mode
         return;
     }
 
