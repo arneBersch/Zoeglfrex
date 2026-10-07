@@ -12,6 +12,12 @@
 SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
     setWindowTitle("Zöglfrex sACN Settings");
 
+    const QByteArray storedCID = StartScreen::getDeviceSetting("sacn-cid", QByteArray()).toByteArray();
+    if (storedCID.isEmpty()) {
+        cid = QUuid::createUuid().toRfc4122();
+        StartScreen::setDeviceSetting("sacn-cid", cid);
+    }
+
     QGridLayout* layout = new QGridLayout();
     setLayout(layout);
 
@@ -325,8 +331,8 @@ void SacnServer::addRootLayerData(QByteArray* packet, char vectorSuffix) {
     packet->append(vectorSuffix);
 
     // CID (Octet 22-37)
-    Q_ASSERT(CID.length() == 16);
-    packet->append(CID);
+    Q_ASSERT(cid.length() == 16);
+    packet->append(cid);
 }
 
 void SacnServer::updateFlagsAndLength(QByteArray* packet, const int index) {

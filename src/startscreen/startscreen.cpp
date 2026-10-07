@@ -55,7 +55,7 @@ StartScreen::StartScreen(QWidget* parent) : QWidget(parent) {
     layout->addWidget(openFileButton);
 
     QPushButton* lastFileButton = new QPushButton("Open Last File");
-    QString lastFile = QSettings("zoeglfrex").value("lastfile", QString()).toString();
+    QString lastFile = getDeviceSetting("lastfile", "").toString();
     if (lastFile.isEmpty()) {
         lastFileButton->setDisabled(true);
     } else {
@@ -113,7 +113,7 @@ void StartScreen::openFile(const QString fileName) {
         }
     }
     setFileSetting("fileversion", FILEVERSION);
-    QSettings("zoeglfrex").setValue("lastfile", fileName);
+    setDeviceSetting("lastfile", fileName);
 
     close();    
     new MainWindow();
@@ -471,4 +471,12 @@ QVariant StartScreen::getFileSetting(const QString key, const QVariant defaultVa
         return defaultValue;
     }
     return query.value(0);
+}
+
+void StartScreen::setDeviceSetting(const QString key, const QVariant value) {
+    QSettings("zoeglfrex").setValue(key, value);
+}
+
+QVariant StartScreen::getDeviceSetting(const QString key, const QVariant defaultValue) {
+    return QSettings("zoeglfrex").value(key, defaultValue);
 }

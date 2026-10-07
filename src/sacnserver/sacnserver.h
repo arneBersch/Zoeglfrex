@@ -29,7 +29,7 @@ private:
     const int PORT = 5568;
     const QString DATA_ADDRESS_FORMAT =  "239.255.%1.%2";
     const QHostAddress DISCOVERY_ADDRESS = QHostAddress("239.255.250.214");
-    const QByteArray CID = QUuid::createUuid().toRfc4122();
+    QByteArray cid;
     const int DISCOVERY_INTERVAL = 10 * 1000; // send the Discovery Universe List every 10 seconds
 
     void sendUniverseList();

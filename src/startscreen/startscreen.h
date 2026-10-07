@@ -17,6 +17,8 @@ public:
     StartScreen(QWidget *parent = nullptr);
     static void setFileSetting(QString key, QVariant value);
     static QVariant getFileSetting(QString key, QVariant defaultValue);
+    static void setDeviceSetting(QString key, QVariant value);
+    static QVariant getDeviceSetting(QString key, QVariant defaultValue);
 private:
     void openFile(QString fileName);
     const QString FILENAME_FILTER = "zfr Files (*.zfr)";
