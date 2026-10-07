@@ -12,8 +12,8 @@
 SacnServer::SacnServer(QWidget* parent) : QWidget(parent, Qt::Window) {
     setWindowTitle("Zöglfrex sACN Settings");
 
-    const QByteArray storedCID = StartScreen::getDeviceSetting("sacn-cid", QByteArray()).toByteArray();
-    if (storedCID.isEmpty()) {
+    cid = StartScreen::getDeviceSetting("sacn-cid", QByteArray()).toByteArray();
+    if (cid.isEmpty()) {
         cid = QUuid::createUuid().toRfc4122();
         StartScreen::setDeviceSetting("sacn-cid", cid);
     }
@@ -204,7 +204,7 @@ void SacnServer::sendUniverses(QHash<int, QByteArray> universeData) {
         updateFlagsAndLength(&packet, 38);
         updateFlagsAndLength(&packet, 115);
 
-        QHostAddress address = QHostAddress(DATA_ADDRESS_FORMAT.arg(universe / 256).arg(universe % 256));
+        QHostAddress address = generateHostAddress(universe);
         if (modeComboBox->currentIndex() == 1) {
             address = unicastAddress;
         }
@@ -290,7 +290,7 @@ void SacnServer::sendUniverseList() {
         updateFlagsAndLength(&packet, 38);
         updateFlagsAndLength(&packet, 112);
 
-        const qint64 result = socket->writeDatagram(packet, DISCOVERY_ADDRESS, PORT);
+        const qint64 result = socket->writeDatagram(packet, generateHostAddress(DISCOVERY_UNIVERSE), PORT);
         if (result < 0) {
             qWarning() << Q_FUNC_INFO << socket->error() << socket->errorString();
         }
@@ -343,4 +343,8 @@ void SacnServer::updateFlagsAndLength(QByteArray* packet, const int index) {
 
     (*packet)[index] = (char)(length / 256);
     (*packet)[index + 1] = (char)(length % 256);
+}
+
+QHostAddress SacnServer::generateHostAddress(const int universe) {
+    return QHostAddress(QString("239.255.%1.%2").arg(universe / 256).arg(universe % 256));
 }

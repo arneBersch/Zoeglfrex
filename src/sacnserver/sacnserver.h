@@ -26,9 +26,8 @@ private:
     const int DEFAULT_PRIORITY = 100;
     const int MIN_UNIVERSE = 1;
     const int MAX_UNIVERSE = 63999;
+    const int DISCOVERY_UNIVERSE = 64214;
     const int PORT = 5568;
-    const QString DATA_ADDRESS_FORMAT =  "239.255.%1.%2";
-    const QHostAddress DISCOVERY_ADDRESS = QHostAddress("239.255.250.214");
     QByteArray cid;
     const int DISCOVERY_INTERVAL = 10 * 1000; // send the Discovery Universe List every 10 seconds
 
@@ -37,6 +36,7 @@ private:
     void setUnicastAddress();
     void updateFlagsAndLength(QByteArray* data, int index);
     void addRootLayerData(QByteArray* data, char vectorSuffix);
+    QHostAddress generateHostAddress(int universe);
     QUdpSocket* socket = nullptr;
     QComboBox* networkInterfaceComboBox;
     QComboBox* modeComboBox;
