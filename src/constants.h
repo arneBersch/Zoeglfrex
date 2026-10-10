@@ -46,8 +46,9 @@ const char* const intensityRaws = "3";
 
 const char* const colorHue = "2";
 const char* const colorSaturation = "3";
-const char* const colorQuality = "4";
-const char* const colorRaws = "5";
+const char* const colorTemperature = "4";
+const char* const colorQuality = "5";
+const char* const colorRaws = "6";
 
 const char* const positionPan = "2";
 const char* const positionTilt = "3";

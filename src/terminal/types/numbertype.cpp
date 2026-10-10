@@ -77,6 +77,10 @@ NumberType NumberType::coordinate() {
     return NumberType(-1000, 1000);
 }
 
+NumberType NumberType::colorTemperature() {
+    return NumberType(1500, 12000, "K");
+}
+
 QVariant NumberType::format(float value) const {
     if (cyclic) {
         while (value < min) {

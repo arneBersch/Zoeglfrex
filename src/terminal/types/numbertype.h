@@ -28,6 +28,7 @@ public:
     static NumberType tiltRange();
     static NumberType zoomRange();
     static NumberType coordinate();
+    static NumberType colorTemperature();
     QString getUnit() const;
     QVariant format(float value) const;
 private:

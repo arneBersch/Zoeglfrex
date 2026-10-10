@@ -208,6 +208,7 @@ QList<QString> StartScreen::getCreateFileQueries() {
             "label TEXT DEFAULT ''",
             "hue REAL DEFAULT 0 NOT NULL",
             "saturation REAL DEFAULT 0 NOT NULL",
+            "temperature REAL DEFAULT 6000 NOT NULL",
             "quality REAL DEFAULT 100 NOT NULL",
         },
         {"key"}
@@ -216,6 +217,8 @@ QList<QString> StartScreen::getCreateFileQueries() {
     queries.append(getCreateItemSpecificNumberTableQuery("color_fixture_hue", "colors", "fixtures", "REAL"));
     queries.append(getCreateItemSpecificNumberTableQuery("color_model_saturation", "colors", "models", "REAL"));
     queries.append(getCreateItemSpecificNumberTableQuery("color_fixture_saturation", "colors", "fixtures", "REAL"));
+    queries.append(getCreateItemSpecificNumberTableQuery("color_model_temperature", "colors", "models", "REAL"));
+    queries.append(getCreateItemSpecificNumberTableQuery("color_fixture_temperature", "colors", "fixtures", "REAL"));
     queries.append(getCreateItemSpecificNumberTableQuery("color_model_quality", "colors", "models", "REAL"));
     queries.append(getCreateItemSpecificNumberTableQuery("color_fixture_quality", "colors", "fixtures", "REAL"));
     queries.append(getCreateItemListTableQuery("color_raws", "colors", "raws"));

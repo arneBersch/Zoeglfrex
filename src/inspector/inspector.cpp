@@ -118,6 +118,9 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                         infos.append(QString(AttributeIds::colorSaturation) + " Saturation: " + getNumberAttribute(table, "saturation", key, "%"));
                         infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "color_model_saturation", "%", key));
                         infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "color_fixture_saturation", "%", key));
+                        infos.append(QString(AttributeIds::colorTemperature) + " Temperature: " + getNumberAttribute(table, "temperature", key, "K"));
+                        infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "color_model_temperature", "K", key));
+                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "color_fixture_temperature", "K", key));
                         infos.append(QString(AttributeIds::colorQuality) + " Quality: " + getNumberAttribute(table, "quality", key, "%"));
                         infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "color_model_quality", "%", key));
                         infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "color_fixture_quality", "%", key));
