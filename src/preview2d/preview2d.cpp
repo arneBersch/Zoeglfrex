@@ -50,6 +50,7 @@ void Preview2d::setFixtures(QHash<int, PreviewData> previewData) {
         fixture->pan = data.pan;
         fixture->tilt = data.tilt;
         fixture->zoom = data.zoom;
+        fixture->isSelected = data.isSelected;
     }
     for (FixtureGraphicsItem* fixture : oldFixtures.values()) {
         delete fixture;

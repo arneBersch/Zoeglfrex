@@ -21,6 +21,7 @@ public:
     int pan = 0;
     int tilt = 0;
     int zoom = 0;
+    bool isSelected = false;
 private:
     const int ellipseWidth = 50;
     const int maxBeamLength = 150;

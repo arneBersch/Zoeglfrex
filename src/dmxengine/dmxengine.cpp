@@ -315,6 +315,7 @@ void DmxEngine::generateDmx() {
         previewFixture.pan = position.getPanAngle();
         previewFixture.tilt = position.getTiltAngle();
         previewFixture.zoom = position.getZoomAngle();
+        previewFixture.isSelected = currentFixtureKeys.contains(fixtureKey);
         previewFixtures[fixtureKey] = previewFixture;
 
         if (address > 0) {

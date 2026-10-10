@@ -25,6 +25,7 @@ public:
         float pan;
         float tilt;
         float zoom;
+        bool isSelected;
     };
 public slots:
     void setFixtures(QHash<int, PreviewData> fixtures);

@@ -163,15 +163,15 @@ QVariant CuelistTableModel::data(const QModelIndex &index, int role) const {
             return row.effects;
         }
     } else if (role == Qt::BackgroundRole) {
-        if ((column == 1) && row.intensityChanged) {
+        if (column == 1 && row.intensityChanged) {
             return QColor(96, 96, 96);
-        } else if ((column == 2) && row.colorChanged) {
+        } else if (column == 2 && row.colorChanged) {
             return QColor(96, 96, 96);
-        } else if ((column == 3) && row.positionChanged) {
+        } else if (column == 3 && row.positionChanged) {
             return QColor(96, 96, 96);
-        } else if ((column == 4) && row.rawsChanged) {
+        } else if (column == 4 && row.rawsChanged) {
             return QColor(96, 96, 96);
-        } else if ((column == 5) && row.effectsChanged) {
+        } else if (column == 5 && row.effectsChanged) {
             return QColor(96, 96, 96);
         } else if (row.key == currentKey) {
             return QColor(48, 48, 48);
