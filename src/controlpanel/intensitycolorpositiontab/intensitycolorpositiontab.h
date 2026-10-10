@@ -30,6 +30,7 @@ private:
     AttributePanel* intensityDimmerPanel;
     AttributePanel* colorHuePanel;
     AttributePanel* colorSaturationPanel;
+    AttributePanel* colorTemperaturePanel;
     AttributePanel* positionPanPanel;
     AttributePanel* positionTiltPanel;
     AttributePanel* positionZoomPanel;

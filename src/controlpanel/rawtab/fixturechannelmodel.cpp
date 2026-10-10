@@ -106,6 +106,8 @@ void FixtureChannelModel::setRawKey(const int raw) {
             channel.title.append("Hue");
         } else if (channelChar == QChar('S')) {
             channel.title.append("Saturation");
+        } else if (channelChar == QChar('K')) {
+            channel.title.append("CCT");
         } else if (channelChar == QChar('P')) {
             channel.title.append("Pan");
         } else if (channelChar == QChar('T')) {

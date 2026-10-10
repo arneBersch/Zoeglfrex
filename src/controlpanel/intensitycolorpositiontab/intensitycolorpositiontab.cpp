@@ -36,6 +36,10 @@ IntensityColorPositionTab::IntensityColorPositionTab(QWidget *parent) : QWidget(
     connect(colorSaturationPanel, &AttributePanel::dbChanged, this, &IntensityColorPositionTab::dbChanged);
     colorAttributesLayout->addWidget(colorSaturationPanel);
 
+    colorTemperaturePanel = new AttributePanel("colors", "temperature", "cue_group_colors", "color_model_temperature", "color_fixture_temperature", "Temperature", "K", 1500, 12000, false);
+    connect(colorTemperaturePanel, &AttributePanel::dbChanged, this, &IntensityColorPositionTab::dbChanged);
+    colorAttributesLayout->addWidget(colorTemperaturePanel);
+
     positionLabel = new QLabel();
     positionLabel->setAlignment(Qt::AlignCenter);
     layout->addWidget(positionLabel, 0, 2);
@@ -87,6 +91,7 @@ void IntensityColorPositionTab::reload() {
     intensityDimmerPanel->reload(intensityKey, modelKey, fixtureKey);
     colorHuePanel->reload(colorKey, modelKey, fixtureKey);
     colorSaturationPanel->reload(colorKey, modelKey, fixtureKey);
+    colorTemperaturePanel->reload(colorKey, modelKey, fixtureKey);
     positionPanPanel->reload(positionKey, modelKey, fixtureKey);
     positionTiltPanel->reload(positionKey, modelKey, fixtureKey);
     positionZoomPanel->reload(positionKey, modelKey, fixtureKey);

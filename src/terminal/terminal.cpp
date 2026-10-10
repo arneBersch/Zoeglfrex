@@ -110,7 +110,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
         attributes.insert(new TextAttribute(type, AttributeIds::label, "Label", "label", "", this));
     }
 
-    attributes.insert(new TextAttribute(ItemType::model(), AttributeIds::modelChannels, "Channels", "channels", "^[01DdRrGgBbWwCcMmYyHhSsPpTtZzFf]+$", this));
+    attributes.insert(new TextAttribute(ItemType::model(), AttributeIds::modelChannels, "Channels", "channels", "^[01DdRrGgBbWwCcMmYyHhSsKkPpTtZzFf]+$", this));
     attributes.insert(new IntegerSpecificNumberAttribute(ItemType::model(), AttributeIds::modelChannelColorTemperatures, "Channel Color Temperatures", "model_channel_colortemperatures", NumberType::channel(), NumberType::colorTemperature()));
     attributes.insert(new NumberAttribute(ItemType::model(), AttributeIds::modelPanRange, "Pan Range", "panrange", NumberType::panRange()));
     attributes.insert(new NumberAttribute(ItemType::model(), AttributeIds::modelTiltRange, "Tilt Range", "tiltrange", NumberType::tiltRange()));
