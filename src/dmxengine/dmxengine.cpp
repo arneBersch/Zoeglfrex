@@ -368,7 +368,7 @@ void DmxEngine::generateDmx() {
                         } else if (channelType == QChar('S')) { // Saturation
                             value = color.getSaturation();
                         } else if (channelType == QChar('K')) { // CCT
-                            value = (float)color.getCCT() / 255;
+                            value = (float)color.getCCT(fixtureKey) / 255;
                         } else if (channelType == QChar('P')) { // Pan
                             value = position.getPan(fixtureKey, panRange, rotation, invertPan);
                         } else if (channelType == QChar('T')) { // Tilt
