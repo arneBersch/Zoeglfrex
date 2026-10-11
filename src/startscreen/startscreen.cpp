@@ -137,7 +137,7 @@ QList<QString> StartScreen::getCreateFileQueries() {
         },
         {"key"}
     ));
-    queries.append(getCreateIntegerSpecificNumberTableQuery("model_channel_colortemperatures", "models", "REAL"));
+    queries.append(getCreateIntegerSpecificNumberTableQuery("model_cctvalue_colortemperatures", "models", "REAL"));
 
     queries.append(getCreateTableQuery(
         "fixtures",

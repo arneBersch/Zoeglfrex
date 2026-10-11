@@ -92,7 +92,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append(QString(AttributeIds::label) + " Label: " + getTextAttribute(table, "label", key));
                     if (table == "models") {
                         infos.append(QString(AttributeIds::modelChannels) + " Channels: " + getTextAttribute(table, "channels", key));
-                        infos.append(QString(AttributeIds::modelChannelColorTemperatures) + " Channel Color Temperatures: " + getIntegerSpecificNumberAttribute("model_channel_colortemperatures", key, "K"));
+                        infos.append(QString(AttributeIds::modelChannelColorTemperatures) + " CCT Value Color Temperatures: " + getIntegerSpecificNumberAttribute("model_cctvalue_colortemperatures", key, " K"));
                         infos.append(QString(AttributeIds::modelPanRange) + " Pan Range: " + getNumberAttribute(table, "panrange", key, "°"));
                         infos.append(QString(AttributeIds::modelTiltRange) + " Tilt Range: " + getNumberAttribute(table, "tiltrange", key, "°"));
                         infos.append(QString(AttributeIds::modelMinZoom) + " Minimal Zoom: " + getNumberAttribute(table, "minzoom", key, "°"));
@@ -119,9 +119,9 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                         infos.append(QString(AttributeIds::colorSaturation) + " Saturation: " + getNumberAttribute(table, "saturation", key, "%"));
                         infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "color_model_saturation", "%", key));
                         infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "color_fixture_saturation", "%", key));
-                        infos.append(QString(AttributeIds::colorTemperature) + " Temperature: " + getNumberAttribute(table, "temperature", key, "K"));
-                        infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "color_model_temperature", "K", key));
-                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "color_fixture_temperature", "K", key));
+                        infos.append(QString(AttributeIds::colorTemperature) + " Temperature: " + getNumberAttribute(table, "temperature", key, " K"));
+                        infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "color_model_temperature", " K", key));
+                        infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "color_fixture_temperature", " K", key));
                         infos.append(QString(AttributeIds::colorQuality) + " Quality: " + getNumberAttribute(table, "quality", key, "%"));
                         infos.append("   Model Exceptions: " + getItemSpecificNumberAttribute("models", "color_model_quality", "%", key));
                         infos.append("   Fixture Exceptions: " + getItemSpecificNumberAttribute("fixtures", "color_fixture_quality", "%", key));

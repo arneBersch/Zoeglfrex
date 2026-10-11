@@ -12,8 +12,16 @@ ColorData::ColorData() {}
 
 ColorData::ColorData(const int fixtureKey, const int colorKey) {
     const float hue = getFixtureValue(fixtureKey, colorKey, "colors", "hue", "color_model_hue", "color_fixture_hue");
-    const float saturation = getFixtureValue(fixtureKey, colorKey, "colors", "saturation", "color_model_saturation", "color_fixture_saturation") / 100;
+    const float saturation = getFixtureValue(fixtureKey, colorKey, "colors", "saturation", "color_model_saturation", "color_fixture_saturation");
+    calculateRGB(hue, saturation / 100);
 
+    quality = getFixtureValue(fixtureKey, colorKey, "colors", "quality", "color_model_quality", "color_fixture_quality") / 100;
+
+    const float colorTemperature = getFixtureValue(fixtureKey, colorKey, "colors", "temperature", "color_model_temperature", "color_fixture_temperature");
+    calculateCCT(fixtureKey, colorTemperature);
+}
+
+void ColorData::calculateRGB(const float hue, const float saturation) {
     const int h = hue / 60;
     const float f = (hue / 60) - h;
     const float p = 1 - saturation;
@@ -45,8 +53,37 @@ ColorData::ColorData(const int fixtureKey, const int colorKey) {
         green = p;
         blue = q;
     }
+}
 
-    quality = getFixtureValue(fixtureKey, colorKey, "colors", "quality", "color_model_quality", "color_fixture_quality") / 100;
+void ColorData::calculateCCT(const int fixtureKey, const float colorTemperature) {
+    float minTemperatureDifference = -1;
+    uint8_t lastDmxValue = 0;
+    float lastDmxTemperature = 0;
+    QSqlQuery query;
+    query.prepare("SELECT model_cctvalue_colortemperatures.key, model_cctvalue_colortemperatures.value FROM fixtures, model_cctvalue_colortemperatures WHERE fixtures.key = :fixture AND model_cctvalue_colortemperatures.item_key = fixtures.model_key ORDER BY model_cctvalue_colortemperatures.key");
+    query.bindValue(":fixture", fixtureKey);
+    if (query.exec()) {
+        while (query.next()) {
+            const uint8_t dmxValue = query.value(0).toInt();
+            const float dmxTemperature = query.value(1).toFloat();
+            if (minTemperatureDifference > 0 && std::min(lastDmxTemperature, dmxTemperature) <= colorTemperature && colorTemperature <= std::max(lastDmxTemperature, dmxTemperature)) {
+                const uint8_t middleDmxValue = (float)lastDmxValue + (float)(dmxValue - lastDmxValue) * (colorTemperature - lastDmxTemperature) / (dmxTemperature - lastDmxTemperature) + 0.5;
+                const float middleDmxTemperature = lastDmxTemperature + (dmxTemperature - lastDmxTemperature) * (middleDmxValue - lastDmxValue) / (dmxValue - lastDmxValue);
+                if (std::abs(colorTemperature - middleDmxTemperature) < minTemperatureDifference) {
+                    cct = middleDmxValue;
+                    minTemperatureDifference = std::abs(colorTemperature - middleDmxTemperature);
+                }
+            }
+            if (minTemperatureDifference < 0 || std::abs(colorTemperature - dmxTemperature) < minTemperatureDifference) {
+                cct = dmxValue;
+                minTemperatureDifference = std::abs(colorTemperature - dmxTemperature);
+            }
+            lastDmxValue = dmxValue;
+            lastDmxTemperature = dmxTemperature;
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << query.executedQuery() << query.lastError().text();
+    }
 }
 
 void ColorData::fade(const ColorData lastColor, const float fade) {
@@ -141,6 +178,10 @@ float ColorData::getSaturation() const {
     }
 
     return 1 - (min / max);
+}
+
+uint8_t ColorData::getCCT() const {
+    return cct;
 }
 
 void ColorData::dim(const float dimmer) {

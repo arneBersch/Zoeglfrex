@@ -341,7 +341,7 @@ void DmxEngine::generateDmx() {
                     }
                     const bool whiteChannelGiven = channels.contains('W');
 
-                    for (int channel = address; channel < (address + channels.size()); channel++) {
+                    for (int channel = address; channel < address + channels.size() && channel <= 512; channel++) {
                         QChar channelType = channels.at(channel - address);
                         const bool fine = channelType != channelType.toUpper();
                         channelType = channelType.toUpper();
@@ -367,6 +367,8 @@ void DmxEngine::generateDmx() {
                             value = color.getHue();
                         } else if (channelType == QChar('S')) { // Saturation
                             value = color.getSaturation();
+                        } else if (channelType == QChar('K')) { // CCT
+                            value = (float)color.getCCT() / 255;
                         } else if (channelType == QChar('P')) { // Pan
                             value = position.getPan(fixtureKey, panRange, rotation, invertPan);
                         } else if (channelType == QChar('T')) { // Tilt
@@ -385,13 +387,11 @@ void DmxEngine::generateDmx() {
                         Q_ASSERT(value <= 1);
                         Q_ASSERT(value >= 0);
 
-                        if (channel <= 512) {
-                            value *= 65535;
-                            if (fine) {
-                                dmxUniverses[universe][channel - 1] = (uint8_t)((int)value % 256);
-                            } else {
-                                dmxUniverses[universe][channel - 1] = (uint8_t)((int)value / 256);
-                            }
+                        value *= 65535;
+                        if (fine) {
+                            dmxUniverses[universe][channel - 1] = (uint8_t)((int)value % 256);
+                        } else {
+                            dmxUniverses[universe][channel - 1] = (uint8_t)((int)value / 256);
                         }
                     }
                     const QHash<int, uint8_t> rawChannels = raws.getChannels();

@@ -28,11 +28,15 @@ public:
     float getWhite() const;
     float getHue() const;
     float getSaturation() const;
+    uint8_t getCCT() const;
 private:
     float red = 1; // 0 <= red <= 1
     float green = 1; // 0 <= green <= 1
     float blue = 1; // 0 <= blue <= 1
     float quality = 1; // 0 <= quality <= 1
+    uint8_t cct = 0;
+    void calculateRGB(float hue, float saturation);
+    void calculateCCT(int fixtureKey, float colorTemperature);
 };
 
 #endif // COLORDATA_H

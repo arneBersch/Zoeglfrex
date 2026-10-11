@@ -36,7 +36,7 @@ IntensityColorPositionTab::IntensityColorPositionTab(QWidget *parent) : QWidget(
     connect(colorSaturationPanel, &AttributePanel::dbChanged, this, &IntensityColorPositionTab::dbChanged);
     colorAttributesLayout->addWidget(colorSaturationPanel);
 
-    colorTemperaturePanel = new AttributePanel("colors", "temperature", "cue_group_colors", "color_model_temperature", "color_fixture_temperature", "Temperature", "K", 1500, 12000, false);
+    colorTemperaturePanel = new AttributePanel("colors", "temperature", "cue_group_colors", "color_model_temperature", "color_fixture_temperature", "Temperature", " K", 1500, 12000, false);
     connect(colorTemperaturePanel, &AttributePanel::dbChanged, this, &IntensityColorPositionTab::dbChanged);
     colorAttributesLayout->addWidget(colorTemperaturePanel);
 
