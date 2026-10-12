@@ -117,12 +117,12 @@ float ColorData::getHue() const {
     }
 
     float hue;
-    if (max >= red) {
+    if (max == red) {
         hue = (green - blue) / (max - min);
-    } else if (max >= green) {
+    } else if (max == green) {
         hue = (blue - red) / (max - min);
         hue += 2;
-    } else if (max >= blue) {
+    } else if (max == blue) {
         hue = (red - green) / (max - min);
         hue += 4;
     } else {
