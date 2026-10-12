@@ -26,7 +26,7 @@ const char* const id = "0";
 const char* const label = "1";
 
 const char* const modelChannels = "2";
-const char* const modelChannelColorTemperatures = "3";
+const char* const modelCCTValueColorTemperatures = "3";
 const char* const modelPanRange = "4.1";
 const char* const modelTiltRange = "4.2";
 const char* const modelMinZoom = "5.1";

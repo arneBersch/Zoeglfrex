@@ -92,7 +92,7 @@ void Inspector::loadItems(const QString itemName, const QStringList ids) {
                     infos.append(QString(AttributeIds::label) + " Label: " + getTextAttribute(table, "label", key));
                     if (table == "models") {
                         infos.append(QString(AttributeIds::modelChannels) + " Channels: " + getTextAttribute(table, "channels", key));
-                        infos.append(QString(AttributeIds::modelChannelColorTemperatures) + " CCT Value Color Temperatures: " + getIntegerSpecificNumberAttribute("model_cctvalue_colortemperatures", key, " K"));
+                        infos.append(QString(AttributeIds::modelCCTValueColorTemperatures) + " CCT Value Color Temperatures: " + getIntegerSpecificNumberAttribute("model_cctvalue_colortemperatures", key, " K"));
                         infos.append(QString(AttributeIds::modelPanRange) + " Pan Range: " + getNumberAttribute(table, "panrange", key, "°"));
                         infos.append(QString(AttributeIds::modelTiltRange) + " Tilt Range: " + getNumberAttribute(table, "tiltrange", key, "°"));
                         infos.append(QString(AttributeIds::modelMinZoom) + " Minimal Zoom: " + getNumberAttribute(table, "minzoom", key, "°"));

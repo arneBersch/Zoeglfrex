@@ -132,6 +132,7 @@ Instead, it will open a popup where you can insert the Model's channels. These c
 - h (Hue fine)
 - S (Saturation)
 - s (Saturation fine)
+- K (CCT)
 - P (Pan)
 - p (Pan fine)
 - T (Tilt)
@@ -145,19 +146,28 @@ Instead, it will open a popup where you can insert the Model's channels. These c
 
 So, for example, if you want to add a generic RGB Model, you need to type 'RGB' into the popup.
 
-### Model Attribute 3.1 Set (Pan Range)
+### Model Attribute 3.x Set (CCT Value Color Temperatures)
+This command sets the color temperature (in Kelvin) of the CCT channel value x in the selected Models:
+```
+Model 1 + 2 Attribute 3.7 Set 6500
+```
+This example would set that the color temperature of the Models at DMX value 7 is 6500 K.
+
+The CCT channel value x has to be between 0 and 255.
+
+### Model Attribute 4.1 Set (Pan Range)
 If your Model supports the Pan Attribute, you should set its Pan Range so that Positions are rendered correctly.
 The Pan Range is given in degree.
 
-### Model Attribute 3.2 Set (Tilt Range)
+### Model Attribute 4.2 Set (Tilt Range)
 If your Model supports the Tilt Attribute, you should set its Tilt Range so that Positions are rendered correctly.
 The Tilt Range is given in degree.
 
-### Model Attribute 4.1 Set (Minimal Zoom)
+### Model Attribute 5.1 Set (Minimal Zoom)
 If your Model supports the Zoom Attribute, you should set its Minimal and Maximal Zoom so that the Zoom can be rendered correctly.
 This value is given in degree.
 
-### Model Attribute 4.2 Set (Maximal Zoom)
+### Model Attribute 5.2 Set (Maximal Zoom)
 If your Model supports the Zoom Attribute, you should set its Minimal and Maximal Zoom so that the Zoom can be rendered correctly.
 This value is given in degree.
 
@@ -326,7 +336,14 @@ The value is given in percent.
 > [!TIP]
 > For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2.
 
-### Color Attribute 4 Set (Quality)
+### Color Attribute 4 Set (Temperature)
+This command sets the Color Temperature of the selected Colors.
+The value is given in Kelvin.
+
+> [!TIP]
+> For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2.
+
+### Color Attribute 5 Set (Quality)
 This command sets the quality of the selected Colors.
 The value is given in percent:
 ```
@@ -339,7 +356,7 @@ The color white can be producted with only the white LEDs turned on (Quality = 1
 > [!TIP]
 > For this Attribute, you can also give Model and Fixture exceptions or set a difference, just like with Intensity Attribute 2.
 
-### Color Attribute 5 Set (Raws)
+### Color Attribute 6 Set (Raws)
 This command allows you to set Raws which will be called together with the Color:
 ```
 Color 1 Attribute 5 Set Raw 1 + 2 + 3
@@ -407,7 +424,7 @@ This command sets the value of channel x in the selected Raws:
 ```
 Raw 1 + 2 Attribute 2.7 Set 213
 ```
-This example would set channel 7 of the Fixtures the Raw is applied to to the DMX value 213.
+This example would set channel 7 of the Fixtures the Raw is applied to the DMX value 213.
 
 The channel x has to be between 1 and 512.
 The value has to be between 0 and 255.
