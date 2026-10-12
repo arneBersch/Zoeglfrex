@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
     QTextStream styleSheetStream(&styleSheet);
     app.setStyleSheet(styleSheetStream.readAll());
 
+    app.setWheelScrollLines(1);
+
     new StartScreen();
 
     return app.exec();

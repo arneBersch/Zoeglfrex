@@ -15,7 +15,7 @@
 class AttributePanel : public QWidget {
     Q_OBJECT
 public:
-    AttributePanel(QString table, QString attribute, QString valueTable, QString modelValueTable, QString fixtureValeTable, QString title, QString unit, int minValue, int maxValue, bool cyclic, QWidget *parent = nullptr);
+    AttributePanel(QString table, QString attribute, QString valueTable, QString modelValueTable, QString fixtureValeTable, QString title, QString unit, int minValue, int maxValue, int stepSize, bool cyclic, QWidget *parent = nullptr);
 public slots:
     void reload(int key, int modelKey, int fixtureKey);
 signals:

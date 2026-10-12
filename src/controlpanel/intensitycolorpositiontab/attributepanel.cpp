@@ -8,7 +8,7 @@
 
 #include "attributepanel.h"
 
-AttributePanel::AttributePanel(const QString itemTable, const QString tableAttribute, const QString value, const QString modelTable, const QString fixtureTable, const QString title, const QString attributeUnit, const int minValue, const int maxValue, const bool cyclicValue, QWidget *parent) : QWidget(parent) {
+AttributePanel::AttributePanel(const QString itemTable, const QString tableAttribute, const QString value, const QString modelTable, const QString fixtureTable, const QString title, const QString attributeUnit, const int minValue, const int maxValue, const int stepSize, const bool cyclicValue, QWidget *parent) : QWidget(parent) {
     table = itemTable;
     attribute = tableAttribute;
     valueTable = value;
@@ -40,6 +40,8 @@ AttributePanel::AttributePanel(const QString itemTable, const QString tableAttri
     valueDial = new QDial();
     valueDial->setWrapping(cyclicValue);
     valueDial->setRange(minValue, maxValue);
+    valueDial->setSingleStep(stepSize);
+    valueDial->setPageStep(10 * stepSize);
     connect(valueDial, &QDial::valueChanged, this, &AttributePanel::setValue);
     layout->addWidget(valueDial);
 }
