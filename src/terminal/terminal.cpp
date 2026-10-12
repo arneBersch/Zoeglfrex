@@ -138,7 +138,7 @@ Terminal::Terminal(QWidget *parent) : QWidget(parent) {
     attributes.insert(new NumberAttribute(ItemType::color(), AttributeIds::colorSaturation, "Saturation", "saturation", NumberType::percentage()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::color(), AttributeIds::colorSaturation, "Saturation Model Exception", ItemType::model(), "color_model_saturation", NumberType::percentage()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::color(), AttributeIds::colorSaturation, "Saturation Fixture Exception", ItemType::fixture(), "color_fixture_saturation", NumberType::percentage()));
-    attributes.insert(new NumberAttribute(ItemType::color(), AttributeIds::colorTemperature, "Temperature", "temperature", NumberType::percentage()));
+    attributes.insert(new NumberAttribute(ItemType::color(), AttributeIds::colorTemperature, "Temperature", "temperature", NumberType::colorTemperature()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::color(), AttributeIds::colorTemperature, "Temperature Model Exception", ItemType::model(), "color_model_temperature", NumberType::colorTemperature()));
     attributes.insert(new ItemSpecificNumberAttribute(ItemType::color(), AttributeIds::colorTemperature, "Temperature Fixture Exception", ItemType::fixture(), "color_fixture_temperature", NumberType::colorTemperature()));
     attributes.insert(new NumberAttribute(ItemType::color(), AttributeIds::colorQuality, "Quality", "quality", NumberType::percentage()));
